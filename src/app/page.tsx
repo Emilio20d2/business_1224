@@ -106,7 +106,7 @@ export default function Home() {
     <div className="min-h-screen w-full p-4 sm:p-6 bg-background">
       <header className="mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
         <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-          Insight Board
+          BUSSINES MAN
         </h1>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
