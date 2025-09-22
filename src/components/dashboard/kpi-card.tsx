@@ -29,9 +29,10 @@ type DatoDobleProps = {
   unit?: string;
   isEditing?: boolean;
   valueId?: string;
+  variationId?: string;
 };
 
-export function DatoDoble({ label, value, variation, unit, isEditing, valueId }: DatoDobleProps) {
+export function DatoDoble({ label, value, variation, unit, isEditing, valueId, variationId }: DatoDobleProps) {
   const trendColor = variation === undefined ? '' : variation >= 0 ? 'text-green-600 bg-green-100 dark:text-green-200 dark:bg-green-900/50' : 'text-red-600 bg-red-100 dark:text-red-200 dark:bg-red-900/50';
 
   return (
@@ -44,9 +45,13 @@ export function DatoDoble({ label, value, variation, unit, isEditing, valueId }:
            <div className="text-2xl font-bold">{value}{unit}</div>
         )}
         {variation !== undefined && (
-          <span className={cn("rounded-md px-2 py-1 text-sm font-bold", trendColor)}>
-            {variation >= 0 ? '+' : ''}{variation.toLocaleString('es-ES')}%
-          </span>
+          isEditing ? (
+             <Input type="number" inputMode="decimal" defaultValue={variation} className="w-16 h-8" id={variationId}/>
+          ) : (
+            <span className={cn("rounded-md px-2 py-1 text-sm font-bold", trendColor)}>
+              {variation >= 0 ? '+' : ''}{variation.toLocaleString('es-ES')}%
+            </span>
+          )
         )}
       </div>
     </div>
@@ -68,24 +73,24 @@ export function DatoSimple({ label, value, isEditing, valueId, className, icon, 
     const renderValue = () => {
         if (typeof value === 'object') return value;
         
-        if (typeof value === 'string' && value.includes(' / ')) {
-            const parts = value.split(' / ');
+        const stringValue = String(value);
+
+        if (stringValue.includes(' / ')) {
+            const parts = stringValue.split(' / ');
             const firstPart = parts[0] || '';
             const secondPart = parts[1] || '';
 
-            const firstValue = parseFloat(firstPart.replace(/[^0-9.,-]+/g, '').replace(',', '.'));
-            
             return (
-                <div className="font-semibold text-center flex flex-col items-center justify-center gap-0 text-lg">
-                    <span className={firstValue >= 0 ? 'text-green-600' : 'text-red-600'}>{firstPart}</span>
-                    <span className="font-semibold">{secondPart}</span>
+                <div className="flex flex-row items-center justify-center gap-2">
+                    <span>{firstPart}</span>
+                    <span>{secondPart}</span>
                 </div>
             );
         }
         
-        if (typeof value === 'string' && value.includes('Unid.')) {
-             const mainValue = value.substring(0, value.indexOf('Unid.') + 5);
-             const percentage = value.substring(value.indexOf('Unid.') + 5);
+        if (stringValue.includes('Unid.')) {
+             const mainValue = stringValue.substring(0, stringValue.indexOf('Unid.') + 5);
+             const percentage = stringValue.substring(stringValue.indexOf('Unid.') + 5);
              return <div className="font-semibold text-center text-lg">{mainValue} <span className="text-muted-foreground text-base">{percentage.trim()}</span></div>
         }
 
@@ -116,7 +121,7 @@ export function DatoSimple({ label, value, isEditing, valueId, className, icon, 
                 {icon}
                 {label && label}
               </span>
-              {isEditing ? <Input type="text" defaultValue={String(value).replace(/[^0-p-9.]+/g, '')} className="w-24 h-8 self-center" id={valueId}/> : <div className={valueAlignmentClasses[align]}>{renderValue()}</div>}
+              {isEditing ? <Input type="text" defaultValue={String(value).replace(/[^0-p-9.%]+/g, '')} className="w-24 h-8 self-center" id={valueId}/> : <div className={valueAlignmentClasses[align]}>{renderValue()}</div>}
             </div>
         </div>
     );

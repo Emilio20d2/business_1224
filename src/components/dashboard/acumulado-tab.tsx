@@ -40,6 +40,7 @@ const AcumuladoCard = ({ title, data, isEditing, idPrefix }: { title: string, da
         variation={data.varPorcTotal}
         isEditing={isEditing}
         valueId={`${idPrefix}-total-euros`}
+        variationId={`${idPrefix}-var-total`}
       />
       
       <div className="h-48 w-full">
@@ -94,9 +95,9 @@ const AcumuladoCard = ({ title, data, isEditing, idPrefix }: { title: string, da
 
                  {isEditing ? (
                   <>
-                    <Input type="number" defaultValue={item.totalEuros} className="w-full text-right" id={`${idPrefix}-desglose${index}-euros`} />
-                    <Input type="number" step="0.1" defaultValue={item.varPorc} className="w-full text-right" id={`${idPrefix}-desglose${index}-var`} />
-                    <Input type="number" step="0.1" defaultValue={item.pesoPorc} className="w-full text-right" id={`${idPrefix}-desglose${index}-peso`} />
+                    <Input type="number" defaultValue={item.totalEuros} className="w-full text-right" id={`${idPrefix}-desglose-${index}-euros`} />
+                    <Input type="number" step="0.1" defaultValue={item.varPorc} className="w-full text-right" id={`${idPrefix}-desglose-${index}-var`} />
+                    <Input type="number" step="0.1" defaultValue={item.pesoPorc} className="w-full text-right" id={`${idPrefix}-desglose-${index}-peso`} />
                   </>
                  ) : (
                   <>
