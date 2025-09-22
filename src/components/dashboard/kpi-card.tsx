@@ -65,15 +65,17 @@ type DatoSimpleProps = {
 export function DatoSimple({ label, value, isEditing, valueId, className }: DatoSimpleProps) {
     const renderValue = () => {
         if (typeof value === 'object') return value;
-        if (typeof value === 'string' && (value.includes('€') || value.includes('Unid.'))) {
+        if (typeof value === 'string' && (value.includes('€') || value.includes('Unid.') || value.includes('%'))) {
             const parts = value.split(' / ');
-            return (
-                <span className="font-semibold">
-                    <span className={parseFloat(parts[0].replace(/[^0-9.,-]+/g, '').replace(',', '.')) >= 0 ? 'text-green-600' : 'text-red-600'}>{parts[0]}</span>
-                    {' / '}
-                    <span className={parseFloat(parts[1].replace(/[^0-9.,-]+/g, '').replace(',', '.')) >= 0 ? 'text-green-600' : 'text-red-600'}>{parts[1]}</span>
-                </span>
-            );
+            if (parts.length > 1) {
+              return (
+                  <span className="font-semibold">
+                      <span className={parseFloat(parts[0].replace(/[^0-9.,-]+/g, '').replace(',', '.')) >= 0 ? 'text-green-600' : 'text-red-600'}>{parts[0]}</span>
+                      {' / '}
+                      {parts[1] && <span className={parseFloat(parts[1].replace(/[^0-9.,-]+/g, '').replace(',', '.')) >= 0 ? 'text-green-600' : 'text-red-600'}>{parts[1]}</span>}
+                  </span>
+              );
+            }
         }
         return <strong className="font-semibold">{value}</strong>;
     }
