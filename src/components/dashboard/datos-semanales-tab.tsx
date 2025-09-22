@@ -53,9 +53,9 @@ const FilaModulo = ({ icon, label, value }: { icon: React.ReactNode, label: stri
 
 export function DatosSemanalesTab({ data, isEditing }: DatosSemanalesTabProps) {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-6 gap-6 mt-4">
+    <div className="grid grid-cols-1 md:grid-cols-6 gap-6 mt-4">
       {/* Ventas */}
-      <KpiCard title="Ventas" icon={<Euro className="h-5 w-5 text-primary" />} className="lg:col-span-2">
+      <KpiCard title="Ventas" icon={<Euro className="h-5 w-5 text-primary" />} className="md:col-span-2">
         <DatoDoble 
           value={formatCurrency(data.ventas.totalEuros)} 
           variation={data.ventas.varPorcEuros} 
@@ -72,7 +72,7 @@ export function DatosSemanalesTab({ data, isEditing }: DatosSemanalesTabProps) {
       </KpiCard>
 
       {/* Rendimiento de Tienda */}
-      <KpiCard title="Rendimiento de Tienda" icon={<ChartLine className="h-5 w-5 text-primary" />} className="lg:col-span-4">
+      <KpiCard title="Rendimiento de Tienda" icon={<ChartLine className="h-5 w-5 text-primary" />} className="md:col-span-4">
         <div className="grid grid-cols-2 gap-x-8 gap-y-4">
         <DatoDoble 
           label="Tráfico" 
@@ -92,7 +92,7 @@ export function DatosSemanalesTab({ data, isEditing }: DatosSemanalesTabProps) {
       </KpiCard>
 
       {/* Operaciones y Sistema */}
-      <KpiCard title="Operaciones y Sistema" icon={<Receipt className="h-5 w-5 text-primary" />} className="lg:col-span-3">
+      <KpiCard title="Operaciones y Sistema" icon={<Receipt className="h-5 w-5 text-primary" />} className="md:col-span-3">
         <div className="grid grid-cols-2 gap-x-8 gap-y-4">
             <DatoSimple label="Filas Caja" value={`${formatPercentage(data.operaciones.filasCajaPorc)}`} isEditing={isEditing} valueId="input-op-filas-caja" />
             <DatoSimple label="SCO" value={`${formatPercentage(data.operaciones.scoPorc)}`} isEditing={isEditing} valueId="input-op-sco" />
@@ -104,7 +104,7 @@ export function DatosSemanalesTab({ data, isEditing }: DatosSemanalesTabProps) {
       </KpiCard>
       
       {/* Pérdidas */}
-      <KpiCard title="Pérdidas" icon={<AlertTriangle className="h-5 w-5 text-destructive" />} className="lg:col-span-3">
+      <KpiCard title="Pérdidas" icon={<AlertTriangle className="h-5 w-5 text-destructive" />} className="md:col-span-3">
         <div className="grid grid-cols-2 gap-6 pt-4">
           <DatoSimple 
               label="GAP" 
@@ -124,7 +124,7 @@ export function DatosSemanalesTab({ data, isEditing }: DatosSemanalesTabProps) {
       </KpiCard>
 
        {/* Gestión de Almacén y Logística */}
-      <KpiCard title="Gestión de Almacén y Logística" icon={<Warehouse className="h-5 w-5 text-primary" />} className="lg:col-span-6">
+      <KpiCard title="Gestión de Almacén y Logística" icon={<Warehouse className="h-5 w-5 text-primary" />} className="md:col-span-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <ModuloAlmacen title="Entradas">
             <ModuloContenidoGrande icon={<Truck className="h-8 w-8"/>} value={formatNumber(data.logistica.entradasSemanales)} />
