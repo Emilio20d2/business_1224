@@ -9,6 +9,7 @@ import {
   Warehouse,
   AlertTriangle,
 } from "lucide-react";
+import { AlmacenTab } from "./almacen-tab";
 
 type DatosSemanalesTabProps = {
   data: WeeklyData;
@@ -93,7 +94,7 @@ export function DatosSemanalesTab({ data, isEditing }: DatosSemanalesTabProps) {
       </KpiCard>
 
       {/* Pérdidas */}
-      <KpiCard title="Pérdidas" icon={<AlertTriangle className="h-5 w-5 text-destructive" />} className="lg:col-span-6">
+      <KpiCard title="Pérdidas" icon={<AlertTriangle className="h-5 w-5 text-destructive" />} className="lg:col-span-3">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <DatoSimple 
                 label="GAP" 
@@ -109,6 +110,11 @@ export function DatosSemanalesTab({ data, isEditing }: DatosSemanalesTabProps) {
             />
         </div>
       </KpiCard>
+      
+      {/* Almacenes */}
+      <div className="lg:col-span-3">
+         <AlmacenTab data={data.almacenes} isEditing={isEditing} />
+      </div>
     </div>
   );
 }

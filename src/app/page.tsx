@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DatosSemanalesTab } from "@/components/dashboard/datos-semanales-tab";
-import { AlmacenTab } from "@/components/dashboard/almacen-tab";
 import { Button } from '@/components/ui/button';
 import { analyzeWeeklyTrends } from '@/ai/flows/analyze-weekly-trends';
 import { WeeklyAnalysisOutput } from '@/ai/flows/analyze-weekly-trends';
@@ -23,6 +22,19 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
+import { startOfWeek, endOfWeek, subWeeks, format } from 'date-fns';
+import { es } from 'date-fns/locale';
+
+const getPreviousWeekRange = () => {
+    const today = new Date();
+    const lastWeek = subWeeks(today, 1);
+    const start = startOfWeek(lastWeek, { weekStartsOn: 1 }); // Lunes
+    const end = endOfWeek(lastWeek, { weekStartsOn: 1 }); // Domingo
+    return {
+      start: format(start, 'd MMM', { locale: es }),
+      end: format(end, 'd MMM, yyyy', { locale: es }),
+    };
+};
 
 
 export default function Home() {
@@ -32,6 +44,8 @@ export default function Home() {
   const [analysis, setAnalysis] = React.useState<WeeklyAnalysisOutput | null>(null);
   const [isLoadingAnalysis, setIsLoadingAnalysis] = React.useState(false);
 
+  const previousWeek = getPreviousWeekRange();
+  const weekLabel = `${previousWeek.start} - ${previousWeek.end}`;
 
   const handleWeekChange = (newWeek: string) => {
     setWeek(newWeek);
@@ -74,18 +88,17 @@ export default function Home() {
     <div className="min-h-screen w-full p-4 sm:p-6 bg-background">
       <header className="mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
         <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-          Insight Board
+          Business Man
         </h1>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
             <label htmlFor="semana-select" className="text-sm font-medium text-muted-foreground">Informe:</label>
-            <Select value={week} onValueChange={handleWeekChange}>
-              <SelectTrigger id="semana-select" className="w-[180px]">
-                <SelectValue placeholder="Seleccionar semana" />
+             <Select value="previous-week">
+              <SelectTrigger id="semana-select" className="w-[220px]">
+                <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="semana-24">Semana 24</SelectItem>
-                <SelectItem value="semana-23">Semana 23</SelectItem>
+                <SelectItem value="previous-week">{weekLabel}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -135,9 +148,8 @@ export default function Home() {
       
       <main>
         <Tabs defaultValue="datosSemanales">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 mb-4">
+          <TabsList className="grid w-full grid-cols-1 md:grid-cols-4 mb-4">
             <TabsTrigger value="datosSemanales">Datos Semanales</TabsTrigger>
-            <TabsTrigger value="almacenes">Almacenes</TabsTrigger>
             <TabsTrigger value="datosPorSeccion" disabled>Datos por Sección</TabsTrigger>
             <TabsTrigger value="ventasCaballero" disabled>Ventas Caballero</TabsTrigger>
             <TabsTrigger value="aqneSemanal" disabled>AQNE Semanal</TabsTrigger>
@@ -146,7 +158,7 @@ export default function Home() {
             <DatosSemanalesTab data={data} isEditing={isEditing} />
           </TabsContent>
           <TabsContent value="almacenes">
-            <AlmacenTab data={data.almacenes} isEditing={isEditing} />
+             {/* This content is now moved to DatosSemanalesTab */}
           </TabsContent>
         </Tabs>
       </main>
