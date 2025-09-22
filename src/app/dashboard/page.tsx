@@ -100,7 +100,7 @@ export default function DashboardPage() {
     }
   }, [user, authLoading, router]);
 
-  const listOptions = data ? {
+  const listOptions = data && data.listas ? {
     comprador: data.listas.comprador,
     zonaComercial: data.listas.zonaComercial,
     agrupacionComercial: data.listas.agrupacionComercial,
