@@ -97,10 +97,10 @@ export function DatosSemanalesTab({ data, isEditing }: DatosSemanalesTabProps) {
         />
       </KpiCard>
       
-      {/* Fila Central: 4x2 Grid */}
-      <div className="md:col-span-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+      {/* Fila Central: 5x2 Grid */}
+      <div className="md:col-span-6 grid grid-cols-1 md:grid-cols-5 gap-4">
         <KpiCard title="Caja" icon={<Receipt className="h-5 w-5 text-primary" />} className="md:col-span-2">
-            <div className="grid grid-cols-2 gap-x-8 gap-y-4">
+            <div className="grid grid-cols-1 gap-y-4">
                 <DatoSimple icon={<Clock />} label="Filas Caja" value={`${formatPercentage(data.operaciones.filasCajaPorc)}`} isEditing={isEditing} valueId="input-op-filas-caja" />
                 <DatoSimple icon={<ScanLine />} label="ACO" value={`${formatPercentage(data.operaciones.scoPorc)}`} isEditing={isEditing} valueId="input-op-sco" />
             </div>
@@ -123,18 +123,18 @@ export function DatosSemanalesTab({ data, isEditing }: DatosSemanalesTabProps) {
               align="center"
           />
         </KpiCard>
-
+        
+        <KpiCard title="V. Ipod" icon={<Smartphone className="h-5 w-5 text-primary" />}>
+            <DatoSimple value={formatNumber(data.operaciones.ventaIpod)} isEditing={isEditing} valueId="input-op-vipod" align="center"/>
+        </KpiCard>
+        
         <KpiCard title="Operaciones" icon={<Server className="h-5 w-5 text-primary" />} className="md:col-span-2">
-            <div className="grid grid-cols-2 gap-x-8 gap-y-4">
+            <div className="grid grid-cols-1 gap-y-4">
                 <DatoSimple icon={<CaseUpper />} label="SINT" value={formatNumber(data.operaciones.sint)} isEditing={isEditing} valueId="input-op-sint" />
                 <DatoSimple icon={<RefreshCw />} label="Repo" value={`${formatPercentage(data.operaciones.repoPorc)}`} isEditing={isEditing} valueId="input-op-repo" />
             </div>
         </KpiCard>
         
-        <KpiCard title="V. Ipod" icon={<Smartphone className="h-5 w-5 text-primary" />}>
-            <DatoSimple value={formatNumber(data.operaciones.ventaIpod)} isEditing={isEditing} valueId="input-op-vipod" align="center"/>
-        </KpiCard>
-
         <KpiCard title="E-Ticket" icon={<Ticket className="h-5 w-5 text-primary" />}>
             <DatoSimple value={`${formatPercentage(data.operaciones.eTicketPorc)}`} isEditing={isEditing} valueId="input-op-eticket" align="center" />
         </KpiCard>
