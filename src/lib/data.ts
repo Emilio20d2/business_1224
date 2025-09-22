@@ -113,7 +113,10 @@ export const datosSemanales = {
           { "nombre": "MAN", "pesoPorc": 30, "totalEuros": 20338, "varPorc": 28.2 },
           { "nombre": "GLOBAL", "pesoPorc": 30, "totalEuros": 20012, "varPorc": 2.4 },
           { "nombre": "CIRCULAR", "pesoPorc": 16, "totalEuros": 10436, "varPorc": -3.3 },
-          { "nombre": "DNWR", "pesoPorc": 14, "totalEuros": 9081, "varPorc": 6.5 }
+          { "nombre": "DNWR", "pesoPorc": 14, "totalEuros": 9081, "varPorc": 6.5 },
+          { "nombre": "SPORT", "pesoPorc": 5, "totalEuros": 3400, "varPorc": 15.1 },
+          { "nombre": "ACCES", "pesoPorc": 3, "totalEuros": 2050, "varPorc": -5.0 },
+          { "nombre": "BASIC", "pesoPorc": 2, "totalEuros": 1500, "varPorc": 12.0 }
       ],
       "zonaComercial": [
           { "nombre": "MAN FORMAL", "pesoPorc": 24, "totalEuros": 16235, "varPorc": 45.3 },
