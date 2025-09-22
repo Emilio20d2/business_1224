@@ -103,25 +103,29 @@ export function DatosSemanalesTab({ data, isEditing }: DatosSemanalesTabProps) {
         </div>
       </KpiCard>
       
-      {/* Pérdidas */}
-      <KpiCard title="Pérdidas" icon={<AlertTriangle className="h-5 w-5 text-destructive" />} className="md:col-span-3">
-        <div className="grid grid-cols-2 gap-6 pt-4">
-          <DatoSimple 
-              label="GAP" 
+      {/* Contenedor para Pérdidas */}
+      <div className="md:col-span-3 flex flex-col gap-6">
+        {/* GAP */}
+        <KpiCard title="GAP" icon={<AlertTriangle className="h-5 w-5 text-destructive" />}>
+           <DatoSimple 
+              label="Resultado"
               value={`${formatGap(data.perdidas.gap.euros, '€')} / ${formatGap(data.perdidas.gap.unidades, 'Unid.')}`} 
               isEditing={isEditing}
               valueId="input-perdidas-gap"
               align="center"
           />
-          <DatoSimple 
-              label="Merma" 
+        </KpiCard>
+        {/* Merma */}
+         <KpiCard title="Merma" icon={<AlertTriangle className="h-5 w-5 text-destructive" />}>
+           <DatoSimple 
+              label="Resultado" 
               value={`${formatNumber(data.perdidas.merma.unidades)} Unid. (${formatPercentage(data.perdidas.merma.porcentaje)})`}
               isEditing={isEditing}
               valueId="input-perdidas-merma"
               align="center"
           />
-        </div>
-      </KpiCard>
+        </KpiCard>
+      </div>
 
        {/* Gestión de Almacén y Logística */}
       <KpiCard title="Gestión de Almacén y Logística" icon={<Warehouse className="h-5 w-5 text-primary" />} className="md:col-span-6">
