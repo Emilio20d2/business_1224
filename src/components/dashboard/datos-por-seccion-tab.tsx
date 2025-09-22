@@ -23,15 +23,15 @@ const sectionConfig = {
 };
 
 const desgloseIconos: { [key: string]: React.ReactNode } = {
-    "Ropa": <Shirt className="h-5 w-5 text-muted-foreground" />,
-    "Calzado": <Footprints className="h-5 w-5 text-muted-foreground" />,
-    "Perfumería": <Gem className="h-5 w-5 text-muted-foreground" />
+    "Ropa": <Shirt className="h-4 w-4 text-muted-foreground" />,
+    "Calzado": <Footprints className="h-4 w-4 text-muted-foreground" />,
+    "Perfumería": <Gem className="h-4 w-4 text-muted-foreground" />
 };
 
 const TrendIndicator = ({ value }: { value: number }) => {
   const trendColor = value >= 0 ? 'text-green-600' : 'text-red-600';
   return (
-    <span className={cn("text-sm font-bold", trendColor)}>
+    <span className={cn("text-xs font-bold", trendColor)}>
       {value >= 0 ? '+' : ''}{value.toLocaleString('es-ES')}%
     </span>
   );
@@ -68,12 +68,12 @@ const SectionCard = ({ name, data }: { name: SectionName, data: SectionData[Sect
                 <Separator className="my-2" />
                 <div className="flex flex-col gap-2 mt-4">
                     {data.desglose.map((item, index) => (
-                        <div key={index} className="flex justify-between items-center text-sm">
-                            <div className="flex items-center gap-3">
-                                {desgloseIconos[item.seccion] || <Shirt className="h-5 w-5 text-muted-foreground" />}
+                        <div key={index} className="flex justify-between items-center text-xs">
+                            <div className="flex items-center gap-2">
+                                {desgloseIconos[item.seccion] || <Shirt className="h-4 w-4 text-muted-foreground" />}
                                 <span className="text-muted-foreground">{item.seccion}</span>
                             </div>
-                            <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-3">
                                 <span className="font-bold">{formatCurrency(item.totalEuros)}</span>
                                 <TrendIndicator value={item.varPorc} />
                             </div>
@@ -88,7 +88,7 @@ const SectionCard = ({ name, data }: { name: SectionName, data: SectionData[Sect
 
 export function DatosPorSeccionTab({ data }: { data: SectionData }) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       <SectionCard name="woman" data={data.woman} />
       <SectionCard name="man" data={data.man} />
       <SectionCard name="nino" data={data.nino} />
