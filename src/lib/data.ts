@@ -65,8 +65,8 @@ export type WeeklyData = {
     };
     ventasMan: {
         pesoComprador: VentasManItem[];
-        zonaComercial: Omit<VentasManItem, 'imageUrl'>[];
-        agrupacionComercial: Omit<VentasManItem, 'imageUrl'>[];
+        zonaComercial: VentasManItem[];
+        agrupacionComercial: VentasManItem[];
     };
     aqneSemanal: {
         woman: SeccionData;
@@ -240,14 +240,14 @@ const initialReportData: Omit<WeeklyData, 'periodo' | 'listas'> = {
           { "nombre": "BASIC", "pesoPorc": 2, "totalEuros": 1500, "varPorc": 12.0, "imageUrl": "https://picsum.photos/seed/man7/500/400" }
       ],
       "zonaComercial": [
-          { "nombre": "MAN FORMAL", "pesoPorc": 24, "totalEuros": 16235, "varPorc": 45.3 },
-          { "nombre": "GLB URBAN", "pesoPorc": 16, "totalEuros": 11038, "varPorc": 25.5 },
-          { "nombre": "CIRCULAR", "pesoPorc": 16, "totalEuros": 10436, "varPorc": -3.3 }
+          { "nombre": "MAN FORMAL", "pesoPorc": 24, "totalEuros": 16235, "varPorc": 45.3, "imageUrl": "https://picsum.photos/seed/zona1/500/400" },
+          { "nombre": "GLB URBAN", "pesoPorc": 16, "totalEuros": 11038, "varPorc": 25.5, "imageUrl": "https://picsum.photos/seed/zona2/500/400" },
+          { "nombre": "CIRCULAR", "pesoPorc": 16, "totalEuros": 10436, "varPorc": -3.3, "imageUrl": "https://picsum.photos/seed/zona3/500/400" }
       ],
       "agrupacionComercial": [
-          { "nombre": "PANTALON", "pesoPorc": 26, "totalEuros": 36607, "varPorc": 20.1 },
-          { "nombre": "SASTRERIA", "pesoPorc": 15, "totalEuros": 20252, "varPorc": -7.3 },
-          { "nombre": "TEJANO", "pesoPorc": 15, "totalEuros": 20167, "varPorc": 22.8 }
+          { "nombre": "PANTALON", "pesoPorc": 26, "totalEuros": 36607, "varPorc": 20.1, "imageUrl": "https://picsum.photos/seed/agrup1/500/400" },
+          { "nombre": "SASTRERIA", "pesoPorc": 15, "totalEuros": 20252, "varPorc": -7.3, "imageUrl": "https://picsum.photos/seed/agrup2/500/400" },
+          { "nombre": "TEJANO", "pesoPorc": 15, "totalEuros": 20167, "varPorc": 22.8, "imageUrl": "https://picsum.photos/seed/agrup3/500/400" }
       ]
     },
     "aqneSemanal": {
