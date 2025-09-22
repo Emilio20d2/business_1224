@@ -79,8 +79,26 @@ export function DatosSemanalesTab({ data, isEditing }: DatosSemanalesTabProps) {
         </div>
       </KpiCard>
       
+      {/* Pérdidas */}
+      <KpiCard title="Pérdidas" icon={<AlertTriangle className="h-5 w-5 text-destructive" />} className="lg:col-span-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <DatoSimple 
+              label="GAP" 
+              value={`${formatGap(data.perdidas.gap.euros, '€')} / ${formatGap(data.perdidas.gap.unidades, 'Unid.')}`} 
+              isEditing={isEditing}
+              valueId="input-perdidas-gap"
+          />
+          <DatoSimple 
+              label="Merma" 
+              value={`${formatNumber(data.perdidas.merma.unidades)} Unid. (${formatPercentage(data.perdidas.merma.porcentaje)})`}
+              isEditing={isEditing}
+              valueId="input-perdidas-merma"
+          />
+        </div>
+      </KpiCard>
+
       {/* Gestión de Almacén y Logística */}
-      <KpiCard title="Gestión de Almacén y Logística" icon={<Warehouse className="h-5 w-5 text-primary" />} className="lg:col-span-4">
+      <KpiCard title="Gestión de Almacén y Logística" icon={<Warehouse className="h-5 w-5 text-primary" />} className="lg:col-span-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="flex flex-col gap-4">
               <h4 className="font-semibold text-card-foreground">Logística Semanal</h4>
@@ -117,22 +135,6 @@ export function DatosSemanalesTab({ data, isEditing }: DatosSemanalesTabProps) {
             </Table>
           </div>
         </div>
-      </KpiCard>
-
-      {/* Pérdidas */}
-      <KpiCard title="Pérdidas" icon={<AlertTriangle className="h-5 w-5 text-destructive" />} className="lg:col-span-2">
-        <DatoSimple 
-            label="GAP" 
-            value={`${formatGap(data.perdidas.gap.euros, '€')} / ${formatGap(data.perdidas.gap.unidades, 'Unid.')}`} 
-            isEditing={isEditing}
-            valueId="input-perdidas-gap"
-        />
-        <DatoSimple 
-            label="Merma" 
-            value={`${formatNumber(data.perdidas.merma.unidades)} Unid. (${formatPercentage(data.perdidas.merma.porcentaje)})`}
-            isEditing={isEditing}
-            valueId="input-perdidas-merma"
-        />
       </KpiCard>
     </div>
   );
