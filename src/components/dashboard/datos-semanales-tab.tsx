@@ -42,12 +42,11 @@ const ModuloContenidoGrande = ({ icon, value }: { icon: React.ReactNode, value: 
 );
 
 const FilaModulo = ({ icon, label, value }: { icon: React.ReactNode, label: string, value: string | number }) => (
-     <div className="grid grid-cols-[auto_1fr_auto] items-center gap-4 text-md w-full">
+     <div className="flex items-center justify-between gap-4 text-md w-40">
         <div className="flex items-center gap-2 text-muted-foreground">
             {icon}
             <span>{label}</span>
         </div>
-        <div></div> {/* Empty div to push the value to the right */}
         <strong className="font-bold text-right">{value}</strong>
     </div>
 )
@@ -126,7 +125,7 @@ export function DatosSemanalesTab({ data, isEditing }: DatosSemanalesTabProps) {
 
        {/* Gestión de Almacén y Logística */}
       <KpiCard title="Gestión de Almacén y Logística" icon={<Warehouse className="h-5 w-5 text-primary" />} className="md:col-span-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 place-items-center">
           <ModuloAlmacen title="Entradas">
             <ModuloContenidoGrande icon={<Truck className="h-8 w-8"/>} value={formatNumber(data.logistica.entradasSemanales)} />
           </ModuloAlmacen>
