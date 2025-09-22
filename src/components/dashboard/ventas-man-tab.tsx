@@ -12,12 +12,21 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { ImagePlus } from 'lucide-react';
+import { ImagePlus, Settings } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
+
 
 type VentasManData = WeeklyData["ventasMan"];
-type TableData = VentasManData[keyof VentasManData];
+type TableDataKey = keyof VentasManData;
+type TableData = VentasManData[TableDataKey];
 type TableItem = TableData[number];
 
 type VisibilityConfig = {
@@ -41,7 +50,7 @@ const TrendIndicator = ({ value }: { value: number }) => {
   );
 };
 
-const DataTable = ({ data, headers, onRowClick }: { data: TableData, headers: string[], onRowClick: (item: TableItem) => void }) => {
+const DataTable = ({ data, headers, isEditing, categoryKey, allItems }: { data: TableData, headers: string[], isEditing: boolean, categoryKey: keyof VisibilityConfig, allItems: TableItem[] }) => {
     if (!data || data.length === 0) {
         return <p className="text-center text-muted-foreground mt-8">No hay datos disponibles para esta sección.</p>;
     }
@@ -59,11 +68,21 @@ const DataTable = ({ data, headers, onRowClick }: { data: TableData, headers: st
                 <TableBody>
                     {data.map((item, index) => (
                         <TableRow key={index} className="relative cursor-pointer hover:bg-muted/50">
-                             <button onClick={() => onRowClick(item)} className="absolute inset-0 z-10 w-full h-full cursor-pointer">
-                                <span className="sr-only">Ver {item.nombre}</span>
-                            </button>
                             <TableCell>
-                                {item.nombre}
+                                {isEditing ? (
+                                    <Select defaultValue={item.nombre}>
+                                        <SelectTrigger className="w-full">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {allItems.map(option => (
+                                                <SelectItem key={option.nombre} value={option.nombre}>{option.nombre}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                ) : (
+                                    item.nombre
+                                )}
                             </TableCell>
                             <TableCell className="text-right font-medium">{formatPercentage(item.pesoPorc)}</TableCell>
                             <TableCell className="text-right font-medium">{formatCurrency(item.totalEuros)}</TableCell>
@@ -94,7 +113,6 @@ const ImageImportCard = ({ isEditing, selectedRow }: { isEditing: boolean, selec
     };
 
     const handleImportClick = () => {
-        // Logic to upload/process the imageFile
         console.log("Importing image:", imageFile?.name);
     }
     
@@ -131,7 +149,7 @@ const ImageImportCard = ({ isEditing, selectedRow }: { isEditing: boolean, selec
 };
 
 
-const SubTabContent = ({ data, headers, isEditing }: { data: TableData, headers: string[], isEditing: boolean }) => {
+const SubTabContent = ({ data, headers, isEditing, categoryKey, allItems }: { data: TableData, headers: string[], isEditing: boolean, categoryKey: keyof VisibilityConfig, allItems: TableItem[] }) => {
     const [selectedRow, setSelectedRow] = React.useState<TableItem | null>(null);
 
     const handleRowClick = (item: TableItem) => {
@@ -140,7 +158,7 @@ const SubTabContent = ({ data, headers, isEditing }: { data: TableData, headers:
     
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
-            <DataTable data={data} headers={headers} onRowClick={handleRowClick} />
+             <DataTable data={data} headers={headers} isEditing={isEditing} categoryKey={categoryKey} allItems={allItems} />
             <ImageImportCard isEditing={isEditing} selectedRow={selectedRow}/>
         </div>
     );
@@ -161,13 +179,13 @@ export function VentasManTab({ data, isEditing, visibilityConfig }: VentasManTab
         <TabsTrigger value="agrupacionComercial">Agrup. Com.</TabsTrigger>
       </TabsList>
       <TabsContent value="comprador">
-         <SubTabContent data={filteredCompradorData} headers={['COMPRADOR', 'PESO %', '€', '%']} isEditing={isEditing} />
+         <SubTabContent data={filteredCompradorData} headers={['COMPRADOR', 'PESO %', '€', '%']} isEditing={isEditing} categoryKey="comprador" allItems={data.pesoComprador} />
       </TabsContent>
       <TabsContent value="zonaComercial">
-        <SubTabContent data={filteredZonaData} headers={['ZONA COMP.', 'PESO %', '€', '%']} isEditing={isEditing} />
+        <SubTabContent data={filteredZonaData} headers={['ZONA COMPRADOR', 'PESO %', '€', '%']} isEditing={isEditing} categoryKey="zonaComercial" allItems={data.zonaComercial} />
       </TabsContent>
       <TabsContent value="agrupacionComercial">
-         <SubTabContent data={filteredAgrupacionData} headers={['AGRUP. COM.', 'PESO %', '€', '%']} isEditing={isEditing} />
+         <SubTabContent data={filteredAgrupacionData} headers={['AGRUP. COM.', 'PESO %', '€', '%']} isEditing={isEditing} categoryKey="agrupacionComercial" allItems={data.agrupacionComercial} />
       </TabsContent>
     </Tabs>
   );
