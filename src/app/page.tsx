@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,27 +8,27 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { AuthContext } from '@/context/auth-context';
+import { Loader2 } from 'lucide-react';
 
 export default function LoginPage() {
   const [email, setEmail] = React.useState('emiliogp@inditex.com');
   const [password, setPassword] = React.useState('456123');
   const [error, setError] = React.useState('');
-  const [loading, setLoading] = React.useState(false);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
   
   const router = useRouter();
-  const { login, user } = useContext(AuthContext);
+  const { login, user, loading } = useContext(AuthContext);
   const { toast } = useToast();
 
-  React.useEffect(() => {
-    if (user) {
+  useEffect(() => {
+    if (!loading && user) {
       router.push('/dashboard');
     }
-  }, [user, router]);
-
+  }, [user, loading, router]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setIsSubmitting(true);
     setError('');
     try {
       await login(email, password);
@@ -42,9 +42,17 @@ export default function LoginPage() {
       });
       console.error("Authentication Error:", error);
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   };
+
+  if (loading || (!loading && user)) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">
@@ -78,8 +86,15 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? 'Iniciando sesión...' : 'Iniciar sesión'}
+            <Button type="submit" className="w-full" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Iniciando sesión...
+                </>
+              ) : (
+                'Iniciar sesión'
+              )}
             </Button>
           </form>
         </CardContent>
@@ -87,5 +102,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
-    

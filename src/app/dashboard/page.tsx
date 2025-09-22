@@ -68,7 +68,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const fetchData = async () => {
-      // No hacer nada si el usuario no está autenticado
+      // This is the crucial part: only fetch if the user object is available.
       if (!user) return; 
 
       setIsLoading(true);
@@ -107,7 +107,7 @@ export default function DashboardPage() {
     };
 
     fetchData();
-  }, [week, user, toast]);
+  }, [week, user, toast]); // Dependency on `user` is key.
   
   const previousWeek = getPreviousWeekRange();
   const weekLabel = `${previousWeek.start} - ${previousWeek.end}`;
@@ -194,13 +194,24 @@ export default function DashboardPage() {
     }
   }
 
-  if (isLoading || !data) {
+  // Use the local isLoading state, which is controlled by the fetchData function.
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
       </div>
     );
   }
+
+  // If there's no data after loading (and user is presumably logged in), it might be an issue.
+  if (!data) {
+     return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p>No se pudieron cargar los datos.</p>
+      </div>
+    );
+  }
+
 
   return (
     <div className="min-h-screen w-full p-4 sm:p-6 bg-background">

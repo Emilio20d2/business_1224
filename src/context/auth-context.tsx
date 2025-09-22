@@ -31,8 +31,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
       setLoading(false);
-       if (!user && pathname !== '/') {
-         router.push('/');
+      if (!user && pathname !== '/') {
+        router.push('/');
       }
     });
 
@@ -50,12 +50,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   if (loading) {
      return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-screen bg-background">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
       </div>
     );
   }
-
 
   return (
     <AuthContext.Provider value={{ user, loading, login, logout }}>
