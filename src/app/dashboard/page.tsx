@@ -53,6 +53,7 @@ export default function DashboardPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [week, setWeek] = useState("semana-24");
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
   const [isListDialogOpen, setIsListDialogOpen] = useState(false);
@@ -75,8 +76,12 @@ export default function DashboardPage() {
     }
 
     const fetchData = async () => {
+      if (!user) return;
+
       setIsLoading(true);
+      setError(null);
       console.log("Dashboard: User is authenticated with UID:", user.uid, "Fetching data for week:", week);
+      
       try {
         const docRef = doc(db, "informes", week);
         const docSnap = await getDoc(docRef);
@@ -97,12 +102,19 @@ export default function DashboardPage() {
           agrupacionComercial: weeklyData.ventasMan.agrupacionComercial.map(item => item.nombre),
         });
 
-      } catch (error) {
-        console.error("Dashboard: Error fetching Firestore document:", error);
+      } catch (err: any) {
+        console.error("Dashboard: Error fetching Firestore document:", err);
+        if (err.code === 'unavailable' || err.message.includes('offline')) {
+             setError("No se pudo conectar a la base de datos. Por favor, verifica tu conexión a internet y asegúrate de haber creado una base de datos de Firestore en tu proyecto de Firebase.");
+        } else if (err.code === 'permission-denied') {
+             setError("Error de permisos. No tienes permiso para acceder a la base de datos. Revisa las reglas de seguridad de Firestore.");
+        } else {
+             setError("Ocurrió un error inesperado al cargar los datos.");
+        }
         toast({
           variant: "destructive",
           title: "Error al Cargar Datos",
-          description: "No se pudieron cargar los datos. " + (error as Error).message,
+          description: err.message,
         });
       } finally {
         console.log("Dashboard: Finished fetching data.");
@@ -230,6 +242,16 @@ export default function DashboardPage() {
     );
   }
 
+  if (error) {
+     return (
+      <div className="flex flex-col items-center justify-center min-h-screen gap-4 text-center p-4">
+        <p className="text-lg font-semibold text-destructive">Error de Conexión</p>
+        <p className="text-muted-foreground">{error}</p>
+        <Button onClick={() => window.location.reload()}>Reintentar</Button>
+      </div>
+    );
+  }
+  
   if (!data) {
      return (
       <div className="flex flex-col items-center justify-center min-h-screen gap-4">
