@@ -142,7 +142,45 @@ export const datosSemanales = {
           { "nombre": "ACCESORIOS", "pesoPorc": 3, "totalEuros": 3600, "varPorc": 11.0, "imageUrl": "https://picsum.photos/seed/agrup9/500/400" },
           { "nombre": "BAÑO", "pesoPorc": 2, "totalEuros": 2400, "varPorc": 40.2, "imageUrl": "https://picsum.photos/seed/agrup10/500/400" }
       ]
-    }
+    },
+    "aqneSemanal": {
+        "woman": {
+            "pesoPorc": 58,
+            "metricasPrincipales": { "totalEuros": 168414, "varPorcEuros": 13.8, "totalUnidades": 7026, "varPorcUnidades": 7.5 },
+            "desglose": [
+                { "seccion": "Ropa", "totalEuros": 154234, "varPorc": 13.0 },
+                { "seccion": "Calzado", "totalEuros": 8174, "varPorc": 21.2 },
+                { "seccion": "Perfumería", "totalEuros": 6006, "varPorc": 27.0 }
+            ]
+        },
+        "man": {
+            "pesoPorc": 26,
+            "metricasPrincipales": { "totalEuros": 76080, "varPorcEuros": 14.2, "totalUnidades": 2658, "varPorcUnidades": 7.3 },
+            "desglose": [
+                { "seccion": "Ropa", "totalEuros": 67147, "varPorc": 10.9 },
+                { "seccion": "Calzado", "totalEuros": 5074, "varPorc": 64.9 },
+                { "seccion": "Perfumería", "totalEuros": 3859, "varPorc": 30.0 }
+            ]
+        },
+        "nino": {
+            "pesoPorc": 16,
+            "metricasPrincipales": { "totalEuros": 45590, "varPorcEuros": 17.7, "totalUnidades": 2970, "varPorcUnidades": 7.5 },
+            "desglose": [
+                { "seccion": "Ropa", "totalEuros": 41219, "varPorc": 15.0 },
+                { "seccion": "Calzado", "totalEuros": 3599, "varPorc": 33.5 },
+                { "seccion": "Perfumería", "totalEuros": 772, "varPorc": 268.0 }
+            ]
+        }
+    },
+    "ventasDiariasAQNE": [
+        { "dia": "LUNES", "total": 39699, "woman": 19965, "man": 11653, "nino": 8081 },
+        { "dia": "MARTES", "total": 35233, "woman": 20662, "man": 9198, "nino": 5373 },
+        { "dia": "MIÉRCOLES", "total": 36012, "woman": 19373, "man": 9897, "nino": 6742 },
+        { "dia": "JUEVES", "total": 38415, "woman": 24154, "man": 8719, "nino": 5542 },
+        { "dia": "VIERNES", "total": 50686, "woman": 28746, "man": 12332, "nino": 9608 },
+        { "dia": "SÁBADO", "total": 101809, "woman": 58416, "man": 25779, "nino": 17614 },
+        { "dia": "DOMINGO", "total": 0, "woman": 0, "man": 0, "nino": 0 }
+    ]
   },
   "semana-23": {
     "periodo": "SEMANA 23",
@@ -209,6 +247,12 @@ export const datosSemanales = {
         "pesoComprador": [],
         "zonaComercial": [],
         "agrupacionComercial": []
-    }
+    },
+    "aqneSemanal": {
+        "woman": { "pesoPorc": 0, "metricasPrincipales": { "totalEuros": 0, "varPorcEuros": 0, "totalUnidades": 0, "varPorcUnidades": 0 }, "desglose": [] },
+        "man": { "pesoPorc": 0, "metricasPrincipales": { "totalEuros": 0, "varPorcEuros": 0, "totalUnidades": 0, "varPorcUnidades": 0 }, "desglose": [] },
+        "nino": { "pesoPorc": 0, "metricasPrincipales": { "totalEuros": 0, "varPorcEuros": 0, "totalUnidades": 0, "varPorcUnidades": 0 }, "desglose": [] }
+    },
+    "ventasDiariasAQNE": []
   }
 };

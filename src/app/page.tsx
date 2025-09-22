@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DatosSemanalesTab } from "@/components/dashboard/datos-semanales-tab";
 import { DatosPorSeccionTab } from "@/components/dashboard/datos-por-seccion-tab";
 import { VentasManTab } from "@/components/dashboard/ventas-man-tab";
+import { AqneSemanalTab } from "@/components/dashboard/aqne-semanal-tab";
 import { Button } from '@/components/ui/button';
 import { Settings } from 'lucide-react';
 import {
@@ -159,7 +160,7 @@ export default function Home() {
             <TabsTrigger value="datosSemanales">Datos Semanales</TabsTrigger>
             <TabsTrigger value="ventasSeccion">Ventas Sección</TabsTrigger>
             <TabsTrigger value="ventasMan">Ventas Man</TabsTrigger>
-            <TabsTrigger value="aqneSemanal" disabled>AQNE Semanal</TabsTrigger>
+            <TabsTrigger value="aqneSemanal">AQNE Semanal</TabsTrigger>
             <TabsTrigger value="acumulado" disabled>Acumulado</TabsTrigger>
           </TabsList>
           <TabsContent value="datosSemanales">
@@ -172,7 +173,7 @@ export default function Home() {
              <VentasManTab data={data.ventasMan} isEditing={isEditing} listOptions={listOptions} />
           </TabsContent>
            <TabsContent value="aqneSemanal">
-             {/* This content will be added in a future step */}
+             <AqneSemanalTab data={data} />
           </TabsContent>
            <TabsContent value="acumulado">
              {/* This content will be added in a future step */}
