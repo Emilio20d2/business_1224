@@ -148,17 +148,27 @@ export default function Home() {
       
       <main>
         <Tabs defaultValue="datosSemanales">
-          <TabsList className="grid w-full grid-cols-1 md:grid-cols-4 mb-4">
+          <TabsList className="grid w-full grid-cols-1 md:grid-cols-5 mb-4">
             <TabsTrigger value="datosSemanales">Datos Semanales</TabsTrigger>
             <TabsTrigger value="datosPorSeccion" disabled>Datos por Sección</TabsTrigger>
             <TabsTrigger value="ventasCaballero" disabled>Ventas Caballero</TabsTrigger>
             <TabsTrigger value="aqneSemanal" disabled>AQNE Semanal</TabsTrigger>
+            <TabsTrigger value="acumulado" disabled>Acumulado</TabsTrigger>
           </TabsList>
           <TabsContent value="datosSemanales">
             <DatosSemanalesTab data={data} isEditing={isEditing} />
           </TabsContent>
-          <TabsContent value="almacenes">
-             {/* This content is now moved to DatosSemanalesTab */}
+          <TabsContent value="datosPorSeccion">
+             {/* This content will be added in a future step */}
+          </TabsContent>
+           <TabsContent value="ventasCaballero">
+             {/* This content will be added in a future step */}
+          </TabsContent>
+           <TabsContent value="aqneSemanal">
+             {/* This content will be added in a future step */}
+          </TabsContent>
+           <TabsContent value="acumulado">
+             {/* This content will be added in a future step */}
           </TabsContent>
         </Tabs>
       </main>
