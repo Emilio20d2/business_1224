@@ -55,7 +55,7 @@ export function DatosSemanalesTab({ data, isEditing }: DatosSemanalesTabProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-6 gap-6 mt-4">
       {/* Ventas */}
-      <KpiCard title="Ventas" icon={<Euro className="h-5 w-5 text-primary" />} className="md:col-span-2">
+      <KpiCard title="Ventas" icon={<Euro className="h-5 w-5 text-primary" />} className="md:col-span-3">
         <DatoDoble 
           value={formatCurrency(data.ventas.totalEuros)} 
           variation={data.ventas.varPorcEuros} 
@@ -72,7 +72,7 @@ export function DatosSemanalesTab({ data, isEditing }: DatosSemanalesTabProps) {
       </KpiCard>
 
       {/* Rendimiento de Tienda */}
-      <KpiCard title="Rendimiento de Tienda" icon={<ChartLine className="h-5 w-5 text-primary" />} className="md:col-span-4">
+      <KpiCard title="Rendimiento de Tienda" icon={<ChartLine className="h-5 w-5 text-primary" />} className="md:col-span-3">
         <div className="grid grid-cols-2 gap-x-8 gap-y-4">
         <DatoDoble 
           label="Tráfico" 
