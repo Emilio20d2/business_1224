@@ -12,7 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Upload } from 'lucide-react';
+import { Upload, ImagePlus } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
@@ -66,6 +66,31 @@ const DataTable = ({ data, headers }: { data: TableData, headers: string[] }) =>
 };
 
 const ImageImportCard = ({ isEditing }: { isEditing: boolean }) => {
+    const [imagePreview, setImagePreview] = React.useState<string | null>(null);
+    const [imageFile, setImageFile] = React.useState<File | null>(null);
+    const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            setImageFile(file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImagePreview(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleSelectImageClick = () => {
+        fileInputRef.current?.click();
+    };
+
+    const handleImportClick = () => {
+        // Logic to upload/process the imageFile
+        console.log("Importing image:", imageFile?.name);
+    }
+
     return (
         <Card>
             <CardHeader>
@@ -75,12 +100,26 @@ const ImageImportCard = ({ isEditing }: { isEditing: boolean }) => {
                 </CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col items-center justify-center gap-4 text-center">
-                 <div className="w-full h-48 bg-muted rounded-md flex items-center justify-center">
-                    <p className="text-sm text-muted-foreground">Previsualización de imagen</p>
+                 <div className="w-full h-48 bg-muted rounded-md flex items-center justify-center relative overflow-hidden">
+                    {imagePreview ? (
+                        <img src={imagePreview} alt="Previsualización" className="h-full w-full object-cover" />
+                    ) : (
+                        <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                            <ImagePlus className="h-10 w-10" />
+                            <p className="text-sm">Previsualización de imagen</p>
+                        </div>
+                    )}
                 </div>
                 <div className="w-full flex flex-col gap-2">
-                    <Input id="picture" type="file" />
-                    {isEditing && <Button>Importar Imagen</Button>}
+                    <Input id="picture" type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*" />
+                    {isEditing && (
+                        <>
+                            <Button variant="outline" onClick={handleSelectImageClick}>
+                                Seleccionar Imagen
+                            </Button>
+                            {imageFile && <Button onClick={handleImportClick}>Importar Imagen</Button>}
+                        </>
+                    )}
                 </div>
             </CardContent>
         </Card>
