@@ -68,7 +68,8 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!user) return; // No hacer nada si el usuario no está autenticado
+      // No hacer nada si el usuario no está autenticado
+      if (!user) return; 
 
       setIsLoading(true);
       try {
@@ -97,8 +98,8 @@ export default function DashboardPage() {
         console.error("Error fetching document: ", error);
         toast({
           variant: "destructive",
-          title: "Error de permisos",
-          description: "No se pudieron cargar los datos. Revisa los permisos de Firestore.",
+          title: "Error al cargar los datos",
+          description: "No se pudieron cargar los datos. Revisa los permisos de Firestore y tu conexión.",
         });
       } finally {
         setIsLoading(false);
@@ -106,7 +107,7 @@ export default function DashboardPage() {
     };
 
     fetchData();
-  }, [week, toast, user]); // Añadir user a las dependencias
+  }, [week, user, toast]);
   
   const previousWeek = getPreviousWeekRange();
   const weekLabel = `${previousWeek.start} - ${previousWeek.end}`;
@@ -193,18 +194,10 @@ export default function DashboardPage() {
     }
   }
 
-  if (isLoading) {
+  if (isLoading || !data) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
-      </div>
-    );
-  }
-
-  if (!data) {
-     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p>No se pudieron cargar los datos. Inténtalo de nuevo.</p>
       </div>
     );
   }
