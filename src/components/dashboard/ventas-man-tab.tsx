@@ -29,16 +29,10 @@ type TableDataKey = keyof VentasManData;
 type TableData = VentasManData[TableDataKey];
 type TableItem = TableData[number];
 
-type VisibilityConfig = {
-    comprador: Record<string, boolean>;
-    zonaComercial: Record<string, boolean>;
-    agrupacionComercial: Record<string, boolean>;
-}
 
 type VentasManTabProps = {
   data: VentasManData;
   isEditing: boolean;
-  visibilityConfig: VisibilityConfig;
 };
 
 const TrendIndicator = ({ value }: { value: number }) => {
@@ -67,10 +61,10 @@ const DataTable = ({ data, headers, isEditing, allItems, onRowClick }: { data: T
                 </TableHeader>
                 <TableBody>
                     {data.map((item, index) => (
-                        <TableRow key={index} className="relative cursor-pointer hover:bg-muted/50">
+                        <TableRow key={index} className="relative">
                             {!isEditing && (
                                 <div 
-                                    className="absolute inset-0 z-10"
+                                    className="absolute inset-0 z-10 cursor-pointer"
                                     onClick={() => onRowClick(item)}
                                     role="button"
                                     aria-label={`Ver detalles de ${item.nombre}`}
@@ -127,7 +121,7 @@ const ImageImportCard = ({ selectedRow }: { selectedRow: TableItem | null }) => 
 };
 
 
-const SubTabContent = ({ data, headers, isEditing, categoryKey, allItems }: { data: TableData, headers: string[], isEditing: boolean, categoryKey: keyof VisibilityConfig, allItems: TableItem[] }) => {
+const SubTabContent = ({ data, headers, isEditing, allItems }: { data: TableData, headers: string[], isEditing: boolean, allItems: TableItem[] }) => {
     const [selectedRow, setSelectedRow] = React.useState<TableItem | null>(null);
 
     const handleRowClick = (item: TableItem) => {
@@ -145,12 +139,8 @@ const SubTabContent = ({ data, headers, isEditing, categoryKey, allItems }: { da
 }
 
 
-export function VentasManTab({ data, isEditing, visibilityConfig }: VentasManTabProps) {
+export function VentasManTab({ data, isEditing }: VentasManTabProps) {
     
-  const filteredCompradorData = data.pesoComprador.filter(item => visibilityConfig.comprador[item.nombre]);
-  const filteredZonaData = data.zonaComercial.filter(item => visibilityConfig.zonaComercial[item.nombre]);
-  const filteredAgrupacionData = data.agrupacionComercial.filter(item => visibilityConfig.agrupacionComercial[item.nombre]);
-
   return (
     <Tabs defaultValue="comprador" className="w-full">
       <TabsList className="grid w-full grid-cols-3 mx-auto max-w-md mb-4">
@@ -159,13 +149,13 @@ export function VentasManTab({ data, isEditing, visibilityConfig }: VentasManTab
         <TabsTrigger value="agrupacionComercial">Agrup. Com.</TabsTrigger>
       </TabsList>
       <TabsContent value="comprador">
-         <SubTabContent data={filteredCompradorData} headers={['COMPRADOR', 'PESO %', '€', '%']} isEditing={isEditing} categoryKey="comprador" allItems={data.pesoComprador} />
+         <SubTabContent data={data.pesoComprador} headers={['COMPRADOR', 'PESO %', '€', '%']} isEditing={isEditing} allItems={data.pesoComprador} />
       </TabsContent>
       <TabsContent value="zonaComercial">
-        <SubTabContent data={filteredZonaData} headers={['ZONA COMPRADOR', 'PESO %', '€', '%']} isEditing={isEditing} categoryKey="zonaComercial" allItems={data.zonaComercial} />
+        <SubTabContent data={data.zonaComercial} headers={['ZONA COMPRADOR', 'PESO %', '€', '%']} isEditing={isEditing} allItems={data.zonaComercial} />
       </TabsContent>
       <TabsContent value="agrupacionComercial">
-         <SubTabContent data={filteredAgrupacionData} headers={['AGRUP. COM.', 'PESO %', '€', '%']} isEditing={isEditing} categoryKey="agrupacionComercial" allItems={data.agrupacionComercial} />
+         <SubTabContent data={data.agrupacionComercial} headers={['AGRUP. COM.', 'PESO %', '€', '%']} isEditing={isEditing} allItems={data.agrupacionComercial} />
       </TabsContent>
     </Tabs>
   );

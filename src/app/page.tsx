@@ -18,18 +18,13 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
-  DropdownMenuCheckboxItem,
+  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { startOfWeek, endOfWeek, subWeeks, format } from 'date-fns';
 import { es } from 'date-fns/locale';
-
-type VentasManData = WeeklyData["ventasMan"];
-type CompradorItem = VentasManData["pesoComprador"][number];
-type ZonaComercialItem = VentasManData["zonaComercial"][number];
-type AgrupacionComercialItem = VentasManData["agrupacionComercial"][number];
 
 const getPreviousWeekRange = () => {
     const today = new Date();
@@ -42,40 +37,11 @@ const getPreviousWeekRange = () => {
     };
 };
 
-const initialVisibility = {
-    comprador: datosSemanales['semana-24'].ventasMan.pesoComprador.reduce((acc, item) => {
-        acc[item.nombre] = true;
-        return acc;
-    }, {} as Record<string, boolean>),
-    zonaComercial: datosSemanales['semana-24'].ventasMan.zonaComercial.reduce((acc, item) => {
-        acc[item.nombre] = true;
-        return acc;
-    }, {} as Record<string, boolean>),
-    agrupacionComercial: datosSemanales['semana-24'].ventasMan.agrupacionComercial.reduce((acc, item) => {
-        acc[item.nombre] = true;
-        return acc;
-    }, {} as Record<string, boolean>),
-};
-
-
 export default function Home() {
   const [data, setData] = React.useState<WeeklyData>(datosSemanales["semana-24"]);
   const [isEditing, setIsEditing] = React.useState(false);
   const [week, setWeek] = React.useState("semana-24");
   
-  const [visibility, setVisibility] = React.useState(initialVisibility);
-
-  const handleVisibilityChange = (category: keyof typeof visibility, key: string, checked: boolean) => {
-    setVisibility(prev => ({
-        ...prev,
-        [category]: {
-            ...prev[category],
-            [key]: checked
-        }
-    }));
-  };
-
-
   const previousWeek = getPreviousWeekRange();
   const weekLabel = `${previousWeek.start} - ${previousWeek.end}`;
 
@@ -96,6 +62,13 @@ export default function Home() {
     setIsEditing(false);
     // Restore original data if it was modified in state
     setData(datosSemanales[week as keyof typeof datosSemanales]);
+  };
+
+  // The lists that will populate the select dropdowns in edit mode
+  const listOptions = {
+    comprador: datosSemanales['semana-24'].ventasMan.pesoComprador.map(item => item.nombre),
+    zonaComercial: datosSemanales['semana-24'].ventasMan.zonaComercial.map(item => item.nombre),
+    agrupacionComercial: datosSemanales['semana-24'].ventasMan.agrupacionComercial.map(item => item.nombre),
   };
 
   return (
@@ -132,45 +105,18 @@ export default function Home() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56">
-                <DropdownMenuLabel>Configuración de Visibilidad</DropdownMenuLabel>
+                <DropdownMenuLabel>Editar Listas de Categorías</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
-                  <DropdownMenuLabel className="text-xs font-semibold text-muted-foreground">COMPRADOR</DropdownMenuLabel>
-                  {Object.keys(visibility.comprador).map(key => (
-                      <DropdownMenuCheckboxItem
-                          key={key}
-                          checked={visibility.comprador[key]}
-                          onCheckedChange={(checked) => handleVisibilityChange('comprador', key, !!checked)}
-                      >
-                          {key}
-                      </DropdownMenuCheckboxItem>
-                  ))}
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuLabel className="text-xs font-semibold text-muted-foreground">ZONA COMPRADOR</DropdownMenuLabel>
-                   {Object.keys(visibility.zonaComercial).map(key => (
-                      <DropdownMenuCheckboxItem
-                          key={key}
-                          checked={visibility.zonaComercial[key]}
-                          onCheckedChange={(checked) => handleVisibilityChange('zonaComercial', key, !!checked)}
-                      >
-                          {key}
-                      </DropdownMenuCheckboxItem>
-                  ))}
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuLabel className="text-xs font-semibold text-muted-foreground">AGRUPACION COMERCIAL</DropdownMenuLabel>
-                  {Object.keys(visibility.agrupacionComercial).map(key => (
-                      <DropdownMenuCheckboxItem
-                          key={key}
-                          checked={visibility.agrupacionComercial[key]}
-                          onCheckedChange={(checked) => handleVisibilityChange('agrupacionComercial', key, !!checked)}
-                      >
-                          {key}
-                      </DropdownMenuCheckboxItem>
-                  ))}
+                  <DropdownMenuItem>
+                      <span>COMPRADOR</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                      <span>ZONA COMPRADOR</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                      <span>AGRUPACION COMERCIAL</span>
+                  </DropdownMenuItem>
                 </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -194,7 +140,7 @@ export default function Home() {
              <DatosPorSeccionTab data={data.datosPorSeccion} />
           </TabsContent>
            <TabsContent value="ventasMan">
-             <VentasManTab data={data.ventasMan} isEditing={isEditing} visibilityConfig={visibility} />
+             <VentasManTab data={data.ventasMan} isEditing={isEditing} />
           </TabsContent>
            <TabsContent value="aqneSemanal">
              {/* This content will be added in a future step */}
