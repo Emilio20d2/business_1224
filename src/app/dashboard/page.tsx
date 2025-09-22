@@ -35,6 +35,7 @@ import { useToast } from '@/hooks/use-toast';
 import { AuthContext } from '@/context/auth-context';
 import { getInitialDataForWeek } from '@/lib/data';
 import { useRouter } from 'next/navigation';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 
 type EditableList = 'comprador' | 'zonaComercial' | 'agrupacionComercial';
@@ -136,7 +137,10 @@ export default function DashboardPage() {
         if(arrayMatch){
             const arrayKey = arrayMatch[1];
             const index = parseInt(arrayMatch[2], 10);
-            current[arrayKey][index] = value;
+            if (current[arrayKey] && current[arrayKey][index]) {
+                const itemKey = keys[keys.length - 1].split('.')[1];
+                current[arrayKey][index] = value;
+            }
             return updatedData;
         }
 
@@ -229,7 +233,7 @@ export default function DashboardPage() {
         }
       }
       
-      updatedData.ventasMan[listKey] = newItemsList;
+      updatedData.ventasMan[listKey] = newItemsList.filter((item: any) => newList.includes(item.nombre));
       
       setData(updatedData);
       console.log("Updated data after list edit:", updatedData);
@@ -343,14 +347,16 @@ export default function DashboardPage() {
       
       <main>
         <Tabs defaultValue="datosSemanales">
-          <TabsList className="grid w-full grid-cols-1 md:grid-cols-6 mb-4">
-            <TabsTrigger value="datosSemanales">Datos Semanales</TabsTrigger>
-            <TabsTrigger value="ventasSeccion">Ventas Sección</TabsTrigger>
-            <TabsTrigger value="ventasMan">Ventas Man</TabsTrigger>
-            <TabsTrigger value="aqneSemanal">AQNE Semanal</TabsTrigger>
-            <TabsTrigger value="acumulado">Acumulado</TabsTrigger>
-            <TabsTrigger value="focusSemanal">Focus Semanal</TabsTrigger>
-          </TabsList>
+          <div className="w-full overflow-x-auto pb-2">
+            <TabsList className="mb-4 md:grid md:w-full md:grid-cols-6">
+              <TabsTrigger value="datosSemanales">Datos Semanales</TabsTrigger>
+              <TabsTrigger value="ventasSeccion">Ventas Sección</TabsTrigger>
+              <TabsTrigger value="ventasMan">Ventas Man</TabsTrigger>
+              <TabsTrigger value="aqneSemanal">AQNE Semanal</TabsTrigger>
+              <TabsTrigger value="acumulado">Acumulado</TabsTrigger>
+              <TabsTrigger value="focusSemanal">Focus Semanal</TabsTrigger>
+            </TabsList>
+          </div>
           <TabsContent value="datosSemanales">
             <DatosSemanalesTab data={data} isEditing={isEditing} onInputChange={handleInputChange} />
           </TabsContent>
@@ -364,7 +370,7 @@ export default function DashboardPage() {
              <AqneSemanalTab data={data} isEditing={isEditing} onInputChange={handleInputChange} />
           </TabsContent>
            <TabsContent value="acumulado">
-             <AcumuladoTab data={data.acumulado} isEditing={isEditing} onInputChange={handleInputChange} />
+             <AcumuladoTab data={data.acumulado} isEditing={isEditing} onInputChange={onInputChange} />
           </TabsContent>
           <TabsContent value="focusSemanal">
             <FocusSemanalTab text={data.focusSemanal} isEditing={isEditing} onInputChange={handleInputChange} />
@@ -384,5 +390,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-    
