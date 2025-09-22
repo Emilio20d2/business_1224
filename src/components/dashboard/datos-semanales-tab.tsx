@@ -4,12 +4,20 @@ import { KpiCard, DatoDoble, DatoSimple } from "./kpi-card";
 import { 
   Euro, 
   ChartLine, 
-  Truck, 
   Receipt,
   Warehouse,
   AlertTriangle,
+  ArrowDown,
+  ArrowUp
 } from "lucide-react";
-import { AlmacenTab } from "./almacen-tab";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 
 type DatosSemanalesTabProps = {
   data: WeeklyData;
@@ -59,14 +67,8 @@ export function DatosSemanalesTab({ data, isEditing }: DatosSemanalesTabProps) {
         />
       </KpiCard>
 
-      {/* Logística */}
-      <KpiCard title="Logística" icon={<Truck className="h-5 w-5 text-primary" />} className="lg:col-span-2">
-        <DatoSimple label="Entradas" value={formatNumber(data.logistica.entradas)} isEditing={isEditing} valueId="input-logistica-entradas" />
-        <DatoSimple label="Salidas" value={formatNumber(data.logistica.salidas)} isEditing={isEditing} valueId="input-logistica-salidas"/>
-      </KpiCard>
-
       {/* Operaciones y Sistema */}
-      <KpiCard title="Operaciones y Sistema" icon={<Receipt className="h-5 w-5 text-primary" />} className="lg:col-span-3">
+      <KpiCard title="Operaciones y Sistema" icon={<Receipt className="h-5 w-5 text-primary" />} className="lg:col-span-2">
         <div className="grid grid-cols-2 gap-x-8 gap-y-4">
             <DatoSimple label="Filas Caja" value={`${formatPercentage(data.operaciones.filasCajaPorc)}`} isEditing={isEditing} valueId="input-op-filas-caja" />
             <DatoSimple label="SCO" value={`${formatPercentage(data.operaciones.scoPorc)}`} isEditing={isEditing} valueId="input-op-sco" />
@@ -77,44 +79,61 @@ export function DatosSemanalesTab({ data, isEditing }: DatosSemanalesTabProps) {
         </div>
       </KpiCard>
       
-      {/* Gestión de Stock */}
-      <KpiCard title="Gestión de Stock" icon={<Warehouse className="h-5 w-5 text-primary" />} className="lg:col-span-3">
-          <div className="flex flex-col gap-2 text-sm text-muted-foreground">
-            <h4 className="font-semibold text-card-foreground">Ocupación</h4>
-            <p>
-                Valor Sup: <strong className="font-semibold text-card-foreground">{formatNumber(data.gestionStock.ocupacion.valorSuperior)}</strong> (<strong className="font-semibold text-card-foreground">{formatPercentage(data.gestionStock.ocupacion.porcSuperior)}</strong>) / Valor Inf: <strong className="font-semibold text-card-foreground">{formatNumber(data.gestionStock.ocupacion.valorInferior)}</strong> (<strong className="font-semibold text-card-foreground">{formatPercentage(data.gestionStock.ocupacion.porcInferior)}</strong>)
-            </p>
+      {/* Gestión de Almacén y Logística */}
+      <KpiCard title="Gestión de Almacén y Logística" icon={<Warehouse className="h-5 w-5 text-primary" />} className="lg:col-span-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="flex flex-col gap-4">
+              <h4 className="font-semibold text-card-foreground">Logística Semanal</h4>
+              <DatoSimple label="Entradas Totales" value={formatNumber(data.logistica.entradas)} isEditing={isEditing} valueId="total-entradas" icon={<ArrowDown className="h-4 w-4 text-green-500" />} />
+              <DatoSimple label="Salidas Totales" value={formatNumber(data.logistica.salidas)} isEditing={isEditing} valueId="total-salidas" icon={<ArrowUp className="h-4 w-4 text-red-500" />} />
           </div>
-          <div className="flex flex-col gap-2 text-sm text-muted-foreground">
-            <h4 className="font-semibold text-card-foreground">Propuesta Devolución</h4>
-            <p>
-                Valor Sup: <strong className="font-semibold text-card-foreground">{formatNumber(data.gestionStock.propuestaDevolucion.valorSuperior)}</strong> / Valor Inf: <strong className="font-semibold text-card-foreground">{formatNumber(data.gestionStock.propuestaDevolucion.valorInferior)}</strong>
-            </p>
+           <div className="flex flex-col gap-4">
+              <h4 className="font-semibold text-card-foreground">Ocupación y Devoluciones</h4>
+               <Table>
+                <TableHeader>
+                    <TableRow>
+                      <TableHead>Almacén</TableHead>
+                      <TableHead className="text-right">Ocupación</TableHead>
+                      <TableHead className="text-right">Prop. Devolución</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    <TableRow>
+                      <TableCell>Ropa</TableCell>
+                      <TableCell className="text-right">{formatPercentage(data.almacenes.ropa.ocupacionPorc)}</TableCell>
+                      <TableCell className="text-right">{formatNumber(data.almacenes.ropa.devolucionUnidades)}</TableCell>
+                    </TableRow>
+                     <TableRow>
+                      <TableCell>Calzado</TableCell>
+                      <TableCell className="text-right">{formatPercentage(data.almacenes.calzado.ocupacionPorc)}</TableCell>
+                      <TableCell className="text-right">{formatNumber(data.almacenes.calzado.devolucionUnidades)}</TableCell>
+                    </TableRow>
+                     <TableRow>
+                      <TableCell>Perfumería</TableCell>
+                      <TableCell className="text-right">{formatPercentage(data.almacenes.perfumeria.ocupacionPorc)}</TableCell>
+                      <TableCell className="text-right">{formatNumber(data.almacenes.perfumeria.devolucionUnidades)}</TableCell>
+                    </TableRow>
+                </TableBody>
+            </Table>
           </div>
+        </div>
       </KpiCard>
 
       {/* Pérdidas */}
-      <KpiCard title="Pérdidas" icon={<AlertTriangle className="h-5 w-5 text-destructive" />} className="lg:col-span-3">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <DatoSimple 
-                label="GAP" 
-                value={`${formatGap(data.perdidas.gap.euros, '€')} / ${formatGap(data.perdidas.gap.unidades, 'Unid.')}`} 
-                isEditing={isEditing}
-                valueId="input-perdidas-gap"
-            />
-            <DatoSimple 
-                label="Merma" 
-                value={`${formatNumber(data.perdidas.merma.unidades)} Unid. (${formatPercentage(data.perdidas.merma.porcentaje)})`}
-                isEditing={isEditing}
-                valueId="input-perdidas-merma"
-            />
-        </div>
+      <KpiCard title="Pérdidas" icon={<AlertTriangle className="h-5 w-5 text-destructive" />} className="lg:col-span-2">
+        <DatoSimple 
+            label="GAP" 
+            value={`${formatGap(data.perdidas.gap.euros, '€')} / ${formatGap(data.perdidas.gap.unidades, 'Unid.')}`} 
+            isEditing={isEditing}
+            valueId="input-perdidas-gap"
+        />
+        <DatoSimple 
+            label="Merma" 
+            value={`${formatNumber(data.perdidas.merma.unidades)} Unid. (${formatPercentage(data.perdidas.merma.porcentaje)})`}
+            isEditing={isEditing}
+            valueId="input-perdidas-merma"
+        />
       </KpiCard>
-      
-      {/* Almacenes */}
-      <div className="lg:col-span-3">
-         <AlmacenTab data={data.almacenes} isEditing={isEditing} />
-      </div>
     </div>
   );
 }

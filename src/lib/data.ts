@@ -31,20 +31,8 @@ export const datosSemanales = {
         "repoPorc": 3.2
     },
     "logistica": {
-        "entradas": 4376,
-        "salidas": 3531
-    },
-    "gestionStock": {
-        "ocupacion": {
-            "valorSuperior": 6597,
-            "porcSuperior": 88,
-            "valorInferior": 395,
-            "porcInferior": 100
-        },
-        "propuestaDevolucion": {
-            "valorSuperior": 292,
-            "valorInferior": 58
-        }
+        "entradas": 5876,
+        "salidas": 4731
     },
     "perdidas": {
         "gap": {
@@ -102,18 +90,6 @@ export const datosSemanales = {
     "logistica": {
         "entradas": 4100,
         "salidas": 3300
-    },
-    "gestionStock": {
-        "ocupacion": {
-            "valorSuperior": 6400,
-            "porcSuperior": 85,
-            "valorInferior": 450,
-            "porcInferior": 95
-        },
-        "propuestaDevolucion": {
-            "valorSuperior": 250,
-            "valorInferior": 50
-        }
     },
     "perdidas": {
         "gap": {

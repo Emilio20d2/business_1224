@@ -60,9 +60,10 @@ type DatoSimpleProps = {
   isEditing?: boolean;
   valueId?: string;
   className?: string;
+  icon?: React.ReactNode;
 };
 
-export function DatoSimple({ label, value, isEditing, valueId, className }: DatoSimpleProps) {
+export function DatoSimple({ label, value, isEditing, valueId, className, icon }: DatoSimpleProps) {
     const renderValue = () => {
         if (typeof value === 'object') return value;
         
@@ -94,7 +95,10 @@ export function DatoSimple({ label, value, isEditing, valueId, className }: Dato
 
     return (
         <div className={cn("flex justify-between items-center text-md", className)}>
-            <span className="text-muted-foreground">{label}:</span>
+            <span className="flex items-center gap-2 text-muted-foreground">
+              {icon}
+              {label}:
+            </span>
             {isEditing ? <Input type="text" defaultValue={String(value).replace(/[^0-p-9.]+/g, '')} className="w-24 h-8" id={valueId}/> : renderValue()}
         </div>
     );
