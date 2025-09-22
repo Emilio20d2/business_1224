@@ -11,8 +11,8 @@ import { AuthContext } from '@/context/auth-context';
 import { Loader2 } from 'lucide-react';
 
 export default function LoginPage() {
-  const [email, setEmail] = React.useState('testuser@gmail.com');
-  const [password, setPassword] = React.useState('123456');
+  const [email, setEmail] = React.useState('emiliogp@inditex.com');
+  const [password, setPassword] = React.useState('');
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   
   const router = useRouter();
@@ -30,7 +30,7 @@ export default function LoginPage() {
     setIsSubmitting(true);
     try {
       await login(email, password);
-      router.push('/dashboard');
+      // The useEffect above will handle the redirect on successful login
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -43,7 +43,7 @@ export default function LoginPage() {
     }
   };
 
-  if (loading || (!loading && user)) {
+  if (loading || user) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -51,7 +51,6 @@ export default function LoginPage() {
     );
   }
   
-  // If not loading and no user, show login page.
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">
       <Card className="w-full max-w-sm">

@@ -58,7 +58,7 @@ export default function DashboardPage() {
   const [isListDialogOpen, setIsListDialogOpen] = useState(false);
   const [listToEdit, setListToEdit] = useState<EditableList | null>(null);
 
-  const { user, logout, loading: authLoading } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
   const { toast } = useToast();
   const router = useRouter();
 
@@ -69,20 +69,14 @@ export default function DashboardPage() {
   });
 
   useEffect(() => {
-    if (authLoading) {
-      console.log("Dashboard: Auth is loading. Waiting...");
-      return;
-    }
-
     if (!user) {
-      console.log("Dashboard: No user found, redirecting to login.");
       router.push('/');
       return;
     }
 
     const fetchData = async () => {
-      console.log("Dashboard: User is authenticated, starting to fetch data for week:", week);
       setIsLoading(true);
+      console.log("Dashboard: User is authenticated with UID:", user.uid, "Fetching data for week:", week);
       try {
         const docRef = doc(db, "informes", week);
         const docSnap = await getDoc(docRef);
@@ -117,7 +111,7 @@ export default function DashboardPage() {
     };
 
     fetchData();
-  }, [week, user, authLoading, router, toast]); 
+  }, [week, user, router, toast]); 
   
   const previousWeek = getPreviousWeekRange();
   const weekLabel = `${previousWeek.start} - ${previousWeek.end}`;
@@ -132,6 +126,14 @@ export default function DashboardPage() {
         variant: "destructive",
         title: "Error",
         description: "No hay datos para guardar.",
+      });
+      return;
+    }
+    if (!user) {
+      toast({
+        variant: "destructive",
+        title: "Error de autenticación",
+        description: "No estás autenticado para realizar esta acción.",
       });
       return;
     }
@@ -219,7 +221,7 @@ export default function DashboardPage() {
     }
   }
 
-  if (authLoading || isLoading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
