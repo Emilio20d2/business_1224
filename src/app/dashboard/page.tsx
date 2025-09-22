@@ -57,7 +57,7 @@ export default function DashboardPage() {
   const [isListDialogOpen, setIsListDialogOpen] = useState(false);
   const [listToEdit, setListToEdit] = useState<EditableList | null>(null);
 
-  const { logout } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
   const { toast } = useToast();
 
   const [listOptions, setListOptions] = useState({
@@ -68,6 +68,8 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!user) return; // No hacer nada si el usuario no está autenticado
+
       setIsLoading(true);
       try {
         const docRef = doc(db, "informes", week);
@@ -104,7 +106,7 @@ export default function DashboardPage() {
     };
 
     fetchData();
-  }, [week, toast]);
+  }, [week, toast, user]); // Añadir user a las dependencias
   
   const previousWeek = getPreviousWeekRange();
   const weekLabel = `${previousWeek.start} - ${previousWeek.end}`;
@@ -307,5 +309,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-    
