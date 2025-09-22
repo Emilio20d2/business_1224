@@ -50,63 +50,56 @@ const getPreviousWeekRange = () => {
 };
 
 export default function DashboardPage() {
-  const { user, loading: authLoading } = useContext(AuthContext);
+  const { user, loading: authLoading, logout } = useContext(AuthContext);
   const router = useRouter();
 
   const [data, setData] = useState<WeeklyData | null>(null);
   const [dataLoading, setDataLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-
   const [isListDialogOpen, setIsListDialogOpen] = useState(false);
   const [listToEdit, setListToEdit] = useState<EditableList | null>(null);
 
-  const { logout } = useContext(AuthContext);
   const { toast } = useToast();
 
   useEffect(() => {
-    // Si la autenticación aún está en curso, no hacemos nada.
-    if (authLoading) {
-      return;
-    }
-    // Si no hay usuario después de cargar, redirigir al login.
-    if (!user) {
-      router.push('/');
-      return;
-    }
+    // This effect ensures we only fetch data when the user is confirmed.
+    if (!authLoading && user) {
+      const fetchData = async () => {
+        setDataLoading(true);
+        setError(null);
+        console.log(`Auth state confirmed. User UID: ${user.uid}. Fetching Firestore data...`);
+        try {
+          const week = "semana-24";
+          const docRef = doc(db, "informes", week);
+          const docSnap = await getDoc(docRef);
 
-    // Si hay un usuario, procedemos a cargar los datos.
-    const fetchData = async () => {
-      setDataLoading(true);
-      setError(null);
-      console.log(`User authenticated with UID: ${user.uid}. Fetching Firestore data...`);
-      try {
-        const week = "semana-24";
-        const docRef = doc(db, "informes", week);
-        const docSnap = await getDoc(docRef);
-
-        if (docSnap.exists()) {
-          console.log("Data found in Firestore.");
-          setData(docSnap.data() as WeeklyData);
-        } else {
-          console.log("No data in Firestore for this week, creating with initial data.");
-          const initialData = getInitialDataForWeek(week);
-          await setDoc(docRef, initialData); // Save initial data to Firestore
-          setData(initialData);
-          console.log("Initial data set in Firestore.");
+          if (docSnap.exists()) {
+            console.log("Data found in Firestore.");
+            setData(docSnap.data() as WeeklyData);
+          } else {
+            console.log("No data in Firestore for this week, creating with initial data.");
+            const initialData = getInitialDataForWeek(week);
+            await setDoc(docRef, initialData);
+            setData(initialData);
+            console.log("Initial data set in Firestore.");
+          }
+        } catch (err: any) {
+          console.error("Error fetching or setting Firestore document:", err);
+          setError(`Error: ${err.message} (Code: ${err.code})`);
+        } finally {
+          setDataLoading(false);
         }
-      } catch (err: any) {
-        console.error("Error fetching or setting Firestore document:", err);
-        setError(`Error: ${err.message} (Code: ${err.code})`);
-      } finally {
-        setDataLoading(false);
-      }
-    };
+      };
+      
+      fetchData();
 
-    fetchData();
-
+    } else if (!authLoading && !user) {
+      // If auth has loaded and there's no user, redirect to login.
+      router.push('/');
+    }
+    // If auth is still loading, we do nothing and wait.
   }, [user, authLoading, router]);
 
   const listOptions = data ? {
@@ -186,6 +179,7 @@ export default function DashboardPage() {
     }
   }
 
+  // Unified loading state
   if (authLoading || dataLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
@@ -211,7 +205,7 @@ export default function DashboardPage() {
   if (!data) {
      return (
       <div className="flex flex-col items-center justify-center min-h-screen">
-        <p>No se pudieron cargar los datos.</p>
+        <p>No se pudieron cargar los datos o no hay usuario autenticado.</p>
       </div>
     );
   }
