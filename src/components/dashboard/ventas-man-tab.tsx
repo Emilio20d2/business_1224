@@ -15,6 +15,7 @@ import {
 import { ImagePlus } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 type VentasManData = WeeklyData["ventasMan"];
 type TableData = VentasManData[keyof VentasManData];
@@ -50,8 +51,15 @@ const DataTable = ({ data, headers }: { data: TableData, headers: string[] }) =>
                 </TableHeader>
                 <TableBody>
                     {data.map((item, index) => (
-                        <TableRow key={index}>
-                            <TableCell className="text-right font-medium">{formatPercentage(item.pesoPorc)}</TableCell>
+                        <TableRow key={index} className="relative cursor-pointer hover:bg-muted/50">
+                             <TableCell className="text-right font-medium">
+                                { item.imageUrl && 
+                                    <Link href={item.imageUrl} target="_blank" rel="noopener noreferrer" className="absolute inset-0 z-10">
+                                        <span className="sr-only">Ver imagen</span>
+                                    </Link>
+                                }
+                                {formatPercentage(item.pesoPorc)}
+                            </TableCell>
                             <TableCell>{item.nombre}</TableCell>
                             <TableCell className="text-right font-medium">{formatCurrency(item.totalEuros)}</TableCell>
                             <TableCell className="text-right">
