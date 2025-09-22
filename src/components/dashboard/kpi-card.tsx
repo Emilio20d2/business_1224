@@ -55,7 +55,7 @@ export function DatoDoble({ label, value, variation, unit, isEditing, valueId }:
 
 
 type DatoSimpleProps = {
-  label: string;
+  label?: string;
   value: string | number | React.ReactNode;
   isEditing?: boolean;
   valueId?: string;
@@ -95,12 +95,12 @@ export function DatoSimple({ label, value, isEditing, valueId, className, icon, 
 
     const alignmentClasses = {
         left: "justify-between",
-        center: "flex-col items-center",
+        center: "flex-col items-center justify-center text-center gap-1",
         right: "justify-between",
     }
     const labelAlignmentClasses = {
         left: "",
-        center: "text-center !text-sm !text-muted-foreground",
+        center: "text-center !text-xs !font-normal !text-muted-foreground",
         right: "text-right",
     }
     const valueAlignmentClasses = {
@@ -114,7 +114,7 @@ export function DatoSimple({ label, value, isEditing, valueId, className, icon, 
         <div className={cn("flex items-center text-md", alignmentClasses[align], className)}>
             <span className={cn("flex items-center gap-2 text-muted-foreground", labelAlignmentClasses[align])}>
               {icon}
-              {label}
+              {label && label}
             </span>
             {isEditing ? <Input type="text" defaultValue={String(value).replace(/[^0-p-9.]+/g, '')} className="w-24 h-8" id={valueId}/> : <div className={valueAlignmentClasses[align]}>{renderValue()}</div>}
         </div>

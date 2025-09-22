@@ -14,7 +14,12 @@ import {
   Truck,
   PackageCheck,
   Server,
-  CaseUpper
+  CaseUpper,
+  Waypoints,
+  Smartphone,
+  Ticket,
+  Percent,
+  RefreshCw
 } from "lucide-react";
 
 type DatosSemanalesTabProps = {
@@ -56,7 +61,7 @@ const FilaModulo = ({ icon, label, value }: { icon: React.ReactNode, label: stri
 
 export function DatosSemanalesTab({ data, isEditing }: DatosSemanalesTabProps) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-6 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
       {/* Ventas */}
       <KpiCard title="Ventas" icon={<Euro className="h-5 w-5 text-primary" />} className="md:col-span-3">
         <DatoDoble 
@@ -92,45 +97,41 @@ export function DatosSemanalesTab({ data, isEditing }: DatosSemanalesTabProps) {
         />
       </KpiCard>
       
-       {/* Contenedor para Caja y Operaciones */}
-      <div className="md:col-span-3 flex flex-col gap-6">
-        <KpiCard title="Caja" icon={<Receipt className="h-5 w-5 text-primary" />}>
+       {/* Contenedor para Caja */}
+       <KpiCard title="Caja" icon={<Receipt className="h-5 w-5 text-primary" />} className="md:col-span-3">
           <div className="grid grid-cols-2 gap-x-8 gap-y-4">
-              <DatoSimple label="Filas Caja" value={`${formatPercentage(data.operaciones.filasCajaPorc)}`} isEditing={isEditing} valueId="input-op-filas-caja" />
-              <DatoSimple label="ACO" value={`${formatPercentage(data.operaciones.scoPorc)}`} isEditing={isEditing} valueId="input-op-sco" />
-              <DatoSimple label="V. Ipod" value={formatNumber(data.operaciones.ventaIpod)} isEditing={isEditing} valueId="input-op-vipod" />
-              <DatoSimple label="E-Ticket" value={`${formatPercentage(data.operaciones.eTicketPorc)}`} isEditing={isEditing} valueId="input-op-eticket" />
+              <DatoSimple icon={<Waypoints />} label="Filas Caja" value={`${formatPercentage(data.operaciones.filasCajaPorc)}`} isEditing={isEditing} valueId="input-op-filas-caja" />
+              <DatoSimple icon={<Percent />} label="ACO" value={`${formatPercentage(data.operaciones.scoPorc)}`} isEditing={isEditing} valueId="input-op-sco" />
+              <DatoSimple icon={<Smartphone />} label="V. Ipod" value={formatNumber(data.operaciones.ventaIpod)} isEditing={isEditing} valueId="input-op-vipod" />
+              <DatoSimple icon={<Ticket />} label="E-Ticket" value={`${formatPercentage(data.operaciones.eTicketPorc)}`} isEditing={isEditing} valueId="input-op-eticket" />
           </div>
         </KpiCard>
+
+      {/* Contenedor para Pérdidas y Operaciones */}
+      <div className="md:col-span-3 flex flex-col gap-4">
+        <div className="grid grid-cols-2 gap-4">
+          <KpiCard title="GAP" icon={<ClipboardX className="h-5 w-5 text-destructive" />}>
+            <DatoSimple 
+                value={`${formatGap(data.perdidas.gap.euros, '€')} / ${formatGap(data.perdidas.gap.unidades, 'Unid.')}`} 
+                isEditing={isEditing}
+                valueId="input-perdidas-gap"
+                align="center"
+            />
+          </KpiCard>
+          <KpiCard title="Merma" icon={<Trash2 className="h-5 w-5 text-destructive" />}>
+            <DatoSimple 
+                value={`${formatNumber(data.perdidas.merma.unidades)} Unid. (${formatPercentage(data.perdidas.merma.porcentaje)})`}
+                isEditing={isEditing}
+                valueId="input-perdidas-merma"
+                align="center"
+            />
+          </KpiCard>
+        </div>
         <KpiCard title="Operaciones" icon={<Server className="h-5 w-5 text-primary" />}>
           <div className="grid grid-cols-2 gap-x-8 gap-y-4">
-              <DatoSimple label="SINT" value={formatNumber(data.operaciones.sint)} isEditing={isEditing} valueId="input-op-sint" />
-              <DatoSimple label="Repo" value={`${formatPercentage(data.operaciones.repoPorc)}`} isEditing={isEditing} valueId="input-op-repo" />
+              <DatoSimple icon={<CaseUpper />} label="SINT" value={formatNumber(data.operaciones.sint)} isEditing={isEditing} valueId="input-op-sint" />
+              <DatoSimple icon={<RefreshCw />} label="Repo" value={`${formatPercentage(data.operaciones.repoPorc)}`} isEditing={isEditing} valueId="input-op-repo" />
           </div>
-        </KpiCard>
-      </div>
-
-      {/* Contenedor para Pérdidas */}
-      <div className="md:col-span-3 flex flex-col gap-6">
-        {/* GAP */}
-        <KpiCard title="GAP" icon={<ClipboardX className="h-5 w-5 text-destructive" />}>
-           <DatoSimple 
-              label="Resultado"
-              value={`${formatGap(data.perdidas.gap.euros, '€')} / ${formatGap(data.perdidas.gap.unidades, 'Unid.')}`} 
-              isEditing={isEditing}
-              valueId="input-perdidas-gap"
-              align="center"
-          />
-        </KpiCard>
-        {/* Merma */}
-         <KpiCard title="Merma" icon={<Trash2 className="h-5 w-5 text-destructive" />}>
-           <DatoSimple 
-              label="Resultado" 
-              value={`${formatNumber(data.perdidas.merma.unidades)} Unid. (${formatPercentage(data.perdidas.merma.porcentaje)})`}
-              isEditing={isEditing}
-              valueId="input-perdidas-merma"
-              align="center"
-          />
         </KpiCard>
       </div>
       
