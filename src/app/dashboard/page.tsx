@@ -137,31 +137,21 @@ export default function DashboardPage() {
 
         const updatedData = JSON.parse(JSON.stringify(prevData));
         const keys = path.split('.');
-        let current = updatedData;
+        let current: any = updatedData;
         
         for (let i = 0; i < keys.length - 1; i++) {
             const key = keys[i];
             if (current[key] === undefined) {
+                 // Path does not exist, return original data
                  return prevData;
             }
             current = current[key];
         }
         
         const finalKey = keys[keys.length - 1];
-        
-        const arrayMatch = finalKey.match(/(\w+)\[(\d+)\]/);
-        if(arrayMatch){
-            const arrayKey = arrayMatch[1];
-            const index = parseInt(arrayMatch[2], 10);
-            if (current[arrayKey] && current[arrayKey][index]) {
-                const itemKey = keys[keys.length - 1].split('.')[1];
-                current[arrayKey][index] = value;
-            }
-            return updatedData;
-        }
-
         const target = current[finalKey];
 
+        // If the target is a number, convert the input value to a number
         if (typeof target === 'number') {
             const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
             current[finalKey] = isNaN(numericValue) ? 0 : numericValue;
@@ -233,13 +223,13 @@ export default function DashboardPage() {
         const currentItems = updatedData.ventasMan[listKey];
         const newItemsList: any[] = [];
   
-        // Keep existing items that are still in the new list, and add new ones
+        // Add new items from the updated list that are not in the current data
         for (const itemName of newList) {
             const existingItem = currentItems.find((item: any) => item.nombre === itemName);
             if (existingItem) {
                 newItemsList.push(existingItem);
             } else {
-                const newItem: any = {
+                 const newItem: any = {
                     nombre: itemName,
                     pesoPorc: 0,
                     totalEuros: 0,
@@ -252,7 +242,7 @@ export default function DashboardPage() {
             }
         }
         
-        // Filter out items that are no longer in the master list
+        // Filter out items that are no longer in the master list and assign the synced list
         updatedData.ventasMan[listKey] = newItemsList.filter((item: any) => newList.includes(item.nombre));
         
         return updatedData;

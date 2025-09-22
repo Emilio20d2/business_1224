@@ -116,8 +116,9 @@ export function DatoSimple({ label, value, isEditing, valueId, className, icon, 
     };
     
     const rawValue = typeof value === 'string'
-        ? value.replace(/[^0-9.,-]+/g, '')
-        : value;
+      ? parseFloat(value.replace(/[^0-9.,-]+/g, '').replace(',', '.'))
+      : value;
+
 
     const renderValue = () => {
         if (isEditing && valueId && onInputChange) {
