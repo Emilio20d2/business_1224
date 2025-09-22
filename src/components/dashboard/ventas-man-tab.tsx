@@ -92,9 +92,9 @@ const ImageImportCard = ({ isEditing }: { isEditing: boolean }) => {
     }
 
     return (
-        <Card className="relative overflow-hidden p-0 gap-0">
-            <CardContent className="p-0">
-                <div className="w-full aspect-[5/4] bg-muted flex items-center justify-center">
+        <Card className="relative overflow-hidden p-0 gap-0 w-full aspect-[5/4]">
+            <CardContent className="p-0 h-full">
+                <div className="w-full h-full bg-muted flex items-center justify-center">
                     {imagePreview ? (
                         <img src={imagePreview} alt="Previsualización" className="h-full w-full object-cover" />
                     ) : (
@@ -123,10 +123,8 @@ const ImageImportCard = ({ isEditing }: { isEditing: boolean }) => {
 
 
 const SubTabContent = ({ data, headers, isEditing }: { data: TableData, headers: string[], isEditing: boolean }) => (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="md:col-span-2">
-          <DataTable data={data} headers={headers} />
-        </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+        <DataTable data={data} headers={headers} />
         <ImageImportCard isEditing={isEditing} />
     </div>
 );
