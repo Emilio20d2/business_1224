@@ -152,7 +152,7 @@ export default function Home() {
         <Tabs defaultValue="datosSemanales">
           <TabsList className="grid w-full grid-cols-1 md:grid-cols-5 mb-4">
             <TabsTrigger value="datosSemanales">Datos Semanales</TabsTrigger>
-            <TabsTrigger value="datosPorSeccion">Datos por Sección</TabsTrigger>
+            <TabsTrigger value="datosPorSeccion">Ventas Sección</TabsTrigger>
             <TabsTrigger value="ventasMan">Ventas Man</TabsTrigger>
             <TabsTrigger value="aqneSemanal" disabled>AQNE Semanal</TabsTrigger>
             <TabsTrigger value="acumulado" disabled>Acumulado</TabsTrigger>
