@@ -120,12 +120,17 @@ type VentaDiaria = {
     nino: number;
 };
 
-const initialData: Omit<WeeklyData, 'periodo'> = {
-    "listas": {
+// This function now provides only the lists for initial setup.
+export function getInitialLists() {
+    return {
         "comprador": ["MAN", "GLOBAL", "CIRCULAR", "DNWR", "SPORT", "ACCES", "BASIC", "EXTRA1", "EXTRA2"],
         "zonaComercial": ["MAN FORMAL", "GLB URBAN", "CIRCULAR", "ZONA D", "ZONA E", "ZONA F", "ZONA G", "ZONA H", "ZONA I", "ZONA J"],
         "agrupacionComercial": ["PANTALON", "SASTRERIA", "TEJANO", "CAMISA", "POLO", "ZAPATO", "BERMUDA", "TRICOT", "ACCESORIOS", "BAÑO"]
-    },
+    };
+}
+
+
+const initialReportData: Omit<WeeklyData, 'periodo' | 'listas'> = {
     "ventas": {
         "totalEuros": 244494,
         "varPorcEuros": 14.5,
@@ -306,9 +311,10 @@ const initialData: Omit<WeeklyData, 'periodo'> = {
     }
   };
 
-export function getInitialDataForWeek(week: string): WeeklyData {
+// This function now only cares about the report data. Lists are handled separately.
+export function getInitialDataForWeek(week: string): any {
     return {
-        ...initialData,
+        ...initialReportData,
         periodo: week.toUpperCase().replace('-', ' '),
     }
 }

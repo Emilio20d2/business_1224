@@ -33,11 +33,16 @@ import { es } from 'date-fns/locale';
 import { EditListDialog } from '@/components/dashboard/edit-list-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { AuthContext } from '@/context/auth-context';
-import { getInitialDataForWeek } from '@/lib/data';
+import { getInitialDataForWeek, getInitialLists } from '@/lib/data';
 import { useRouter } from 'next/navigation';
 
 
 type EditableList = 'comprador' | 'zonaComercial' | 'agrupacionComercial';
+type ListData = {
+    comprador: string[];
+    zonaComercial: string[];
+    agrupacionComercial: string[];
+};
 
 const getPreviousWeekRange = () => {
     const today = new Date();
@@ -71,28 +76,51 @@ export default function DashboardPage() {
     }
   
     if (!authLoading && user) {
-      const fetchData = async () => {
-        setDataLoading(true);
-        setError(null);
-        try {
-          const week = "semana-24";
-          const docRef = doc(db, "informes", week);
-          const docSnap = await getDoc(docRef);
+        const fetchData = async () => {
+            setDataLoading(true);
+            setError(null);
+            try {
+                const week = "semana-24";
+                const reportRef = doc(db, "informes", week);
+                const listsRef = doc(db, "configuracion", "listas");
 
-          if (docSnap.exists()) {
-            setData(docSnap.data() as WeeklyData);
-          } else {
-            const initialData = getInitialDataForWeek(week);
-            await setDoc(docRef, initialData);
-            setData(initialData);
-          }
-        } catch (err: any) {
-          console.error("Error fetching or setting Firestore document:", err);
-          setError(`Error: ${err.message}. Asegúrate de que las reglas de Firestore son correctas.`);
-        } finally {
-          setDataLoading(false);
-        }
-      };
+                const [reportSnap, listsSnap] = await Promise.all([
+                    getDoc(reportRef),
+                    getDoc(listsRef)
+                ]);
+
+                let reportData: WeeklyData;
+                let listData: ListData;
+
+                // Handle report data
+                if (reportSnap.exists()) {
+                    reportData = reportSnap.data() as WeeklyData;
+                } else {
+                    reportData = getInitialDataForWeek(week);
+                    await setDoc(reportRef, reportData);
+                }
+
+                // Handle list data
+                if (listsSnap.exists()) {
+                    listData = listsSnap.data() as ListData;
+                } else {
+                    listData = getInitialLists();
+                    await setDoc(listsRef, listData);
+                }
+                
+                // Combine data into state
+                setData({
+                    ...reportData,
+                    listas: listData,
+                });
+
+            } catch (err: any) {
+                console.error("Error fetching or setting Firestore document:", err);
+                setError(`Error: ${err.message}. Asegúrate de que las reglas de Firestore son correctas.`);
+            } finally {
+                setDataLoading(false);
+            }
+        };
       
       fetchData();
     }
@@ -149,8 +177,9 @@ export default function DashboardPage() {
     if (!data) return;
     setIsSaving(true);
     try {
+      const { listas, ...reportData } = data; // Exclude listas from report save
       const docRef = doc(db, "informes", data.periodo.toLowerCase().replace(' ', '-'));
-      await setDoc(docRef, data, { merge: true });
+      await setDoc(docRef, reportData, { merge: true });
       toast({
         title: "¡Guardado!",
         description: "Los cambios se han guardado en la base de datos.",
@@ -178,57 +207,62 @@ export default function DashboardPage() {
     setIsListDialogOpen(true);
   };
 
-  const handleSaveList = (newList: string[]) => {
-    if (listToEdit && data) {
-      const updatedData = JSON.parse(JSON.stringify(data));
+ const handleSaveList = async (newList: string[]) => {
+    if (!listToEdit || !data) return;
   
-      updatedData.listas[listToEdit] = newList;
+    // 1. Update the list in the general configuration
+    const listsRef = doc(db, "configuracion", "listas");
+    await setDoc(listsRef, { [listToEdit]: newList }, { merge: true });
+
+    // 2. Update the local state to reflect the change immediately
+    setData(prevData => {
+        if (!prevData) return null;
+        
+        const updatedData = JSON.parse(JSON.stringify(prevData));
+        updatedData.listas[listToEdit] = newList;
   
-      let listKey: 'pesoComprador' | 'zonaComercial' | 'agrupacionComercial';
-      switch (listToEdit) {
-        case 'comprador':
-          listKey = 'pesoComprador';
-          break;
-        case 'zonaComercial':
-          listKey = 'zonaComercial';
-          break;
-        case 'agrupacionComercial':
-          listKey = 'agrupacionComercial';
-          break;
-        default:
-          return;
-      }
-      
-      const currentItems = updatedData.ventasMan[listKey];
-      const newItemsList: any[] = [];
-  
-      // Add existing items that are in the new list, and new items
-      for (const itemName of newList) {
-        const existingItem = currentItems.find((item: any) => item.nombre === itemName);
-        if (existingItem) {
-          newItemsList.push(existingItem);
-        } else {
-          const newItem: any = {
-            nombre: itemName,
-            pesoPorc: 0,
-            totalEuros: 0,
-            varPorc: 0,
-          };
-          if (listKey === 'pesoComprador') {
-            newItem.imageUrl = `https://picsum.photos/seed/${itemName.replace(/\s/g, '')}/500/400`;
-          }
-          newItemsList.push(newItem);
+        // 3. Synchronize the corresponding data table in VentasMan
+        let listKey: 'pesoComprador' | 'zonaComercial' | 'agrupacionComercial';
+        switch (listToEdit) {
+            case 'comprador': listKey = 'pesoComprador'; break;
+            case 'zonaComercial': listKey = 'zonaComercial'; break;
+            case 'agrupacionComercial': listKey = 'agrupacionComercial'; break;
+            default: return updatedData;
         }
-      }
-      
-      updatedData.ventasMan[listKey] = newItemsList.filter((item: any) => newList.includes(item.nombre));
-      
-      setData(updatedData);
-      setIsEditing(true);
-    }
+        
+        const currentItems = updatedData.ventasMan[listKey];
+        const newItemsList: any[] = [];
+  
+        // Keep existing items that are still in the new list, and add new ones
+        for (const itemName of newList) {
+            const existingItem = currentItems.find((item: any) => item.nombre === itemName);
+            if (existingItem) {
+                newItemsList.push(existingItem);
+            } else {
+                const newItem: any = {
+                    nombre: itemName,
+                    pesoPorc: 0,
+                    totalEuros: 0,
+                    varPorc: 0,
+                };
+                if (listKey === 'pesoComprador') {
+                    newItem.imageUrl = `https://picsum.photos/seed/${itemName.replace(/\s/g, '')}/500/400`;
+                }
+                newItemsList.push(newItem);
+            }
+        }
+        
+        // Filter out items that are no longer in the master list
+        updatedData.ventasMan[listKey] = newItemsList.filter((item: any) => newList.includes(item.nombre));
+        
+        return updatedData;
+    });
+
+    setIsEditing(true); // Enable save button
     setListToEdit(null);
     setIsListDialogOpen(false);
   };
+
 
   const getTitleForList = (listName: EditableList | null) => {
     switch (listName) {
@@ -384,5 +418,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-    
