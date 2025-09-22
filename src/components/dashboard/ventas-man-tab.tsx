@@ -165,7 +165,7 @@ const ImageImportCard = ({ selectedRow, isEditing, onImageChange }: { selectedRo
 };
 
 
-const SubTabContent = ({ data, headers, isEditing, allItems, dataKey, onInputChange }: { data: TableData, headers: string[], isEditing: boolean, allItems: string[], dataKey: TableDataKey, onInputChange: VentasManTabProps['onInputChange'] }) => {
+const SubTabContent = ({ data, headers, isEditing, allItems, dataKey, onInputChange, showImage }: { data: TableData, headers: string[], isEditing: boolean, allItems: string[], dataKey: TableDataKey, onInputChange: VentasManTabProps['onInputChange'], showImage: boolean }) => {
     const [selectedIndex, setSelectedIndex] = React.useState<number | null>(data.length > 0 ? 0 : null);
 
     React.useEffect(() => {
@@ -191,9 +191,9 @@ const SubTabContent = ({ data, headers, isEditing, allItems, dataKey, onInputCha
     const selectedRow = selectedIndex !== null ? data[selectedIndex] : null;
     
     return (
-        <div className="grid gap-4 items-start grid-cols-1 md:grid-cols-2">
+        <div className={cn("grid gap-4 items-start", showImage ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1")}>
              <DataTable data={data} headers={headers} isEditing={isEditing} allItems={allItems} onRowClick={handleRowClick} dataKey={dataKey} onInputChange={onInputChange} selectedIndex={selectedIndex} />
-             <ImageImportCard selectedRow={selectedRow} isEditing={isEditing} onImageChange={handleImageChange} />
+             {showImage && <ImageImportCard selectedRow={selectedRow} isEditing={isEditing} onImageChange={handleImageChange} />}
         </div>
     );
 }
@@ -209,13 +209,13 @@ export function VentasManTab({ data, isEditing, listOptions, onInputChange }: Ve
         <TabsTrigger value="agrupacionComercial">Agrup. Com.</TabsTrigger>
       </TabsList>
       <TabsContent value="comprador">
-         <SubTabContent data={data.pesoComprador} headers={['COMPRADOR', 'PESO %', '€', '%']} isEditing={isEditing} allItems={listOptions.comprador} dataKey="pesoComprador" onInputChange={onInputChange} />
+         <SubTabContent data={data.pesoComprador} headers={['COMPRADOR', 'PESO %', '€', '%']} isEditing={isEditing} allItems={listOptions.comprador} dataKey="pesoComprador" onInputChange={onInputChange} showImage={true} />
       </TabsContent>
       <TabsContent value="zonaComercial">
-        <SubTabContent data={data.zonaComercial} headers={['ZONA COMPRADOR', 'PESO %', '€', '%']} isEditing={isEditing} allItems={listOptions.zonaComercial} dataKey="zonaComercial" onInputChange={onInputChange}/>
+        <SubTabContent data={data.zonaComercial} headers={['ZONA COMPRADOR', 'PESO %', '€', '%']} isEditing={isEditing} allItems={listOptions.zonaComercial} dataKey="zonaComercial" onInputChange={onInputChange} showImage={false} />
       </TabsContent>
       <TabsContent value="agrupacionComercial">
-         <SubTabContent data={data.agrupacionComercial} headers={['AGRUP. COM.', 'PESO %', '€', '%']} isEditing={isEditing} allItems={listOptions.agrupacionComercial} dataKey="agrupacionComercial" onInputChange={onInputChange}/>
+         <SubTabContent data={data.agrupacionComercial} headers={['AGRUP. COM.', 'PESO %', '€', '%']} isEditing={isEditing} allItems={listOptions.agrupacionComercial} dataKey="agrupacionComercial" onInputChange={onInputChange} showImage={false} />
       </TabsContent>
     </Tabs>
   );
