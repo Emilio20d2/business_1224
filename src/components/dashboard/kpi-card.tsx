@@ -76,8 +76,9 @@ export function DatoSimple({ label, value, isEditing, valueId, className, icon, 
             const firstValue = parseFloat(firstPart.replace(/[^0-9.,-]+/g, '').replace(',', '.'));
             
             return (
-                <div className="font-semibold text-center flex flex-col items-center justify-center gap-1 text-lg">
+                <div className="font-semibold text-center flex flex-row items-center justify-center gap-2 text-lg">
                     <span className={firstValue >= 0 ? 'text-green-600' : 'text-red-600'}>{firstPart}</span>
+                    <span className="text-muted-foreground">/</span>
                     <span className="font-semibold">{secondPart}</span>
                 </div>
             );
