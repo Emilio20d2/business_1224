@@ -12,7 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Upload, ImagePlus } from 'lucide-react';
+import { ImagePlus } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
@@ -93,7 +93,7 @@ const ImageImportCard = ({ isEditing }: { isEditing: boolean }) => {
 
     return (
         <Card className="relative overflow-hidden p-0 gap-0">
-            <CardContent className="p-0 h-full">
+            <CardContent className="p-0">
                 <div className="w-full aspect-[5/4] bg-muted flex items-center justify-center">
                     {imagePreview ? (
                         <img src={imagePreview} alt="Previsualización" className="h-full w-full object-cover" />
@@ -123,8 +123,10 @@ const ImageImportCard = ({ isEditing }: { isEditing: boolean }) => {
 
 
 const SubTabContent = ({ data, headers, isEditing }: { data: TableData, headers: string[], isEditing: boolean }) => (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <DataTable data={data} headers={headers} />
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="md:col-span-2">
+          <DataTable data={data} headers={headers} />
+        </div>
         <ImageImportCard isEditing={isEditing} />
     </div>
 );
@@ -132,13 +134,13 @@ const SubTabContent = ({ data, headers, isEditing }: { data: TableData, headers:
 
 export function VentasManTab({ data, isEditing }: VentasManTabProps) {
   return (
-    <Tabs defaultValue="pesoComprador" className="w-full">
+    <Tabs defaultValue="comprador" className="w-full">
       <TabsList className="grid w-full grid-cols-3 mx-auto max-w-md mb-4">
-        <TabsTrigger value="pesoComprador">Comprador</TabsTrigger>
+        <TabsTrigger value="comprador">Comprador</TabsTrigger>
         <TabsTrigger value="zonaComercial">Zona Comp.</TabsTrigger>
         <TabsTrigger value="agrupacionComercial">Agrup. Com.</TabsTrigger>
       </TabsList>
-      <TabsContent value="pesoComprador">
+      <TabsContent value="comprador">
          <SubTabContent data={data.pesoComprador} headers={['PESO %', 'COMPRADOR', '€', '%']} isEditing={isEditing} />
       </TabsContent>
       <TabsContent value="zonaComercial">
