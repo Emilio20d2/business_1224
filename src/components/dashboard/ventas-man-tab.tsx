@@ -50,7 +50,7 @@ const TrendIndicator = ({ value }: { value: number }) => {
   );
 };
 
-const DataTable = ({ data, headers, isEditing, categoryKey, allItems }: { data: TableData, headers: string[], isEditing: boolean, categoryKey: keyof VisibilityConfig, allItems: TableItem[] }) => {
+const DataTable = ({ data, headers, isEditing, allItems, onRowClick }: { data: TableData, headers: string[], isEditing: boolean, allItems: TableItem[], onRowClick: (item: TableItem) => void }) => {
     if (!data || data.length === 0) {
         return <p className="text-center text-muted-foreground mt-8">No hay datos disponibles para esta sección.</p>;
     }
@@ -68,6 +68,14 @@ const DataTable = ({ data, headers, isEditing, categoryKey, allItems }: { data: 
                 <TableBody>
                     {data.map((item, index) => (
                         <TableRow key={index} className="relative cursor-pointer hover:bg-muted/50">
+                            {!isEditing && (
+                                <div 
+                                    className="absolute inset-0 z-10"
+                                    onClick={() => onRowClick(item)}
+                                    role="button"
+                                    aria-label={`Ver detalles de ${item.nombre}`}
+                                />
+                            )}
                             <TableCell>
                                 {isEditing ? (
                                     <Select defaultValue={item.nombre}>
@@ -97,25 +105,7 @@ const DataTable = ({ data, headers, isEditing, categoryKey, allItems }: { data: 
     );
 };
 
-const ImageImportCard = ({ isEditing, selectedRow }: { isEditing: boolean, selectedRow: TableItem | null }) => {
-    const [imageFile, setImageFile] = React.useState<File | null>(null);
-    const fileInputRef = React.useRef<HTMLInputElement>(null);
-
-    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (file) {
-            setImageFile(file);
-        }
-    };
-
-    const handleSelectImageClick = () => {
-        fileInputRef.current?.click();
-    };
-
-    const handleImportClick = () => {
-        console.log("Importing image:", imageFile?.name);
-    }
-    
+const ImageImportCard = ({ selectedRow }: { selectedRow: TableItem | null }) => {
     const displayImage = selectedRow?.imageUrl;
 
     return (
@@ -131,18 +121,6 @@ const ImageImportCard = ({ isEditing, selectedRow }: { isEditing: boolean, selec
                         </div>
                     )}
                 </div>
-
-                {isEditing && (
-                    <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/60 to-transparent">
-                        <div className="w-full flex flex-col gap-2">
-                            <Input id="picture" type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*" />
-                            <Button variant="secondary" onClick={handleSelectImageClick}>
-                                Seleccionar Imagen
-                            </Button>
-                            {imageFile && <Button onClick={handleImportClick}>Importar Imagen</Button>}
-                        </div>
-                    </div>
-                )}
             </CardContent>
         </Card>
     );
@@ -153,13 +131,15 @@ const SubTabContent = ({ data, headers, isEditing, categoryKey, allItems }: { da
     const [selectedRow, setSelectedRow] = React.useState<TableItem | null>(null);
 
     const handleRowClick = (item: TableItem) => {
-        setSelectedRow(item);
+        if (!isEditing) {
+            setSelectedRow(item);
+        }
     };
     
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
-             <DataTable data={data} headers={headers} isEditing={isEditing} categoryKey={categoryKey} allItems={allItems} />
-            <ImageImportCard isEditing={isEditing} selectedRow={selectedRow}/>
+        <div className={cn("grid gap-4 items-start", isEditing ? "grid-cols-1" : "grid-cols-1 md:grid-cols-2")}>
+             <DataTable data={data} headers={headers} isEditing={isEditing} allItems={allItems} onRowClick={handleRowClick} />
+             {!isEditing && <ImageImportCard selectedRow={selectedRow}/>}
         </div>
     );
 }
