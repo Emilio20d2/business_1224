@@ -13,6 +13,7 @@ import { DatosSemanalesTab } from "@/components/dashboard/datos-semanales-tab";
 import { DatosPorSeccionTab } from "@/components/dashboard/datos-por-seccion-tab";
 import { VentasManTab } from "@/components/dashboard/ventas-man-tab";
 import { AqneSemanalTab } from "@/components/dashboard/aqne-semanal-tab";
+import { AcumuladoTab } from "@/components/dashboard/acumulado-tab";
 import { Button } from '@/components/ui/button';
 import { Settings } from 'lucide-react';
 import {
@@ -161,7 +162,7 @@ export default function Home() {
             <TabsTrigger value="ventasSeccion">Ventas Sección</TabsTrigger>
             <TabsTrigger value="ventasMan">Ventas Man</TabsTrigger>
             <TabsTrigger value="aqneSemanal">AQNE Semanal</TabsTrigger>
-            <TabsTrigger value="acumulado" disabled>Acumulado</TabsTrigger>
+            <TabsTrigger value="acumulado">Acumulado</TabsTrigger>
           </TabsList>
           <TabsContent value="datosSemanales">
             <DatosSemanalesTab data={data} isEditing={isEditing} />
@@ -176,7 +177,7 @@ export default function Home() {
              <AqneSemanalTab data={data} />
           </TabsContent>
            <TabsContent value="acumulado">
-             {/* This content will be added in a future step */}
+             <AcumuladoTab data={data.acumulado} isEditing={isEditing} />
           </TabsContent>
         </Tabs>
       </main>

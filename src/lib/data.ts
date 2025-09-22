@@ -180,7 +180,27 @@ export const datosSemanales = {
         { "dia": "VIERNES", "total": 50686, "woman": 28746, "man": 12332, "nino": 9608 },
         { "dia": "SÁBADO", "total": 101809, "woman": 58416, "man": 25779, "nino": 17614 },
         { "dia": "DOMINGO", "total": 0, "woman": 0, "man": 0, "nino": 0 }
-    ]
+    ],
+    "acumulado": {
+        "mensual": {
+            "totalEuros": 1421369,
+            "varPorcTotal": 12.6,
+            "desglose": [
+                { "nombre": "Woman", "totalEuros": 816587, "varPorc": 11.0, "pesoPorc": 57.5 },
+                { "nombre": "Man", "totalEuros": 382012, "varPorc": 18.6, "pesoPorc": 26.9 },
+                { "nombre": "Niño", "totalEuros": 222770, "varPorc": 8.3, "pesoPorc": 15.7 }
+            ]
+        },
+        "anual": {
+            "totalEuros": 18604000,
+            "varPorcTotal": 19.4,
+            "desglose": [
+                { "nombre": "Woman", "totalEuros": 10001000, "varPorc": 20.0, "pesoPorc": 53.8 },
+                { "nombre": "Man", "totalEuros": 5712000, "varPorc": 21.2, "pesoPorc": 30.7 },
+                { "nombre": "Niño", "totalEuros": 2891000, "varPorc": 14.0, "pesoPorc": 15.5 }
+            ]
+        }
+    }
   },
   "semana-23": {
     "periodo": "SEMANA 23",
@@ -253,6 +273,18 @@ export const datosSemanales = {
         "man": { "pesoPorc": 0, "metricasPrincipales": { "totalEuros": 0, "varPorcEuros": 0, "totalUnidades": 0, "varPorcUnidades": 0 }, "desglose": [] },
         "nino": { "pesoPorc": 0, "metricasPrincipales": { "totalEuros": 0, "varPorcEuros": 0, "totalUnidades": 0, "varPorcUnidades": 0 }, "desglose": [] }
     },
-    "ventasDiariasAQNE": []
+    "ventasDiariasAQNE": [],
+    "acumulado": {
+        "mensual": {
+            "totalEuros": 0,
+            "varPorcTotal": 0,
+            "desglose": []
+        },
+        "anual": {
+            "totalEuros": 0,
+            "varPorcTotal": 0,
+            "desglose": []
+        }
+    }
   }
 };

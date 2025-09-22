@@ -1,0 +1,125 @@
+import React from 'react';
+import type { WeeklyData } from "@/lib/data";
+import { formatCurrency, formatPercentage } from "@/lib/format";
+import { cn } from "@/lib/utils";
+import { KpiCard, DatoDoble } from "./kpi-card";
+import { Input } from "@/components/ui/input";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  ResponsiveContainer,
+  Legend
+} from 'recharts';
+
+type AcumuladoData = WeeklyData["acumulado"];
+type AcumuladoPeriodoData = AcumuladoData[keyof AcumuladoData];
+
+type AcumuladoTabProps = {
+  data: AcumuladoData;
+  isEditing: boolean;
+};
+
+const COLORS = {
+  'Woman': 'hsl(355, 71%, 60%)',
+  'Man': 'hsl(217, 56%, 60%)',
+  'Niño': 'hsl(172, 29%, 57%)'
+};
+
+const AcumuladoCard = ({ title, data, isEditing, idPrefix }: { title: string, data: AcumuladoPeriodoData, isEditing: boolean, idPrefix: string }) => {
+  const chartData = data.desglose.map(item => ({
+    name: item.nombre,
+    value: item.pesoPorc
+  }));
+
+  return (
+    <KpiCard title={title} icon={<></>} className="flex-1">
+      <DatoDoble 
+        value={formatCurrency(data.totalEuros)} 
+        variation={data.varPorcTotal}
+        isEditing={isEditing}
+        valueId={`${idPrefix}-total-euros`}
+      />
+      
+      <div className="h-48 w-full">
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie
+              data={chartData}
+              cx="50%"
+              cy="50%"
+              labelLine={false}
+              outerRadius={60}
+              fill="#8884d8"
+              dataKey="value"
+            >
+              {chartData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={COLORS[entry.name as keyof typeof COLORS]} />
+              ))}
+            </Pie>
+            <Tooltip
+              formatter={(value) => `${formatPercentage(value as number)}`}
+              contentStyle={{
+                backgroundColor: 'hsl(var(--background))',
+                borderColor: 'hsl(var(--border))',
+                borderRadius: 'var(--radius)'
+              }}
+            />
+             <Legend
+              iconSize={10}
+              layout="vertical"
+              verticalAlign="middle"
+              align="right"
+              wrapperStyle={{ fontSize: '14px' }}
+            />
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
+      
+      {/* Tabla de Desglose */}
+      <div className="flex flex-col gap-2 text-sm">
+        <div className="grid grid-cols-4 gap-2 font-semibold text-muted-foreground px-2">
+            <div>Sección</div>
+            <div className="text-right">Total €</div>
+            <div className="text-right">Var %</div>
+            <div className="text-right">Peso %</div>
+        </div>
+        {data.desglose.map((item, index) => (
+            <div key={index} className="grid grid-cols-4 gap-2 items-center bg-background/50 p-2 rounded-md">
+                 <div className="flex items-center gap-2">
+                    <span className="h-2 w-2 rounded-full" style={{ backgroundColor: COLORS[item.nombre as keyof typeof COLORS] }}></span>
+                    <span className="font-semibold">{item.nombre}</span>
+                </div>
+
+                 {isEditing ? (
+                  <>
+                    <Input type="number" defaultValue={item.totalEuros} className="w-full text-right" id={`${idPrefix}-desglose${index}-euros`} />
+                    <Input type="number" step="0.1" defaultValue={item.varPorc} className="w-full text-right" id={`${idPrefix}-desglose${index}-var`} />
+                    <Input type="number" step="0.1" defaultValue={item.pesoPorc} className="w-full text-right" id={`${idPrefix}-desglose${index}-peso`} />
+                  </>
+                 ) : (
+                  <>
+                    <div className="text-right font-medium">{formatCurrency(item.totalEuros)}</div>
+                    <div className="text-right">{formatPercentage(item.varPorc)}</div>
+                    <div className="text-right">{formatPercentage(item.pesoPorc)}</div>
+                  </>
+                 )}
+            </div>
+        ))}
+
+      </div>
+
+    </KpiCard>
+  );
+};
+
+
+export function AcumuladoTab({ data, isEditing }: AcumuladoTabProps) {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <AcumuladoCard title="Acumulado Mensual" data={data.mensual} isEditing={isEditing} idPrefix="mensual" />
+      <AcumuladoCard title="Acumulado Anual" data={data.anual} isEditing={isEditing} idPrefix="anual"/>
+    </div>
+  );
+}
