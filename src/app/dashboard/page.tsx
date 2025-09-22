@@ -174,25 +174,34 @@ export default function DashboardPage() {
 
   const handleSaveList = (newList: string[]) => {
     if (listToEdit && data) {
-      const updatedData = { ...data };
+      // Use a deep copy to prevent state mutation issues
+      const updatedData = JSON.parse(JSON.stringify(data));
       const listKey = listToEdit === 'comprador' ? 'pesoComprador' : listToEdit === 'zonaComercial' ? 'zonaComercial' : 'agrupacionComercial';
       
-      updatedData.ventasMan[listKey] = updatedData.ventasMan[listKey].filter(item => newList.includes(item.nombre));
-      
-      const existingNames = updatedData.ventasMan[listKey].map(item => item.nombre);
-      newList.forEach(name => {
-        if (!existingNames.includes(name)) {
-          updatedData.ventasMan[listKey].push({
-            nombre: name,
+      const currentList = updatedData.ventasMan[listKey];
+      const newItemsList = [];
+
+      // Keep existing items that are in the new list
+      for (const itemName of newList) {
+        const existingItem = currentList.find((item: any) => item.nombre === itemName);
+        if (existingItem) {
+          newItemsList.push(existingItem);
+        } else {
+          // Add new item with default values
+          newItemsList.push({
+            nombre: itemName,
             pesoPorc: 0,
             totalEuros: 0,
             varPorc: 0,
-            imageUrl: `https://picsum.photos/seed/${name.replace(/\s/g, '')}/500/400`
+            imageUrl: `https://picsum.photos/seed/${itemName.replace(/\s/g, '')}/500/400`
           });
         }
-      });
+      }
 
+      updatedData.ventasMan[listKey] = newItemsList;
+      
       setData(updatedData);
+      console.log("Updated data after list edit:", updatedData);
     }
     setListToEdit(null);
     setIsListDialogOpen(false);
@@ -339,5 +348,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-    

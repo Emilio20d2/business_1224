@@ -135,7 +135,7 @@ const ImageImportCard = ({ selectedRow, isEditing, onImageChange }: { selectedRo
             <CardContent className="p-0 h-full">
                 <div className="w-full h-full bg-muted flex items-center justify-center">
                     {displayImage ? (
-                        <img src={displayImage} alt={selectedRow?.nombre} className="h-full w-full object-cover" />
+                        <img src={displayImage} alt={selectedRow?.nombre || 'Análisis Visual'} className="h-full w-full object-cover" />
                     ) : (
                         <div className="flex flex-col items-center gap-2 text-muted-foreground">
                             <ImagePlus className="h-12 w-12" />
@@ -166,7 +166,16 @@ const ImageImportCard = ({ selectedRow, isEditing, onImageChange }: { selectedRo
 
 
 const SubTabContent = ({ data, headers, isEditing, allItems, dataKey, onInputChange }: { data: TableData, headers: string[], isEditing: boolean, allItems: string[], dataKey: TableDataKey, onInputChange: VentasManTabProps['onInputChange'] }) => {
-    const [selectedIndex, setSelectedIndex] = React.useState<number | null>(0);
+    const [selectedIndex, setSelectedIndex] = React.useState<number | null>(data.length > 0 ? 0 : null);
+
+    React.useEffect(() => {
+        if (data.length > 0 && selectedIndex === null) {
+            setSelectedIndex(0);
+        } else if (data.length === 0) {
+            setSelectedIndex(null);
+        }
+    }, [data, selectedIndex]);
+
 
     const handleRowClick = (index: number) => {
         setSelectedIndex(index);
