@@ -25,6 +25,9 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { startOfWeek, endOfWeek, subWeeks, format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { EditListDialog } from '@/components/dashboard/edit-list-dialog';
+
+type EditableList = 'comprador' | 'zonaComercial' | 'agrupacionComercial';
 
 const getPreviousWeekRange = () => {
     const today = new Date();
@@ -41,6 +44,16 @@ export default function Home() {
   const [data, setData] = React.useState<WeeklyData>(datosSemanales["semana-24"]);
   const [isEditing, setIsEditing] = React.useState(false);
   const [week, setWeek] = React.useState("semana-24");
+
+  const [isListDialogOpen, setIsListDialogOpen] = React.useState(false);
+  const [listToEdit, setListToEdit] = React.useState<EditableList | null>(null);
+
+  // Initialize lists from data, but manage them in state
+  const [listOptions, setListOptions] = React.useState({
+    comprador: datosSemanales['semana-24'].ventasMan.pesoComprador.map(item => item.nombre),
+    zonaComercial: datosSemanales['semana-24'].ventasMan.zonaComercial.map(item => item.nombre),
+    agrupacionComercial: datosSemanales['semana-24'].ventasMan.agrupacionComercial.map(item => item.nombre),
+  });
   
   const previousWeek = getPreviousWeekRange();
   const weekLabel = `${previousWeek.start} - ${previousWeek.end}`;
@@ -64,12 +77,28 @@ export default function Home() {
     setData(datosSemanales[week as keyof typeof datosSemanales]);
   };
 
-  // The lists that will populate the select dropdowns in edit mode
-  const listOptions = {
-    comprador: datosSemanales['semana-24'].ventasMan.pesoComprador.map(item => item.nombre),
-    zonaComercial: datosSemanales['semana-24'].ventasMan.zonaComercial.map(item => item.nombre),
-    agrupacionComercial: datosSemanales['semana-24'].ventasMan.agrupacionComercial.map(item => item.nombre),
+  const handleOpenListDialog = (listName: EditableList) => {
+    setListToEdit(listName);
+    setIsListDialogOpen(true);
   };
+
+  const handleSaveList = (newList: string[]) => {
+    if (listToEdit) {
+      setListOptions(prev => ({ ...prev, [listToEdit]: newList }));
+    }
+    setListToEdit(null);
+    setIsListDialogOpen(false);
+  };
+
+  const getTitleForList = (listName: EditableList | null) => {
+    switch (listName) {
+      case 'comprador': return 'Editar Lista de Compradores';
+      case 'zonaComercial': return 'Editar Lista de Zonas de Comprador';
+      case 'agrupacionComercial': return 'Editar Lista de Agrupaciones Comerciales';
+      default: return 'Editar Lista';
+    }
+  }
+
 
   return (
     <div className="min-h-screen w-full p-4 sm:p-6 bg-background">
@@ -108,13 +137,13 @@ export default function Home() {
                 <DropdownMenuLabel>Editar Listas de Categorías</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onSelect={() => handleOpenListDialog('comprador')}>
                       <span>COMPRADOR</span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercial')}>
                       <span>ZONA COMPRADOR</span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercial')}>
                       <span>AGRUPACION COMERCIAL</span>
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
@@ -140,7 +169,7 @@ export default function Home() {
              <DatosPorSeccionTab data={data.datosPorSeccion} />
           </TabsContent>
            <TabsContent value="ventasMan">
-             <VentasManTab data={data.ventasMan} isEditing={isEditing} />
+             <VentasManTab data={data.ventasMan} isEditing={isEditing} listOptions={listOptions} />
           </TabsContent>
            <TabsContent value="aqneSemanal">
              {/* This content will be added in a future step */}
@@ -150,6 +179,16 @@ export default function Home() {
           </TabsContent>
         </Tabs>
       </main>
+
+      {listToEdit && (
+        <EditListDialog
+          isOpen={isListDialogOpen}
+          onClose={() => setIsListDialogOpen(false)}
+          title={getTitleForList(listToEdit)}
+          items={listOptions[listToEdit]}
+          onSave={handleSaveList}
+        />
+      )}
     </div>
   );
 }

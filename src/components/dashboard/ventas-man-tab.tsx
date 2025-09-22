@@ -2,7 +2,7 @@ import React from 'react';
 import type { WeeklyData } from "@/lib/data";
 import { formatCurrency, formatPercentage } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table,
@@ -12,9 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { ImagePlus, Settings } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import { ImagePlus } from 'lucide-react';
 import { 
   Select, 
   SelectContent, 
@@ -25,14 +23,20 @@ import {
 
 
 type VentasManData = WeeklyData["ventasMan"];
-type TableDataKey = keyof VentasManData;
+type TableDataKey = 'pesoComprador' | 'zonaComercial' | 'agrupacionComercial';
 type TableData = VentasManData[TableDataKey];
 type TableItem = TableData[number];
 
+type ListOptions = {
+    comprador: string[];
+    zonaComercial: string[];
+    agrupacionComercial: string[];
+}
 
 type VentasManTabProps = {
   data: VentasManData;
   isEditing: boolean;
+  listOptions: ListOptions;
 };
 
 const TrendIndicator = ({ value }: { value: number }) => {
@@ -44,7 +48,7 @@ const TrendIndicator = ({ value }: { value: number }) => {
   );
 };
 
-const DataTable = ({ data, headers, isEditing, allItems, onRowClick }: { data: TableData, headers: string[], isEditing: boolean, allItems: TableItem[], onRowClick: (item: TableItem) => void }) => {
+const DataTable = ({ data, headers, isEditing, allItems, onRowClick }: { data: TableData, headers: string[], isEditing: boolean, allItems: string[], onRowClick: (item: TableItem) => void }) => {
     if (!data || data.length === 0) {
         return <p className="text-center text-muted-foreground mt-8">No hay datos disponibles para esta sección.</p>;
     }
@@ -78,7 +82,7 @@ const DataTable = ({ data, headers, isEditing, allItems, onRowClick }: { data: T
                                         </SelectTrigger>
                                         <SelectContent>
                                             {allItems.map(option => (
-                                                <SelectItem key={option.nombre} value={option.nombre}>{option.nombre}</SelectItem>
+                                                <SelectItem key={option} value={option}>{option}</SelectItem>
                                             ))}
                                         </SelectContent>
                                     </Select>
@@ -121,7 +125,7 @@ const ImageImportCard = ({ selectedRow }: { selectedRow: TableItem | null }) => 
 };
 
 
-const SubTabContent = ({ data, headers, isEditing, allItems }: { data: TableData, headers: string[], isEditing: boolean, allItems: TableItem[] }) => {
+const SubTabContent = ({ data, headers, isEditing, allItems, dataKey }: { data: TableData, headers: string[], isEditing: boolean, allItems: string[], dataKey: TableDataKey }) => {
     const [selectedRow, setSelectedRow] = React.useState<TableItem | null>(null);
 
     const handleRowClick = (item: TableItem) => {
@@ -139,7 +143,7 @@ const SubTabContent = ({ data, headers, isEditing, allItems }: { data: TableData
 }
 
 
-export function VentasManTab({ data, isEditing }: VentasManTabProps) {
+export function VentasManTab({ data, isEditing, listOptions }: VentasManTabProps) {
     
   return (
     <Tabs defaultValue="comprador" className="w-full">
@@ -149,13 +153,13 @@ export function VentasManTab({ data, isEditing }: VentasManTabProps) {
         <TabsTrigger value="agrupacionComercial">Agrup. Com.</TabsTrigger>
       </TabsList>
       <TabsContent value="comprador">
-         <SubTabContent data={data.pesoComprador} headers={['COMPRADOR', 'PESO %', '€', '%']} isEditing={isEditing} allItems={data.pesoComprador} />
+         <SubTabContent data={data.pesoComprador} headers={['COMPRADOR', 'PESO %', '€', '%']} isEditing={isEditing} allItems={listOptions.comprador} dataKey="pesoComprador" />
       </TabsContent>
       <TabsContent value="zonaComercial">
-        <SubTabContent data={data.zonaComercial} headers={['ZONA COMPRADOR', 'PESO %', '€', '%']} isEditing={isEditing} allItems={data.zonaComercial} />
+        <SubTabContent data={data.zonaComercial} headers={['ZONA COMPRADOR', 'PESO %', '€', '%']} isEditing={isEditing} allItems={listOptions.zonaComercial} dataKey="zonaComercial"/>
       </TabsContent>
       <TabsContent value="agrupacionComercial">
-         <SubTabContent data={data.agrupacionComercial} headers={['AGRUP. COM.', 'PESO %', '€', '%']} isEditing={isEditing} allItems={data.agrupacionComercial} />
+         <SubTabContent data={data.agrupacionComercial} headers={['AGRUP. COM.', 'PESO %', '€', '%']} isEditing={isEditing} allItems={listOptions.agrupacionComercial} dataKey="agrupacionComercial"/>
       </TabsContent>
     </Tabs>
   );
