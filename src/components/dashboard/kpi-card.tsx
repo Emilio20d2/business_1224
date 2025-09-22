@@ -11,8 +11,8 @@ type KpiCardProps = {
 
 export function KpiCard({ title, icon, children, className }: KpiCardProps) {
   return (
-    <div className={cn("bg-card text-card-foreground rounded-xl p-5 flex flex-col gap-4 shadow", className)}>
-      <h3 className="flex items-center gap-3 text-base font-semibold leading-none tracking-tight text-card-foreground/80 -m-5 mb-0 border-b p-5">
+    <div className={cn("bg-card text-card-foreground rounded-xl p-4 flex flex-col gap-4 shadow", className)}>
+      <h3 className="flex items-center gap-3 text-base font-semibold leading-none tracking-tight text-card-foreground/80 -m-4 mb-0 border-b p-3">
         {icon} {title}
       </h3>
       <div className="flex flex-col gap-4">
