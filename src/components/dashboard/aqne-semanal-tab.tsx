@@ -12,40 +12,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-  ChartStyle
-} from "@/components/ui/chart";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, CartesianGrid, ResponsiveContainer } from 'recharts';
 
 
 type AqneSemanalTabProps = {
   data: WeeklyData;
-};
-
-const DailySalesChart = ({ data }: { data: WeeklyData['ventasDiariasAQNE'] }) => {
-  return (
-    <ResponsiveContainer width="100%" height={300}>
-      <BarChart data={data}>
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="dia" />
-        <YAxis tickFormatter={(value) => formatCurrency(Number(value) / 1000) + 'k'} />
-        <Tooltip
-          contentStyle={{ 
-            backgroundColor: 'hsl(var(--background))', 
-            borderColor: 'hsl(var(--border))' 
-          }}
-          formatter={(value: number) => formatCurrency(value)}
-        />
-        <Legend />
-        <Bar dataKey="woman" stackId="a" fill="hsl(var(--chart-1))" name="Woman" />
-        <Bar dataKey="man" stackId="a" fill="hsl(var(--chart-2))" name="Man" />
-        <Bar dataKey="nino" stackId="a" fill="hsl(var(--chart-3))" name="Niño" />
-      </BarChart>
-    </ResponsiveContainer>
-  );
 };
 
 
@@ -57,8 +27,8 @@ export function AqneSemanalTab({ data }: AqneSemanalTabProps) {
 
       <Separator />
 
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        <Card className="lg:col-span-2">
+      <div className="grid grid-cols-1 gap-6">
+        <Card>
             <CardHeader>
                 <CardTitle>Ventas Diarias AQNE</CardTitle>
             </CardHeader>
@@ -85,15 +55,6 @@ export function AqneSemanalTab({ data }: AqneSemanalTabProps) {
                         ))}
                     </TableBody>
                 </Table>
-            </CardContent>
-        </Card>
-
-        <Card className="lg:col-span-3">
-             <CardHeader>
-                <CardTitle>Gráfico de Ventas Diarias</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <DailySalesChart data={data.ventasDiariasAQNE} />
             </CardContent>
         </Card>
       </div>
