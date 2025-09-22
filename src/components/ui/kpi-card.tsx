@@ -68,24 +68,17 @@ export function DatoSimple({ label, value, isEditing, valueId, className, icon, 
     const renderValue = () => {
         if (typeof value === 'object') return value;
         
-        if (typeof value === 'string' && value.includes(' / ')) {
-            const parts = value.split(' / ');
-            const firstPart = parts[0] || '';
-            const secondPart = parts[1] || '';
+        const stringValue = String(value);
 
-            const firstValue = parseFloat(firstPart.replace(/[^0-9.,-]+/g, '').replace(',', '.'));
-            
-            return (
-                <div className="font-semibold text-center flex flex-row items-center justify-center gap-2 text-lg">
-                    <span className={firstValue >= 0 ? 'text-green-600' : 'text-red-600'}>{firstPart}</span>
-                    <span className="font-semibold">{secondPart}</span>
-                </div>
-            );
+        if (stringValue.includes('€') || stringValue.includes('Unid.')) {
+            const isPositive = !stringValue.includes('-');
+            const colorClass = isPositive ? 'text-green-600' : 'text-red-600';
+            return <span className={cn("font-semibold text-lg", colorClass)}>{stringValue}</span>
         }
-        
-        if (typeof value === 'string' && value.includes('Unid.')) {
-             const mainValue = value.substring(0, value.indexOf('Unid.') + 5);
-             const percentage = value.substring(value.indexOf('Unid.') + 5);
+
+        if (stringValue.includes('Unid.')) {
+             const mainValue = stringValue.substring(0, stringValue.indexOf('Unid.') + 5);
+             const percentage = stringValue.substring(stringValue.indexOf('Unid.') + 5);
              return <div className="font-semibold text-center text-lg">{mainValue} <span className="text-muted-foreground text-base">{percentage.trim()}</span></div>
         }
 

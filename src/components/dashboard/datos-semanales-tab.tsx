@@ -101,12 +101,20 @@ export function DatosSemanalesTab({ data, isEditing }: DatosSemanalesTabProps) {
       {/* Fila Central: 5x2 Grid */}
       <div className="md:col-span-6 grid grid-cols-1 md:grid-cols-5 gap-2">
         <KpiCard title="GAP" icon={<ClipboardX className="h-5 w-5 text-destructive" />} className="md:col-span-2">
-          <DatoSimple 
-              value={`${formatGap(data.perdidas.gap.euros, '€')} / ${formatGap(data.perdidas.gap.unidades, 'Unid.')}`} 
-              isEditing={isEditing}
-              valueId="input-perdidas-gap"
-              align="center"
-          />
+            <div className="flex flex-row justify-center items-center gap-4">
+              <DatoSimple 
+                  value={formatGap(data.perdidas.gap.euros, '€')} 
+                  isEditing={isEditing}
+                  valueId="input-perdidas-gap-euros"
+                  align="center"
+              />
+              <DatoSimple 
+                  value={formatGap(data.perdidas.gap.unidades, 'Unid.')} 
+                  isEditing={isEditing}
+                  valueId="input-perdidas-gap-unidades"
+                  align="center"
+              />
+            </div>
         </KpiCard>
 
         <KpiCard title="Merma" icon={<Trash2 className="h-5 w-5 text-destructive" />} className="md:col-span-2">
