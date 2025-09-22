@@ -42,18 +42,19 @@ const ModuloContenidoGrande = ({ icon, value }: { icon: React.ReactNode, value: 
 );
 
 const FilaModulo = ({ icon, label, value }: { icon: React.ReactNode, label: string, value: string | number }) => (
-     <div className="flex items-center justify-between text-md w-full gap-4">
+     <div className="grid grid-cols-[auto_1fr_auto] items-center gap-4 text-md w-full">
         <div className="flex items-center gap-2 text-muted-foreground">
             {icon}
             <span>{label}</span>
         </div>
-        <strong className="font-bold">{value}</strong>
+        <div></div> {/* Empty div to push the value to the right */}
+        <strong className="font-bold text-right">{value}</strong>
     </div>
 )
 
 export function DatosSemanalesTab({ data, isEditing }: DatosSemanalesTabProps) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-6 gap-6 mt-4">
+    <div className="grid grid-cols-1 md:grid-cols-6 gap-6">
       {/* Ventas */}
       <KpiCard title="Ventas" icon={<Euro className="h-5 w-5 text-primary" />} className="md:col-span-3">
         <DatoDoble 
@@ -140,6 +141,7 @@ export function DatosSemanalesTab({ data, isEditing }: DatosSemanalesTabProps) {
           <ModuloAlmacen title="Propuesta Devo.">
              <FilaModulo icon={<Shirt className="h-5 w-5"/>} label="Ropa" value={formatNumber(data.almacenes.ropa.devolucionUnidades)} />
              <FilaModulo icon={<Footprints className="h-5 w-5"/>} label="Calzado" value={formatNumber(data.almacenes.calzado.devolucionUnidades)} />
+             <div className="h-7"></div>
           </ModuloAlmacen>
         </div>
       </KpiCard>
