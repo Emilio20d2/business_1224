@@ -57,11 +57,11 @@ const SectionCard = ({ name, data }: { name: SectionName, data: SectionData[Sect
             <CardContent>
                 <div className="grid grid-cols-2 gap-2 my-4">
                     <div className="bg-background rounded-lg p-2 text-center">
-                        <div className="font-bold text-lg">{formatCurrency(data.metricasPrincipales.totalEuros)}</div>
+                        <div className="font-bold text-base">{formatCurrency(data.metricasPrincipales.totalEuros)}</div>
                         <TrendIndicator value={data.metricasPrincipales.varPorcEuros} />
                     </div>
                     <div className="bg-background rounded-lg p-2 text-center">
-                        <div className="font-bold text-lg">{formatNumber(data.metricasPrincipales.totalUnidades)}</div>
+                        <div className="font-bold text-base">{formatNumber(data.metricasPrincipales.totalUnidades)}</div>
                         <TrendIndicator value={data.metricasPrincipales.varPorcUnidades} />
                     </div>
                 </div>
