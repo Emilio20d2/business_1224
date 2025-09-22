@@ -11,7 +11,9 @@ import {
   ArrowUp,
   Shirt,
   Footprints,
-  SprayCan
+  SprayCan,
+  Truck,
+  PackageCheck
 } from "lucide-react";
 import {
   Table,
@@ -31,6 +33,32 @@ const formatGap = (value: number, unit: '€' | 'Unid.') => {
     const sign = value > 0 ? '+' : '';
     return `${sign}${value.toLocaleString('es-ES')}${unit}`;
 }
+
+const ModuloAlmacen = ({ title, children }: { title: string, children: React.ReactNode }) => (
+    <div className="flex flex-col text-center gap-2">
+        <h4 className="text-sm font-semibold text-muted-foreground tracking-wider uppercase">{title}</h4>
+        <div className="flex flex-col gap-3">
+            {children}
+        </div>
+    </div>
+);
+
+const ModuloContenidoGrande = ({ icon, value }: { icon: React.ReactNode, value: string | number }) => (
+    <div className="flex flex-col items-center justify-center gap-2 p-4 rounded-lg bg-background h-full">
+       <div className="text-primary">{icon}</div>
+        <strong className="text-3xl font-bold">{value}</strong>
+    </div>
+);
+
+const FilaModulo = ({ icon, label, value }: { icon: React.ReactNode, label: string, value: string | number }) => (
+     <div className="flex items-center justify-between text-md w-full gap-4">
+        <div className="flex items-center gap-2 text-muted-foreground">
+            {icon}
+            <span>{label}</span>
+        </div>
+        <strong className="font-bold">{value}</strong>
+    </div>
+)
 
 export function DatosSemanalesTab({ data, isEditing }: DatosSemanalesTabProps) {
   return (
@@ -104,64 +132,24 @@ export function DatosSemanalesTab({ data, isEditing }: DatosSemanalesTabProps) {
         </div>
       </KpiCard>
 
-      {/* Gestión de Almacén y Logística */}
+       {/* Gestión de Almacén y Logística */}
       <KpiCard title="Gestión de Almacén y Logística" icon={<Warehouse className="h-5 w-5 text-primary" />} className="lg:col-span-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="flex flex-col gap-4">
-              <h4 className="font-semibold text-card-foreground text-center">Logística Semanal</h4>
-              <DatoSimple label="Entradas Totales" value={formatNumber(data.logistica.entradas)} isEditing={isEditing} valueId="total-entradas" icon={<ArrowDown className="h-4 w-4 text-green-500" />} />
-              <DatoSimple label="Salidas Totales" value={formatNumber(data.logistica.salidas)} isEditing={isEditing} valueId="total-salidas" icon={<ArrowUp className="h-4 w-4 text-red-500" />} />
-          </div>
-           <div className="flex flex-col gap-4">
-              <h4 className="font-semibold text-card-foreground text-center">Ocupación</h4>
-               <Table>
-                <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-[120px]">Almacén</TableHead>
-                      <TableHead className="text-right">Ocupación</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    <TableRow>
-                      <TableCell className="font-medium flex items-center gap-2"><Shirt className="h-4 w-4 text-muted-foreground"/>Ropa</TableCell>
-                      <TableCell className="text-right">{formatPercentage(data.almacenes.ropa.ocupacionPorc)}</TableCell>
-                    </TableRow>
-                     <TableRow>
-                      <TableCell className="font-medium flex items-center gap-2"><Footprints className="h-4 w-4 text-muted-foreground"/>Calzado</TableCell>
-                      <TableCell className="text-right">{formatPercentage(data.almacenes.calzado.ocupacionPorc)}</TableCell>
-                    </TableRow>
-                     <TableRow>
-                      <TableCell className="font-medium flex items-center gap-2"><SprayCan className="h-4 w-4 text-muted-foreground"/>Perfumería</TableCell>
-                      <TableCell className="text-right">{formatPercentage(data.almacenes.perfumeria.ocupacionPorc)}</TableCell>
-                    </TableRow>
-                </TableBody>
-            </Table>
-          </div>
-          <div className="flex flex-col gap-4">
-              <h4 className="font-semibold text-card-foreground text-center">Propuesta de Devolución</h4>
-               <Table>
-                <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-[120px]">Almacén</TableHead>
-                      <TableHead className="text-right">Unidades</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    <TableRow>
-                      <TableCell className="font-medium flex items-center gap-2"><Shirt className="h-4 w-4 text-muted-foreground"/>Ropa</TableCell>
-                      <TableCell className="text-right">{formatNumber(data.almacenes.ropa.devolucionUnidades)}</TableCell>
-                    </TableRow>
-                     <TableRow>
-                      <TableCell className="font-medium flex items-center gap-2"><Footprints className="h-4 w-4 text-muted-foreground"/>Calzado</TableCell>
-                      <TableCell className="text-right">{formatNumber(data.almacenes.calzado.devolucionUnidades)}</TableCell>
-                    </TableRow>
-                     <TableRow>
-                      <TableCell className="font-medium flex items-center gap-2"><SprayCan className="h-4 w-4 text-muted-foreground"/>Perfumería</TableCell>
-                      <TableCell className="text-right">{formatNumber(data.almacenes.perfumeria.devolucionUnidades)}</TableCell>
-                    </TableRow>
-                </TableBody>
-            </Table>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <ModuloAlmacen title="Entradas">
+            <ModuloContenidoGrande icon={<Truck className="h-8 w-8"/>} value={formatNumber(data.logistica.entradasSemanales)} />
+          </ModuloAlmacen>
+          <ModuloAlmacen title="Salidas">
+            <ModuloContenidoGrande icon={<PackageCheck className="h-8 w-8"/>} value={formatNumber(data.logistica.salidasSemanales)} />
+          </ModuloAlmacen>
+          <ModuloAlmacen title="Ocupación">
+            <FilaModulo icon={<Shirt className="h-5 w-5"/>} label="Ropa" value={formatPercentage(data.almacenes.ropa.ocupacionPorc)} />
+            <FilaModulo icon={<Footprints className="h-5 w-5"/>} label="Calzado" value={formatPercentage(data.almacenes.calzado.ocupacionPorc)} />
+            <FilaModulo icon={<SprayCan className="h-5 w-5"/>} label="Perfumería" value={formatPercentage(data.almacenes.perfumeria.ocupacionPorc)} />
+          </ModuloAlmacen>
+          <ModuloAlmacen title="Propuesta Devo.">
+             <FilaModulo icon={<Shirt className="h-5 w-5"/>} label="Ropa" value={formatNumber(data.almacenes.ropa.devolucionUnidades)} />
+             <FilaModulo icon={<Footprints className="h-5 w-5"/>} label="Calzado" value={formatNumber(data.almacenes.calzado.devolucionUnidades)} />
+          </ModuloAlmacen>
         </div>
       </KpiCard>
     </div>

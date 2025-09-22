@@ -3,8 +3,6 @@ export type WeeklyData = typeof datosSemanales["semana-24"];
 export type Almacen = {
   ocupacionPorc: number;
   devolucionUnidades: number | null;
-  entradas: number;
-  salidas: number;
 };
 
 export const datosSemanales = {
@@ -31,8 +29,8 @@ export const datosSemanales = {
         "repoPorc": 3.2
     },
     "logistica": {
-        "entradas": 5876,
-        "salidas": 4731
+        "entradasSemanales": 5876,
+        "salidasSemanales": 4731
     },
     "perdidas": {
         "gap": {
@@ -47,21 +45,15 @@ export const datosSemanales = {
     "almacenes": {
           "ropa": {
               "ocupacionPorc": 88,
-              "devolucionUnidades": 292,
-              "entradas": 4376,
-              "salidas": 3531
+              "devolucionUnidades": 292
           },
           "calzado": {
               "ocupacionPorc": 100,
-              "devolucionUnidades": 58,
-              "entradas": 1500,
-              "salidas": 1200
+              "devolucionUnidades": 58
           },
           "perfumeria": {
               "ocupacionPorc": 75,
-              "devolucionUnidades": null,
-              "entradas": 800,
-              "salidas": 650
+              "devolucionUnidades": null
           }
       }
   },
@@ -88,8 +80,8 @@ export const datosSemanales = {
         "repoPorc": 3.5
     },
     "logistica": {
-        "entradas": 4100,
-        "salidas": 3300
+        "entradasSemanales": 4100,
+        "salidasSemanales": 3300
     },
     "perdidas": {
         "gap": {
@@ -104,21 +96,15 @@ export const datosSemanales = {
     "almacenes": {
         "ropa": {
             "ocupacionPorc": 85,
-            "devolucionUnidades": 250,
-            "entradas": 4100,
-            "salidas": 3300
+            "devolucionUnidades": 250
         },
         "calzado": {
             "ocupacionPorc": 95,
-            "devolucionUnidades": 50,
-            "entradas": 1400,
-            "salidas": 1100
+            "devolucionUnidades": 50
         },
         "perfumeria": {
             "ocupacionPorc": 70,
-            "devolucionUnidades": null,
-            "entradas": 750,
-            "salidas": 600
+            "devolucionUnidades": null
         }
     }
   }
