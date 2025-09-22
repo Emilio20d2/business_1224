@@ -92,18 +92,26 @@ export function DatosSemanalesTab({ data, isEditing }: DatosSemanalesTabProps) {
         />
       </KpiCard>
       
-      {/* Caja */}
-      <KpiCard title="Caja" icon={<CaseUpper className="h-5 w-5 text-primary" />} className="md:col-span-3">
-        <div className="grid grid-cols-2 gap-x-8 gap-y-4">
-            <DatoSimple label="Filas Caja" value={`${formatPercentage(data.operaciones.filasCajaPorc)}`} isEditing={isEditing} valueId="input-op-filas-caja" />
-            <DatoSimple label="ACO" value={`${formatPercentage(data.operaciones.scoPorc)}`} isEditing={isEditing} valueId="input-op-sco" />
-            <DatoSimple label="V. Ipod" value={formatNumber(data.operaciones.ventaIpod)} isEditing={isEditing} valueId="input-op-vipod" />
-            <DatoSimple label="E-Ticket" value={`${formatPercentage(data.operaciones.eTicketPorc)}`} isEditing={isEditing} valueId="input-op-eticket" />
-        </div>
-      </KpiCard>
+      {/* Caja y Operaciones */}
+      <div className="md:col-span-3 flex flex-col gap-6">
+        <KpiCard title="Caja" icon={<Receipt className="h-5 w-5 text-primary" />}>
+          <div className="grid grid-cols-2 gap-x-8 gap-y-4">
+              <DatoSimple label="Filas Caja" value={`${formatPercentage(data.operaciones.filasCajaPorc)}`} isEditing={isEditing} valueId="input-op-filas-caja" />
+              <DatoSimple label="ACO" value={`${formatPercentage(data.operaciones.scoPorc)}`} isEditing={isEditing} valueId="input-op-sco" />
+              <DatoSimple label="V. Ipod" value={formatNumber(data.operaciones.ventaIpod)} isEditing={isEditing} valueId="input-op-vipod" />
+              <DatoSimple label="E-Ticket" value={`${formatPercentage(data.operaciones.eTicketPorc)}`} isEditing={isEditing} valueId="input-op-eticket" />
+          </div>
+        </KpiCard>
+        <KpiCard title="Operaciones" icon={<Server className="h-5 w-5 text-primary" />}>
+          <div className="grid grid-cols-2 gap-x-8 gap-y-4">
+              <DatoSimple label="SINT" value={formatNumber(data.operaciones.sint)} isEditing={isEditing} valueId="input-op-sint" />
+              <DatoSimple label="Repo" value={`${formatPercentage(data.operaciones.repoPorc)}`} isEditing={isEditing} valueId="input-op-repo" />
+          </div>
+        </KpiCard>
+      </div>
 
       {/* Contenedor para Pérdidas */}
-      <div className="md:col-span-2 flex flex-col gap-6">
+      <div className="md:col-span-3 flex flex-col gap-6">
         {/* GAP */}
         <KpiCard title="GAP" icon={<ClipboardX className="h-5 w-5 text-destructive" />}>
            <DatoSimple 
@@ -126,14 +134,6 @@ export function DatosSemanalesTab({ data, isEditing }: DatosSemanalesTabProps) {
         </KpiCard>
       </div>
       
-       {/* Operaciones */}
-      <KpiCard title="Operaciones" icon={<Server className="h-5 w-5 text-primary" />} className="md:col-span-1">
-        <div className="grid grid-cols-1 gap-x-8 gap-y-4">
-            <DatoSimple label="SINT" value={formatNumber(data.operaciones.sint)} isEditing={isEditing} valueId="input-op-sint" />
-            <DatoSimple label="Repo" value={`${formatPercentage(data.operaciones.repoPorc)}`} isEditing={isEditing} valueId="input-op-repo" />
-        </div>
-      </KpiCard>
-
        {/* Gestión de Almacén y Logística */}
       <KpiCard title="Gestión de Almacén y Logística" icon={<Warehouse className="h-5 w-5 text-primary" />} className="md:col-span-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 place-items-center">
