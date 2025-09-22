@@ -14,7 +14,7 @@ import {
   Truck,
   PackageCheck,
   Server,
-  CaseUpper,
+  Package,
   Clock,
   Smartphone,
   Ticket,
@@ -139,7 +139,7 @@ export function DatosSemanalesTab({ data, isEditing }: DatosSemanalesTabProps) {
         
         <KpiCard title="Operaciones" icon={<Server className="h-5 w-5 text-primary" />} className="md:col-span-2">
             <div className="grid grid-cols-2 gap-4">
-                <DatoSimple icon={<CaseUpper />} label="SINT" value={formatNumber(data.operaciones.sint)} isEditing={isEditing} valueId="input-op-sint" align="center" />
+                <DatoSimple icon={<Package />} label="SINT" value={formatNumber(data.operaciones.sint)} isEditing={isEditing} valueId="input-op-sint" align="center" />
                 <DatoSimple icon={<RefreshCw />} label="Repo" value={`${formatPercentage(data.operaciones.repoPorc)}`} isEditing={isEditing} valueId="input-op-repo" align="center" />
             </div>
         </KpiCard>
