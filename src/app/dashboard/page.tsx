@@ -101,9 +101,9 @@ export default function DashboardPage() {
   }, [user, authLoading, router]);
 
   const listOptions = data ? {
-    comprador: data.ventasMan.pesoComprador.map(item => item.nombre),
-    zonaComercial: data.ventasMan.zonaComercial.map(item => item.nombre),
-    agrupacionComercial: data.ventasMan.agrupacionComercial.map(item => item.nombre),
+    comprador: data.listas.comprador,
+    zonaComercial: data.listas.zonaComercial,
+    agrupacionComercial: data.listas.agrupacionComercial,
   } : { comprador: [], zonaComercial: [], agrupacionComercial: [] };
 
   const previousWeek = getPreviousWeekRange();
@@ -129,10 +129,21 @@ export default function DashboardPage() {
         }
         
         const finalKey = keys[keys.length - 1];
+        
+        // Handle array index access
+        const arrayMatch = finalKey.match(/(\w+)\[(\d+)\]/);
+        if(arrayMatch){
+            const arrayKey = arrayMatch[1];
+            const index = parseInt(arrayMatch[2], 10);
+            current[arrayKey][index] = value;
+            return updatedData;
+        }
+
         const target = current[finalKey];
 
         if (typeof target === 'number') {
-            current[finalKey] = parseFloat(value as string) || 0;
+            const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
+            current[finalKey] = isNaN(numericValue) ? 0 : numericValue;
         } else {
             current[finalKey] = value;
         }
@@ -178,6 +189,10 @@ export default function DashboardPage() {
     if (listToEdit && data) {
       // Use a deep copy to prevent state mutation issues
       const updatedData = JSON.parse(JSON.stringify(data));
+      
+      // Update the master list in data.listas
+      updatedData.listas[listToEdit] = newList;
+
       const listKey = listToEdit === 'comprador' ? 'pesoComprador' : listToEdit === 'zonaComercial' ? 'zonaComercial' : 'agrupacionComercial';
       
       const currentList = updatedData.ventasMan[listKey];
@@ -200,7 +215,8 @@ export default function DashboardPage() {
         }
       }
 
-      updatedData.ventasMan[listKey] = newItemsList;
+      // Filter out items that are no longer in the master list
+      updatedData.ventasMan[listKey] = updatedData.ventasMan[listKey].filter((item: any) => newList.includes(item.nombre));
       
       setData(updatedData);
       console.log("Updated data after list edit:", updatedData);
