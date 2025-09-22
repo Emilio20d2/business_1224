@@ -84,10 +84,10 @@ export function DatoSimple({ label, value, isEditing, valueId, className, icon, 
             );
         }
         
-        if (typeof value === 'string' && value.includes('(') && value.includes(')')) {
-             const mainValue = value.substring(0, value.indexOf('(')).trim();
-             const percentage = value.substring(value.indexOf('('));
-             return <div className="font-semibold text-center text-lg">{mainValue} <span className="text-muted-foreground text-base">{percentage}</span></div>
+        if (typeof value === 'string' && value.includes('Unid.')) {
+             const mainValue = value.substring(0, value.indexOf('Unid.') + 5);
+             const percentage = value.substring(value.indexOf('Unid.') + 5);
+             return <div className="font-semibold text-center text-lg">{mainValue} <span className="text-muted-foreground text-base">{percentage.trim()}</span></div>
         }
 
         return <strong className="font-semibold text-lg">{value}</strong>;

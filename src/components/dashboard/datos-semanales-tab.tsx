@@ -111,7 +111,7 @@ export function DatosSemanalesTab({ data, isEditing }: DatosSemanalesTabProps) {
 
         <KpiCard title="Merma" icon={<Trash2 className="h-5 w-5 text-destructive" />} className="md:col-span-2">
           <DatoSimple 
-              value={`${formatNumber(data.perdidas.merma.unidades)} Unid. (${formatPercentage(data.perdidas.merma.porcentaje)})`}
+              value={`${formatNumber(data.perdidas.merma.unidades)} Unid. ${formatPercentage(data.perdidas.merma.porcentaje)}`}
               isEditing={isEditing}
               valueId="input-perdidas-merma"
               align="center"
