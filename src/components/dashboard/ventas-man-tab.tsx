@@ -12,7 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { ImagePlus } from 'lucide-react';
+import { ImagePlus, Upload } from 'lucide-react';
 import { 
   Select, 
   SelectContent, 
@@ -21,6 +21,7 @@ import {
   SelectValue 
 } from "@/components/ui/select";
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 
 
 type VentasManData = WeeklyData["ventasMan"];
@@ -50,7 +51,7 @@ const TrendIndicator = ({ value }: { value: number }) => {
   );
 };
 
-const DataTable = ({ data, headers, isEditing, allItems, onRowClick, dataKey, onInputChange }: { data: TableData, headers: string[], isEditing: boolean, allItems: string[], onRowClick: (item: TableItem) => void, dataKey: TableDataKey, onInputChange: VentasManTabProps['onInputChange'] }) => {
+const DataTable = ({ data, headers, isEditing, allItems, onRowClick, dataKey, onInputChange, selectedIndex }: { data: TableData, headers: string[], isEditing: boolean, allItems: string[], onRowClick: (index: number) => void, dataKey: TableDataKey, onInputChange: VentasManTabProps['onInputChange'], selectedIndex: number | null }) => {
     if (!data || data.length === 0) {
         return <p className="text-center text-muted-foreground mt-8">No hay datos disponibles para esta sección.</p>;
     }
@@ -74,8 +75,8 @@ const DataTable = ({ data, headers, isEditing, allItems, onRowClick, dataKey, on
                     {data.map((item, index) => (
                         <TableRow 
                             key={index} 
-                            onClick={() => !isEditing && onRowClick(item)}
-                            className={cn(!isEditing && "cursor-pointer")}
+                            onClick={() => onRowClick(index)}
+                            className={cn("cursor-pointer", selectedIndex === index && 'bg-muted/50')}
                         >
                             <TableCell>
                                 {isEditing ? (
@@ -110,8 +111,24 @@ const DataTable = ({ data, headers, isEditing, allItems, onRowClick, dataKey, on
     );
 };
 
-const ImageImportCard = ({ selectedRow }: { selectedRow: TableItem | null }) => {
+const ImageImportCard = ({ selectedRow, isEditing, onImageChange }: { selectedRow: TableItem | null, isEditing: boolean, onImageChange: (dataUrl: string) => void }) => {
     const displayImage = selectedRow?.imageUrl;
+    const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+    const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                onImageChange(e.target?.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleButtonClick = () => {
+        fileInputRef.current?.click();
+    };
 
     return (
         <Card className="relative overflow-hidden p-0 gap-0 w-full aspect-[5/4]">
@@ -123,9 +140,25 @@ const ImageImportCard = ({ selectedRow }: { selectedRow: TableItem | null }) => 
                         <div className="flex flex-col items-center gap-2 text-muted-foreground">
                             <ImagePlus className="h-12 w-12" />
                             <p className="text-sm font-medium">Análisis Visual</p>
+                            <p className="text-xs text-center">Selecciona una fila para ver o cambiar la imagen.</p>
                         </div>
                     )}
                 </div>
+                {isEditing && selectedRow && (
+                     <div className="absolute bottom-2 right-2">
+                        <Input 
+                            type="file" 
+                            ref={fileInputRef} 
+                            onChange={handleImageUpload}
+                            className="hidden"
+                            accept="image/*"
+                        />
+                        <Button onClick={handleButtonClick} variant="secondary">
+                            <Upload className="mr-2 h-4 w-4" />
+                            Cambiar Imagen
+                        </Button>
+                    </div>
+                )}
             </CardContent>
         </Card>
     );
@@ -133,18 +166,25 @@ const ImageImportCard = ({ selectedRow }: { selectedRow: TableItem | null }) => 
 
 
 const SubTabContent = ({ data, headers, isEditing, allItems, dataKey, onInputChange }: { data: TableData, headers: string[], isEditing: boolean, allItems: string[], dataKey: TableDataKey, onInputChange: VentasManTabProps['onInputChange'] }) => {
-    const [selectedRow, setSelectedRow] = React.useState<TableItem | null>(null);
+    const [selectedIndex, setSelectedIndex] = React.useState<number | null>(0);
 
-    const handleRowClick = (item: TableItem) => {
-        if (!isEditing) {
-            setSelectedRow(item);
+    const handleRowClick = (index: number) => {
+        setSelectedIndex(index);
+    };
+
+    const handleImageChange = (dataUrl: string) => {
+        if (selectedIndex !== null) {
+            const path = `ventasMan.${dataKey}.${selectedIndex}.imageUrl`;
+            onInputChange(path, dataUrl);
         }
     };
     
+    const selectedRow = selectedIndex !== null ? data[selectedIndex] : null;
+    
     return (
-        <div className={cn("grid gap-4 items-start", isEditing ? "grid-cols-1" : "grid-cols-1 md:grid-cols-2")}>
-             <DataTable data={data} headers={headers} isEditing={isEditing} allItems={allItems} onRowClick={handleRowClick} dataKey={dataKey} onInputChange={onInputChange} />
-             {!isEditing && <ImageImportCard selectedRow={selectedRow}/>}
+        <div className="grid gap-4 items-start grid-cols-1 md:grid-cols-2">
+             <DataTable data={data} headers={headers} isEditing={isEditing} allItems={allItems} onRowClick={handleRowClick} dataKey={dataKey} onInputChange={onInputChange} selectedIndex={selectedIndex} />
+             <ImageImportCard selectedRow={selectedRow} isEditing={isEditing} onImageChange={handleImageChange} />
         </div>
     );
 }
@@ -171,5 +211,3 @@ export function VentasManTab({ data, isEditing, listOptions, onInputChange }: Ve
     </Tabs>
   );
 }
-
-    
