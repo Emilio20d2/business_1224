@@ -44,7 +44,7 @@ const DataTable = ({ data, headers, onRowClick }: { data: TableData, headers: st
         <Card>
             <Table>
                 <TableHeader>
-                    <TableRow>
+                    <TableRow className="bg-muted hover:bg-muted">
                         {headers.map((header, i) => (
                             <TableHead key={i} className={i === 0 ? '' : 'text-right'}>{header}</TableHead>
                         ))}
@@ -53,10 +53,10 @@ const DataTable = ({ data, headers, onRowClick }: { data: TableData, headers: st
                 <TableBody>
                     {data.map((item, index) => (
                         <TableRow key={index} className="relative cursor-pointer hover:bg-muted/50">
+                             <button onClick={() => onRowClick(item)} className="absolute inset-0 z-10 w-full h-full cursor-pointer">
+                                <span className="sr-only">Ver {item.nombre}</span>
+                            </button>
                             <TableCell>
-                                <button onClick={() => onRowClick(item)} className="absolute inset-0 z-10 w-full h-full cursor-pointer">
-                                    <span className="sr-only">Ver imagen</span>
-                                </button>
                                 {item.nombre}
                             </TableCell>
                             <TableCell className="text-right font-medium">{formatPercentage(item.pesoPorc)}</TableCell>
