@@ -7,22 +7,12 @@ import {
   Receipt,
   Warehouse,
   AlertTriangle,
-  ArrowDown,
-  ArrowUp,
   Shirt,
   Footprints,
   SprayCan,
   Truck,
   PackageCheck
 } from "lucide-react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
 
 type DatosSemanalesTabProps = {
   data: WeeklyData;
@@ -31,7 +21,8 @@ type DatosSemanalesTabProps = {
 
 const formatGap = (value: number, unit: '€' | 'Unid.') => {
     const sign = value > 0 ? '+' : '';
-    return `${sign}${value.toLocaleString('es-ES')}${unit}`;
+    const formattedValue = new Intl.NumberFormat('es-ES').format(value);
+    return `${sign}${formattedValue}${unit}`;
 }
 
 const ModuloAlmacen = ({ title, children }: { title: string, children: React.ReactNode }) => (
