@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DatosSemanalesTab } from "@/components/dashboard/datos-semanales-tab";
+import { DatosPorSeccionTab } from "@/components/dashboard/datos-por-seccion-tab";
 import { Button } from '@/components/ui/button';
 import { analyzeWeeklyTrends } from '@/ai/flows/analyze-weekly-trends';
 import { WeeklyAnalysisOutput } from '@/ai/flows/analyze-weekly-trends';
@@ -150,7 +151,7 @@ export default function Home() {
         <Tabs defaultValue="datosSemanales">
           <TabsList className="grid w-full grid-cols-1 md:grid-cols-5 mb-4">
             <TabsTrigger value="datosSemanales">Datos Semanales</TabsTrigger>
-            <TabsTrigger value="datosPorSeccion" disabled>Datos por Sección</TabsTrigger>
+            <TabsTrigger value="datosPorSeccion">Datos por Sección</TabsTrigger>
             <TabsTrigger value="ventasCaballero" disabled>Ventas Caballero</TabsTrigger>
             <TabsTrigger value="aqneSemanal" disabled>AQNE Semanal</TabsTrigger>
             <TabsTrigger value="acumulado" disabled>Acumulado</TabsTrigger>
@@ -159,7 +160,7 @@ export default function Home() {
             <DatosSemanalesTab data={data} isEditing={isEditing} />
           </TabsContent>
           <TabsContent value="datosPorSeccion">
-             {/* This content will be added in a future step */}
+             <DatosPorSeccionTab data={data.datosPorSeccion} />
           </TabsContent>
            <TabsContent value="ventasCaballero">
              {/* This content will be added in a future step */}

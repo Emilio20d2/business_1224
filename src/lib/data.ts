@@ -55,7 +55,51 @@ export const datosSemanales = {
               "ocupacionPorc": 75,
               "devolucionUnidades": null
           }
-      }
+      },
+      "datosPorSeccion": {
+        "woman": {
+            "pesoPorc": 58,
+            "metricasPrincipales": {
+                "totalEuros": 168414,
+                "varPorcEuros": 13.8,
+                "totalUnidades": 7026,
+                "varPorcUnidades": 7.5
+            },
+            "desglose": [
+                { "seccion": "Ropa", "totalEuros": 154234, "varPorc": 13.0 },
+                { "seccion": "Calzado", "totalEuros": 8174, "varPorc": 21.2 },
+                { "seccion": "Perfumería", "totalEuros": 6006, "varPorc": 27.0 }
+            ]
+        },
+        "man": {
+            "pesoPorc": 26,
+            "metricasPrincipales": {
+                "totalEuros": 76080,
+                "varPorcEuros": 14.2,
+                "totalUnidades": 2658,
+                "varPorcUnidades": 7.3
+            },
+            "desglose": [
+                { "seccion": "Ropa", "totalEuros": 67147, "varPorc": 10.9 },
+                { "seccion": "Calzado", "totalEuros": 5074, "varPorc": 64.9 },
+                { "seccion": "Perfumería", "totalEuros": 3859, "varPorc": 30.0 }
+            ]
+        },
+        "nino": {
+            "pesoPorc": 16,
+            "metricasPrincipales": {
+                "totalEuros": 45590,
+                "varPorcEuros": 17.7,
+                "totalUnidades": 2970,
+                "varPorcUnidades": 7.5
+            },
+            "desglose": [
+                { "seccion": "Ropa", "totalEuros": 41219, "varPorc": 15.0 },
+                { "seccion": "Calzado", "totalEuros": 3599, "varPorc": 33.5 },
+                { "seccion": "Perfumería", "totalEuros": 772, "varPorc": 268.0 }
+            ]
+        }
+    }
   },
   "semana-23": {
     "periodo": "SEMANA 23",
