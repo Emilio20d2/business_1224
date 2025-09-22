@@ -12,7 +12,9 @@ import {
   Footprints,
   SprayCan,
   Truck,
-  PackageCheck
+  PackageCheck,
+  Server,
+  CaseUpper
 } from "lucide-react";
 
 type DatosSemanalesTabProps = {
@@ -89,19 +91,25 @@ export function DatosSemanalesTab({ data, isEditing }: DatosSemanalesTabProps) {
           valueId="input-rendimiento-conv"
         />
       </KpiCard>
-
-      {/* Operaciones y Sistema */}
-      <KpiCard title="Operaciones y Sistema" icon={<Receipt className="h-5 w-5 text-primary" />} className="md:col-span-3">
+      
+      {/* Caja */}
+      <KpiCard title="Caja" icon={<CaseUpper className="h-5 w-5 text-primary" />} className="md:col-span-2">
         <div className="grid grid-cols-2 gap-x-8 gap-y-4">
             <DatoSimple label="Filas Caja" value={`${formatPercentage(data.operaciones.filasCajaPorc)}`} isEditing={isEditing} valueId="input-op-filas-caja" />
             <DatoSimple label="SCO" value={`${formatPercentage(data.operaciones.scoPorc)}`} isEditing={isEditing} valueId="input-op-sco" />
             <DatoSimple label="V. Ipod" value={formatNumber(data.operaciones.ventaIpod)} isEditing={isEditing} valueId="input-op-vipod" />
             <DatoSimple label="E-Ticket" value={`${formatPercentage(data.operaciones.eTicketPorc)}`} isEditing={isEditing} valueId="input-op-eticket" />
+        </div>
+      </KpiCard>
+
+       {/* Sistema */}
+      <KpiCard title="Sistema" icon={<Server className="h-5 w-5 text-primary" />} className="md:col-span-1">
+        <div className="grid grid-cols-1 gap-x-8 gap-y-4">
             <DatoSimple label="SINT" value={formatNumber(data.operaciones.sint)} isEditing={isEditing} valueId="input-op-sint" />
             <DatoSimple label="Repo" value={`${formatPercentage(data.operaciones.repoPorc)}`} isEditing={isEditing} valueId="input-op-repo" />
         </div>
       </KpiCard>
-      
+
       {/* Contenedor para Pérdidas */}
       <div className="md:col-span-3 flex flex-col gap-6">
         {/* GAP */}
