@@ -61,9 +61,10 @@ type DatoSimpleProps = {
   valueId?: string;
   className?: string;
   icon?: React.ReactNode;
+  align?: 'left' | 'center' | 'right';
 };
 
-export function DatoSimple({ label, value, isEditing, valueId, className, icon }: DatoSimpleProps) {
+export function DatoSimple({ label, value, isEditing, valueId, className, icon, align = 'left' }: DatoSimpleProps) {
     const renderValue = () => {
         if (typeof value === 'object') return value;
         
@@ -76,30 +77,46 @@ export function DatoSimple({ label, value, isEditing, valueId, className, icon }
             const secondValue = parseFloat(secondPart.replace(/[^0-9.,-]+/g, '').replace(',', '.'));
 
             return (
-                <span className="font-semibold text-right">
-                    <span className={firstValue >= 0 ? 'text-green-600' : 'text-red-600'}>{firstPart}</span>
-                    {' / '}
-                    <span className={secondValue >= 0 ? 'text-green-600' : 'text-red-600'}>{secondPart}</span>
-                </span>
+                <div className="font-semibold text-right">
+                    <div className={firstValue >= 0 ? 'text-green-600' : 'text-red-600'}>{firstPart}</div>
+                    <div className={secondValue >= 0 ? 'text-green-600' : 'text-red-600'}>{secondPart}</div>
+                </div>
             );
         }
         
         if (typeof value === 'string' && value.includes('(') && value.includes(')')) {
              const mainValue = value.substring(0, value.indexOf('(')).trim();
              const percentage = value.substring(value.indexOf('('));
-             return <span className="font-semibold text-right">{mainValue} <span className="text-muted-foreground">{percentage}</span></span>
+             return <div className="font-semibold text-right">{mainValue} <span className="text-muted-foreground">{percentage}</span></div>
         }
 
         return <strong className="font-semibold text-right">{value}</strong>;
     }
 
+    const alignmentClasses = {
+        left: "justify-between",
+        center: "flex-col items-center",
+        right: "justify-between",
+    }
+    const labelAlignmentClasses = {
+        left: "",
+        center: "text-center",
+        right: "text-right",
+    }
+    const valueAlignmentClasses = {
+        left: "text-right",
+        center: "text-center",
+        right: "text-right",
+    }
+
+
     return (
-        <div className={cn("flex justify-between items-center text-md", className)}>
-            <span className="flex items-center gap-2 text-muted-foreground">
+        <div className={cn("flex items-center text-md", alignmentClasses[align], className)}>
+            <span className={cn("flex items-center gap-2 text-muted-foreground", labelAlignmentClasses[align])}>
               {icon}
               {label}:
             </span>
-            {isEditing ? <Input type="text" defaultValue={String(value).replace(/[^0-p-9.]+/g, '')} className="w-24 h-8" id={valueId}/> : renderValue()}
+            {isEditing ? <Input type="text" defaultValue={String(value).replace(/[^0-p-9.]+/g, '')} className="w-24 h-8" id={valueId}/> : <div className={valueAlignmentClasses[align]}>{renderValue()}</div>}
         </div>
     );
 }

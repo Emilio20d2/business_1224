@@ -53,7 +53,8 @@ export function DatosSemanalesTab({ data, isEditing }: DatosSemanalesTabProps) {
       </KpiCard>
 
       {/* Rendimiento de Tienda */}
-      <KpiCard title="Rendimiento de Tienda" icon={<ChartLine className="h-5 w-5 text-primary" />} className="lg:col-span-2">
+      <KpiCard title="Rendimiento de Tienda" icon={<ChartLine className="h-5 w-5 text-primary" />} className="lg:col-span-4">
+        <div className="grid grid-cols-2 gap-x-8 gap-y-4">
         <DatoDoble 
           label="Tráfico" 
           value={formatNumber(data.rendimientoTienda.trafico)} 
@@ -68,10 +69,11 @@ export function DatosSemanalesTab({ data, isEditing }: DatosSemanalesTabProps) {
           isEditing={isEditing}
           valueId="input-rendimiento-conv"
         />
+        </div>
       </KpiCard>
 
       {/* Operaciones y Sistema */}
-      <KpiCard title="Operaciones y Sistema" icon={<Receipt className="h-5 w-5 text-primary" />} className="lg:col-span-2">
+      <KpiCard title="Operaciones y Sistema" icon={<Receipt className="h-5 w-5 text-primary" />} className="lg:col-span-3">
         <div className="grid grid-cols-2 gap-x-8 gap-y-4">
             <DatoSimple label="Filas Caja" value={`${formatPercentage(data.operaciones.filasCajaPorc)}`} isEditing={isEditing} valueId="input-op-filas-caja" />
             <DatoSimple label="SCO" value={`${formatPercentage(data.operaciones.scoPorc)}`} isEditing={isEditing} valueId="input-op-sco" />
@@ -83,19 +85,21 @@ export function DatosSemanalesTab({ data, isEditing }: DatosSemanalesTabProps) {
       </KpiCard>
       
       {/* Pérdidas */}
-      <KpiCard title="Pérdidas" icon={<AlertTriangle className="h-5 w-5 text-destructive" />} className="lg:col-span-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <KpiCard title="Pérdidas" icon={<AlertTriangle className="h-5 w-5 text-destructive" />} className="lg:col-span-3">
+        <div className="grid grid-cols-2 gap-6 pt-4">
           <DatoSimple 
               label="GAP" 
               value={`${formatGap(data.perdidas.gap.euros, '€')} / ${formatGap(data.perdidas.gap.unidades, 'Unid.')}`} 
               isEditing={isEditing}
               valueId="input-perdidas-gap"
+              align="center"
           />
           <DatoSimple 
               label="Merma" 
               value={`${formatNumber(data.perdidas.merma.unidades)} Unid. (${formatPercentage(data.perdidas.merma.porcentaje)})`}
               isEditing={isEditing}
               valueId="input-perdidas-merma"
+              align="center"
           />
         </div>
       </KpiCard>
@@ -104,12 +108,12 @@ export function DatosSemanalesTab({ data, isEditing }: DatosSemanalesTabProps) {
       <KpiCard title="Gestión de Almacén y Logística" icon={<Warehouse className="h-5 w-5 text-primary" />} className="lg:col-span-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="flex flex-col gap-4">
-              <h4 className="font-semibold text-card-foreground">Logística Semanal</h4>
+              <h4 className="font-semibold text-card-foreground text-center">Logística Semanal</h4>
               <DatoSimple label="Entradas Totales" value={formatNumber(data.logistica.entradas)} isEditing={isEditing} valueId="total-entradas" icon={<ArrowDown className="h-4 w-4 text-green-500" />} />
               <DatoSimple label="Salidas Totales" value={formatNumber(data.logistica.salidas)} isEditing={isEditing} valueId="total-salidas" icon={<ArrowUp className="h-4 w-4 text-red-500" />} />
           </div>
            <div className="flex flex-col gap-4">
-              <h4 className="font-semibold text-card-foreground">Ocupación</h4>
+              <h4 className="font-semibold text-card-foreground text-center">Ocupación</h4>
                <Table>
                 <TableHeader>
                     <TableRow>
@@ -134,7 +138,7 @@ export function DatosSemanalesTab({ data, isEditing }: DatosSemanalesTabProps) {
             </Table>
           </div>
           <div className="flex flex-col gap-4">
-              <h4 className="font-semibold text-card-foreground">Propuesta de Devolución</h4>
+              <h4 className="font-semibold text-card-foreground text-center">Propuesta de Devolución</h4>
                <Table>
                 <TableHeader>
                     <TableRow>
