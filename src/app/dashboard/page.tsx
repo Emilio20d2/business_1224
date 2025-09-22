@@ -120,16 +120,18 @@ export default function DashboardPage() {
         let current = updatedData;
         
         for (let i = 0; i < keys.length - 1; i++) {
-            if (current[keys[i]] === undefined) {
-                 // If a key in the path doesn't exist, log an error and stop.
-                 console.error(`Invalid path for input change: ${path}. Key "${keys[i]}" not found.`);
+            const key = keys[i];
+            if (current[key] === undefined) {
+                 console.error(`Invalid path for input change: ${path}. Key "${key}" not found.`);
                  return prevData;
             }
-            current = current[keys[i]];
+            current = current[key];
         }
         
         const finalKey = keys[keys.length - 1];
-        if (typeof current[finalKey] === 'number') {
+        const target = current[finalKey];
+
+        if (typeof target === 'number') {
             current[finalKey] = parseFloat(value as string) || 0;
         } else {
             current[finalKey] = value;
@@ -282,7 +284,7 @@ export default function DashboardPage() {
                   <Settings className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56">
+              <DropdownMenuContent className="w-56 z-50">
                 <DropdownMenuLabel>Editar Listas de Categorías</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
@@ -322,13 +324,13 @@ export default function DashboardPage() {
             <DatosSemanalesTab data={data} isEditing={isEditing} onInputChange={handleInputChange} />
           </TabsContent>
           <TabsContent value="ventasSeccion">
-             <DatosPorSeccionTab data={data.datosPorSeccion} />
+             <DatosPorSeccionTab data={data.datosPorSeccion} isEditing={isEditing} onInputChange={handleInputChange} />
           </TabsContent>
            <TabsContent value="ventasMan">
              <VentasManTab data={data.ventasMan} isEditing={isEditing} listOptions={listOptions} onInputChange={handleInputChange} />
           </TabsContent>
            <TabsContent value="aqneSemanal">
-             <AqneSemanalTab data={data} />
+             <AqneSemanalTab data={data} isEditing={isEditing} onInputChange={handleInputChange} />
           </TabsContent>
            <TabsContent value="acumulado">
              <AcumuladoTab data={data.acumulado} isEditing={isEditing} onInputChange={handleInputChange} />

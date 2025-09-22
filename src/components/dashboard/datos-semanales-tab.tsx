@@ -21,7 +21,6 @@ import {
   RefreshCw
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Input } from "@/components/ui/input";
 
 type DatosSemanalesTabProps = {
   data: WeeklyData;
@@ -44,25 +43,28 @@ const ModuloAlmacen = ({ title, children, className }: { title: string, children
     </div>
 );
 
-const ModuloContenidoGrande = ({ icon, value, isEditing, id, onInputChange }: { icon: React.ReactNode, value: string | number, isEditing?: boolean, id?:string, onInputChange?: (path: string, value: string) => void; }) => (
+const ModuloContenidoGrande = ({ icon, value, isEditing, id, onInputChange }: { icon: React.ReactNode, value: number, isEditing?: boolean, id?:string, onInputChange?: (path: string, value: string) => void; }) => (
     <div className="flex flex-col items-center justify-center gap-2 p-4 rounded-lg bg-background h-full">
        <div className="text-primary">{icon}</div>
        {isEditing && id && onInputChange ? 
-        <Input type="number" defaultValue={String(value).replace(/[^0-9-]/g, '')} className="text-3xl font-bold w-32 text-center" id={id} onChange={(e) => onInputChange(id, e.target.value)} />
-        : <strong className="text-3xl font-bold">{value}</strong>
+        <DatoSimple value={value} isEditing={isEditing} valueId={id} onInputChange={onInputChange} align="center"/>
+        : <strong className="text-3xl font-bold">{formatNumber(value)}</strong>
        }
     </div>
 );
 
-const FilaModulo = ({ icon, label, value, isEditing, id, onInputChange }: { icon: React.ReactNode, label: string, value: string | number, isEditing?: boolean, id?: string, onInputChange?: (path: string, value: string) => void; }) => (
+const FilaModulo = ({ icon, label, value, isEditing, id, onInputChange, unit }: { icon: React.ReactNode, label: string, value: number, isEditing?: boolean, id?: string, onInputChange?: (path: string, value: string) => void; unit: string }) => (
      <div className="flex items-center justify-between gap-4 text-md w-40">
         <div className="flex items-center gap-2 text-muted-foreground">
             {icon}
             <span>{label}</span>
         </div>
          {isEditing && id && onInputChange ? 
-            <Input type="number" defaultValue={String(value).replace(/[^0-9-]/g, '')} className="font-bold text-right w-20" id={id} onChange={(e) => onInputChange(id, e.target.value)} />
-            : <strong className="font-bold text-right">{value}</strong>
+            <div className="flex items-center gap-1">
+                <Input type="number" defaultValue={value} className="font-bold text-right w-20" id={id} onChange={(e) => onInputChange(id, e.target.value)} />
+                <span className="text-sm text-muted-foreground">{unit}</span>
+            </div>
+            : <strong className="font-bold text-right">{unit === '%' ? formatPercentage(value) : formatNumber(value)}</strong>
         }
     </div>
 )
@@ -118,17 +120,19 @@ export function DatosSemanalesTab({ data, isEditing, onInputChange }: DatosSeman
         <KpiCard title="GAP" icon={<ClipboardX className="h-5 w-5 text-destructive" />} className="md:col-span-2">
              <div className="flex flex-row justify-center items-center gap-4">
                 <DatoSimple 
-                    value={`${formatGap(data.perdidas.gap.euros, '€')}`} 
+                    value={isEditing ? data.perdidas.gap.euros : formatGap(data.perdidas.gap.euros, '€')} 
                     isEditing={isEditing}
                     valueId="perdidas.gap.euros"
                     align="center"
+                    unit="€"
                     onInputChange={onInputChange}
                 />
                 <DatoSimple 
-                    value={`${formatGap(data.perdidas.gap.unidades, 'Unid.')}`} 
+                    value={isEditing ? data.perdidas.gap.unidades : formatGap(data.perdidas.gap.unidades, 'Unid.')}
                     isEditing={isEditing}
                     valueId="perdidas.gap.unidades"
                     align="center"
+                    unit="Unid."
                     onInputChange={onInputChange}
                 />
             </div>
@@ -137,42 +141,44 @@ export function DatosSemanalesTab({ data, isEditing, onInputChange }: DatosSeman
         <KpiCard title="Merma" icon={<Trash2 className="h-5 w-5 text-destructive" />} className="md:col-span-2">
             <div className="flex flex-row justify-center items-center gap-4">
                 <DatoSimple 
-                    value={`${formatNumber(data.perdidas.merma.unidades)} Unid.`}
+                    value={isEditing ? data.perdidas.merma.unidades : `${formatNumber(data.perdidas.merma.unidades)} Unid.`}
                     isEditing={isEditing}
                     valueId="perdidas.merma.unidades"
                     align="center"
+                    unit="Unid."
                     onInputChange={onInputChange}
                 />
                 <DatoSimple 
-                    value={formatPercentage(data.perdidas.merma.porcentaje)}
+                    value={isEditing ? data.perdidas.merma.porcentaje : formatPercentage(data.perdidas.merma.porcentaje)}
                     isEditing={isEditing}
                     valueId="perdidas.merma.porcentaje"
                     align="center"
+                    unit="%"
                     onInputChange={onInputChange}
                 />
             </div>
         </KpiCard>
         
         <KpiCard title="V. Ipod" icon={<Smartphone className="h-5 w-5 text-primary" />}>
-            <DatoSimple value={formatNumber(data.operaciones.ventaIpod)} isEditing={isEditing} valueId="operaciones.ventaIpod" align="center" onInputChange={onInputChange}/>
+            <DatoSimple value={isEditing ? data.operaciones.ventaIpod : formatNumber(data.operaciones.ventaIpod)} isEditing={isEditing} valueId="operaciones.ventaIpod" align="center" onInputChange={onInputChange}/>
         </KpiCard>
 
         <KpiCard title="Caja" icon={<Receipt className="h-5 w-5 text-primary" />} className="md:col-span-2">
             <div className="grid grid-cols-2 gap-4">
-                <DatoSimple icon={<Clock />} label="Filas Caja" value={`${formatPercentage(data.operaciones.filasCajaPorc)}`} isEditing={isEditing} valueId="operaciones.filasCajaPorc" align="center" onInputChange={onInputChange} />
-                <DatoSimple icon={<ScanLine />} label="ACO" value={`${formatPercentage(data.operaciones.scoPorc)}`} isEditing={isEditing} valueId="operaciones.scoPorc" align="center" onInputChange={onInputChange} />
+                <DatoSimple icon={<Clock />} label="Filas Caja" value={isEditing ? data.operaciones.filasCajaPorc : formatPercentage(data.operaciones.filasCajaPorc)} isEditing={isEditing} valueId="operaciones.filasCajaPorc" align="center" onInputChange={onInputChange} unit="%" />
+                <DatoSimple icon={<ScanLine />} label="ACO" value={isEditing ? data.operaciones.scoPorc : formatPercentage(data.operaciones.scoPorc)} isEditing={isEditing} valueId="operaciones.scoPorc" align="center" onInputChange={onInputChange} unit="%" />
             </div>
         </KpiCard>
         
         <KpiCard title="Operaciones" icon={<Package className="h-5 w-5 text-primary" />} className="md:col-span-2">
             <div className="grid grid-cols-2 gap-4">
-                <DatoSimple icon={<Package />} label="SINT" value={formatNumber(data.operaciones.sint)} isEditing={isEditing} valueId="operaciones.sint" align="center" onInputChange={onInputChange} />
-                <DatoSimple icon={<RefreshCw />} label="Repo" value={`${formatPercentage(data.operaciones.repoPorc)}`} isEditing={isEditing} valueId="operaciones.repoPorc" align="center" onInputChange={onInputChange} />
+                <DatoSimple icon={<Package />} label="SINT" value={isEditing ? data.operaciones.sint : formatNumber(data.operaciones.sint)} isEditing={isEditing} valueId="operaciones.sint" align="center" onInputChange={onInputChange} />
+                <DatoSimple icon={<RefreshCw />} label="Repo" value={isEditing ? data.operaciones.repoPorc : formatPercentage(data.operaciones.repoPorc)} isEditing={isEditing} valueId="operaciones.repoPorc" align="center" onInputChange={onInputChange} unit="%" />
             </div>
         </KpiCard>
         
         <KpiCard title="E-Ticket" icon={<Ticket className="h-5 w-5 text-primary" />}>
-            <DatoSimple value={`${formatPercentage(data.operaciones.eTicketPorc)}`} isEditing={isEditing} valueId="operaciones.eTicketPorc" align="center" onInputChange={onInputChange} />
+            <DatoSimple value={isEditing ? data.operaciones.eTicketPorc : formatPercentage(data.operaciones.eTicketPorc)} isEditing={isEditing} valueId="operaciones.eTicketPorc" align="center" onInputChange={onInputChange} unit="%" />
         </KpiCard>
       </div>
 
@@ -181,24 +187,22 @@ export function DatosSemanalesTab({ data, isEditing, onInputChange }: DatosSeman
       <KpiCard title="Gestión de Almacén y Logística" icon={<Warehouse className="h-5 w-5 text-primary" />} className="md:col-span-6">
         <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_1fr_1.5fr] gap-6 place-items-center">
           <ModuloAlmacen title="Entradas">
-            <ModuloContenidoGrande icon={<Truck className="h-8 w-8"/>} value={formatNumber(data.logistica.entradasSemanales)} isEditing={isEditing} id="logistica.entradasSemanales" onInputChange={onInputChange} />
+            <ModuloContenidoGrande icon={<Truck className="h-8 w-8"/>} value={data.logistica.entradasSemanales} isEditing={isEditing} id="logistica.entradasSemanales" onInputChange={onInputChange} />
           </ModuloAlmacen>
           <ModuloAlmacen title="Salidas">
-            <ModuloContenidoGrande icon={<PackageCheck className="h-8 w-8"/>} value={formatNumber(data.logistica.salidasSemanales)} isEditing={isEditing} id="logistica.salidasSemanales" onInputChange={onInputChange} />
+            <ModuloContenidoGrande icon={<PackageCheck className="h-8 w-8"/>} value={data.logistica.salidasSemanales} isEditing={isEditing} id="logistica.salidasSemanales" onInputChange={onInputChange} />
           </ModuloAlmacen>
           <ModuloAlmacen title="Ocupación">
-            <FilaModulo icon={<Shirt className="h-5 w-5"/>} label="Ropa" value={formatPercentage(data.almacenes.ropa.ocupacionPorc)} isEditing={isEditing} id="almacenes.ropa.ocupacionPorc" onInputChange={onInputChange} />
-            <FilaModulo icon={<Footprints className="h-5 w-5"/>} label="Calzado" value={formatPercentage(data.almacenes.calzado.ocupacionPorc)} isEditing={isEditing} id="almacenes.calzado.ocupacionPorc" onInputChange={onInputChange} />
-            <FilaModulo icon={<SprayCan className="h-5 w-5"/>} label="Perfumería" value={formatPercentage(data.almacenes.perfumeria.ocupacionPorc)} isEditing={isEditing} id="almacenes.perfumeria.ocupacionPorc" onInputChange={onInputChange} />
+            <FilaModulo icon={<Shirt className="h-5 w-5"/>} label="Ropa" value={data.almacenes.ropa.ocupacionPorc} isEditing={isEditing} id="almacenes.ropa.ocupacionPorc" onInputChange={onInputChange} unit="%" />
+            <FilaModulo icon={<Footprints className="h-5 w-5"/>} label="Calzado" value={data.almacenes.calzado.ocupacionPorc} isEditing={isEditing} id="almacenes.calzado.ocupacionPorc" onInputChange={onInputChange} unit="%" />
+            <FilaModulo icon={<SprayCan className="h-5 w-5"/>} label="Perfumería" value={data.almacenes.perfumeria.ocupacionPorc} isEditing={isEditing} id="almacenes.perfumeria.ocupacionPorc" onInputChange={onInputChange} unit="%" />
           </ModuloAlmacen>
           <ModuloAlmacen title="Propuesta Devo." className="justify-start">
-             <FilaModulo icon={<Shirt className="h-5 w-5"/>} label="Ropa" value={formatNumber(data.almacenes.ropa.devolucionUnidades)} isEditing={isEditing} id="almacenes.ropa.devolucionUnidades" onInputChange={onInputChange} />
-             <FilaModulo icon={<Footprints className="h-5 w-5"/>} label="Calzado" value={formatNumber(data.almacenes.calzado.devolucionUnidades)} isEditing={isEditing} id="almacenes.calzado.devolucionUnidades" onInputChange={onInputChange} />
+             <FilaModulo icon={<Shirt className="h-5 w-5"/>} label="Ropa" value={data.almacenes.ropa.devolucionUnidades as number} isEditing={isEditing} id="almacenes.ropa.devolucionUnidades" onInputChange={onInputChange} unit="Unid."/>
+             <FilaModulo icon={<Footprints className="h-5 w-5"/>} label="Calzado" value={data.almacenes.calzado.devolucionUnidades as number} isEditing={isEditing} id="almacenes.calzado.devolucionUnidades" onInputChange={onInputChange} unit="Unid."/>
           </ModuloAlmacen>
         </div>
       </KpiCard>
     </div>
   );
 }
-
-    

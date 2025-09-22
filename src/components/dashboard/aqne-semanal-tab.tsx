@@ -12,18 +12,23 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-
+import { Input } from '@/components/ui/input';
 
 type AqneSemanalTabProps = {
   data: WeeklyData;
+  isEditing: boolean;
+  onInputChange: (path: string, value: string | number) => void;
 };
 
 
-export function AqneSemanalTab({ data }: AqneSemanalTabProps) {
+export function AqneSemanalTab({ data, isEditing, onInputChange }: AqneSemanalTabProps) {
+  const handleDailySaleChange = (index: number, field: string, value: string) => {
+    onInputChange(`ventasDiariasAQNE.${index}.${field}`, value);
+  };
 
   return (
     <div className="space-y-6">
-      <DatosPorSeccionTab data={data.aqneSemanal} />
+      <DatosPorSeccionTab data={data.aqneSemanal} isEditing={isEditing} onInputChange={onInputChange} />
 
       <Separator />
 
@@ -44,13 +49,24 @@ export function AqneSemanalTab({ data }: AqneSemanalTabProps) {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {data.ventasDiariasAQNE.map((venta) => (
+                        {data.ventasDiariasAQNE.map((venta, index) => (
                             <TableRow key={venta.dia}>
                                 <TableCell className="font-medium">{venta.dia}</TableCell>
-                                <TableCell className="text-right font-bold">{formatCurrency(venta.total)}</TableCell>
-                                <TableCell className="text-right">{formatCurrency(venta.woman)}</TableCell>
-                                <TableCell className="text-right">{formatCurrency(venta.man)}</TableCell>
-                                <TableCell className="text-right">{formatCurrency(venta.nino)}</TableCell>
+                                {isEditing ? (
+                                    <>
+                                        <TableCell><Input type="number" defaultValue={venta.total} onChange={(e) => handleDailySaleChange(index, 'total', e.target.value)} className="w-24 ml-auto text-right" /></TableCell>
+                                        <TableCell><Input type="number" defaultValue={venta.woman} onChange={(e) => handleDailySaleChange(index, 'woman', e.target.value)} className="w-24 ml-auto text-right" /></TableCell>
+                                        <TableCell><Input type="number" defaultValue={venta.man} onChange={(e) => handleDailySaleChange(index, 'man', e.target.value)} className="w-24 ml-auto text-right" /></TableCell>
+                                        <TableCell><Input type="number" defaultValue={venta.nino} onChange={(e) => handleDailySaleChange(index, 'nino', e.target.value)} className="w-24 ml-auto text-right" /></TableCell>
+                                    </>
+                                ) : (
+                                    <>
+                                        <TableCell className="text-right font-bold">{formatCurrency(venta.total)}</TableCell>
+                                        <TableCell className="text-right">{formatCurrency(venta.woman)}</TableCell>
+                                        <TableCell className="text-right">{formatCurrency(venta.man)}</TableCell>
+                                        <TableCell className="text-right">{formatCurrency(venta.nino)}</TableCell>
+                                    </>
+                                )}
                             </TableRow>
                         ))}
                     </TableBody>
