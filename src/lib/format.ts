@@ -1,0 +1,12 @@
+export const formatCurrency = (amount: number) => {
+  return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0 }).format(amount);
+};
+
+export const formatNumber = (amount: number | null | undefined) => {
+  if (amount === null || amount === undefined) return 'N/A';
+  return new Intl.NumberFormat('es-ES').format(amount);
+};
+
+export const formatPercentage = (value: number) => {
+  return `${value.toLocaleString('es-ES')}%`;
+};
