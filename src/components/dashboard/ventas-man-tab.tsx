@@ -131,7 +131,7 @@ const ImageImportCard = ({ selectedRow, isEditing, onImageChange }: { selectedRo
     };
 
     return (
-        <Card className="relative overflow-hidden p-0 gap-0 w-full aspect-[5/4]">
+        <Card className="relative overflow-hidden p-0 gap-0 w-full aspect-[16/9]">
             <CardContent className="p-0 h-full">
                 <div className="w-full h-full bg-muted flex items-center justify-center">
                     {displayImage ? (
