@@ -35,7 +35,6 @@ import { useToast } from '@/hooks/use-toast';
 import { AuthContext } from '@/context/auth-context';
 import { getInitialDataForWeek } from '@/lib/data';
 import { useRouter } from 'next/navigation';
-import { ScrollArea } from '@/components/ui/scroll-area';
 
 
 type EditableList = 'comprador' | 'zonaComercial' | 'agrupacionComercial';
@@ -78,14 +77,11 @@ export default function DashboardPage() {
         try {
           const week = "semana-24";
           const docRef = doc(db, "informes", week);
-          console.log(`Fetching document for user: ${user.uid}`);
           const docSnap = await getDoc(docRef);
 
           if (docSnap.exists()) {
-            console.log("Data found in Firestore.");
             setData(docSnap.data() as WeeklyData);
           } else {
-            console.log("No data in Firestore, creating with initial data.");
             const initialData = getInitialDataForWeek(week);
             await setDoc(docRef, initialData);
             setData(initialData);
@@ -118,7 +114,6 @@ export default function DashboardPage() {
         for (let i = 0; i < keys.length - 1; i++) {
             const key = keys[i];
             if (current[key] === undefined) {
-                 console.error(`Invalid path for input change: ${path}. Key "${key}" not found.`);
                  return prevData;
             }
             current = current[key];
@@ -126,7 +121,6 @@ export default function DashboardPage() {
         
         const finalKey = keys[keys.length - 1];
         
-        // Handle array index access
         const arrayMatch = finalKey.match(/(\w+)\[(\d+)\]/);
         if(arrayMatch){
             const arrayKey = arrayMatch[1];
@@ -231,7 +225,6 @@ export default function DashboardPage() {
       
       setData(updatedData);
       setIsEditing(true);
-      console.log("Updated data after list edit:", updatedData);
     }
     setListToEdit(null);
     setIsListDialogOpen(false);
@@ -391,3 +384,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    
