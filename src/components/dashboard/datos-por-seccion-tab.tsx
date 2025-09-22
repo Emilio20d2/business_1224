@@ -68,8 +68,8 @@ const SectionCard = ({ name, data }: { name: SectionName, data: SectionData[Sect
                 <Separator className="my-2" />
                 <div className="flex flex-col gap-2 mt-4">
                     {data.desglose.map((item, index) => (
-                        <div key={index} className="grid grid-cols-3 items-center text-xs">
-                            <div className="flex items-center gap-2">
+                        <div key={index} className="grid grid-cols-[2fr,1fr,1fr] items-center text-xs">
+                            <div className="flex items-center gap-2 text-left">
                                 {desgloseIconos[item.seccion] || <Shirt className="h-4 w-4 text-muted-foreground" />}
                                 <span className="text-muted-foreground">{item.seccion}</span>
                             </div>
