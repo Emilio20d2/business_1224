@@ -66,13 +66,11 @@ const SectionCard = ({ name, data }: { name: SectionName, data: SectionData[Sect
                     </div>
                 </div>
                 <Separator className="my-2" />
-                <div className="flex flex-col gap-2 mt-4">
+                <div className="flex flex-col gap-2 mt-4 text-xs">
                     {data.desglose.map((item, index) => (
-                        <div key={index} className="grid grid-cols-[20px_1fr_auto] items-center text-xs gap-2">
-                            <div className="flex items-center justify-start">
+                        <div key={index} className="grid grid-cols-2 items-center">
+                            <div className="flex items-center gap-2">
                                 {desgloseIconos[item.seccion] || <Shirt className="h-4 w-4 text-muted-foreground" />}
-                            </div>
-                            <div className="text-right">
                                 <span className="font-bold">{formatCurrency(item.totalEuros)}</span>
                             </div>
                             <div className="text-right">
