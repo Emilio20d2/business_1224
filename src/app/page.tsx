@@ -13,20 +13,23 @@ import { DatosSemanalesTab } from "@/components/dashboard/datos-semanales-tab";
 import { DatosPorSeccionTab } from "@/components/dashboard/datos-por-seccion-tab";
 import { VentasManTab } from "@/components/dashboard/ventas-man-tab";
 import { Button } from '@/components/ui/button';
-import { analyzeWeeklyTrends } from '@/ai/flows/analyze-weekly-trends';
-import { WeeklyAnalysisOutput } from '@/ai/flows/analyze-weekly-trends';
 import { Settings } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
-  DropdownMenuItem,
+  DropdownMenuCheckboxItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { startOfWeek, endOfWeek, subWeeks, format } from 'date-fns';
 import { es } from 'date-fns/locale';
+
+type VentasManData = WeeklyData["ventasMan"];
+type CompradorItem = VentasManData["pesoComprador"][number];
+type ZonaComercialItem = VentasManData["zonaComercial"][number];
+type AgrupacionComercialItem = VentasManData["agrupacionComercial"][number];
 
 const getPreviousWeekRange = () => {
     const today = new Date();
@@ -39,13 +42,39 @@ const getPreviousWeekRange = () => {
     };
 };
 
+const initialVisibility = {
+    comprador: datosSemanales['semana-24'].ventasMan.pesoComprador.reduce((acc, item) => {
+        acc[item.nombre] = true;
+        return acc;
+    }, {} as Record<string, boolean>),
+    zonaComercial: datosSemanales['semana-24'].ventasMan.zonaComercial.reduce((acc, item) => {
+        acc[item.nombre] = true;
+        return acc;
+    }, {} as Record<string, boolean>),
+    agrupacionComercial: datosSemanales['semana-24'].ventasMan.agrupacionComercial.reduce((acc, item) => {
+        acc[item.nombre] = true;
+        return acc;
+    }, {} as Record<string, boolean>),
+};
+
 
 export default function Home() {
   const [data, setData] = React.useState<WeeklyData>(datosSemanales["semana-24"]);
   const [isEditing, setIsEditing] = React.useState(false);
   const [week, setWeek] = React.useState("semana-24");
-  const [analysis, setAnalysis] = React.useState<WeeklyAnalysisOutput | null>(null);
-  const [isLoadingAnalysis, setIsLoadingAnalysis] = React.useState(false);
+  
+  const [visibility, setVisibility] = React.useState(initialVisibility);
+
+  const handleVisibilityChange = (category: keyof typeof visibility, key: string, checked: boolean) => {
+    setVisibility(prev => ({
+        ...prev,
+        [category]: {
+            ...prev[category],
+            [key]: checked
+        }
+    }));
+  };
+
 
   const previousWeek = getPreviousWeekRange();
   const weekLabel = `${previousWeek.start} - ${previousWeek.end}`;
@@ -53,7 +82,6 @@ export default function Home() {
   const handleWeekChange = (newWeek: string) => {
     setWeek(newWeek);
     setData(datosSemanales[newWeek as keyof typeof datosSemanales]);
-    setAnalysis(null); // Reset analysis when week changes
   };
 
   const handleSave = () => {
@@ -69,23 +97,6 @@ export default function Home() {
     // Restore original data if it was modified in state
     setData(datosSemanales[week as keyof typeof datosSemanales]);
   };
-  
-  const getAIAnalysis = async () => {
-    setIsLoadingAnalysis(true);
-    setAnalysis(null);
-    try {
-      const result = await analyzeWeeklyTrends({
-        currentWeekData: datosSemanales['semana-24'],
-        previousWeekData: datosSemanales['semana-23'],
-      });
-      setAnalysis(result);
-    } catch (error) {
-      console.error("Error getting AI analysis:", error);
-    } finally {
-      setIsLoadingAnalysis(false);
-    }
-  };
-
 
   return (
     <div className="min-h-screen w-full p-4 sm:p-6 bg-background">
@@ -121,21 +132,45 @@ export default function Home() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56">
-                <DropdownMenuLabel>Configuración</DropdownMenuLabel>
+                <DropdownMenuLabel>Configuración de Visibilidad</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
                   <DropdownMenuLabel className="text-xs font-semibold text-muted-foreground">COMPRADOR</DropdownMenuLabel>
-                  {/* Items para Comprador */}
+                  {Object.keys(visibility.comprador).map(key => (
+                      <DropdownMenuCheckboxItem
+                          key={key}
+                          checked={visibility.comprador[key]}
+                          onCheckedChange={(checked) => handleVisibilityChange('comprador', key, !!checked)}
+                      >
+                          {key}
+                      </DropdownMenuCheckboxItem>
+                  ))}
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
                   <DropdownMenuLabel className="text-xs font-semibold text-muted-foreground">ZONA COMPRADOR</DropdownMenuLabel>
-                  {/* Items para Zona Comprador */}
+                   {Object.keys(visibility.zonaComercial).map(key => (
+                      <DropdownMenuCheckboxItem
+                          key={key}
+                          checked={visibility.zonaComercial[key]}
+                          onCheckedChange={(checked) => handleVisibilityChange('zonaComercial', key, !!checked)}
+                      >
+                          {key}
+                      </DropdownMenuCheckboxItem>
+                  ))}
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
                   <DropdownMenuLabel className="text-xs font-semibold text-muted-foreground">AGRUPACION COMERCIAL</DropdownMenuLabel>
-                  {/* Items para Agrupacion Comercial */}
+                  {Object.keys(visibility.agrupacionComercial).map(key => (
+                      <DropdownMenuCheckboxItem
+                          key={key}
+                          checked={visibility.agrupacionComercial[key]}
+                          onCheckedChange={(checked) => handleVisibilityChange('agrupacionComercial', key, !!checked)}
+                      >
+                          {key}
+                      </DropdownMenuCheckboxItem>
+                  ))}
                 </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -159,7 +194,7 @@ export default function Home() {
              <DatosPorSeccionTab data={data.datosPorSeccion} />
           </TabsContent>
            <TabsContent value="ventasMan">
-             <VentasManTab data={data.ventasMan} isEditing={isEditing} />
+             <VentasManTab data={data.ventasMan} isEditing={isEditing} visibilityConfig={visibility} />
           </TabsContent>
            <TabsContent value="aqneSemanal">
              {/* This content will be added in a future step */}

@@ -15,15 +15,21 @@ import {
 import { ImagePlus } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
 
 type VentasManData = WeeklyData["ventasMan"];
 type TableData = VentasManData[keyof VentasManData];
 type TableItem = TableData[number];
 
+type VisibilityConfig = {
+    comprador: Record<string, boolean>;
+    zonaComercial: Record<string, boolean>;
+    agrupacionComercial: Record<string, boolean>;
+}
+
 type VentasManTabProps = {
   data: VentasManData;
   isEditing: boolean;
+  visibilityConfig: VisibilityConfig;
 };
 
 const TrendIndicator = ({ value }: { value: number }) => {
@@ -141,7 +147,12 @@ const SubTabContent = ({ data, headers, isEditing }: { data: TableData, headers:
 }
 
 
-export function VentasManTab({ data, isEditing }: VentasManTabProps) {
+export function VentasManTab({ data, isEditing, visibilityConfig }: VentasManTabProps) {
+    
+  const filteredCompradorData = data.pesoComprador.filter(item => visibilityConfig.comprador[item.nombre]);
+  const filteredZonaData = data.zonaComercial.filter(item => visibilityConfig.zonaComercial[item.nombre]);
+  const filteredAgrupacionData = data.agrupacionComercial.filter(item => visibilityConfig.agrupacionComercial[item.nombre]);
+
   return (
     <Tabs defaultValue="comprador" className="w-full">
       <TabsList className="grid w-full grid-cols-3 mx-auto max-w-md mb-4">
@@ -150,13 +161,13 @@ export function VentasManTab({ data, isEditing }: VentasManTabProps) {
         <TabsTrigger value="agrupacionComercial">Agrup. Com.</TabsTrigger>
       </TabsList>
       <TabsContent value="comprador">
-         <SubTabContent data={data.pesoComprador} headers={['COMPRADOR', 'PESO %', '€', '%']} isEditing={isEditing} />
+         <SubTabContent data={filteredCompradorData} headers={['COMPRADOR', 'PESO %', '€', '%']} isEditing={isEditing} />
       </TabsContent>
       <TabsContent value="zonaComercial">
-        <SubTabContent data={data.zonaComercial} headers={['ZONA COMP.', 'PESO %', '€', '%']} isEditing={isEditing} />
+        <SubTabContent data={filteredZonaData} headers={['ZONA COMP.', 'PESO %', '€', '%']} isEditing={isEditing} />
       </TabsContent>
       <TabsContent value="agrupacionComercial">
-         <SubTabContent data={data.agrupacionComercial} headers={['AGRUP. COM.', 'PESO %', '€', '%']} isEditing={isEditing} />
+         <SubTabContent data={filteredAgrupacionData} headers={['AGRUP. COM.', 'PESO %', '€', '%']} isEditing={isEditing} />
       </TabsContent>
     </Tabs>
   );
