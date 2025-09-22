@@ -102,12 +102,6 @@ export default function DashboardPage() {
     }
   }, [user, authLoading, router]);
 
-  const listOptions = (data && data.listas) ? {
-    comprador: data.listas.comprador,
-    zonaComercial: data.listas.zonaComercial,
-    agrupacionComercial: data.listas.agrupacionComercial,
-  } : { comprador: [], zonaComercial: [], agrupacionComercial: [] };
-
   const previousWeek = getPreviousWeekRange();
   const weekLabel = `${previousWeek.start} - ${previousWeek.end}`;
 
@@ -283,6 +277,12 @@ export default function DashboardPage() {
     );
   }
 
+  const listOptions = {
+    comprador: data.listas.comprador,
+    zonaComercial: data.listas.zonaComercial,
+    agrupacionComercial: data.listas.agrupacionComercial,
+  };
+
   return (
     <div className="min-h-screen w-full p-4 sm:p-6 bg-background">
       <header className="mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -391,5 +391,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-    
