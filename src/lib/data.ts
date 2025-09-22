@@ -121,12 +121,26 @@ export const datosSemanales = {
       "zonaComercial": [
           { "nombre": "MAN FORMAL", "pesoPorc": 24, "totalEuros": 16235, "varPorc": 45.3 },
           { "nombre": "GLB URBAN", "pesoPorc": 16, "totalEuros": 11038, "varPorc": 25.5 },
-          { "nombre": "CIRCULAR", "pesoPorc": 16, "totalEuros": 10436, "varPorc": -3.3 }
+          { "nombre": "CIRCULAR", "pesoPorc": 16, "totalEuros": 10436, "varPorc": -3.3 },
+          { "nombre": "ZONA D", "pesoPorc": 10, "totalEuros": 8000, "varPorc": 10.0 },
+          { "nombre": "ZONA E", "pesoPorc": 8, "totalEuros": 6400, "varPorc": 5.0 },
+          { "nombre": "ZONA F", "pesoPorc": 7, "totalEuros": 5600, "varPorc": -2.1 },
+          { "nombre": "ZONA G", "pesoPorc": 6, "totalEuros": 4800, "varPorc": 12.8 },
+          { "nombre": "ZONA H", "pesoPorc": 5, "totalEuros": 4000, "varPorc": -8.5 },
+          { "nombre": "ZONA I", "pesoPorc": 4, "totalEuros": 3200, "varPorc": 20.3 },
+          { "nombre": "ZONA J", "pesoPorc": 4, "totalEuros": 3200, "varPorc": 18.1 }
       ],
       "agrupacionComercial": [
           { "nombre": "PANTALON", "pesoPorc": 26, "totalEuros": 36607, "varPorc": 20.1 },
           { "nombre": "SASTRERIA", "pesoPorc": 15, "totalEuros": 20252, "varPorc": -7.3 },
-          { "nombre": "TEJANO", "pesoPorc": 15, "totalEuros": 20167, "varPorc": 22.8 }
+          { "nombre": "TEJANO", "pesoPorc": 15, "totalEuros": 20167, "varPorc": 22.8 },
+          { "nombre": "CAMISA", "pesoPorc": 12, "totalEuros": 15000, "varPorc": 15.5 },
+          { "nombre": "POLO", "pesoPorc": 10, "totalEuros": 12000, "varPorc": 8.2 },
+          { "nombre": "ZAPATO", "pesoPorc": 8, "totalEuros": 9600, "varPorc": -1.0 },
+          { "nombre": "BERMUDA", "pesoPorc": 5, "totalEuros": 6000, "varPorc": 30.1 },
+          { "nombre": "TRICOT", "pesoPorc": 4, "totalEuros": 4800, "varPorc": -5.5 },
+          { "nombre": "ACCESORIOS", "pesoPorc": 3, "totalEuros": 3600, "varPorc": 11.0 },
+          { "nombre": "BAÑO", "pesoPorc": 2, "totalEuros": 2400, "varPorc": 40.2 }
       ]
     }
   },
@@ -198,3 +212,5 @@ export const datosSemanales = {
     }
   }
 };
+
+    
