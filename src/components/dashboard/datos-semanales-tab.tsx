@@ -96,7 +96,7 @@ export function DatosSemanalesTab({ data, isEditing }: DatosSemanalesTabProps) {
       <KpiCard title="Caja" icon={<CaseUpper className="h-5 w-5 text-primary" />} className="md:col-span-2">
         <div className="grid grid-cols-2 gap-x-8 gap-y-4">
             <DatoSimple label="Filas Caja" value={`${formatPercentage(data.operaciones.filasCajaPorc)}`} isEditing={isEditing} valueId="input-op-filas-caja" />
-            <DatoSimple label="SCO" value={`${formatPercentage(data.operaciones.scoPorc)}`} isEditing={isEditing} valueId="input-op-sco" />
+            <DatoSimple label="ACO" value={`${formatPercentage(data.operaciones.scoPorc)}`} isEditing={isEditing} valueId="input-op-sco" />
             <DatoSimple label="V. Ipod" value={formatNumber(data.operaciones.ventaIpod)} isEditing={isEditing} valueId="input-op-vipod" />
             <DatoSimple label="E-Ticket" value={`${formatPercentage(data.operaciones.eTicketPorc)}`} isEditing={isEditing} valueId="input-op-eticket" />
         </div>
