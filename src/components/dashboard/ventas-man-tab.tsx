@@ -134,7 +134,7 @@ export function VentasManTab({ data, isEditing }: VentasManTabProps) {
   return (
     <Tabs defaultValue="pesoComprador" className="w-full">
       <TabsList className="grid w-full grid-cols-3 mx-auto max-w-md mb-4">
-        <TabsTrigger value="pesoComprador">Peso Comprador</TabsTrigger>
+        <TabsTrigger value="pesoComprador">Comprador</TabsTrigger>
         <TabsTrigger value="zonaComercial">Zona Comp.</TabsTrigger>
         <TabsTrigger value="agrupacionComercial">Agrup. Com.</TabsTrigger>
       </TabsList>
