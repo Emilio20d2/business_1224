@@ -74,6 +74,7 @@ export type WeeklyData = {
         nino: SeccionData;
     };
     ventasDiariasAQNE: VentaDiaria[];
+    focusSemanal: string;
     acumulado: {
         mensual: AcumuladoPeriodo;
         anual: AcumuladoPeriodo;
@@ -121,7 +122,7 @@ type VentaDiaria = {
 
 const initialData: Omit<WeeklyData, 'periodo'> = {
     "listas": {
-        "comprador": ["MAN", "GLOBAL", "CIRCULAR", "DNWR", "SPORT", "ACCES", "BASIC"],
+        "comprador": ["MAN", "GLOBAL", "CIRCULAR", "DNWR", "SPORT", "ACCES", "BASIC", "EXTRA1", "EXTRA2"],
         "zonaComercial": ["MAN FORMAL", "GLB URBAN", "CIRCULAR", "ZONA D", "ZONA E", "ZONA F", "ZONA G", "ZONA H", "ZONA I", "ZONA J"],
         "agrupacionComercial": ["PANTALON", "SASTRERIA", "TEJANO", "CAMISA", "POLO", "ZAPATO", "BERMUDA", "TRICOT", "ACCESORIOS", "BAÑO"]
     },
@@ -282,6 +283,7 @@ const initialData: Omit<WeeklyData, 'periodo'> = {
         { "dia": "SÁBADO", "total": 101809, "woman": 58416, "man": 25779, "nino": 17614 },
         { "dia": "DOMINGO", "total": 0, "woman": 0, "man": 0, "nino": 0 }
     ],
+    "focusSemanal": "Aquí puedes escribir tus objetivos y foco para la semana.",
     "acumulado": {
         "mensual": {
             "totalEuros": 1421369,

@@ -16,6 +16,7 @@ import { DatosPorSeccionTab } from "@/components/dashboard/datos-por-seccion-tab
 import { VentasManTab } from "@/components/dashboard/ventas-man-tab";
 import { AqneSemanalTab } from "@/components/dashboard/aqne-semanal-tab";
 import { AcumuladoTab } from "@/components/dashboard/acumulado-tab";
+import { FocusSemanalTab } from '@/components/dashboard/focus-semanal-tab';
 import { Button } from '@/components/ui/button';
 import { Settings, LogOut, Loader2 } from 'lucide-react';
 import {
@@ -100,7 +101,7 @@ export default function DashboardPage() {
     }
   }, [user, authLoading, router]);
 
-  const listOptions = data && data.listas ? {
+  const listOptions = (data && data.listas) ? {
     comprador: data.listas.comprador,
     zonaComercial: data.listas.zonaComercial,
     agrupacionComercial: data.listas.agrupacionComercial,
@@ -329,12 +330,13 @@ export default function DashboardPage() {
       
       <main>
         <Tabs defaultValue="datosSemanales">
-          <TabsList className="grid w-full grid-cols-1 md:grid-cols-5 mb-4">
+          <TabsList className="grid w-full grid-cols-1 md:grid-cols-6 mb-4">
             <TabsTrigger value="datosSemanales">Datos Semanales</TabsTrigger>
             <TabsTrigger value="ventasSeccion">Ventas Sección</TabsTrigger>
             <TabsTrigger value="ventasMan">Ventas Man</TabsTrigger>
             <TabsTrigger value="aqneSemanal">AQNE Semanal</TabsTrigger>
             <TabsTrigger value="acumulado">Acumulado</TabsTrigger>
+            <TabsTrigger value="focusSemanal">Focus Semanal</TabsTrigger>
           </TabsList>
           <TabsContent value="datosSemanales">
             <DatosSemanalesTab data={data} isEditing={isEditing} onInputChange={handleInputChange} />
@@ -350,6 +352,9 @@ export default function DashboardPage() {
           </TabsContent>
            <TabsContent value="acumulado">
              <AcumuladoTab data={data.acumulado} isEditing={isEditing} onInputChange={handleInputChange} />
+          </TabsContent>
+          <TabsContent value="focusSemanal">
+            <FocusSemanalTab text={data.focusSemanal} isEditing={isEditing} onInputChange={handleInputChange} />
           </TabsContent>
         </Tabs>
       </main>
