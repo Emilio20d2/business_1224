@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { getInitialDataForWeek, type WeeklyData } from "@/lib/data";
 import { 
   Select, 
@@ -28,11 +28,10 @@ import {
 import { startOfWeek, endOfWeek, subWeeks, format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { EditListDialog } from '@/components/dashboard/edit-list-dialog';
-import { getAuth, signOut } from 'firebase/auth';
-import { useRouter } from 'next/navigation';
-import { app, db } from '@/lib/firebase';
+import { db } from '@/lib/firebase';
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useToast } from '@/hooks/use-toast';
+import { AuthContext } from '@/context/auth-context';
 
 
 type EditableList = 'comprador' | 'zonaComercial' | 'agrupacionComercial';
@@ -58,8 +57,7 @@ export default function DashboardPage() {
   const [isListDialogOpen, setIsListDialogOpen] = useState(false);
   const [listToEdit, setListToEdit] = useState<EditableList | null>(null);
 
-  const auth = getAuth(app);
-  const router = useRouter();
+  const { logout } = useContext(AuthContext);
   const { toast } = useToast();
 
   const [listOptions, setListOptions] = useState({
@@ -71,32 +69,42 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
-      const docRef = doc(db, "informes", week);
-      const docSnap = await getDoc(docRef);
+      try {
+        const docRef = doc(db, "informes", week);
+        const docSnap = await getDoc(docRef);
 
-      if (docSnap.exists()) {
-        const fetchedData = docSnap.data() as WeeklyData;
-        setData(fetchedData);
-        setListOptions({
-          comprador: fetchedData.ventasMan.pesoComprador.map(item => item.nombre),
-          zonaComercial: fetchedData.ventasMan.zonaComercial.map(item => item.nombre),
-          agrupacionComercial: fetchedData.ventasMan.agrupacionComercial.map(item => item.nombre),
+        if (docSnap.exists()) {
+          const fetchedData = docSnap.data() as WeeklyData;
+          setData(fetchedData);
+          setListOptions({
+            comprador: fetchedData.ventasMan.pesoComprador.map(item => item.nombre),
+            zonaComercial: fetchedData.ventasMan.zonaComercial.map(item => item.nombre),
+            agrupacionComercial: fetchedData.ventasMan.agrupacionComercial.map(item => item.nombre),
+          });
+        } else {
+          console.log("No such document! Using initial data.");
+          const initialData = getInitialDataForWeek(week);
+          setData(initialData);
+           setListOptions({
+            comprador: initialData.ventasMan.pesoComprador.map(item => item.nombre),
+            zonaComercial: initialData.ventasMan.zonaComercial.map(item => item.nombre),
+            agrupacionComercial: initialData.ventasMan.agrupacionComercial.map(item => item.nombre),
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching document: ", error);
+        toast({
+          variant: "destructive",
+          title: "Error de permisos",
+          description: "No se pudieron cargar los datos. Revisa los permisos de Firestore.",
         });
-      } else {
-        console.log("No such document! Using initial data.");
-        const initialData = getInitialDataForWeek(week);
-        setData(initialData);
-         setListOptions({
-          comprador: initialData.ventasMan.pesoComprador.map(item => item.nombre),
-          zonaComercial: initialData.ventasMan.zonaComercial.map(item => item.nombre),
-          agrupacionComercial: initialData.ventasMan.agrupacionComercial.map(item => item.nombre),
-        });
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
 
     fetchData();
-  }, [week]);
+  }, [week, toast]);
   
   const previousWeek = getPreviousWeekRange();
   const weekLabel = `${previousWeek.start} - ${previousWeek.end}`;
@@ -183,15 +191,6 @@ export default function DashboardPage() {
     }
   }
 
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      router.push('/');
-    } catch (error) {
-      console.error('Error signing out:', error);
-    }
-  };
-  
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -259,7 +258,7 @@ export default function DashboardPage() {
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
                  <DropdownMenuSeparator />
-                <DropdownMenuItem onSelect={handleLogout}>
+                <DropdownMenuItem onSelect={logout}>
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Cerrar sesión</span>
                 </DropdownMenuItem>
@@ -308,3 +307,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    

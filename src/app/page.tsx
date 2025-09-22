@@ -1,30 +1,37 @@
 "use client";
 
-import React from 'react';
+import React, { useContext } from 'react';
 import { useRouter } from 'next/navigation';
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
-import { app } from '@/lib/firebase';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { AuthContext } from '@/context/auth-context';
 
 export default function LoginPage() {
-  const [email, setEmail] = React.useState('');
-  const [password, setPassword] = React.useState('');
+  const [email, setEmail] = React.useState('emiliogp@inditex.com');
+  const [password, setPassword] = React.useState('456123');
   const [error, setError] = React.useState('');
   const [loading, setLoading] = React.useState(false);
+  
   const router = useRouter();
-  const auth = getAuth(app);
+  const { login, user } = useContext(AuthContext);
   const { toast } = useToast();
+
+  React.useEffect(() => {
+    if (user) {
+      router.push('/dashboard');
+    }
+  }, [user, router]);
+
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      await login(email, password);
       router.push('/dashboard');
     } catch (error: any) {
       setError(error.message);
@@ -80,3 +87,5 @@ export default function LoginPage() {
     </div>
   );
 }
+
+    
