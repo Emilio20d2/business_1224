@@ -15,15 +15,16 @@ import { VentasManTab } from "@/components/dashboard/ventas-man-tab";
 import { Button } from '@/components/ui/button';
 import { analyzeWeeklyTrends } from '@/ai/flows/analyze-weekly-trends';
 import { WeeklyAnalysisOutput } from '@/ai/flows/analyze-weekly-trends';
-import { Bot } from 'lucide-react';
+import { Settings } from 'lucide-react';
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet"
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { startOfWeek, endOfWeek, subWeeks, format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
@@ -113,37 +114,31 @@ export default function Home() {
             ) : (
               <Button onClick={() => setIsEditing(true)} variant="outline">Editar</Button>
             )}
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="outline" size="icon" onClick={getAIAnalysis}>
-                  <Bot className="h-4 w-4" />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon">
+                  <Settings className="h-4 w-4" />
                 </Button>
-              </SheetTrigger>
-              <SheetContent>
-                <SheetHeader>
-                  <SheetTitle>Análisis con IA</SheetTitle>
-                  <SheetDescription>
-                    {isLoadingAnalysis && <p>Analizando datos...</p>}
-                    {analysis && (
-                      <div className="flex flex-col gap-4 text-left">
-                        <div>
-                          <h3 className="font-bold text-foreground">💡 Insights</h3>
-                          <ul className="list-disc pl-5">
-                            {analysis.insights.map((insight, i) => <li key={i}>{insight}</li>)}
-                          </ul>
-                        </div>
-                        <div>
-                          <h3 className="font-bold text-foreground">🎯 Top Prioridades</h3>
-                           <ul className="list-disc pl-5">
-                            {analysis.topPriorities.map((priority, i) => <li key={i}>{priority}</li>)}
-                          </ul>
-                        </div>
-                      </div>
-                    )}
-                  </SheetDescription>
-                </SheetHeader>
-              </SheetContent>
-            </Sheet>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56">
+                <DropdownMenuLabel>Configuración</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel className="text-xs font-semibold text-muted-foreground">COMPRADOR</DropdownMenuLabel>
+                  {/* Items para Comprador */}
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel className="text-xs font-semibold text-muted-foreground">ZONA COMPRADOR</DropdownMenuLabel>
+                  {/* Items para Zona Comprador */}
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel className="text-xs font-semibold text-muted-foreground">AGRUPACION COMERCIAL</DropdownMenuLabel>
+                  {/* Items para Agrupacion Comercial */}
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </header>
