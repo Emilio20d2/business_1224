@@ -11,6 +11,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DatosSemanalesTab } from "@/components/dashboard/datos-semanales-tab";
 import { DatosPorSeccionTab } from "@/components/dashboard/datos-por-seccion-tab";
+import { VentasManTab } from "@/components/dashboard/ventas-man-tab";
 import { Button } from '@/components/ui/button';
 import { analyzeWeeklyTrends } from '@/ai/flows/analyze-weekly-trends';
 import { WeeklyAnalysisOutput } from '@/ai/flows/analyze-weekly-trends';
@@ -89,7 +90,7 @@ export default function Home() {
     <div className="min-h-screen w-full p-4 sm:p-6 bg-background">
       <header className="mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
         <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-          Business Man
+          Insight Board
         </h1>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
@@ -152,7 +153,7 @@ export default function Home() {
           <TabsList className="grid w-full grid-cols-1 md:grid-cols-5 mb-4">
             <TabsTrigger value="datosSemanales">Datos Semanales</TabsTrigger>
             <TabsTrigger value="datosPorSeccion">Datos por Sección</TabsTrigger>
-            <TabsTrigger value="ventasCaballero" disabled>Ventas Caballero</TabsTrigger>
+            <TabsTrigger value="ventasMan">Ventas Man</TabsTrigger>
             <TabsTrigger value="aqneSemanal" disabled>AQNE Semanal</TabsTrigger>
             <TabsTrigger value="acumulado" disabled>Acumulado</TabsTrigger>
           </TabsList>
@@ -162,8 +163,8 @@ export default function Home() {
           <TabsContent value="datosPorSeccion">
              <DatosPorSeccionTab data={data.datosPorSeccion} />
           </TabsContent>
-           <TabsContent value="ventasCaballero">
-             {/* This content will be added in a future step */}
+           <TabsContent value="ventasMan">
+             <VentasManTab data={data.ventasMan} />
           </TabsContent>
            <TabsContent value="aqneSemanal">
              {/* This content will be added in a future step */}

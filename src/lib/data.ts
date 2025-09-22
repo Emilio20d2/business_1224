@@ -3,6 +3,8 @@ export type WeeklyData = typeof datosSemanales["semana-24"];
 export type Almacen = {
   ocupacionPorc: number;
   devolucionUnidades: number | null;
+  entradas: number;
+  salidas: number;
 };
 
 export const datosSemanales = {
@@ -45,15 +47,21 @@ export const datosSemanales = {
     "almacenes": {
           "ropa": {
               "ocupacionPorc": 88,
-              "devolucionUnidades": 292
+              "devolucionUnidades": 292,
+              "entradas": 1200,
+              "salidas": 900
           },
           "calzado": {
               "ocupacionPorc": 100,
-              "devolucionUnidades": 58
+              "devolucionUnidades": 58,
+              "entradas": 400,
+              "salidas": 350
           },
           "perfumeria": {
               "ocupacionPorc": 75,
-              "devolucionUnidades": null
+              "devolucionUnidades": null,
+              "entradas": 250,
+              "salidas": 200
           }
       },
       "datosPorSeccion": {
@@ -99,6 +107,24 @@ export const datosSemanales = {
                 { "seccion": "Perfumería", "totalEuros": 772, "varPorc": 268.0 }
             ]
         }
+    },
+    "ventasMan": {
+      "pesoComprador": [
+          { "nombre": "MAN", "pesoPorc": 30, "totalEuros": 20338, "varPorc": 28.2 },
+          { "nombre": "GLOBAL", "pesoPorc": 30, "totalEuros": 20012, "varPorc": 2.4 },
+          { "nombre": "CIRCULAR", "pesoPorc": 16, "totalEuros": 10436, "varPorc": -3.3 },
+          { "nombre": "DNWR", "pesoPorc": 14, "totalEuros": 9081, "varPorc": 6.5 }
+      ],
+      "zonaComercial": [
+          { "nombre": "MAN FORMAL", "pesoPorc": 24, "totalEuros": 16235, "varPorc": 45.3 },
+          { "nombre": "GLB URBAN", "pesoPorc": 16, "totalEuros": 11038, "varPorc": 25.5 },
+          { "nombre": "CIRCULAR", "pesoPorc": 16, "totalEuros": 10436, "varPorc": -3.3 }
+      ],
+      "agrupacionComercial": [
+          { "nombre": "PANTALON", "pesoPorc": 26, "totalEuros": 36607, "varPorc": 20.1 },
+          { "nombre": "SASTRERIA", "pesoPorc": 15, "totalEuros": 20252, "varPorc": -7.3 },
+          { "nombre": "TEJANO", "pesoPorc": 15, "totalEuros": 20167, "varPorc": 22.8 }
+      ]
     }
   },
   "semana-23": {
@@ -140,16 +166,32 @@ export const datosSemanales = {
     "almacenes": {
         "ropa": {
             "ocupacionPorc": 85,
-            "devolucionUnidades": 250
+            "devolucionUnidades": 250,
+            "entradas": 1100,
+            "salidas": 800
         },
         "calzado": {
             "ocupacionPorc": 95,
-            "devolucionUnidades": 50
+            "devolucionUnidades": 50,
+            "entradas": 350,
+            "salidas": 300
         },
         "perfumeria": {
             "ocupacionPorc": 70,
-            "devolucionUnidades": null
+            "devolucionUnidades": null,
+            "entradas": 200,
+            "salidas": 150
         }
+    },
+    "datosPorSeccion": {
+        "woman": { "pesoPorc": 0, "metricasPrincipales": { "totalEuros": 0, "varPorcEuros": 0, "totalUnidades": 0, "varPorcUnidades": 0 }, "desglose": [] },
+        "man": { "pesoPorc": 0, "metricasPrincipales": { "totalEuros": 0, "varPorcEuros": 0, "totalUnidades": 0, "varPorcUnidades": 0 }, "desglose": [] },
+        "nino": { "pesoPorc": 0, "metricasPrincipales": { "totalEuros": 0, "varPorcEuros": 0, "totalUnidades": 0, "varPorcUnidades": 0 }, "desglose": [] }
+    },
+    "ventasMan": {
+        "pesoComprador": [],
+        "zonaComercial": [],
+        "agrupacionComercial": []
     }
   }
 };
