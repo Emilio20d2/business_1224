@@ -214,10 +214,10 @@ export function VentasManTab({ data, isEditing, listOptions, onInputChange }: Ve
         <SubTabContent data={data.pesoComprador} headers={['COMPRADOR', 'PESO %', '€', '%']} isEditing={isEditing} allItems={listOptions.comprador} dataKey="pesoComprador" onInputChange={onInputChange} showImage={true} />
       </TabsContent>
       <TabsContent value="zonaComercial">
-        <SubTabContent data={data.zonaComercial} headers={['ZONA COMPRADOR', 'PESO %', '€', '%']} isEditing={isEditing} allItems={listOptions.zonaComercial} dataKey="zonaComercial" onInputChange={onInputChange} showImage={true} />
+        <SubTabContent data={data.zonaComercial} headers={['ZONA COMPRADOR', 'PESO %', '€', '%']} isEditing={isEditing} allItems={listOptions.zonaComercial} dataKey="zonaComercial" onInputChange={onInputChange} showImage={false} />
       </TabsContent>
       <TabsContent value="agrupacionComercial">
-         <SubTabContent data={data.agrupacionComercial} headers={['Agrupación Comercial', 'PESO %', '€', '%']} isEditing={isEditing} allItems={listOptions.agrupacionComercial} dataKey="agrupacionComercial" onInputChange={onInputChange} showImage={true} />
+         <SubTabContent data={data.agrupacionComercial} headers={['Agrupación Comercial', 'PESO %', '€', '%']} isEditing={isEditing} allItems={listOptions.agrupacionComercial} dataKey="agrupacionComercial" onInputChange={onInputChange} showImage={false} />
       </TabsContent>
     </Tabs>
   );
