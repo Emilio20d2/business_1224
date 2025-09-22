@@ -30,23 +30,50 @@ type DatoDobleProps = {
   isEditing?: boolean;
   valueId?: string;
   variationId?: string;
+  onInputChange?: (path: string, value: string) => void;
 };
 
-export function DatoDoble({ label, value, variation, unit, isEditing, valueId, variationId }: DatoDobleProps) {
+export function DatoDoble({ label, value, variation, unit, isEditing, valueId, variationId, onInputChange }: DatoDobleProps) {
   const trendColor = variation === undefined ? '' : variation >= 0 ? 'text-green-600 bg-green-100 dark:text-green-200 dark:bg-green-900/50' : 'text-red-600 bg-red-100 dark:text-red-200 dark:bg-red-900/50';
+
+  const handleValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (onInputChange && valueId) {
+      onInputChange(valueId, e.target.value);
+    }
+  };
+
+  const handleVariationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (onInputChange && variationId) {
+      onInputChange(variationId, e.target.value);
+    }
+  };
 
   return (
     <div className="flex justify-between items-baseline">
       {label && <span className="text-lg text-muted-foreground">{label}</span>}
       <div className="flex items-baseline gap-2">
-        {isEditing ? (
-           <Input type="number" inputMode="decimal" defaultValue={String(value).replace(/[^0-9.,-]+/g, '')} className="w-24 h-8" id={valueId}/>
+        {isEditing && valueId ? (
+           <Input 
+             type="number" 
+             inputMode="decimal" 
+             defaultValue={String(value).replace(/[^0-9.,-]+/g, '')} 
+             className="w-24 h-8" 
+             id={valueId}
+             onChange={handleValueChange}
+           />
         ) : (
            <div className="text-2xl font-bold">{value}{unit}</div>
         )}
         {variation !== undefined && (
-          isEditing ? (
-             <Input type="number" inputMode="decimal" defaultValue={variation} className="w-16 h-8" id={variationId}/>
+          isEditing && variationId ? (
+             <Input 
+               type="number" 
+               inputMode="decimal" 
+               defaultValue={variation} 
+               className="w-16 h-8" 
+               id={variationId}
+               onChange={handleVariationChange}
+             />
           ) : (
             <span className={cn("rounded-md px-2 py-1 text-sm font-bold", trendColor)}>
               {variation >= 0 ? '+' : ''}{variation.toLocaleString('es-ES')}%
@@ -67,9 +94,16 @@ type DatoSimpleProps = {
   className?: string;
   icon?: React.ReactNode;
   align?: 'left' | 'center' | 'right';
+  onInputChange?: (path: string, value: string) => void;
 };
 
-export function DatoSimple({ label, value, isEditing, valueId, className, icon, align = 'left' }: DatoSimpleProps) {
+export function DatoSimple({ label, value, isEditing, valueId, className, icon, align = 'left', onInputChange }: DatoSimpleProps) {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (onInputChange && valueId) {
+            onInputChange(valueId, e.target.value);
+        }
+    };
+    
     const renderValue = () => {
         if (typeof value === 'object') return value;
         
@@ -121,8 +155,19 @@ export function DatoSimple({ label, value, isEditing, valueId, className, icon, 
                 {icon}
                 {label && label}
               </span>
-              {isEditing ? <Input type="text" defaultValue={String(value).replace(/[^0-p-9.%]+/g, '')} className="w-24 h-8 self-center" id={valueId}/> : <div className={valueAlignmentClasses[align]}>{renderValue()}</div>}
+              {isEditing && valueId ? 
+                <Input 
+                  type="text" 
+                  defaultValue={String(value).replace(/[^0-p-9.%]+/g, '')} 
+                  className="w-24 h-8 self-center" 
+                  id={valueId}
+                  onChange={handleChange}
+                /> 
+                : <div className={valueAlignmentClasses[align]}>{renderValue()}</div>
+              }
             </div>
         </div>
     );
 }
+
+    

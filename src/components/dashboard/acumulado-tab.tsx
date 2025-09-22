@@ -19,6 +19,7 @@ type AcumuladoPeriodoData = AcumuladoData[keyof AcumuladoData];
 type AcumuladoTabProps = {
   data: AcumuladoData;
   isEditing: boolean;
+  onInputChange: (path: string, value: string | number) => void;
 };
 
 const COLORS = {
@@ -27,11 +28,16 @@ const COLORS = {
   'Niño': 'hsl(172, 29%, 57%)'
 };
 
-const AcumuladoCard = ({ title, data, isEditing, idPrefix }: { title: string, data: AcumuladoPeriodoData, isEditing: boolean, idPrefix: string }) => {
+const AcumuladoCard = ({ title, data, isEditing, idPrefix, onInputChange }: { title: string, data: AcumuladoPeriodoData, isEditing: boolean, idPrefix: string, onInputChange: AcumuladoTabProps['onInputChange'] }) => {
   const chartData = data.desglose.map(item => ({
     name: item.nombre,
     value: item.pesoPorc
   }));
+
+  const handleChange = (index: number, field: string, value: string) => {
+    const path = `acumulado.${idPrefix}.desglose.${index}.${field}`;
+    onInputChange(path, value);
+  };
 
   return (
     <KpiCard title={title} icon={<></>} className="flex-1">
@@ -39,8 +45,9 @@ const AcumuladoCard = ({ title, data, isEditing, idPrefix }: { title: string, da
         value={formatCurrency(data.totalEuros)} 
         variation={data.varPorcTotal}
         isEditing={isEditing}
-        valueId={`${idPrefix}-total-euros`}
-        variationId={`${idPrefix}-var-total`}
+        valueId={`acumulado.${idPrefix}.totalEuros`}
+        variationId={`acumulado.${idPrefix}.varPorcTotal`}
+        onInputChange={onInputChange}
       />
       
       <div className="h-48 w-full">
@@ -95,9 +102,9 @@ const AcumuladoCard = ({ title, data, isEditing, idPrefix }: { title: string, da
 
                  {isEditing ? (
                   <>
-                    <Input type="number" defaultValue={item.totalEuros} className="w-full text-right" id={`${idPrefix}-desglose-${index}-euros`} />
-                    <Input type="number" step="0.1" defaultValue={item.varPorc} className="w-full text-right" id={`${idPrefix}-desglose-${index}-var`} />
-                    <Input type="number" step="0.1" defaultValue={item.pesoPorc} className="w-full text-right" id={`${idPrefix}-desglose-${index}-peso`} />
+                    <Input type="number" defaultValue={item.totalEuros} className="w-full text-right" id={`${idPrefix}-desglose-${index}-euros`} onChange={(e) => handleChange(index, 'totalEuros', e.target.value)} />
+                    <Input type="number" step="0.1" defaultValue={item.varPorc} className="w-full text-right" id={`${idPrefix}-desglose-${index}-var`} onChange={(e) => handleChange(index, 'varPorc', e.target.value)} />
+                    <Input type="number" step="0.1" defaultValue={item.pesoPorc} className="w-full text-right" id={`${idPrefix}-desglose-${index}-peso`} onChange={(e) => handleChange(index, 'pesoPorc', e.target.value)} />
                   </>
                  ) : (
                   <>
@@ -116,11 +123,13 @@ const AcumuladoCard = ({ title, data, isEditing, idPrefix }: { title: string, da
 };
 
 
-export function AcumuladoTab({ data, isEditing }: AcumuladoTabProps) {
+export function AcumuladoTab({ data, isEditing, onInputChange }: AcumuladoTabProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <AcumuladoCard title="Acumulado Mensual" data={data.mensual} isEditing={isEditing} idPrefix="mensual" />
-      <AcumuladoCard title="Acumulado Anual" data={data.anual} isEditing={isEditing} idPrefix="anual"/>
+      <AcumuladoCard title="Acumulado Mensual" data={data.mensual} isEditing={isEditing} idPrefix="mensual" onInputChange={onInputChange} />
+      <AcumuladoCard title="Acumulado Anual" data={data.anual} isEditing={isEditing} idPrefix="anual" onInputChange={onInputChange}/>
     </div>
   );
 }
+
+    

@@ -20,6 +20,7 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
+import { Input } from '@/components/ui/input';
 
 
 type VentasManData = WeeklyData["ventasMan"];
@@ -37,6 +38,7 @@ type VentasManTabProps = {
   data: VentasManData;
   isEditing: boolean;
   listOptions: ListOptions;
+  onInputChange: (path: string, value: string | number) => void;
 };
 
 const TrendIndicator = ({ value }: { value: number }) => {
@@ -48,10 +50,15 @@ const TrendIndicator = ({ value }: { value: number }) => {
   );
 };
 
-const DataTable = ({ data, headers, isEditing, allItems, onRowClick }: { data: TableData, headers: string[], isEditing: boolean, allItems: string[], onRowClick: (item: TableItem) => void }) => {
+const DataTable = ({ data, headers, isEditing, allItems, onRowClick, dataKey, onInputChange }: { data: TableData, headers: string[], isEditing: boolean, allItems: string[], onRowClick: (item: TableItem) => void, dataKey: TableDataKey, onInputChange: VentasManTabProps['onInputChange'] }) => {
     if (!data || data.length === 0) {
         return <p className="text-center text-muted-foreground mt-8">No hay datos disponibles para esta sección.</p>;
     }
+
+    const handleChange = (index: number, field: keyof TableItem, value: any) => {
+        const path = `ventasMan.${dataKey}.${index}.${field}`;
+        onInputChange(path, value);
+    };
     
     return (
         <Card>
@@ -72,7 +79,7 @@ const DataTable = ({ data, headers, isEditing, allItems, onRowClick }: { data: T
                         >
                             <TableCell>
                                 {isEditing ? (
-                                    <Select defaultValue={item.nombre}>
+                                    <Select defaultValue={item.nombre} onValueChange={(value) => handleChange(index, 'nombre', value)}>
                                         <SelectTrigger className="w-full">
                                             <SelectValue />
                                         </SelectTrigger>
@@ -86,10 +93,14 @@ const DataTable = ({ data, headers, isEditing, allItems, onRowClick }: { data: T
                                     item.nombre
                                 )}
                             </TableCell>
-                            <TableCell className="text-right font-medium">{formatPercentage(item.pesoPorc)}</TableCell>
-                            <TableCell className="text-right font-medium">{formatCurrency(item.totalEuros)}</TableCell>
+                            <TableCell className="text-right font-medium">
+                                {isEditing ? <Input type="number" className="w-20 ml-auto text-right" defaultValue={item.pesoPorc} onChange={(e) => handleChange(index, 'pesoPorc', e.target.value)} /> : formatPercentage(item.pesoPorc)}
+                            </TableCell>
+                            <TableCell className="text-right font-medium">
+                                {isEditing ? <Input type="number" className="w-24 ml-auto text-right" defaultValue={item.totalEuros} onChange={(e) => handleChange(index, 'totalEuros', e.target.value)} /> : formatCurrency(item.totalEuros)}
+                            </TableCell>
                             <TableCell className="text-right">
-                                <TrendIndicator value={item.varPorc} />
+                                {isEditing ? <Input type="number" className="w-20 ml-auto text-right" defaultValue={item.varPorc} onChange={(e) => handleChange(index, 'varPorc', e.target.value)} /> : <TrendIndicator value={item.varPorc} />}
                             </TableCell>
                         </TableRow>
                     ))}
@@ -121,7 +132,7 @@ const ImageImportCard = ({ selectedRow }: { selectedRow: TableItem | null }) => 
 };
 
 
-const SubTabContent = ({ data, headers, isEditing, allItems, dataKey }: { data: TableData, headers: string[], isEditing: boolean, allItems: string[], dataKey: TableDataKey }) => {
+const SubTabContent = ({ data, headers, isEditing, allItems, dataKey, onInputChange }: { data: TableData, headers: string[], isEditing: boolean, allItems: string[], dataKey: TableDataKey, onInputChange: VentasManTabProps['onInputChange'] }) => {
     const [selectedRow, setSelectedRow] = React.useState<TableItem | null>(null);
 
     const handleRowClick = (item: TableItem) => {
@@ -132,14 +143,14 @@ const SubTabContent = ({ data, headers, isEditing, allItems, dataKey }: { data: 
     
     return (
         <div className={cn("grid gap-4 items-start", isEditing ? "grid-cols-1" : "grid-cols-1 md:grid-cols-2")}>
-             <DataTable data={data} headers={headers} isEditing={isEditing} allItems={allItems} onRowClick={handleRowClick} />
+             <DataTable data={data} headers={headers} isEditing={isEditing} allItems={allItems} onRowClick={handleRowClick} dataKey={dataKey} onInputChange={onInputChange} />
              {!isEditing && <ImageImportCard selectedRow={selectedRow}/>}
         </div>
     );
 }
 
 
-export function VentasManTab({ data, isEditing, listOptions }: VentasManTabProps) {
+export function VentasManTab({ data, isEditing, listOptions, onInputChange }: VentasManTabProps) {
     
   return (
     <Tabs defaultValue="comprador" className="w-full">
@@ -149,14 +160,16 @@ export function VentasManTab({ data, isEditing, listOptions }: VentasManTabProps
         <TabsTrigger value="agrupacionComercial">Agrup. Com.</TabsTrigger>
       </TabsList>
       <TabsContent value="comprador">
-         <SubTabContent data={data.pesoComprador} headers={['COMPRADOR', 'PESO %', '€', '%']} isEditing={isEditing} allItems={listOptions.comprador} dataKey="pesoComprador" />
+         <SubTabContent data={data.pesoComprador} headers={['COMPRADOR', 'PESO %', '€', '%']} isEditing={isEditing} allItems={listOptions.comprador} dataKey="pesoComprador" onInputChange={onInputChange} />
       </TabsContent>
       <TabsContent value="zonaComercial">
-        <SubTabContent data={data.zonaComercial} headers={['ZONA COMPRADOR', 'PESO %', '€', '%']} isEditing={isEditing} allItems={listOptions.zonaComercial} dataKey="zonaComercial"/>
+        <SubTabContent data={data.zonaComercial} headers={['ZONA COMPRADOR', 'PESO %', '€', '%']} isEditing={isEditing} allItems={listOptions.zonaComercial} dataKey="zonaComercial" onInputChange={onInputChange}/>
       </TabsContent>
       <TabsContent value="agrupacionComercial">
-         <SubTabContent data={data.agrupacionComercial} headers={['AGRUP. COM.', 'PESO %', '€', '%']} isEditing={isEditing} allItems={listOptions.agrupacionComercial} dataKey="agrupacionComercial"/>
+         <SubTabContent data={data.agrupacionComercial} headers={['AGRUP. COM.', 'PESO %', '€', '%']} isEditing={isEditing} allItems={listOptions.agrupacionComercial} dataKey="agrupacionComercial" onInputChange={onInputChange}/>
       </TabsContent>
     </Tabs>
   );
 }
+
+    
