@@ -11,7 +11,7 @@ import { AuthContext } from '@/context/auth-context';
 import { Loader2 } from 'lucide-react';
 
 export default function LoginPage() {
-  const [email, setEmail] = React.useState('emiliogp@inditex.com');
+  const [email, setEmail] = React.useState('emilio20d2@gmail.com');
   const [password, setPassword] = React.useState('123456');
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   
