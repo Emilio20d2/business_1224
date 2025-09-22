@@ -38,9 +38,9 @@ export function AqneSemanalTab({ data }: AqneSemanalTabProps) {
                         <TableRow>
                             <TableHead>Día</TableHead>
                             <TableHead className="text-right">Total</TableHead>
-                            <TableHead className="text-right">Woman</TableHead>
-                            <TableHead className="text-right">Man</TableHead>
-                            <TableHead className="text-right">Niño</TableHead>
+                            <TableHead className="text-right text-pink-500">Woman</TableHead>
+                            <TableHead className="text-right text-blue-500">Man</TableHead>
+                            <TableHead className="text-right text-primary">Niño</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
