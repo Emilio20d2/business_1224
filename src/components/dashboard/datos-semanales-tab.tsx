@@ -53,7 +53,7 @@ const FilaModulo = ({ icon, label, value }: { icon: React.ReactNode, label: stri
 
 export function DatosSemanalesTab({ data, isEditing }: DatosSemanalesTabProps) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 mt-4">
+    <div className="grid grid-cols-1 lg:grid-cols-6 gap-6 mt-4">
       {/* Ventas */}
       <KpiCard title="Ventas" icon={<Euro className="h-5 w-5 text-primary" />} className="lg:col-span-2">
         <DatoDoble 
