@@ -89,17 +89,17 @@ export function DatoSimple({ label, value, isEditing, valueId, className, icon, 
              return <div className="font-semibold text-center text-lg">{mainValue} <span className="text-muted-foreground text-base">{percentage}</span></div>
         }
 
-        return <strong className="font-semibold text-right">{value}</strong>;
+        return <strong className="font-semibold text-lg">{value}</strong>;
     }
 
     const alignmentClasses = {
         left: "justify-between",
         center: "flex-col items-center justify-center text-center gap-1 h-full",
-        right: "justify-between",
+        right: "justify-end",
     }
     const labelAlignmentClasses = {
         left: "",
-        center: "text-center !text-xs !font-normal !text-muted-foreground",
+        center: "text-center !text-sm !font-normal !text-muted-foreground",
         right: "text-right",
     }
     const valueAlignmentClasses = {
@@ -111,11 +111,13 @@ export function DatoSimple({ label, value, isEditing, valueId, className, icon, 
 
     return (
         <div className={cn("flex items-center text-md", alignmentClasses[align], className)}>
-            <span className={cn("flex items-center gap-2 text-muted-foreground", labelAlignmentClasses[align])}>
-              {icon}
-              {label && label}
-            </span>
-            {isEditing ? <Input type="text" defaultValue={String(value).replace(/[^0-p-9.]+/g, '')} className="w-24 h-8" id={valueId}/> : <div className={valueAlignmentClasses[align]}>{renderValue()}</div>}
+            <div className={cn("flex flex-col gap-1 w-full", labelAlignmentClasses[align])}>
+              <span className="flex items-center gap-2 text-muted-foreground justify-center">
+                {icon}
+                {label && label}
+              </span>
+              {isEditing ? <Input type="text" defaultValue={String(value).replace(/[^0-p-9.]+/g, '')} className="w-24 h-8 self-center" id={valueId}/> : <div className={valueAlignmentClasses[align]}>{renderValue()}</div>}
+            </div>
         </div>
     );
 }
