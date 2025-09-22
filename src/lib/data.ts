@@ -1,4 +1,80 @@
-export type WeeklyData = typeof datosSemanales["semana-24"];
+
+type DesgloseItem = {
+    nombre: string;
+    totalEuros: number;
+    varPorc: number;
+    pesoPorc: number;
+};
+
+type AcumuladoPeriodo = {
+    totalEuros: number;
+    varPorcTotal: number;
+    desglose: DesgloseItem[];
+};
+
+export type WeeklyData = {
+    periodo: string;
+    ventas: {
+        totalEuros: number;
+        varPorcEuros: number;
+        totalUnidades: number;
+        varPorcUnidades: number;
+    };
+    rendimientoTienda: {
+        trafico: number;
+        varPorcTrafico: number;
+        conversion: number;
+        varPorcConversion: number;
+    };
+    operaciones: {
+        filasCajaPorc: number;
+        scoPorc: number;
+        ventaIpod: number;
+        eTicketPorc: number;
+        sint: number;
+        repoPorc: number;
+    };
+    logistica: {
+        entradasSemanales: number;
+        salidasSemanales: number;
+    };
+    perdidas: {
+        gap: {
+            euros: number;
+            unidades: number;
+        };
+        merma: {
+            unidades: number;
+            porcentaje: number;
+        };
+    };
+    almacenes: {
+        ropa: Almacen;
+        calzado: Almacen;
+        perfumeria: Almacen;
+    };
+    datosPorSeccion: {
+        woman: SeccionData;
+        man: SeccionData;
+        nino: SeccionData;
+    };
+    ventasMan: {
+        pesoComprador: VentasManItem[];
+        zonaComercial: VentasManItem[];
+        agrupacionComercial: VentasManItem[];
+    };
+    aqneSemanal: {
+        woman: SeccionData;
+        man: SeccionData;
+        nino: SeccionData;
+    };
+    ventasDiariasAQNE: VentaDiaria[];
+    acumulado: {
+        mensual: AcumuladoPeriodo;
+        anual: AcumuladoPeriodo;
+    };
+};
+
 
 export type Almacen = {
   ocupacionPorc: number;
@@ -7,9 +83,38 @@ export type Almacen = {
   salidas: number;
 };
 
-export const datosSemanales = {
-  "semana-24": {
-    "periodo": "SEMANA 24",
+type SeccionData = {
+    pesoPorc: number;
+    metricasPrincipales: {
+        totalEuros: number;
+        varPorcEuros: number;
+        totalUnidades: number;
+        varPorcUnidades: number;
+    };
+    desglose: {
+        seccion: string;
+        totalEuros: number;
+        varPorc: number;
+    }[];
+};
+
+type VentasManItem = {
+    nombre: string;
+    pesoPorc: number;
+    totalEuros: number;
+    varPorc: number;
+    imageUrl: string;
+};
+
+type VentaDiaria = {
+    dia: string;
+    total: number;
+    woman: number;
+    man: number;
+    nino: number;
+};
+
+const initialData: Omit<WeeklyData, 'periodo'> = {
     "ventas": {
         "totalEuros": 244494,
         "varPorcEuros": 14.5,
@@ -201,90 +306,11 @@ export const datosSemanales = {
             ]
         }
     }
-  },
-  "semana-23": {
-    "periodo": "SEMANA 23",
-    "ventas": {
-        "totalEuros": 213532,
-        "varPorcEuros": -5.2,
-        "totalUnidades": 11771,
-        "varPorcUnidades": -3.1
-    },
-    "rendimientoTienda": {
-        "trafico": 32569,
-        "varPorcTrafico": -10.1,
-        "conversion": 21.1,
-        "varPorcConversion": 4.8
-    },
-    "operaciones": {
-        "filasCajaPorc": 12,
-        "scoPorc": 26.1,
-        "ventaIpod": 18,
-        "eTicketPorc": 48,
-        "sint": 680,
-        "repoPorc": 3.5
-    },
-    "logistica": {
-        "entradasSemanales": 4100,
-        "salidasSemanales": 3300
-    },
-    "perdidas": {
-        "gap": {
-            "euros": 4.9,
-            "unidades": -1.2
-        },
-        "merma": {
-            "unidades": 650,
-            "porcentaje": 1.6
-        }
-    },
-    "almacenes": {
-        "ropa": {
-            "ocupacionPorc": 85,
-            "devolucionUnidades": 250,
-            "entradas": 1100,
-            "salidas": 800
-        },
-        "calzado": {
-            "ocupacionPorc": 95,
-            "devolucionUnidades": 50,
-            "entradas": 350,
-            "salidas": 300
-        },
-        "perfumeria": {
-            "ocupacionPorc": 70,
-            "devolucionUnidades": null,
-            "entradas": 200,
-            "salidas": 150
-        }
-    },
-    "datosPorSeccion": {
-        "woman": { "pesoPorc": 0, "metricasPrincipales": { "totalEuros": 0, "varPorcEuros": 0, "totalUnidades": 0, "varPorcUnidades": 0 }, "desglose": [] },
-        "man": { "pesoPorc": 0, "metricasPrincipales": { "totalEuros": 0, "varPorcEuros": 0, "totalUnidades": 0, "varPorcUnidades": 0 }, "desglose": [] },
-        "nino": { "pesoPorc": 0, "metricasPrincipales": { "totalEuros": 0, "varPorcEuros": 0, "totalUnidades": 0, "varPorcUnidades": 0 }, "desglose": [] }
-    },
-    "ventasMan": {
-        "pesoComprador": [],
-        "zonaComercial": [],
-        "agrupacionComercial": []
-    },
-    "aqneSemanal": {
-        "woman": { "pesoPorc": 0, "metricasPrincipales": { "totalEuros": 0, "varPorcEuros": 0, "totalUnidades": 0, "varPorcUnidades": 0 }, "desglose": [] },
-        "man": { "pesoPorc": 0, "metricasPrincipales": { "totalEuros": 0, "varPorcEuros": 0, "totalUnidades": 0, "varPorcUnidades": 0 }, "desglose": [] },
-        "nino": { "pesoPorc": 0, "metricasPrincipales": { "totalEuros": 0, "varPorcEuros": 0, "totalUnidades": 0, "varPorcUnidades": 0 }, "desglose": [] }
-    },
-    "ventasDiariasAQNE": [],
-    "acumulado": {
-        "mensual": {
-            "totalEuros": 0,
-            "varPorcTotal": 0,
-            "desglose": []
-        },
-        "anual": {
-            "totalEuros": 0,
-            "varPorcTotal": 0,
-            "desglose": []
-        }
+  };
+
+export function getInitialDataForWeek(week: string): WeeklyData {
+    return {
+        ...initialData,
+        periodo: week.toUpperCase().replace('-', ' '),
     }
-  }
-};
+}

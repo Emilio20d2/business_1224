@@ -1,6 +1,6 @@
 "use client"
-import React from 'react';
-import { datosSemanales, type WeeklyData } from "@/lib/data";
+import React, { useEffect, useState } from 'react';
+import { getInitialDataForWeek, type WeeklyData } from "@/lib/data";
 import { 
   Select, 
   SelectContent, 
@@ -15,7 +15,7 @@ import { VentasManTab } from "@/components/dashboard/ventas-man-tab";
 import { AqneSemanalTab } from "@/components/dashboard/aqne-semanal-tab";
 import { AcumuladoTab } from "@/components/dashboard/acumulado-tab";
 import { Button } from '@/components/ui/button';
-import { Settings, LogOut } from 'lucide-react';
+import { Settings, LogOut, Loader2 } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,7 +30,9 @@ import { es } from 'date-fns/locale';
 import { EditListDialog } from '@/components/dashboard/edit-list-dialog';
 import { getAuth, signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
-import { app } from '@/lib/firebase';
+import { app, db } from '@/lib/firebase';
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { useToast } from '@/hooks/use-toast';
 
 
 type EditableList = 'comprador' | 'zonaComercial' | 'agrupacionComercial';
@@ -47,43 +49,95 @@ const getPreviousWeekRange = () => {
 };
 
 export default function DashboardPage() {
-  const [data, setData] = React.useState<WeeklyData>(datosSemanales["semana-24"]);
-  const [isEditing, setIsEditing] = React.useState(false);
-  const [week, setWeek] = React.useState("semana-24");
+  const [data, setData] = useState<WeeklyData | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [week, setWeek] = useState("semana-24");
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
-  const [isListDialogOpen, setIsListDialogOpen] = React.useState(false);
-  const [listToEdit, setListToEdit] = React.useState<EditableList | null>(null);
+  const [isListDialogOpen, setIsListDialogOpen] = useState(false);
+  const [listToEdit, setListToEdit] = useState<EditableList | null>(null);
 
   const auth = getAuth(app);
   const router = useRouter();
+  const { toast } = useToast();
 
-  // Initialize lists from data, but manage them in state
-  const [listOptions, setListOptions] = React.useState({
-    comprador: datosSemanales['semana-24'].ventasMan.pesoComprador.map(item => item.nombre),
-    zonaComercial: datosSemanales['semana-24'].ventasMan.zonaComercial.map(item => item.nombre),
-    agrupacionComercial: datosSemanales['semana-24'].ventasMan.agrupacionComercial.map(item => item.nombre),
+  const [listOptions, setListOptions] = useState({
+    comprador: [] as string[],
+    zonaComercial: [] as string[],
+    agrupacionComercial: [] as string[],
   });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      const docRef = doc(db, "informes", week);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        const fetchedData = docSnap.data() as WeeklyData;
+        setData(fetchedData);
+        setListOptions({
+          comprador: fetchedData.ventasMan.pesoComprador.map(item => item.nombre),
+          zonaComercial: fetchedData.ventasMan.zonaComercial.map(item => item.nombre),
+          agrupacionComercial: fetchedData.ventasMan.agrupacionComercial.map(item => item.nombre),
+        });
+      } else {
+        console.log("No such document! Using initial data.");
+        const initialData = getInitialDataForWeek(week);
+        setData(initialData);
+         setListOptions({
+          comprador: initialData.ventasMan.pesoComprador.map(item => item.nombre),
+          zonaComercial: initialData.ventasMan.zonaComercial.map(item => item.nombre),
+          agrupacionComercial: initialData.ventasMan.agrupacionComercial.map(item => item.nombre),
+        });
+      }
+      setIsLoading(false);
+    };
+
+    fetchData();
+  }, [week]);
   
   const previousWeek = getPreviousWeekRange();
   const weekLabel = `${previousWeek.start} - ${previousWeek.end}`;
 
   const handleWeekChange = (newWeek: string) => {
     setWeek(newWeek);
-    setData(datosSemanales[newWeek as keyof typeof datosSemanales]);
   };
 
-  const handleSave = () => {
-    // Logic to save data will be implemented in Phase 3
-    console.log("Saving data...");
-    setIsEditing(false);
+  const handleSave = async () => {
+    if (!data) return;
+    setIsSaving(true);
+    try {
+      const docRef = doc(db, "informes", week);
+      await setDoc(docRef, data, { merge: true });
+      toast({
+        title: "¡Guardado!",
+        description: "Los cambios se han guardado en la base de datos.",
+      });
+      setIsEditing(false);
+    } catch (error) {
+      console.error("Error saving document: ", error);
+      toast({
+        variant: "destructive",
+        title: "Error al guardar",
+        description: "No se pudieron guardar los cambios. Inténtalo de nuevo.",
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const handleCancel = () => {
-    // Logic to cancel changes
-    console.log("Canceling edit...");
+  const handleCancel = async () => {
     setIsEditing(false);
-    // Restore original data if it was modified in state
-    setData(datosSemanales[week as keyof typeof datosSemanales]);
+    // Refetch data to discard changes
+    const docRef = doc(db, "informes", week);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      setData(docSnap.data() as WeeklyData);
+    } else {
+      setData(getInitialDataForWeek(week));
+    }
   };
 
   const handleOpenListDialog = (listName: EditableList) => {
@@ -92,7 +146,28 @@ export default function DashboardPage() {
   };
 
   const handleSaveList = (newList: string[]) => {
-    if (listToEdit) {
+    if (listToEdit && data) {
+      const updatedData = { ...data };
+      const listKey = listToEdit === 'comprador' ? 'pesoComprador' : listToEdit === 'zonaComercial' ? 'zonaComercial' : 'agrupacionComercial';
+      
+      // Filter out removed items
+      updatedData.ventasMan[listKey] = updatedData.ventasMan[listKey].filter(item => newList.includes(item.nombre));
+      
+      // Add new items
+      const existingNames = updatedData.ventasMan[listKey].map(item => item.nombre);
+      newList.forEach(name => {
+        if (!existingNames.includes(name)) {
+          updatedData.ventasMan[listKey].push({
+            nombre: name,
+            pesoPorc: 0,
+            totalEuros: 0,
+            varPorc: 0,
+            imageUrl: `https://picsum.photos/seed/${name.replace(/\s/g, '')}/500/400`
+          });
+        }
+      });
+
+      setData(updatedData);
       setListOptions(prev => ({ ...prev, [listToEdit]: newList }));
     }
     setListToEdit(null);
@@ -116,7 +191,22 @@ export default function DashboardPage() {
       console.error('Error signing out:', error);
     }
   };
+  
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      </div>
+    );
+  }
 
+  if (!data) {
+     return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p>No se pudieron cargar los datos. Inténtalo de nuevo.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen w-full p-4 sm:p-6 bg-background">
@@ -139,8 +229,11 @@ export default function DashboardPage() {
            <div className="flex items-center gap-2">
             {isEditing ? (
               <>
-                <Button onClick={handleSave} className="bg-primary hover:bg-primary/90">Guardar</Button>
-                <Button variant="outline" onClick={handleCancel}>Cancelar</Button>
+                <Button onClick={handleSave} disabled={isSaving}>
+                  {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Guardar
+                </Button>
+                <Button variant="outline" onClick={handleCancel} disabled={isSaving}>Cancelar</Button>
               </>
             ) : (
               <Button onClick={() => setIsEditing(true)} variant="outline">Editar</Button>
