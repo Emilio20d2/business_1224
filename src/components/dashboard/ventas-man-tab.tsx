@@ -112,7 +112,7 @@ const DataTable = ({ data, headers, isEditing, allItems, onRowClick, dataKey, on
 };
 
 const ImageImportCard = ({ selectedRow, isEditing, onImageChange }: { selectedRow: TableItem | null, isEditing: boolean, onImageChange: (dataUrl: string) => void }) => {
-    const displayImage = selectedRow?.imageUrl;
+    const displayImage = selectedRow && 'imageUrl' in selectedRow ? selectedRow.imageUrl : null;
     const fileInputRef = React.useRef<HTMLInputElement>(null);
 
     const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -173,6 +173,8 @@ const SubTabContent = ({ data, headers, isEditing, allItems, dataKey, onInputCha
             setSelectedIndex(0);
         } else if (data.length === 0) {
             setSelectedIndex(null);
+        } else if (selectedIndex !== null && selectedIndex >= data.length) {
+            setSelectedIndex(data.length -1);
         }
     }, [data, selectedIndex]);
 
@@ -188,7 +190,7 @@ const SubTabContent = ({ data, headers, isEditing, allItems, dataKey, onInputCha
         }
     };
     
-    const selectedRow = selectedIndex !== null ? data[selectedIndex] : null;
+    const selectedRow = selectedIndex !== null && data[selectedIndex] ? data[selectedIndex] : null;
     
     return (
         <div className={cn("grid gap-4 items-start", showImage ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1")}>
@@ -202,11 +204,15 @@ const SubTabContent = ({ data, headers, isEditing, allItems, dataKey, onInputCha
 export function VentasManTab({ data, isEditing, listOptions, onInputChange }: VentasManTabProps) {
     
   return (
-    <Tabs defaultValue="zonaComercial" className="w-full">
-      <TabsList className="grid w-full grid-cols-2 mx-auto max-w-md mb-4">
+    <Tabs defaultValue="comprador" className="w-full">
+      <TabsList className="grid w-full grid-cols-3 mx-auto max-w-md mb-4">
+        <TabsTrigger value="comprador">Comprador</TabsTrigger>
         <TabsTrigger value="zonaComercial">Zona Comprador</TabsTrigger>
         <TabsTrigger value="agrupacionComercial">Agrup. Com.</TabsTrigger>
       </TabsList>
+      <TabsContent value="comprador">
+        <SubTabContent data={data.pesoComprador} headers={['COMPRADOR', 'PESO %', '€', '%']} isEditing={isEditing} allItems={listOptions.comprador} dataKey="pesoComprador" onInputChange={onInputChange} showImage={true} />
+      </TabsContent>
       <TabsContent value="zonaComercial">
         <SubTabContent data={data.zonaComercial} headers={['ZONA COMPRADOR', 'PESO %', '€', '%']} isEditing={isEditing} allItems={listOptions.zonaComercial} dataKey="zonaComercial" onInputChange={onInputChange} showImage={false} />
       </TabsContent>
