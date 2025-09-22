@@ -75,9 +75,11 @@ export function DatoSimple({ label, value, isEditing, valueId, className, icon, 
         
         const stringValue = String(value);
 
-        if (stringValue.includes('€') || stringValue.includes('Unid.')) {
+        if (stringValue.includes('€') || (stringValue.includes('Unid') && stringValue.length < 15)) {
             const isPositive = !stringValue.includes('-');
-            const colorClass = isPositive ? 'text-green-600' : 'text-red-600';
+            const colorClass = stringValue.includes('€') 
+                ? (isPositive ? 'text-green-600' : 'text-red-600') 
+                : '';
             return <span className={cn("font-semibold text-lg", colorClass)}>{stringValue}</span>
         }
 
