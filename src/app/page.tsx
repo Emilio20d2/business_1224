@@ -12,7 +12,7 @@ import { Loader2 } from 'lucide-react';
 
 export default function LoginPage() {
   const [email, setEmail] = React.useState('emiliogp@inditex.com');
-  const [password, setPassword] = React.useState('');
+  const [password, setPassword] = React.useState('123456');
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   
   const router = useRouter();
@@ -20,6 +20,7 @@ export default function LoginPage() {
   const { toast } = useToast();
 
   useEffect(() => {
+    // Redirect if user is already logged in
     if (!loading && user) {
       router.push('/dashboard');
     }
@@ -43,6 +44,8 @@ export default function LoginPage() {
     }
   };
 
+  // While loading, or if the user is already logged in, show a loader
+  // This prevents the login form from flashing
   if (loading || user) {
     return (
       <div className="flex items-center justify-center min-h-screen">

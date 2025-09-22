@@ -1,6 +1,6 @@
 "use client"
-import React, { useEffect, useState, useContext, useCallback } from 'react';
-import { type WeeklyData } from "@/lib/data";
+import React, { useState, useContext } from 'react';
+import type { WeeklyData } from "@/lib/data";
 import { 
   Select, 
   SelectContent, 
@@ -188,7 +188,9 @@ export default function DashboardPage({ initialData }: { initialData: WeeklyData
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
                  <DropdownMenuSeparator />
-                <DropdownMenuItem onSelect={logout}>
+                <DropdownMenuItem onSelect={() => {
+                  logout();
+                }}>
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Cerrar sesión</span>
                 </DropdownMenuItem>

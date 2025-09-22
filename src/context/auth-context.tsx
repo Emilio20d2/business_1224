@@ -4,7 +4,6 @@ import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, User } from 'firebase/auth';
 import { app } from '@/lib/firebase';
 import { Loader2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 
 interface AuthContextType {
   user: User | null;
@@ -24,11 +23,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const auth = getAuth(app);
-  const router = useRouter();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      console.log("Auth state changed, user:", user ? user.uid : null);
       setUser(user);
       setLoading(false);
     });
@@ -41,7 +38,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = async () => {
     await signOut(auth);
-    router.push('/');
+    // The router push will be handled by the protected routes/layouts
   };
   
   if (loading) {
