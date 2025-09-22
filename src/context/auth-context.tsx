@@ -25,20 +25,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const auth = getAuth(app);
   const router = useRouter();
-  const pathname = usePathname();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
+      console.log("Auth state changed, user:", user);
       setUser(user);
       setLoading(false);
-       if (!user && pathname !== '/') {
-         router.push('/');
-       }
     });
-
-    // Cleanup subscription on unmount
     return () => unsubscribe();
-  }, [auth, router, pathname]);
+  }, [auth]);
 
   const login = (email: string, pass: string) => {
     return signInWithEmailAndPassword(auth, email, pass);
@@ -49,12 +44,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     router.push('/');
   };
   
-  // While the auth state is loading, show a global loader.
   if (loading) {
      return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-background">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
-        <p className="mt-4">Autenticando...</p>
+        <p className="mt-4">Verificando sesión...</p>
       </div>
     );
   }

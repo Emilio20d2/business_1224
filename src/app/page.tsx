@@ -13,7 +13,6 @@ import { Loader2 } from 'lucide-react';
 export default function LoginPage() {
   const [email, setEmail] = React.useState('emiliogp@inditex.com');
   const [password, setPassword] = React.useState('456123');
-  const [error, setError] = React.useState('');
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   
   const router = useRouter();
@@ -29,12 +28,10 @@ export default function LoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setError('');
     try {
       await login(email, password);
       router.push('/dashboard');
     } catch (error: any) {
-      setError(error.message);
       toast({
         variant: "destructive",
         title: "Error de autenticación",
@@ -53,7 +50,8 @@ export default function LoginPage() {
       </div>
     );
   }
-
+  
+  // If not loading and no user, show login page.
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">
       <Card className="w-full max-w-sm">

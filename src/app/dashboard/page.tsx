@@ -32,6 +32,7 @@ import { db } from '@/lib/firebase';
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useToast } from '@/hooks/use-toast';
 import { AuthContext } from '@/context/auth-context';
+import { useRouter } from 'next/navigation';
 
 
 type EditableList = 'comprador' | 'zonaComercial' | 'agrupacionComercial';
@@ -57,8 +58,9 @@ export default function DashboardPage() {
   const [isListDialogOpen, setIsListDialogOpen] = useState(false);
   const [listToEdit, setListToEdit] = useState<EditableList | null>(null);
 
-  const { user, logout } = useContext(AuthContext);
+  const { user, logout, loading: authLoading } = useContext(AuthContext);
   const { toast } = useToast();
+  const router = useRouter();
 
   const [listOptions, setListOptions] = useState({
     comprador: [] as string[],
@@ -67,14 +69,19 @@ export default function DashboardPage() {
   });
 
   useEffect(() => {
-    // Only fetch data if the user is authenticated.
+    if (authLoading) {
+      console.log("Dashboard: Auth is loading. Waiting...");
+      return;
+    }
+
     if (!user) {
-      // If the user logs out, we can show a loader or clear the data.
-      setIsLoading(true);
+      console.log("Dashboard: No user found, redirecting to login.");
+      router.push('/');
       return;
     }
 
     const fetchData = async () => {
+      console.log("Dashboard: User is authenticated, starting to fetch data for week:", week);
       setIsLoading(true);
       try {
         const docRef = doc(db, "informes", week);
@@ -82,10 +89,10 @@ export default function DashboardPage() {
 
         let weeklyData;
         if (docSnap.exists()) {
-          console.log("Document data:", docSnap.data());
+          console.log("Dashboard: Document data found in Firestore:", docSnap.data());
           weeklyData = docSnap.data() as WeeklyData;
         } else {
-          console.log("No such document! Using initial data.");
+          console.log("Dashboard: No document found. Using initial data for", week);
           weeklyData = getInitialDataForWeek(week);
         }
         
@@ -97,27 +104,20 @@ export default function DashboardPage() {
         });
 
       } catch (error) {
-        console.error("Error fetching document: ", error);
-        if (error instanceof Error && error.message.includes('permission-denied') || error.message.includes('insufficient permissions')) {
-            toast({
-              variant: "destructive",
-              title: "Error de Permisos",
-              description: "No tienes permiso para acceder a los datos. Contacta al administrador.",
-            });
-        } else {
-            toast({
-              variant: "destructive",
-              title: "Error al cargar los datos",
-              description: "No se pudieron cargar los datos de la base de datos.",
-            });
-        }
+        console.error("Dashboard: Error fetching Firestore document:", error);
+        toast({
+          variant: "destructive",
+          title: "Error al Cargar Datos",
+          description: "No se pudieron cargar los datos. " + (error as Error).message,
+        });
       } finally {
+        console.log("Dashboard: Finished fetching data.");
         setIsLoading(false);
       }
     };
 
     fetchData();
-  }, [week, user, toast]); 
+  }, [week, user, authLoading, router, toast]); 
   
   const previousWeek = getPreviousWeekRange();
   const weekLabel = `${previousWeek.start} - ${previousWeek.end}`;
@@ -127,11 +127,11 @@ export default function DashboardPage() {
   };
 
   const handleSave = async () => {
-    if (!data || !user) {
+    if (!data) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "No hay datos para guardar o no estás autenticado.",
+        description: "No hay datos para guardar.",
       });
       return;
     }
@@ -188,10 +188,8 @@ export default function DashboardPage() {
       const updatedData = { ...data };
       const listKey = listToEdit === 'comprador' ? 'pesoComprador' : listToEdit === 'zonaComercial' ? 'zonaComercial' : 'agrupacionComercial';
       
-      // Filter out removed items
       updatedData.ventasMan[listKey] = updatedData.ventasMan[listKey].filter(item => newList.includes(item.nombre));
       
-      // Add new items
       const existingNames = updatedData.ventasMan[listKey].map(item => item.nombre);
       newList.forEach(name => {
         if (!existingNames.includes(name)) {
@@ -221,7 +219,7 @@ export default function DashboardPage() {
     }
   }
 
-  if (isLoading) {
+  if (isLoading || authLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -233,7 +231,7 @@ export default function DashboardPage() {
   if (!data) {
      return (
       <div className="flex flex-col items-center justify-center min-h-screen gap-4">
-        <p className="text-lg">No se pudieron cargar los datos del informe.</p>
+        <p className="text-lg">No se pudieron cargar los datos del informe. Revisa la consola para más detalles.</p>
         <Button onClick={() => window.location.reload()}>Reintentar</Button>
       </div>
     );
