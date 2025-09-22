@@ -86,7 +86,7 @@ export default function DashboardPage() {
 
                 const [reportSnap, listsSnap] = await Promise.all([
                     getDoc(reportRef),
-                    getDoc(listsRef)
+                    getDoc(listsSnap)
                 ]);
 
                 let reportData: WeeklyData;
@@ -347,7 +347,7 @@ export default function DashboardPage() {
                       <span>ZONA COMPRADOR</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercial')}>
-                      <span>AGRUPACION COMERCIAL</span>
+                      <span>Agrupación Comercial</span>
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
                  <DropdownMenuSeparator />

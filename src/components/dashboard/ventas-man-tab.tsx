@@ -208,7 +208,7 @@ export function VentasManTab({ data, isEditing, listOptions, onInputChange }: Ve
       <TabsList className="grid w-full grid-cols-3 mx-auto max-w-md mb-4">
         <TabsTrigger value="comprador">Comprador</TabsTrigger>
         <TabsTrigger value="zonaComercial">Zona Comprador</TabsTrigger>
-        <TabsTrigger value="agrupacionComercial">AGRUPACION COMERCIAL</TabsTrigger>
+        <TabsTrigger value="agrupacionComercial">Agrupación Comercial</TabsTrigger>
       </TabsList>
       <TabsContent value="comprador">
         <SubTabContent data={data.pesoComprador} headers={['COMPRADOR', 'PESO %', '€', '%']} isEditing={isEditing} allItems={listOptions.comprador} dataKey="pesoComprador" onInputChange={onInputChange} showImage={true} />
@@ -217,7 +217,7 @@ export function VentasManTab({ data, isEditing, listOptions, onInputChange }: Ve
         <SubTabContent data={data.zonaComercial} headers={['ZONA COMPRADOR', 'PESO %', '€', '%']} isEditing={isEditing} allItems={listOptions.zonaComercial} dataKey="zonaComercial" onInputChange={onInputChange} showImage={true} />
       </TabsContent>
       <TabsContent value="agrupacionComercial">
-         <SubTabContent data={data.agrupacionComercial} headers={['AGRUPACION COMERCIAL', 'PESO %', '€', '%']} isEditing={isEditing} allItems={listOptions.agrupacionComercial} dataKey="agrupacionComercial" onInputChange={onInputChange} showImage={true} />
+         <SubTabContent data={data.agrupacionComercial} headers={['Agrupación Comercial', 'PESO %', '€', '%']} isEditing={isEditing} allItems={listOptions.agrupacionComercial} dataKey="agrupacionComercial" onInputChange={onInputChange} showImage={true} />
       </TabsContent>
     </Tabs>
   );
