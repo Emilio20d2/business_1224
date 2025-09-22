@@ -92,9 +92,9 @@ const ImageImportCard = ({ isEditing }: { isEditing: boolean }) => {
     }
 
     return (
-        <Card className="relative overflow-hidden p-0 gap-0 h-full min-h-[300px]">
+        <Card className="relative overflow-hidden p-0 gap-0">
             <CardContent className="p-0 h-full">
-                <div className="w-full h-full bg-muted flex items-center justify-center">
+                <div className="w-full aspect-[5/4] bg-muted flex items-center justify-center">
                     {imagePreview ? (
                         <img src={imagePreview} alt="Previsualización" className="h-full w-full object-cover" />
                     ) : (
