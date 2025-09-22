@@ -86,7 +86,7 @@ export default function DashboardPage() {
 
                 const [reportSnap, listsSnap] = await Promise.all([
                     getDoc(reportRef),
-                    getDoc(listsSnap)
+                    getDoc(listsRef)
                 ]);
 
                 let reportData: WeeklyData;
@@ -258,7 +258,7 @@ export default function DashboardPage() {
     switch (listName) {
       case 'comprador': return 'Editar Lista de Compradores';
       case 'zonaComercial': return 'Editar Lista de Zonas de Comprador';
-      case 'agrupacionComercial': return 'Editar Lista de Agrupaciones Comerciales';
+      case 'agrupacionComercial': return 'Editar Lista de Agrupación Comercial';
       default: return 'Editar Lista';
     }
   }
