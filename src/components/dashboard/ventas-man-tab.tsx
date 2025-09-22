@@ -65,15 +65,11 @@ const DataTable = ({ data, headers, isEditing, allItems, onRowClick }: { data: T
                 </TableHeader>
                 <TableBody>
                     {data.map((item, index) => (
-                        <TableRow key={index} className="relative">
-                            {!isEditing && (
-                                <div 
-                                    className="absolute inset-0 z-10 cursor-pointer"
-                                    onClick={() => onRowClick(item)}
-                                    role="button"
-                                    aria-label={`Ver detalles de ${item.nombre}`}
-                                />
-                            )}
+                        <TableRow 
+                            key={index} 
+                            onClick={() => !isEditing && onRowClick(item)}
+                            className={cn(!isEditing && "cursor-pointer")}
+                        >
                             <TableCell>
                                 {isEditing ? (
                                     <Select defaultValue={item.nombre}>
