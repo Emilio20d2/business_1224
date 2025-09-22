@@ -8,7 +8,10 @@ import {
   Warehouse,
   AlertTriangle,
   ArrowDown,
-  ArrowUp
+  ArrowUp,
+  Shirt,
+  Footprints,
+  Sparkles
 } from "lucide-react";
 import {
   Table,
@@ -99,36 +102,57 @@ export function DatosSemanalesTab({ data, isEditing }: DatosSemanalesTabProps) {
 
       {/* Gestión de Almacén y Logística */}
       <KpiCard title="Gestión de Almacén y Logística" icon={<Warehouse className="h-5 w-5 text-primary" />} className="lg:col-span-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="flex flex-col gap-4">
               <h4 className="font-semibold text-card-foreground">Logística Semanal</h4>
               <DatoSimple label="Entradas Totales" value={formatNumber(data.logistica.entradas)} isEditing={isEditing} valueId="total-entradas" icon={<ArrowDown className="h-4 w-4 text-green-500" />} />
               <DatoSimple label="Salidas Totales" value={formatNumber(data.logistica.salidas)} isEditing={isEditing} valueId="total-salidas" icon={<ArrowUp className="h-4 w-4 text-red-500" />} />
           </div>
            <div className="flex flex-col gap-4">
-              <h4 className="font-semibold text-card-foreground">Ocupación y Devoluciones</h4>
+              <h4 className="font-semibold text-card-foreground">Ocupación</h4>
                <Table>
                 <TableHeader>
                     <TableRow>
-                      <TableHead>Almacén</TableHead>
+                      <TableHead className="w-[120px]">Almacén</TableHead>
                       <TableHead className="text-right">Ocupación</TableHead>
-                      <TableHead className="text-right">Prop. Devolución</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
                     <TableRow>
-                      <TableCell>Ropa</TableCell>
+                      <TableCell className="font-medium flex items-center gap-2"><Shirt className="h-4 w-4 text-muted-foreground"/>Ropa</TableCell>
                       <TableCell className="text-right">{formatPercentage(data.almacenes.ropa.ocupacionPorc)}</TableCell>
+                    </TableRow>
+                     <TableRow>
+                      <TableCell className="font-medium flex items-center gap-2"><Footprints className="h-4 w-4 text-muted-foreground"/>Calzado</TableCell>
+                      <TableCell className="text-right">{formatPercentage(data.almacenes.calzado.ocupacionPorc)}</TableCell>
+                    </TableRow>
+                     <TableRow>
+                      <TableCell className="font-medium flex items-center gap-2"><Sparkles className="h-4 w-4 text-muted-foreground"/>Perfumería</TableCell>
+                      <TableCell className="text-right">{formatPercentage(data.almacenes.perfumeria.ocupacionPorc)}</TableCell>
+                    </TableRow>
+                </TableBody>
+            </Table>
+          </div>
+          <div className="flex flex-col gap-4">
+              <h4 className="font-semibold text-card-foreground">Propuesta de Devolución</h4>
+               <Table>
+                <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[120px]">Almacén</TableHead>
+                      <TableHead className="text-right">Unidades</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    <TableRow>
+                      <TableCell className="font-medium flex items-center gap-2"><Shirt className="h-4 w-4 text-muted-foreground"/>Ropa</TableCell>
                       <TableCell className="text-right">{formatNumber(data.almacenes.ropa.devolucionUnidades)}</TableCell>
                     </TableRow>
                      <TableRow>
-                      <TableCell>Calzado</TableCell>
-                      <TableCell className="text-right">{formatPercentage(data.almacenes.calzado.ocupacionPorc)}</TableCell>
+                      <TableCell className="font-medium flex items-center gap-2"><Footprints className="h-4 w-4 text-muted-foreground"/>Calzado</TableCell>
                       <TableCell className="text-right">{formatNumber(data.almacenes.calzado.devolucionUnidades)}</TableCell>
                     </TableRow>
                      <TableRow>
-                      <TableCell>Perfumería</TableCell>
-                      <TableCell className="text-right">{formatPercentage(data.almacenes.perfumeria.ocupacionPorc)}</TableCell>
+                      <TableCell className="font-medium flex items-center gap-2"><Sparkles className="h-4 w-4 text-muted-foreground"/>Perfumería</TableCell>
                       <TableCell className="text-right">{formatNumber(data.almacenes.perfumeria.devolucionUnidades)}</TableCell>
                     </TableRow>
                 </TableBody>
