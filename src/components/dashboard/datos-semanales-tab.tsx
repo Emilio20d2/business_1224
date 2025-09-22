@@ -24,7 +24,7 @@ export function DatosSemanalesTab({ data, isEditing }: DatosSemanalesTabProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 mt-4">
       {/* Ventas */}
-      <KpiCard title="Ventas" icon={<Euro className="h-5 w-5 text-blue-500" />} className="lg:col-span-2">
+      <KpiCard title="Ventas" icon={<Euro className="h-5 w-5 text-primary" />} className="lg:col-span-2">
         <DatoDoble 
           value={formatCurrency(data.ventas.totalEuros)} 
           variation={data.ventas.varPorcEuros} 
@@ -41,7 +41,7 @@ export function DatosSemanalesTab({ data, isEditing }: DatosSemanalesTabProps) {
       </KpiCard>
 
       {/* Rendimiento de Tienda */}
-      <KpiCard title="Rendimiento de Tienda" icon={<ChartLine className="h-5 w-5 text-blue-500" />} className="lg:col-span-2">
+      <KpiCard title="Rendimiento de Tienda" icon={<ChartLine className="h-5 w-5 text-primary" />} className="lg:col-span-2">
         <DatoDoble 
           label="Tráfico" 
           value={formatNumber(data.rendimientoTienda.trafico)} 
@@ -59,14 +59,14 @@ export function DatosSemanalesTab({ data, isEditing }: DatosSemanalesTabProps) {
       </KpiCard>
 
       {/* Logística */}
-      <KpiCard title="Logística" icon={<Truck className="h-5 w-5 text-blue-500" />} className="lg:col-span-2">
+      <KpiCard title="Logística" icon={<Truck className="h-5 w-5 text-primary" />} className="lg:col-span-2">
         <DatoSimple label="Entradas" value={formatNumber(data.logistica.entradas)} isEditing={isEditing} valueId="input-logistica-entradas" />
         <DatoSimple label="Salidas" value={formatNumber(data.logistica.salidas)} isEditing={isEditing} valueId="input-logistica-salidas"/>
       </KpiCard>
 
       {/* Operaciones y Sistema */}
-      <KpiCard title="Operaciones y Sistema" icon={<Receipt className="h-5 w-5 text-blue-500" />} className="lg:col-span-3">
-        <div className="grid grid-cols-2 gap-x-8 gap-y-4 text-md">
+      <KpiCard title="Operaciones y Sistema" icon={<Receipt className="h-5 w-5 text-primary" />} className="lg:col-span-3">
+        <div className="grid grid-cols-2 gap-x-8 gap-y-4">
             <DatoSimple label="Filas Caja" value={`${formatPercentage(data.operaciones.filasCajaPorc)}`} isEditing={isEditing} valueId="input-op-filas-caja" />
             <DatoSimple label="SCO" value={`${formatPercentage(data.operaciones.scoPorc)}`} isEditing={isEditing} valueId="input-op-sco" />
             <DatoSimple label="V. Ipod" value={formatNumber(data.operaciones.ventaIpod)} isEditing={isEditing} valueId="input-op-vipod" />
@@ -77,23 +77,23 @@ export function DatosSemanalesTab({ data, isEditing }: DatosSemanalesTabProps) {
       </KpiCard>
       
       {/* Gestión de Stock */}
-      <KpiCard title="Gestión de Stock" icon={<Warehouse className="h-5 w-5 text-blue-500" />} className="lg:col-span-3">
-          <div className="flex flex-col gap-2">
-            <h4 className="font-semibold">Ocupación</h4>
+      <KpiCard title="Gestión de Stock" icon={<Warehouse className="h-5 w-5 text-primary" />} className="lg:col-span-3">
+          <div className="flex flex-col gap-2 text-sm text-muted-foreground">
+            <h4 className="font-semibold text-card-foreground">Ocupación</h4>
             <p>
-                Valor Sup: <strong className="font-semibold">{formatNumber(data.gestionStock.ocupacion.valorSuperior)}</strong> (<strong className="font-semibold">{formatPercentage(data.gestionStock.ocupacion.porcSuperior)}</strong>) / Valor Inf: <strong className="font-semibold">{formatNumber(data.gestionStock.ocupacion.valorInferior)}</strong> (<strong className="font-semibold">{formatPercentage(data.gestionStock.ocupacion.porcInferior)}</strong>)
+                Valor Sup: <strong className="font-semibold text-card-foreground">{formatNumber(data.gestionStock.ocupacion.valorSuperior)}</strong> (<strong className="font-semibold text-card-foreground">{formatPercentage(data.gestionStock.ocupacion.porcSuperior)}</strong>) / Valor Inf: <strong className="font-semibold text-card-foreground">{formatNumber(data.gestionStock.ocupacion.valorInferior)}</strong> (<strong className="font-semibold text-card-foreground">{formatPercentage(data.gestionStock.ocupacion.porcInferior)}</strong>)
             </p>
           </div>
-          <div className="flex flex-col gap-2">
-            <h4 className="font-semibold">Propuesta Devolución</h4>
+          <div className="flex flex-col gap-2 text-sm text-muted-foreground">
+            <h4 className="font-semibold text-card-foreground">Propuesta Devolución</h4>
             <p>
-                Valor Sup: <strong className="font-semibold">{formatNumber(data.gestionStock.propuestaDevolucion.valorSuperior)}</strong> / Valor Inf: <strong className="font-semibold">{formatNumber(data.gestionStock.propuestaDevolucion.valorInferior)}</strong>
+                Valor Sup: <strong className="font-semibold text-card-foreground">{formatNumber(data.gestionStock.propuestaDevolucion.valorSuperior)}</strong> / Valor Inf: <strong className="font-semibold text-card-foreground">{formatNumber(data.gestionStock.propuestaDevolucion.valorInferior)}</strong>
             </p>
           </div>
       </KpiCard>
 
       {/* Pérdidas */}
-      <KpiCard title="Pérdidas" icon={<AlertTriangle className="h-5 w-5 text-red-500" />} className="lg:col-span-6">
+      <KpiCard title="Pérdidas" icon={<AlertTriangle className="h-5 w-5 text-destructive" />} className="lg:col-span-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <DatoSimple 
                 label="GAP" 

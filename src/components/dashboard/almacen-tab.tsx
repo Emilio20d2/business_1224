@@ -22,16 +22,16 @@ const AlmacenRow = ({ name, almacen, isEditing }: { name: string, almacen: Almac
   return (
     <TableRow>
       <TableCell className="font-medium">{name}</TableCell>
-      <TableCell>
+      <TableCell className="text-right">
         {isEditing ? <Input type="number" defaultValue={almacen.ocupacionPorc} className="w-20" /> : formatPercentage(almacen.ocupacionPorc)}
       </TableCell>
-      <TableCell>
+      <TableCell className="text-right">
         {isEditing ? <Input type="number" defaultValue={almacen.devolucionUnidades ?? ''} className="w-20" /> : formatNumber(almacen.devolucionUnidades)}
       </TableCell>
-      <TableCell>
+      <TableCell className="text-right">
         {isEditing ? <Input type="number" defaultValue={almacen.entradas} className="w-20" /> : formatNumber(almacen.entradas)}
       </TableCell>
-      <TableCell>
+      <TableCell className="text-right">
         {isEditing ? <Input type="number" defaultValue={almacen.salidas} className="w-20" /> : formatNumber(almacen.salidas)}
       </TableCell>
     </TableRow>
@@ -42,15 +42,15 @@ const AlmacenRow = ({ name, almacen, isEditing }: { name: string, almacen: Almac
 export function AlmacenTab({ data, isEditing }: AlmacenTabProps) {
   return (
     <div className="mt-4">
-       <KpiCard title="Detalle de Almacenes" icon={<Warehouse className="h-5 w-5 text-blue-500" />} className="w-full">
+       <KpiCard title="Detalle de Almacenes" icon={<Warehouse className="h-5 w-5 text-primary" />} className="w-full">
             <Table>
                 <TableHeader>
                     <TableRow>
-                    <TableHead>Sección</TableHead>
-                    <TableHead>Ocup.</TableHead>
-                    <TableHead>Devol.</TableHead>
-                    <TableHead>Entradas</TableHead>
-                    <TableHead>Salidas</TableHead>
+                      <TableHead>Sección</TableHead>
+                      <TableHead className="text-right">Ocup.</TableHead>
+                      <TableHead className="text-right">Devol.</TableHead>
+                      <TableHead className="text-right">Entradas</TableHead>
+                      <TableHead className="text-right">Salidas</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>

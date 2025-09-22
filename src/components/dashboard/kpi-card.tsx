@@ -11,8 +11,8 @@ type KpiCardProps = {
 
 export function KpiCard({ title, icon, children, className }: KpiCardProps) {
   return (
-    <div className={cn("bg-card text-card-foreground rounded-xl p-5 flex flex-col gap-4 shadow-lg", className)}>
-      <h3 className="flex items-center gap-3 text-base font-semibold leading-none tracking-tight -m-5 mb-0 border-b p-5">
+    <div className={cn("bg-card text-card-foreground rounded-xl p-5 flex flex-col gap-4 shadow", className)}>
+      <h3 className="flex items-center gap-3 text-base font-semibold leading-none tracking-tight text-card-foreground/80 -m-5 mb-0 border-b p-5">
         {icon} {title}
       </h3>
       <div className="flex flex-col gap-4">
@@ -32,11 +32,11 @@ type DatoDobleProps = {
 };
 
 export function DatoDoble({ label, value, variation, unit, isEditing, valueId }: DatoDobleProps) {
-  const trendColor = variation === undefined ? '' : variation >= 0 ? 'text-green-600 bg-green-100' : 'text-red-600 bg-red-100';
+  const trendColor = variation === undefined ? '' : variation >= 0 ? 'text-green-600 bg-green-100 dark:text-green-200 dark:bg-green-900/50' : 'text-red-600 bg-red-100 dark:text-red-200 dark:bg-red-900/50';
 
   return (
     <div className="flex justify-between items-baseline">
-      {label && <span className="text-lg">{label}</span>}
+      {label && <span className="text-lg text-muted-foreground">{label}</span>}
       <div className="flex items-baseline gap-2">
         {isEditing ? (
            <Input type="number" inputMode="decimal" defaultValue={String(value).replace(/[^0-9.,-]+/g, '')} className="w-24 h-8" id={valueId}/>
@@ -65,25 +65,37 @@ type DatoSimpleProps = {
 export function DatoSimple({ label, value, isEditing, valueId, className }: DatoSimpleProps) {
     const renderValue = () => {
         if (typeof value === 'object') return value;
-        if (typeof value === 'string' && (value.includes('€') || value.includes('Unid.') || value.includes('%'))) {
+        
+        if (typeof value === 'string' && value.includes(' / ')) {
             const parts = value.split(' / ');
-            if (parts.length > 1) {
-              return (
-                  <span className="font-semibold">
-                      <span className={parseFloat(parts[0].replace(/[^0-9.,-]+/g, '').replace(',', '.')) >= 0 ? 'text-green-600' : 'text-red-600'}>{parts[0]}</span>
-                      {' / '}
-                      {parts[1] && <span className={parseFloat(parts[1].replace(/[^0-9.,-]+/g, '').replace(',', '.')) >= 0 ? 'text-green-600' : 'text-red-600'}>{parts[1]}</span>}
-                  </span>
-              );
-            }
+            const firstPart = parts[0] || '';
+            const secondPart = parts[1] || '';
+
+            const firstValue = parseFloat(firstPart.replace(/[^0-9.,-]+/g, '').replace(',', '.'));
+            const secondValue = parseFloat(secondPart.replace(/[^0-9.,-]+/g, '').replace(',', '.'));
+
+            return (
+                <span className="font-semibold text-right">
+                    <span className={firstValue >= 0 ? 'text-green-600' : 'text-red-600'}>{firstPart}</span>
+                    {' / '}
+                    <span className={secondValue >= 0 ? 'text-green-600' : 'text-red-600'}>{secondPart}</span>
+                </span>
+            );
         }
-        return <strong className="font-semibold">{value}</strong>;
+        
+        if (typeof value === 'string' && value.includes('(') && value.includes(')')) {
+             const mainValue = value.substring(0, value.indexOf('(')).trim();
+             const percentage = value.substring(value.indexOf('('));
+             return <span className="font-semibold text-right">{mainValue} <span className="text-muted-foreground">{percentage}</span></span>
+        }
+
+        return <strong className="font-semibold text-right">{value}</strong>;
     }
 
     return (
-        <div className={cn("flex justify-between text-lg", className)}>
-            <span>{label}:</span>
-            {isEditing ? <Input type="number" inputMode="decimal" defaultValue={String(value).replace(/[^0-9.]+/g, '')} className="w-24 h-8" id={valueId}/> : renderValue()}
+        <div className={cn("flex justify-between items-center text-md", className)}>
+            <span className="text-muted-foreground">{label}:</span>
+            {isEditing ? <Input type="text" defaultValue={String(value).replace(/[^0-p-9.]+/g, '')} className="w-24 h-8" id={valueId}/> : renderValue()}
         </div>
     );
 }
