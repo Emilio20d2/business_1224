@@ -76,7 +76,7 @@ export function DatosSemanalesTab({ data, isEditing }: DatosSemanalesTabProps) {
 
       {/* Rendimiento de Tienda */}
       <KpiCard title="Rendimiento de Tienda" icon={<ChartLine className="h-5 w-5 text-primary" />} className="md:col-span-3">
-         <DatoDoble 
+        <DatoDoble 
           label="Tráfico" 
           value={formatNumber(data.rendimientoTienda.trafico)} 
           variation={data.rendimientoTienda.varPorcTrafico}
