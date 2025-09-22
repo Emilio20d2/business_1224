@@ -77,9 +77,10 @@ export function DatoSimple({ label, value, isEditing, valueId, className, icon, 
             const secondValue = parseFloat(secondPart.replace(/[^0-9.,-]+/g, '').replace(',', '.'));
 
             return (
-                <div className="font-semibold text-right">
-                    <div className={firstValue >= 0 ? 'text-green-600' : 'text-red-600'}>{firstPart}</div>
-                    <div className={secondValue >= 0 ? 'text-green-600' : 'text-red-600'}>{secondPart}</div>
+                <div className="font-semibold text-center flex gap-2">
+                    <span className={firstValue >= 0 ? 'text-green-600' : 'text-red-600'}>{firstPart}</span>
+                    <span>/</span>
+                    <span className={secondValue >= 0 ? 'text-green-600' : 'text-red-600'}>{secondPart}</span>
                 </div>
             );
         }
@@ -87,7 +88,7 @@ export function DatoSimple({ label, value, isEditing, valueId, className, icon, 
         if (typeof value === 'string' && value.includes('(') && value.includes(')')) {
              const mainValue = value.substring(0, value.indexOf('(')).trim();
              const percentage = value.substring(value.indexOf('('));
-             return <div className="font-semibold text-right">{mainValue} <span className="text-muted-foreground">{percentage}</span></div>
+             return <div className="font-semibold text-center">{mainValue} <span className="text-muted-foreground">{percentage}</span></div>
         }
 
         return <strong className="font-semibold text-right">{value}</strong>;
