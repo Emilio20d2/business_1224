@@ -67,15 +67,17 @@ export default function DashboardPage() {
   const { toast } = useToast();
 
   useEffect(() => {
+    // Si la autenticación aún está en curso, no hacemos nada.
     if (authLoading) {
-      return; 
+      return;
     }
-
+    // Si no hay usuario después de cargar, redirigir al login.
     if (!user) {
       router.push('/');
       return;
     }
-    
+
+    // Si hay un usuario, procedemos a cargar los datos.
     const fetchData = async () => {
       setDataLoading(true);
       setError(null);
