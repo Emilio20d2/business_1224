@@ -1,5 +1,18 @@
 import { datosSemanales, type WeeklyData } from "@/lib/data";
-import { TotalEurosCard, GapCard, AcoCard } from "./kpi-cards";
+import {
+  TotalEurosCard,
+  TotalUnidadesCard,
+  TraficoCard,
+  VentaIpodCard,
+  ETicketCard,
+  ConversionCard,
+  FilasCajaCard,
+  AcoCard,
+  GapCard,
+  SintCard,
+  RepoCard,
+  MermaCard,
+} from "./kpi-cards";
 import { AlmacenesCard } from "./almacenes-card";
 import { AIAnalysis } from "./ai-analysis";
 
@@ -15,11 +28,20 @@ export function WeeklyDataTab() {
 
   return (
     <div className="space-y-8">
-      <div className="grid grid-cols-1 items-start gap-6 md:grid-cols-3 md:grid-flow-row-dense">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
         <TotalEurosCard data={data} />
-        <AlmacenesCard data={data.almacenes} className="md:col-span-2 md:row-span-2" />
-        <GapCard data={data.gap} />
+        <TotalUnidadesCard data={data} />
+        <TraficoCard data={data} />
+        <VentaIpodCard value={data.ventaIpod} />
+        <ETicketCard value={data.eTicketPorc} />
+        <ConversionCard data={data} />
+        <FilasCajaCard value={data.filasCajaPorc} />
         <AcoCard value={data.acoPorc} />
+        <GapCard data={data.gap} />
+        <SintCard value={data.sint} />
+        <RepoCard value={data.repoPorc} />
+        <MermaCard data={data.merma} />
+        <AlmacenesCard data={data.almacenes} className="sm:col-span-2 md:col-span-3 lg:col-span-4 xl:col-span-6" />
       </div>
 
       <AIAnalysis input={aiInput} />
