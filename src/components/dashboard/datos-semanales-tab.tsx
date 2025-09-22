@@ -79,15 +79,15 @@ export function DatosSemanalesTab({ data, isEditing }: DatosSemanalesTabProps) {
       {/* Gestión de Stock */}
       <KpiCard title="Gestión de Stock" icon={<Warehouse className="h-5 w-5 text-blue-500" />} className="lg:col-span-3">
           <div className="flex flex-col gap-2">
-            <h4 className="font-semibold text-slate-700">Ocupación</h4>
-            <p className="text-slate-600">
-                Valor Sup: <strong className="font-semibold text-slate-800">{formatNumber(data.gestionStock.ocupacion.valorSuperior)}</strong> (<strong className="font-semibold text-slate-800">{formatPercentage(data.gestionStock.ocupacion.porcSuperior)}</strong>) / Valor Inf: <strong className="font-semibold text-slate-800">{formatNumber(data.gestionStock.ocupacion.valorInferior)}</strong> (<strong className="font-semibold text-slate-800">{formatPercentage(data.gestionStock.ocupacion.porcInferior)}</strong>)
+            <h4 className="font-semibold">Ocupación</h4>
+            <p>
+                Valor Sup: <strong className="font-semibold">{formatNumber(data.gestionStock.ocupacion.valorSuperior)}</strong> (<strong className="font-semibold">{formatPercentage(data.gestionStock.ocupacion.porcSuperior)}</strong>) / Valor Inf: <strong className="font-semibold">{formatNumber(data.gestionStock.ocupacion.valorInferior)}</strong> (<strong className="font-semibold">{formatPercentage(data.gestionStock.ocupacion.porcInferior)}</strong>)
             </p>
           </div>
           <div className="flex flex-col gap-2">
-            <h4 className="font-semibold text-slate-700">Propuesta Devolución</h4>
-            <p className="text-slate-600">
-                Valor Sup: <strong className="font-semibold text-slate-800">{formatNumber(data.gestionStock.propuestaDevolucion.valorSuperior)}</strong> / Valor Inf: <strong className="font-semibold text-slate-800">{formatNumber(data.gestionStock.propuestaDevolucion.valorInferior)}</strong>
+            <h4 className="font-semibold">Propuesta Devolución</h4>
+            <p>
+                Valor Sup: <strong className="font-semibold">{formatNumber(data.gestionStock.propuestaDevolucion.valorSuperior)}</strong> / Valor Inf: <strong className="font-semibold">{formatNumber(data.gestionStock.propuestaDevolucion.valorInferior)}</strong>
             </p>
           </div>
       </KpiCard>

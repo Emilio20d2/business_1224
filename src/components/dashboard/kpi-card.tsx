@@ -11,8 +11,8 @@ type KpiCardProps = {
 
 export function KpiCard({ title, icon, children, className }: KpiCardProps) {
   return (
-    <div className={cn("bg-card text-card-foreground rounded-xl shadow-lg p-5 flex flex-col gap-4", className)}>
-      <h3 className="flex items-center gap-3 text-base font-semibold leading-none tracking-tight text-slate-800 -m-5 mb-0 border-b p-5">
+    <div className={cn("bg-card text-card-foreground rounded-xl p-5 flex flex-col gap-4 shadow-lg", className)}>
+      <h3 className="flex items-center gap-3 text-base font-semibold leading-none tracking-tight -m-5 mb-0 border-b p-5">
         {icon} {title}
       </h3>
       <div className="flex flex-col gap-4">
@@ -36,7 +36,7 @@ export function DatoDoble({ label, value, variation, unit, isEditing, valueId }:
 
   return (
     <div className="flex justify-between items-baseline">
-      {label && <span className="text-lg text-slate-600">{label}</span>}
+      {label && <span className="text-lg">{label}</span>}
       <div className="flex items-baseline gap-2">
         {isEditing ? (
            <Input type="number" inputMode="decimal" defaultValue={String(value).replace(/[^0-9.,-]+/g, '')} className="w-24 h-8" id={valueId}/>
@@ -69,7 +69,7 @@ export function DatoSimple({ label, value, isEditing, valueId, className }: Dato
             const parts = value.split(' / ');
             return (
                 <span className="font-semibold">
-                    <span className={parseFloat(parts[0].replace(/[^0--9.,-]+/g, '').replace(',', '.')) >= 0 ? 'text-green-600' : 'text-red-600'}>{parts[0]}</span>
+                    <span className={parseFloat(parts[0].replace(/[^0-9.,-]+/g, '').replace(',', '.')) >= 0 ? 'text-green-600' : 'text-red-600'}>{parts[0]}</span>
                     {' / '}
                     <span className={parseFloat(parts[1].replace(/[^0-9.,-]+/g, '').replace(',', '.')) >= 0 ? 'text-green-600' : 'text-red-600'}>{parts[1]}</span>
                 </span>
