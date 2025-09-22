@@ -94,7 +94,7 @@ export function DatoSimple({ label, value, isEditing, valueId, className, icon, 
 
     const alignmentClasses = {
         left: "justify-between",
-        center: "flex-col items-center justify-center text-center gap-1",
+        center: "flex-col items-center justify-center text-center gap-1 h-full",
         right: "justify-between",
     }
     const labelAlignmentClasses = {
