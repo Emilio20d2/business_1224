@@ -19,6 +19,7 @@ import Link from 'next/link';
 
 type VentasManData = WeeklyData["ventasMan"];
 type TableData = VentasManData[keyof VentasManData];
+type TableItem = TableData[number];
 
 type VentasManTabProps = {
   data: VentasManData;
@@ -34,7 +35,7 @@ const TrendIndicator = ({ value }: { value: number }) => {
   );
 };
 
-const DataTable = ({ data, headers }: { data: TableData, headers: string[] }) => {
+const DataTable = ({ data, headers, onRowClick }: { data: TableData, headers: string[], onRowClick: (item: TableItem) => void }) => {
     if (!data || data.length === 0) {
         return <p className="text-center text-muted-foreground mt-8">No hay datos disponibles para esta sección.</p>;
     }
@@ -45,22 +46,20 @@ const DataTable = ({ data, headers }: { data: TableData, headers: string[] }) =>
                 <TableHeader>
                     <TableRow>
                         {headers.map((header, i) => (
-                            <TableHead key={i} className={i === 1 ? '' : 'text-right'}>{header}</TableHead>
+                            <TableHead key={i} className={i === 0 ? '' : 'text-right'}>{header}</TableHead>
                         ))}
                     </TableRow>
                 </TableHeader>
                 <TableBody>
                     {data.map((item, index) => (
                         <TableRow key={index} className="relative cursor-pointer hover:bg-muted/50">
-                             <TableCell className="text-right font-medium">
-                                { item.imageUrl && 
-                                    <Link href={item.imageUrl} target="_blank" rel="noopener noreferrer" className="absolute inset-0 z-10">
-                                        <span className="sr-only">Ver imagen</span>
-                                    </Link>
-                                }
-                                {formatPercentage(item.pesoPorc)}
+                            <TableCell>
+                                <button onClick={() => onRowClick(item)} className="absolute inset-0 z-10 w-full h-full cursor-pointer">
+                                    <span className="sr-only">Ver imagen</span>
+                                </button>
+                                {item.nombre}
                             </TableCell>
-                            <TableCell>{item.nombre}</TableCell>
+                            <TableCell className="text-right font-medium">{formatPercentage(item.pesoPorc)}</TableCell>
                             <TableCell className="text-right font-medium">{formatCurrency(item.totalEuros)}</TableCell>
                             <TableCell className="text-right">
                                 <TrendIndicator value={item.varPorc} />
@@ -73,8 +72,7 @@ const DataTable = ({ data, headers }: { data: TableData, headers: string[] }) =>
     );
 };
 
-const ImageImportCard = ({ isEditing }: { isEditing: boolean }) => {
-    const [imagePreview, setImagePreview] = React.useState<string | null>(null);
+const ImageImportCard = ({ isEditing, selectedRow }: { isEditing: boolean, selectedRow: TableItem | null }) => {
     const [imageFile, setImageFile] = React.useState<File | null>(null);
     const fileInputRef = React.useRef<HTMLInputElement>(null);
 
@@ -82,11 +80,6 @@ const ImageImportCard = ({ isEditing }: { isEditing: boolean }) => {
         const file = event.target.files?.[0];
         if (file) {
             setImageFile(file);
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setImagePreview(reader.result as string);
-            };
-            reader.readAsDataURL(file);
         }
     };
 
@@ -98,13 +91,15 @@ const ImageImportCard = ({ isEditing }: { isEditing: boolean }) => {
         // Logic to upload/process the imageFile
         console.log("Importing image:", imageFile?.name);
     }
+    
+    const displayImage = selectedRow?.imageUrl;
 
     return (
         <Card className="relative overflow-hidden p-0 gap-0 w-full aspect-[5/4]">
             <CardContent className="p-0 h-full">
                 <div className="w-full h-full bg-muted flex items-center justify-center">
-                    {imagePreview ? (
-                        <img src={imagePreview} alt="Previsualización" className="h-full w-full object-cover" />
+                    {displayImage ? (
+                        <img src={displayImage} alt={selectedRow?.nombre} className="h-full w-full object-cover" />
                     ) : (
                         <div className="flex flex-col items-center gap-2 text-muted-foreground">
                             <ImagePlus className="h-12 w-12" />
@@ -130,12 +125,20 @@ const ImageImportCard = ({ isEditing }: { isEditing: boolean }) => {
 };
 
 
-const SubTabContent = ({ data, headers, isEditing }: { data: TableData, headers: string[], isEditing: boolean }) => (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
-        <DataTable data={data} headers={headers} />
-        <ImageImportCard isEditing={isEditing} />
-    </div>
-);
+const SubTabContent = ({ data, headers, isEditing }: { data: TableData, headers: string[], isEditing: boolean }) => {
+    const [selectedRow, setSelectedRow] = React.useState<TableItem | null>(null);
+
+    const handleRowClick = (item: TableItem) => {
+        setSelectedRow(item);
+    };
+    
+    return (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+            <DataTable data={data} headers={headers} onRowClick={handleRowClick} />
+            <ImageImportCard isEditing={isEditing} selectedRow={selectedRow}/>
+        </div>
+    );
+}
 
 
 export function VentasManTab({ data, isEditing }: VentasManTabProps) {
@@ -143,17 +146,17 @@ export function VentasManTab({ data, isEditing }: VentasManTabProps) {
     <Tabs defaultValue="comprador" className="w-full">
       <TabsList className="grid w-full grid-cols-3 mx-auto max-w-md mb-4">
         <TabsTrigger value="comprador">Comprador</TabsTrigger>
-        <TabsTrigger value="zonaComercial">Zona Comp.</TabsTrigger>
+        <TabsTrigger value="zonaComercial">Zona Comprador</TabsTrigger>
         <TabsTrigger value="agrupacionComercial">Agrup. Com.</TabsTrigger>
       </TabsList>
       <TabsContent value="comprador">
-         <SubTabContent data={data.pesoComprador} headers={['PESO %', 'COMPRADOR', '€', '%']} isEditing={isEditing} />
+         <SubTabContent data={data.pesoComprador} headers={['COMPRADOR', 'PESO %', '€', '%']} isEditing={isEditing} />
       </TabsContent>
       <TabsContent value="zonaComercial">
-        <SubTabContent data={data.zonaComercial} headers={['PESO %', 'ZONA COMP.', '€', '%']} isEditing={isEditing} />
+        <SubTabContent data={data.zonaComercial} headers={['ZONA COMP.', 'PESO %', '€', '%']} isEditing={isEditing} />
       </TabsContent>
       <TabsContent value="agrupacionComercial">
-         <SubTabContent data={data.agrupacionComercial} headers={['PESO %', 'AGRUP. COM.', '€', '%']} isEditing={isEditing} />
+         <SubTabContent data={data.agrupacionComercial} headers={['AGRUP. COM.', 'PESO %', '€', '%']} isEditing={isEditing} />
       </TabsContent>
     </Tabs>
   );
