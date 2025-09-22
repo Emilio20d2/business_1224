@@ -21,6 +21,7 @@ import {
   ScanLine,
   RefreshCw
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 type DatosSemanalesTabProps = {
   data: WeeklyData;
@@ -33,8 +34,8 @@ const formatGap = (value: number, unit: '€' | 'Unid.') => {
     return `${sign}${formattedValue}${unit}`;
 }
 
-const ModuloAlmacen = ({ title, children }: { title: string, children: React.ReactNode }) => (
-    <div className="flex flex-col text-center gap-2">
+const ModuloAlmacen = ({ title, children, className }: { title: string, children: React.ReactNode, className?: string }) => (
+    <div className={cn("flex flex-col text-center gap-2", className)}>
         <h4 className="text-sm font-semibold text-muted-foreground tracking-wider uppercase">{title}</h4>
         <div className="flex flex-col gap-3">
             {children}
@@ -61,7 +62,7 @@ const FilaModulo = ({ icon, label, value }: { icon: React.ReactNode, label: stri
 
 export function DatosSemanalesTab({ data, isEditing }: DatosSemanalesTabProps) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-6 gap-2">
       {/* Ventas */}
       <KpiCard title="Ventas" icon={<Euro className="h-5 w-5 text-primary" />} className="md:col-span-3">
         <DatoDoble 
@@ -98,7 +99,7 @@ export function DatosSemanalesTab({ data, isEditing }: DatosSemanalesTabProps) {
       </KpiCard>
       
       {/* Fila Central: 5x2 Grid */}
-      <div className="md:col-span-6 grid grid-cols-1 md:grid-cols-5 gap-4">
+      <div className="md:col-span-6 grid grid-cols-1 md:grid-cols-5 gap-2">
         <KpiCard title="GAP" icon={<ClipboardX className="h-5 w-5 text-destructive" />} className="md:col-span-2">
           <DatoSimple 
               value={`${formatGap(data.perdidas.gap.euros, '€')} / ${formatGap(data.perdidas.gap.unidades, 'Unid.')}`} 
@@ -143,7 +144,7 @@ export function DatosSemanalesTab({ data, isEditing }: DatosSemanalesTabProps) {
 
        {/* Gestión de Almacén y Logística */}
       <KpiCard title="Gestión de Almacén y Logística" icon={<Warehouse className="h-5 w-5 text-primary" />} className="md:col-span-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 place-items-center">
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_1fr_1.5fr] gap-6 place-items-center">
           <ModuloAlmacen title="Entradas">
             <ModuloContenidoGrande icon={<Truck className="h-8 w-8"/>} value={formatNumber(data.logistica.entradasSemanales)} />
           </ModuloAlmacen>
@@ -155,10 +156,9 @@ export function DatosSemanalesTab({ data, isEditing }: DatosSemanalesTabProps) {
             <FilaModulo icon={<Footprints className="h-5 w-5"/>} label="Calzado" value={formatPercentage(data.almacenes.calzado.ocupacionPorc)} />
             <FilaModulo icon={<SprayCan className="h-5 w-5"/>} label="Perfumería" value={formatPercentage(data.almacenes.perfumeria.ocupacionPorc)} />
           </ModuloAlmacen>
-          <ModuloAlmacen title="Propuesta Devo.">
+          <ModuloAlmacen title="Propuesta Devo." className="justify-start">
              <FilaModulo icon={<Shirt className="h-5 w-5"/>} label="Ropa" value={formatNumber(data.almacenes.ropa.devolucionUnidades)} />
              <FilaModulo icon={<Footprints className="h-5 w-5"/>} label="Calzado" value={formatNumber(data.almacenes.calzado.devolucionUnidades)} />
-             <div className="h-7"></div>
           </ModuloAlmacen>
         </div>
       </KpiCard>
