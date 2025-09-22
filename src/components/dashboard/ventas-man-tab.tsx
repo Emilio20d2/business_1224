@@ -60,6 +60,9 @@ const DataTable = ({ data, headers, isEditing, allItems, onRowClick, dataKey, on
         const path = `ventasMan.${dataKey}.${index}.${field}`;
         onInputChange(path, value);
     };
+
+    // Get a list of names that are already used in the table
+    const usedNames = data.map(d => d.nombre);
     
     return (
         <Card>
@@ -72,7 +75,15 @@ const DataTable = ({ data, headers, isEditing, allItems, onRowClick, dataKey, on
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {data.map((item, index) => (
+                    {data.map((item, index) => {
+                        // For each row, the available options are:
+                        // 1. All options from the main list (`allItems`) that are NOT used by other rows.
+                        // 2. The current item's own name (so it can be re-selected).
+                        const availableOptions = allItems.filter(option => 
+                            !usedNames.includes(option) || option === item.nombre
+                        );
+
+                        return (
                         <TableRow 
                             key={index} 
                             onClick={() => onRowClick(index)}
@@ -85,7 +96,7 @@ const DataTable = ({ data, headers, isEditing, allItems, onRowClick, dataKey, on
                                             <SelectValue />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            {allItems.map(option => (
+                                            {availableOptions.map(option => (
                                                 <SelectItem key={option} value={option}>{option}</SelectItem>
                                             ))}
                                         </SelectContent>
@@ -104,7 +115,7 @@ const DataTable = ({ data, headers, isEditing, allItems, onRowClick, dataKey, on
                                 {isEditing ? <Input type="number" className="w-20 ml-auto text-right" defaultValue={item.varPorc} onChange={(e) => handleChange(index, 'varPorc', e.target.value)} /> : <TrendIndicator value={item.varPorc} />}
                             </TableCell>
                         </TableRow>
-                    ))}
+                    )})}
                 </TableBody>
             </Table>
         </Card>
