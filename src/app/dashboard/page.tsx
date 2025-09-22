@@ -1,6 +1,8 @@
 "use client"
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import type { WeeklyData } from "@/lib/data";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { db } from '@/lib/firebase';
 import { 
   Select, 
   SelectContent, 
@@ -28,10 +30,10 @@ import {
 import { startOfWeek, endOfWeek, subWeeks, format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { EditListDialog } from '@/components/dashboard/edit-list-dialog';
-import { db } from '@/lib/firebase';
-import { doc, setDoc } from "firebase/firestore";
 import { useToast } from '@/hooks/use-toast';
 import { AuthContext } from '@/context/auth-context';
+import { getInitialDataForWeek } from '@/lib/data';
+import { useRouter } from 'next/navigation';
 
 
 type EditableList = 'comprador' | 'zonaComercial' | 'agrupacionComercial';
@@ -47,9 +49,14 @@ const getPreviousWeekRange = () => {
     };
 };
 
-// This page now expects `initialData` as a prop from its layout
-export default function DashboardPage({ initialData }: { initialData: WeeklyData }) {
-  const [data, setData] = useState<WeeklyData>(initialData);
+export default function DashboardPage() {
+  const { user, loading: authLoading } = useContext(AuthContext);
+  const router = useRouter();
+
+  const [data, setData] = useState<WeeklyData | null>(null);
+  const [dataLoading, setDataLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -59,16 +66,58 @@ export default function DashboardPage({ initialData }: { initialData: WeeklyData
   const { logout } = useContext(AuthContext);
   const { toast } = useToast();
 
-  const [listOptions, setListOptions] = useState({
-    comprador: initialData.ventasMan.pesoComprador.map(item => item.nombre),
-    zonaComercial: initialData.ventasMan.zonaComercial.map(item => item.nombre),
-    agrupacionComercial: initialData.ventasMan.agrupacionComercial.map(item => item.nombre),
-  });
-  
+  useEffect(() => {
+    if (authLoading) {
+      return; 
+    }
+
+    if (!user) {
+      router.push('/');
+      return;
+    }
+    
+    const fetchData = async () => {
+      setDataLoading(true);
+      setError(null);
+      console.log(`User authenticated with UID: ${user.uid}. Fetching Firestore data...`);
+      try {
+        const week = "semana-24";
+        const docRef = doc(db, "informes", week);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          console.log("Data found in Firestore.");
+          setData(docSnap.data() as WeeklyData);
+        } else {
+          console.log("No data in Firestore for this week, creating with initial data.");
+          const initialData = getInitialDataForWeek(week);
+          await setDoc(docRef, initialData); // Save initial data to Firestore
+          setData(initialData);
+          console.log("Initial data set in Firestore.");
+        }
+      } catch (err: any) {
+        console.error("Error fetching or setting Firestore document:", err);
+        setError(`Error: ${err.message} (Code: ${err.code})`);
+      } finally {
+        setDataLoading(false);
+      }
+    };
+
+    fetchData();
+
+  }, [user, authLoading, router]);
+
+  const listOptions = data ? {
+    comprador: data.ventasMan.pesoComprador.map(item => item.nombre),
+    zonaComercial: data.ventasMan.zonaComercial.map(item => item.nombre),
+    agrupacionComercial: data.ventasMan.agrupacionComercial.map(item => item.nombre),
+  } : { comprador: [], zonaComercial: [], agrupacionComercial: [] };
+
   const previousWeek = getPreviousWeekRange();
   const weekLabel = `${previousWeek.start} - ${previousWeek.end}`;
 
   const handleSave = async () => {
+    if (!data) return;
     setIsSaving(true);
     try {
       const docRef = doc(db, "informes", data.periodo.toLowerCase().replace(' ', '-'));
@@ -92,8 +141,7 @@ export default function DashboardPage({ initialData }: { initialData: WeeklyData
   
   const handleCancel = () => {
     setIsEditing(false);
-    // Reset data to the initial state passed via props
-    setData(initialData);
+    // You might want to re-fetch or reset to original data state here
   };
 
   const handleOpenListDialog = (listName: EditableList) => {
@@ -122,7 +170,6 @@ export default function DashboardPage({ initialData }: { initialData: WeeklyData
       });
 
       setData(updatedData);
-      setListOptions(prev => ({ ...prev, [listToEdit]: newList }));
     }
     setListToEdit(null);
     setIsListDialogOpen(false);
@@ -135,6 +182,36 @@ export default function DashboardPage({ initialData }: { initialData: WeeklyData
       case 'agrupacionComercial': return 'Editar Lista de Agrupaciones Comerciales';
       default: return 'Editar Lista';
     }
+  }
+
+  if (authLoading || dataLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        <p className="mt-4">
+          {authLoading ? "Verificando sesión..." : "Cargando datos del informe..."}
+        </p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen gap-4 text-center p-4">
+        <p className="text-lg font-semibold text-destructive">Error al Cargar Datos</p>
+        <p className="text-muted-foreground">{error}</p>
+        <p className="text-sm mt-2 text-muted-foreground">Asegúrate de que la base de datos Firestore está creada en tu proyecto y que las reglas de seguridad son correctas.</p>
+        <button onClick={() => window.location.reload()} className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-md">Reintentar</button>
+      </div>
+    );
+  }
+
+  if (!data) {
+     return (
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <p>No se pudieron cargar los datos.</p>
+      </div>
+    );
   }
 
   return (
