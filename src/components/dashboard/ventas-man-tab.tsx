@@ -92,35 +92,30 @@ const ImageImportCard = ({ isEditing }: { isEditing: boolean }) => {
     }
 
     return (
-        <Card>
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
-                    <Upload className="h-5 w-5" />
-                    Análisis Visual
-                </CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-col items-center justify-center gap-4 text-center">
-                 <div className="w-full h-48 bg-muted rounded-md flex items-center justify-center relative overflow-hidden">
+        <Card className="relative overflow-hidden p-0 gap-0 h-full min-h-[300px]">
+            <CardContent className="p-0 h-full">
+                <div className="w-full h-full bg-muted flex items-center justify-center">
                     {imagePreview ? (
                         <img src={imagePreview} alt="Previsualización" className="h-full w-full object-cover" />
                     ) : (
                         <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                            <ImagePlus className="h-10 w-10" />
-                            <p className="text-sm">Previsualización de imagen</p>
+                            <ImagePlus className="h-12 w-12" />
+                            <p className="text-sm font-medium">Análisis Visual</p>
                         </div>
                     )}
                 </div>
-                <div className="w-full flex flex-col gap-2">
-                    <Input id="picture" type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*" />
-                    {isEditing && (
-                        <>
-                            <Button variant="outline" onClick={handleSelectImageClick}>
+
+                {isEditing && (
+                    <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/60 to-transparent">
+                        <div className="w-full flex flex-col gap-2">
+                            <Input id="picture" type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*" />
+                            <Button variant="secondary" onClick={handleSelectImageClick}>
                                 Seleccionar Imagen
                             </Button>
                             {imageFile && <Button onClick={handleImportClick}>Importar Imagen</Button>}
-                        </>
-                    )}
-                </div>
+                        </div>
+                    </div>
+                )}
             </CardContent>
         </Card>
     );
