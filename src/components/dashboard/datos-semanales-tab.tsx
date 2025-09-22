@@ -11,7 +11,7 @@ import {
   ArrowUp,
   Shirt,
   Footprints,
-  Sparkles
+  SprayCan
 } from "lucide-react";
 import {
   Table,
@@ -131,7 +131,7 @@ export function DatosSemanalesTab({ data, isEditing }: DatosSemanalesTabProps) {
                       <TableCell className="text-right">{formatPercentage(data.almacenes.calzado.ocupacionPorc)}</TableCell>
                     </TableRow>
                      <TableRow>
-                      <TableCell className="font-medium flex items-center gap-2"><Sparkles className="h-4 w-4 text-muted-foreground"/>Perfumería</TableCell>
+                      <TableCell className="font-medium flex items-center gap-2"><SprayCan className="h-4 w-4 text-muted-foreground"/>Perfumería</TableCell>
                       <TableCell className="text-right">{formatPercentage(data.almacenes.perfumeria.ocupacionPorc)}</TableCell>
                     </TableRow>
                 </TableBody>
@@ -156,7 +156,7 @@ export function DatosSemanalesTab({ data, isEditing }: DatosSemanalesTabProps) {
                       <TableCell className="text-right">{formatNumber(data.almacenes.calzado.devolucionUnidades)}</TableCell>
                     </TableRow>
                      <TableRow>
-                      <TableCell className="font-medium flex items-center gap-2"><Sparkles className="h-4 w-4 text-muted-foreground"/>Perfumería</TableCell>
+                      <TableCell className="font-medium flex items-center gap-2"><SprayCan className="h-4 w-4 text-muted-foreground"/>Perfumería</TableCell>
                       <TableCell className="text-right">{formatNumber(data.almacenes.perfumeria.devolucionUnidades)}</TableCell>
                     </TableRow>
                 </TableBody>
