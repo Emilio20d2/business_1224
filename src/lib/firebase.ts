@@ -20,6 +20,7 @@ if (!getApps().length) {
   app = getApp();
 }
 
+// Pass the 'app' instance to getFirestore to link it with the Auth service
 const db = getFirestore(app);
 
 
