@@ -12,6 +12,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { Upload } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 
 type VentasManData = WeeklyData["ventasMan"];
 type TableData = VentasManData[keyof VentasManData];
@@ -57,6 +60,37 @@ const DataTable = ({ data, headers }: { data: TableData, headers: string[] }) =>
     );
 };
 
+const ImageImportCard = () => {
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg">
+                    <Upload className="h-5 w-5" />
+                    Análisis Visual
+                </CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col items-center justify-center gap-4 text-center">
+                 <div className="w-full h-48 bg-muted rounded-md flex items-center justify-center">
+                    <p className="text-sm text-muted-foreground">Previsualización de imagen</p>
+                </div>
+                <div className="w-full flex flex-col gap-2">
+                    <Input id="picture" type="file" />
+                    <Button>Importar Imagen</Button>
+                </div>
+            </CardContent>
+        </Card>
+    );
+};
+
+
+const SubTabContent = ({ data, headers }: { data: TableData, headers: string[] }) => (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <DataTable data={data} headers={headers} />
+        <ImageImportCard />
+    </div>
+);
+
+
 export function VentasManTab({ data }: { data: VentasManData }) {
   return (
     <Tabs defaultValue="pesoComprador" className="w-full">
@@ -66,13 +100,13 @@ export function VentasManTab({ data }: { data: VentasManData }) {
         <TabsTrigger value="agrupacionComercial">Agrup. Com.</TabsTrigger>
       </TabsList>
       <TabsContent value="pesoComprador">
-        <DataTable data={data.pesoComprador} headers={['PESO %', 'COMPRADOR', '€', '%']} />
+         <SubTabContent data={data.pesoComprador} headers={['PESO %', 'COMPRADOR', '€', '%']} />
       </TabsContent>
       <TabsContent value="zonaComercial">
-        <DataTable data={data.zonaComercial} headers={['PESO %', 'ZONA COMP.', '€', '%']} />
+        <SubTabContent data={data.zonaComercial} headers={['PESO %', 'ZONA COMP.', '€', '%']} />
       </TabsContent>
       <TabsContent value="agrupacionComercial">
-        <DataTable data={data.agrupacionComercial} headers={['PESO %', 'AGRUP. COM.', '€', '%']} />
+         <SubTabContent data={data.agrupacionComercial} headers={['PESO %', 'AGRUP. COM.', '€', '%']} />
       </TabsContent>
     </Tabs>
   );
