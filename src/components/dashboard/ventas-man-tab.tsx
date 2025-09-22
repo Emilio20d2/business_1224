@@ -202,15 +202,11 @@ const SubTabContent = ({ data, headers, isEditing, allItems, dataKey, onInputCha
 export function VentasManTab({ data, isEditing, listOptions, onInputChange }: VentasManTabProps) {
     
   return (
-    <Tabs defaultValue="comprador" className="w-full">
-      <TabsList className="grid w-full grid-cols-3 mx-auto max-w-md mb-4">
-        <TabsTrigger value="comprador">Comprador</TabsTrigger>
+    <Tabs defaultValue="zonaComercial" className="w-full">
+      <TabsList className="grid w-full grid-cols-2 mx-auto max-w-md mb-4">
         <TabsTrigger value="zonaComercial">Zona Comprador</TabsTrigger>
         <TabsTrigger value="agrupacionComercial">Agrup. Com.</TabsTrigger>
       </TabsList>
-      <TabsContent value="comprador">
-         <SubTabContent data={data.pesoComprador} headers={['COMPRADOR', 'PESO %', '€', '%']} isEditing={isEditing} allItems={listOptions.comprador} dataKey="pesoComprador" onInputChange={onInputChange} showImage={true} />
-      </TabsContent>
       <TabsContent value="zonaComercial">
         <SubTabContent data={data.zonaComercial} headers={['ZONA COMPRADOR', 'PESO %', '€', '%']} isEditing={isEditing} allItems={listOptions.zonaComercial} dataKey="zonaComercial" onInputChange={onInputChange} showImage={false} />
       </TabsContent>
