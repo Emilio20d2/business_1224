@@ -73,7 +73,7 @@ const SectionCard = ({ name, data }: { name: SectionName, data: SectionData[Sect
                                 {desgloseIconos[item.seccion] || <Shirt className="h-4 w-4 text-muted-foreground" />}
                                 <span className="text-muted-foreground">{item.seccion}</span>
                             </div>
-                            <div className="text-center">
+                            <div className="text-right">
                                 <span className="font-bold">{formatCurrency(item.totalEuros)}</span>
                             </div>
                             <div className="text-right">
