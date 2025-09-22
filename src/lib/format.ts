@@ -7,6 +7,7 @@ export const formatNumber = (amount: number | null | undefined) => {
   return new Intl.NumberFormat('es-ES').format(amount);
 };
 
-export const formatPercentage = (value: number) => {
+export const formatPercentage = (value: number | null | undefined) => {
+  if (value === null || value === undefined) return 'N/A';
   return `${value.toLocaleString('es-ES')}%`;
 };
