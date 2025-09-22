@@ -19,6 +19,11 @@ import { Button } from '@/components/ui/button';
 type VentasManData = WeeklyData["ventasMan"];
 type TableData = VentasManData[keyof VentasManData];
 
+type VentasManTabProps = {
+  data: VentasManData;
+  isEditing: boolean;
+};
+
 const TrendIndicator = ({ value }: { value: number }) => {
   const trendColor = value >= 0 ? 'text-green-600' : 'text-red-600';
   return (
@@ -60,7 +65,7 @@ const DataTable = ({ data, headers }: { data: TableData, headers: string[] }) =>
     );
 };
 
-const ImageImportCard = () => {
+const ImageImportCard = ({ isEditing }: { isEditing: boolean }) => {
     return (
         <Card>
             <CardHeader>
@@ -75,7 +80,7 @@ const ImageImportCard = () => {
                 </div>
                 <div className="w-full flex flex-col gap-2">
                     <Input id="picture" type="file" />
-                    <Button>Importar Imagen</Button>
+                    {isEditing && <Button>Importar Imagen</Button>}
                 </div>
             </CardContent>
         </Card>
@@ -83,15 +88,15 @@ const ImageImportCard = () => {
 };
 
 
-const SubTabContent = ({ data, headers }: { data: TableData, headers: string[] }) => (
+const SubTabContent = ({ data, headers, isEditing }: { data: TableData, headers: string[], isEditing: boolean }) => (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <DataTable data={data} headers={headers} />
-        <ImageImportCard />
+        <ImageImportCard isEditing={isEditing} />
     </div>
 );
 
 
-export function VentasManTab({ data }: { data: VentasManData }) {
+export function VentasManTab({ data, isEditing }: VentasManTabProps) {
   return (
     <Tabs defaultValue="pesoComprador" className="w-full">
       <TabsList className="grid w-full grid-cols-3 mx-auto max-w-md mb-4">
@@ -100,13 +105,13 @@ export function VentasManTab({ data }: { data: VentasManData }) {
         <TabsTrigger value="agrupacionComercial">Agrup. Com.</TabsTrigger>
       </TabsList>
       <TabsContent value="pesoComprador">
-         <SubTabContent data={data.pesoComprador} headers={['PESO %', 'COMPRADOR', '€', '%']} />
+         <SubTabContent data={data.pesoComprador} headers={['PESO %', 'COMPRADOR', '€', '%']} isEditing={isEditing} />
       </TabsContent>
       <TabsContent value="zonaComercial">
-        <SubTabContent data={data.zonaComercial} headers={['PESO %', 'ZONA COMP.', '€', '%']} />
+        <SubTabContent data={data.zonaComercial} headers={['PESO %', 'ZONA COMP.', '€', '%']} isEditing={isEditing} />
       </TabsContent>
       <TabsContent value="agrupacionComercial">
-         <SubTabContent data={data.agrupacionComercial} headers={['PESO %', 'AGRUP. COM.', '€', '%']} />
+         <SubTabContent data={data.agrupacionComercial} headers={['PESO %', 'AGRUP. COM.', '€', '%']} isEditing={isEditing} />
       </TabsContent>
     </Tabs>
   );

@@ -152,7 +152,7 @@ export default function Home() {
         <Tabs defaultValue="datosSemanales">
           <TabsList className="grid w-full grid-cols-1 md:grid-cols-5 mb-4">
             <TabsTrigger value="datosSemanales">Datos Semanales</TabsTrigger>
-            <TabsTrigger value="datosPorSeccion">Ventas Sección</TabsTrigger>
+            <TabsTrigger value="ventasSeccion">Ventas Sección</TabsTrigger>
             <TabsTrigger value="ventasMan">Ventas Man</TabsTrigger>
             <TabsTrigger value="aqneSemanal" disabled>AQNE Semanal</TabsTrigger>
             <TabsTrigger value="acumulado" disabled>Acumulado</TabsTrigger>
@@ -160,11 +160,11 @@ export default function Home() {
           <TabsContent value="datosSemanales">
             <DatosSemanalesTab data={data} isEditing={isEditing} />
           </TabsContent>
-          <TabsContent value="datosPorSeccion">
+          <TabsContent value="ventasSeccion">
              <DatosPorSeccionTab data={data.datosPorSeccion} />
           </TabsContent>
            <TabsContent value="ventasMan">
-             <VentasManTab data={data.ventasMan} />
+             <VentasManTab data={data.ventasMan} isEditing={isEditing} />
           </TabsContent>
            <TabsContent value="aqneSemanal">
              {/* This content will be added in a future step */}
