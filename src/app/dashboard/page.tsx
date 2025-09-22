@@ -1,6 +1,6 @@
 "use client"
 import React, { useEffect, useState, useContext, useCallback } from 'react';
-import { getInitialDataForWeek, type WeeklyData } from "@/lib/data";
+import { type WeeklyData } from "@/lib/data";
 import { 
   Select, 
   SelectContent, 
@@ -29,10 +29,9 @@ import { startOfWeek, endOfWeek, subWeeks, format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { EditListDialog } from '@/components/dashboard/edit-list-dialog';
 import { db } from '@/lib/firebase';
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, setDoc } from "firebase/firestore";
 import { useToast } from '@/hooks/use-toast';
 import { AuthContext } from '@/context/auth-context';
-import { useRouter } from 'next/navigation';
 
 
 type EditableList = 'comprador' | 'zonaComercial' | 'agrupacionComercial';
@@ -48,110 +47,31 @@ const getPreviousWeekRange = () => {
     };
 };
 
-export default function DashboardPage() {
-  const [data, setData] = useState<WeeklyData | null>(null);
+// This page now expects `initialData` as a prop from its layout
+export default function DashboardPage({ initialData }: { initialData: WeeklyData }) {
+  const [data, setData] = useState<WeeklyData>(initialData);
   const [isEditing, setIsEditing] = useState(false);
-  const [week, setWeek] = useState("semana-24");
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
   const [isListDialogOpen, setIsListDialogOpen] = useState(false);
   const [listToEdit, setListToEdit] = useState<EditableList | null>(null);
 
-  const { user, logout } = useContext(AuthContext);
+  const { logout } = useContext(AuthContext);
   const { toast } = useToast();
-  const router = useRouter();
 
   const [listOptions, setListOptions] = useState({
-    comprador: [] as string[],
-    zonaComercial: [] as string[],
-    agrupacionComercial: [] as string[],
+    comprador: initialData.ventasMan.pesoComprador.map(item => item.nombre),
+    zonaComercial: initialData.ventasMan.zonaComercial.map(item => item.nombre),
+    agrupacionComercial: initialData.ventasMan.agrupacionComercial.map(item => item.nombre),
   });
-
-  const fetchData = useCallback(async () => {
-      if (!user) {
-        console.log("Dashboard: Fetching aborted, no user.");
-        return;
-      };
-
-      console.log("Dashboard: User is authenticated with UID:", user.uid, "Fetching data for week:", week);
-      setIsLoading(true);
-      setError(null);
-      
-      try {
-        const docRef = doc(db, "informes", week);
-        const docSnap = await getDoc(docRef);
-
-        let weeklyData;
-        if (docSnap.exists()) {
-          console.log("Dashboard: Document data found in Firestore:", docSnap.data());
-          weeklyData = docSnap.data() as WeeklyData;
-        } else {
-          console.log("Dashboard: No document found. Using initial data for", week);
-          weeklyData = getInitialDataForWeek(week);
-        }
-        
-        setData(weeklyData);
-        setListOptions({
-          comprador: weeklyData.ventasMan.pesoComprador.map(item => item.nombre),
-          zonaComercial: weeklyData.ventasMan.zonaComercial.map(item => item.nombre),
-          agrupacionComercial: weeklyData.ventasMan.agrupacionComercial.map(item => item.nombre),
-        });
-
-      } catch (err: any) {
-        console.error("Dashboard: Error fetching Firestore document:", err);
-        if (err.code === 'unavailable' || err.message.includes('offline')) {
-             setError("No se pudo conectar a la base de datos. Por favor, verifica tu conexión a internet y asegúrate de haber creado una base de datos de Firestore en tu proyecto de Firebase.");
-        } else if (err.code === 'permission-denied') {
-             setError("Error de permisos. No tienes permiso para acceder a la base de datos. Revisa las reglas de seguridad de Firestore.");
-        } else {
-             setError("Ocurrió un error inesperado al cargar los datos.");
-        }
-        toast({
-          variant: "destructive",
-          title: "Error al Cargar Datos",
-          description: err.message,
-        });
-      } finally {
-        console.log("Dashboard: Finished fetching data.");
-        setIsLoading(false);
-      }
-    }, [user, week, toast]);
-
-  useEffect(() => {
-    if (user) {
-      fetchData();
-    }
-  }, [user, fetchData]); 
   
   const previousWeek = getPreviousWeekRange();
   const weekLabel = `${previousWeek.start} - ${previousWeek.end}`;
 
-  const handleWeekChange = (newWeek: string) => {
-    setWeek(newWeek);
-  };
-
   const handleSave = async () => {
-    if (!data) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "No hay datos para guardar.",
-      });
-      return;
-    }
-    if (!user) {
-      toast({
-        variant: "destructive",
-        title: "Error de autenticación",
-        description: "No estás autenticado para realizar esta acción.",
-      });
-      return;
-    }
     setIsSaving(true);
     try {
-      const docRef = doc(db, "informes", week);
+      const docRef = doc(db, "informes", data.periodo.toLowerCase().replace(' ', '-'));
       await setDoc(docRef, data, { merge: true });
       toast({
         title: "¡Guardado!",
@@ -170,26 +90,10 @@ export default function DashboardPage() {
     }
   };
   
-  const handleCancel = async () => {
+  const handleCancel = () => {
     setIsEditing(false);
-    // Refetch data to discard changes
-    if (user) {
-      setIsLoading(true);
-      try {
-        const docRef = doc(db, "informes", week);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          setData(docSnap.data() as WeeklyData);
-        } else {
-          setData(getInitialDataForWeek(week));
-        }
-      } catch(error) {
-         console.error("Error refetching on cancel:", error)
-         setData(getInitialDataForWeek(week));
-      } finally {
-        setIsLoading(false);
-      }
-    }
+    // Reset data to the initial state passed via props
+    setData(initialData);
   };
 
   const handleOpenListDialog = (listName: EditableList) => {
@@ -232,35 +136,6 @@ export default function DashboardPage() {
       default: return 'Editar Lista';
     }
   }
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-12 w-12 animate-spin text-primary" />
-        <p className="ml-4">Cargando datos del informe...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-     return (
-      <div className="flex flex-col items-center justify-center min-h-screen gap-4 text-center p-4">
-        <p className="text-lg font-semibold text-destructive">Error de Conexión</p>
-        <p className="text-muted-foreground">{error}</p>
-        <Button onClick={() => window.location.reload()}>Reintentar</Button>
-      </div>
-    );
-  }
-  
-  if (!data) {
-     return (
-      <div className="flex flex-col items-center justify-center min-h-screen gap-4">
-        <p className="text-lg">No se pudieron cargar los datos del informe. Revisa la consola para más detalles.</p>
-        <Button onClick={() => window.location.reload()}>Reintentar</Button>
-      </div>
-    );
-  }
-
 
   return (
     <div className="min-h-screen w-full p-4 sm:p-6 bg-background">
