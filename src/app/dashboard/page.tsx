@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext, useCallback } from 'react';
 import { getInitialDataForWeek, type WeeklyData } from "@/lib/data";
 import { 
   Select, 
@@ -69,18 +69,15 @@ export default function DashboardPage() {
     agrupacionComercial: [] as string[],
   });
 
-  useEffect(() => {
-    if (!user) {
-      router.push('/');
-      return;
-    }
+  const fetchData = useCallback(async () => {
+      if (!user) {
+        console.log("Dashboard: Fetching aborted, no user.");
+        return;
+      };
 
-    const fetchData = async () => {
-      if (!user) return;
-
+      console.log("Dashboard: User is authenticated with UID:", user.uid, "Fetching data for week:", week);
       setIsLoading(true);
       setError(null);
-      console.log("Dashboard: User is authenticated with UID:", user.uid, "Fetching data for week:", week);
       
       try {
         const docRef = doc(db, "informes", week);
@@ -120,10 +117,13 @@ export default function DashboardPage() {
         console.log("Dashboard: Finished fetching data.");
         setIsLoading(false);
       }
-    };
+    }, [user, week, toast]);
 
-    fetchData();
-  }, [week, user, router, toast]); 
+  useEffect(() => {
+    if (user) {
+      fetchData();
+    }
+  }, [user, fetchData]); 
   
   const previousWeek = getPreviousWeekRange();
   const weekLabel = `${previousWeek.start} - ${previousWeek.end}`;
