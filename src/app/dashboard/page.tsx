@@ -188,36 +188,48 @@ export default function DashboardPage() {
 
   const handleSaveList = (newList: string[]) => {
     if (listToEdit && data) {
-      // Use a deep copy to prevent state mutation issues
       const updatedData = JSON.parse(JSON.stringify(data));
-      
-      // Update the master list in data.listas
+  
       updatedData.listas[listToEdit] = newList;
-
-      const listKey = listToEdit === 'comprador' ? 'pesoComprador' : listToEdit === 'zonaComercial' ? 'zonaComercial' : 'agrupacionComercial';
+  
+      let listKey: 'pesoComprador' | 'zonaComercial' | 'agrupacionComercial';
+      switch (listToEdit) {
+        case 'comprador':
+          listKey = 'pesoComprador';
+          break;
+        case 'zonaComercial':
+          listKey = 'zonaComercial';
+          break;
+        case 'agrupacionComercial':
+          listKey = 'agrupacionComercial';
+          break;
+        default:
+          return;
+      }
       
-      const currentList = updatedData.ventasMan[listKey];
-      const newItemsList = [];
-
-      // Keep existing items that are in the new list
+      const currentItems = updatedData.ventasMan[listKey];
+      const newItemsList: any[] = [];
+  
+      // Add existing items that are in the new list, and new items
       for (const itemName of newList) {
-        const existingItem = currentList.find((item: any) => item.nombre === itemName);
+        const existingItem = currentItems.find((item: any) => item.nombre === itemName);
         if (existingItem) {
           newItemsList.push(existingItem);
         } else {
-          // Add new item with default values
-          newItemsList.push({
+          const newItem: any = {
             nombre: itemName,
             pesoPorc: 0,
             totalEuros: 0,
             varPorc: 0,
-            imageUrl: `https://picsum.photos/seed/${itemName.replace(/\s/g, '')}/500/400`
-          });
+          };
+          if (listKey === 'pesoComprador') {
+            newItem.imageUrl = `https://picsum.photos/seed/${itemName.replace(/\s/g, '')}/500/400`;
+          }
+          newItemsList.push(newItem);
         }
       }
-
-      // Filter out items that are no longer in the master list
-      updatedData.ventasMan[listKey] = updatedData.ventasMan[listKey].filter((item: any) => newList.includes(item.nombre));
+      
+      updatedData.ventasMan[listKey] = newItemsList;
       
       setData(updatedData);
       console.log("Updated data after list edit:", updatedData);
@@ -257,10 +269,11 @@ export default function DashboardPage() {
     );
   }
 
-  if (!data) {
+  if (!data || !data.listas) {
      return (
       <div className="flex flex-col items-center justify-center min-h-screen">
-        <p>No se pudieron cargar los datos o no hay usuario autenticado.</p>
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        <p className="mt-4">Cargando datos del informe...</p>
       </div>
     );
   }
@@ -371,3 +384,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    
