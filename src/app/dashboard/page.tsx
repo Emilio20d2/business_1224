@@ -236,6 +236,7 @@ export default function DashboardPage() {
       updatedData.ventasMan[listKey] = newItemsList.filter((item: any) => newList.includes(item.nombre));
       
       setData(updatedData);
+      setIsEditing(true);
       console.log("Updated data after list edit:", updatedData);
     }
     setListToEdit(null);
@@ -348,7 +349,7 @@ export default function DashboardPage() {
       <main>
         <Tabs defaultValue="datosSemanales">
           <div className="w-full overflow-x-auto pb-2">
-            <TabsList className="mb-4 md:grid md:w-full md:grid-cols-6">
+            <TabsList className="mb-4 inline-flex md:grid md:w-full md:grid-cols-6">
               <TabsTrigger value="datosSemanales">Datos Semanales</TabsTrigger>
               <TabsTrigger value="ventasSeccion">Ventas Sección</TabsTrigger>
               <TabsTrigger value="ventasMan">Ventas Man</TabsTrigger>
@@ -370,7 +371,7 @@ export default function DashboardPage() {
              <AqneSemanalTab data={data} isEditing={isEditing} onInputChange={handleInputChange} />
           </TabsContent>
            <TabsContent value="acumulado">
-             <AcumuladoTab data={data.acumulado} isEditing={isEditing} onInputChange={onInputChange} />
+             <AcumuladoTab data={data.acumulado} isEditing={isEditing} onInputChange={handleInputChange} />
           </TabsContent>
           <TabsContent value="focusSemanal">
             <FocusSemanalTab text={data.focusSemanal} isEditing={isEditing} onInputChange={handleInputChange} />
@@ -390,3 +391,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    
