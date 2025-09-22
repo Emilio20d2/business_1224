@@ -67,47 +67,57 @@ export default function DashboardPage() {
   });
 
   useEffect(() => {
-    const fetchData = async () => {
-      // This is the crucial part: only fetch if the user object is available.
-      if (!user) return; 
+    // Only fetch data if the user is authenticated.
+    if (!user) {
+      // If the user logs out, we can show a loader or clear the data.
+      setIsLoading(true);
+      return;
+    }
 
+    const fetchData = async () => {
       setIsLoading(true);
       try {
         const docRef = doc(db, "informes", week);
         const docSnap = await getDoc(docRef);
 
+        let weeklyData;
         if (docSnap.exists()) {
-          const fetchedData = docSnap.data() as WeeklyData;
-          setData(fetchedData);
-          setListOptions({
-            comprador: fetchedData.ventasMan.pesoComprador.map(item => item.nombre),
-            zonaComercial: fetchedData.ventasMan.zonaComercial.map(item => item.nombre),
-            agrupacionComercial: fetchedData.ventasMan.agrupacionComercial.map(item => item.nombre),
-          });
+          console.log("Document data:", docSnap.data());
+          weeklyData = docSnap.data() as WeeklyData;
         } else {
           console.log("No such document! Using initial data.");
-          const initialData = getInitialDataForWeek(week);
-          setData(initialData);
-           setListOptions({
-            comprador: initialData.ventasMan.pesoComprador.map(item => item.nombre),
-            zonaComercial: initialData.ventasMan.zonaComercial.map(item => item.nombre),
-            agrupacionComercial: initialData.ventasMan.agrupacionComercial.map(item => item.nombre),
-          });
+          weeklyData = getInitialDataForWeek(week);
         }
+        
+        setData(weeklyData);
+        setListOptions({
+          comprador: weeklyData.ventasMan.pesoComprador.map(item => item.nombre),
+          zonaComercial: weeklyData.ventasMan.zonaComercial.map(item => item.nombre),
+          agrupacionComercial: weeklyData.ventasMan.agrupacionComercial.map(item => item.nombre),
+        });
+
       } catch (error) {
         console.error("Error fetching document: ", error);
-        toast({
-          variant: "destructive",
-          title: "Error al cargar los datos",
-          description: "No se pudieron cargar los datos. Revisa los permisos de Firestore y tu conexión.",
-        });
+        if (error instanceof Error && error.message.includes('permission-denied') || error.message.includes('insufficient permissions')) {
+            toast({
+              variant: "destructive",
+              title: "Error de Permisos",
+              description: "No tienes permiso para acceder a los datos. Contacta al administrador.",
+            });
+        } else {
+            toast({
+              variant: "destructive",
+              title: "Error al cargar los datos",
+              description: "No se pudieron cargar los datos de la base de datos.",
+            });
+        }
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchData();
-  }, [week, user, toast]); // Dependency on `user` is key.
+  }, [week, user, toast]); 
   
   const previousWeek = getPreviousWeekRange();
   const weekLabel = `${previousWeek.start} - ${previousWeek.end}`;
@@ -117,7 +127,14 @@ export default function DashboardPage() {
   };
 
   const handleSave = async () => {
-    if (!data) return;
+    if (!data || !user) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No hay datos para guardar o no estás autenticado.",
+      });
+      return;
+    }
     setIsSaving(true);
     try {
       const docRef = doc(db, "informes", week);
@@ -138,16 +155,26 @@ export default function DashboardPage() {
       setIsSaving(false);
     }
   };
-
+  
   const handleCancel = async () => {
     setIsEditing(false);
     // Refetch data to discard changes
-    const docRef = doc(db, "informes", week);
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-      setData(docSnap.data() as WeeklyData);
-    } else {
-      setData(getInitialDataForWeek(week));
+    if (user) {
+      setIsLoading(true);
+      try {
+        const docRef = doc(db, "informes", week);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setData(docSnap.data() as WeeklyData);
+        } else {
+          setData(getInitialDataForWeek(week));
+        }
+      } catch(error) {
+         console.error("Error refetching on cancel:", error)
+         setData(getInitialDataForWeek(week));
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -194,20 +221,20 @@ export default function DashboardPage() {
     }
   }
 
-  // Use the local isLoading state, which is controlled by the fetchData function.
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        <p className="ml-4">Cargando datos del informe...</p>
       </div>
     );
   }
 
-  // If there's no data after loading (and user is presumably logged in), it might be an issue.
   if (!data) {
      return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p>No se pudieron cargar los datos.</p>
+      <div className="flex flex-col items-center justify-center min-h-screen gap-4">
+        <p className="text-lg">No se pudieron cargar los datos del informe.</p>
+        <Button onClick={() => window.location.reload()}>Reintentar</Button>
       </div>
     );
   }

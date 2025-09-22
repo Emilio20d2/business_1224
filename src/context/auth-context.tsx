@@ -31,11 +31,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
       setLoading(false);
-      if (!user && pathname !== '/') {
-        router.push('/');
-      }
+       if (!user && pathname !== '/') {
+         router.push('/');
+       }
     });
 
+    // Cleanup subscription on unmount
     return () => unsubscribe();
   }, [auth, router, pathname]);
 
@@ -47,11 +48,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     await signOut(auth);
     router.push('/');
   };
-
+  
+  // While the auth state is loading, show a global loader.
   if (loading) {
      return (
-      <div className="flex items-center justify-center min-h-screen bg-background">
+      <div className="flex flex-col items-center justify-center min-h-screen bg-background">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        <p className="mt-4">Autenticando...</p>
       </div>
     );
   }
