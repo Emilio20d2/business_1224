@@ -6,7 +6,8 @@ import {
   ChartLine, 
   Receipt,
   Warehouse,
-  AlertTriangle,
+  ClipboardX,
+  Trash2,
   Shirt,
   Footprints,
   SprayCan,
@@ -106,7 +107,7 @@ export function DatosSemanalesTab({ data, isEditing }: DatosSemanalesTabProps) {
       {/* Contenedor para Pérdidas */}
       <div className="md:col-span-3 flex flex-col gap-6">
         {/* GAP */}
-        <KpiCard title="GAP" icon={<AlertTriangle className="h-5 w-5 text-destructive" />}>
+        <KpiCard title="GAP" icon={<ClipboardX className="h-5 w-5 text-destructive" />}>
            <DatoSimple 
               label="Resultado"
               value={`${formatGap(data.perdidas.gap.euros, '€')} / ${formatGap(data.perdidas.gap.unidades, 'Unid.')}`} 
@@ -116,7 +117,7 @@ export function DatosSemanalesTab({ data, isEditing }: DatosSemanalesTabProps) {
           />
         </KpiCard>
         {/* Merma */}
-         <KpiCard title="Merma" icon={<AlertTriangle className="h-5 w-5 text-destructive" />}>
+         <KpiCard title="Merma" icon={<Trash2 className="h-5 w-5 text-destructive" />}>
            <DatoSimple 
               label="Resultado" 
               value={`${formatNumber(data.perdidas.merma.unidades)} Unid. (${formatPercentage(data.perdidas.merma.porcentaje)})`}
