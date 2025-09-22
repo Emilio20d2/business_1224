@@ -2,11 +2,6 @@ import type {Metadata} from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 
-export const metadata: Metadata = {
-  title: 'Insight Board',
-  description: 'Informe de Negocio',
-};
-
 export default function RootLayout({
   children,
 }: Readonly<{

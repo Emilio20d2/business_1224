@@ -1,0 +1,65 @@
+import React from 'react';
+import type { WeeklyData, Almacen } from "@/lib/data";
+import { formatNumber, formatPercentage } from "@/lib/format";
+import { KpiCard } from "./kpi-card";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { Warehouse } from 'lucide-react';
+
+type AlmacenTabProps = {
+  data: WeeklyData["almacenes"];
+  isEditing: boolean;
+};
+
+const AlmacenRow = ({ name, almacen, isEditing }: { name: string, almacen: Almacen, isEditing: boolean }) => {
+  return (
+    <TableRow>
+      <TableCell className="font-medium">{name}</TableCell>
+      <TableCell>
+        {isEditing ? <Input type="number" defaultValue={almacen.ocupacionPorc} className="w-20" /> : formatPercentage(almacen.ocupacionPorc)}
+      </TableCell>
+      <TableCell>
+        {isEditing ? <Input type="number" defaultValue={almacen.devolucionUnidades ?? ''} className="w-20" /> : formatNumber(almacen.devolucionUnidades)}
+      </TableCell>
+      <TableCell>
+        {isEditing ? <Input type="number" defaultValue={almacen.entradas} className="w-20" /> : formatNumber(almacen.entradas)}
+      </TableCell>
+      <TableCell>
+        {isEditing ? <Input type="number" defaultValue={almacen.salidas} className="w-20" /> : formatNumber(almacen.salidas)}
+      </TableCell>
+    </TableRow>
+  );
+};
+
+
+export function AlmacenTab({ data, isEditing }: AlmacenTabProps) {
+  return (
+    <div className="mt-4">
+       <KpiCard title="Detalle de Almacenes" icon={<Warehouse className="h-5 w-5 text-blue-500" />} className="w-full">
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                    <TableHead>Sección</TableHead>
+                    <TableHead>Ocup.</TableHead>
+                    <TableHead>Devol.</TableHead>
+                    <TableHead>Entradas</TableHead>
+                    <TableHead>Salidas</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    <AlmacenRow name="Ropa" almacen={data.ropa} isEditing={isEditing} />
+                    <AlmacenRow name="Calzado" almacen={data.calzado} isEditing={isEditing} />
+                    <AlmacenRow name="Perfumería" almacen={data.perfumeria} isEditing={isEditing} />
+                </TableBody>
+            </Table>
+       </KpiCard>
+    </div>
+  );
+}
