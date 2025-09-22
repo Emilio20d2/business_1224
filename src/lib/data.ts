@@ -221,9 +221,7 @@ const initialData: Omit<WeeklyData, 'periodo'> = {
           { "nombre": "DNWR", "pesoPorc": 14, "totalEuros": 9081, "varPorc": 6.5, "imageUrl": "https://picsum.photos/seed/man4/500/400" },
           { "nombre": "SPORT", "pesoPorc": 5, "totalEuros": 3400, "varPorc": 15.1, "imageUrl": "https://picsum.photos/seed/man5/500/400" },
           { "nombre": "ACCES", "pesoPorc": 3, "totalEuros": 2050, "varPorc": -5.0, "imageUrl": "https://picsum.photos/seed/man6/500/400" },
-          { "nombre": "BASIC", "pesoPorc": 2, "totalEuros": 1500, "varPorc": 12.0, "imageUrl": "https://picsum.photos/seed/man7/500/400" },
-          { "nombre": "SHOES", "pesoPorc": 0, "totalEuros": 0, "varPorc": 0, "imageUrl": "https://picsum.photos/seed/man8/500/400" },
-          { "nombre": "NEW", "pesoPorc": 0, "totalEuros": 0, "varPorc": 0, "imageUrl": "https://picsum.photos/seed/man9/500/400" }
+          { "nombre": "BASIC", "pesoPorc": 2, "totalEuros": 1500, "varPorc": 12.0, "imageUrl": "https://picsum.photos/seed/man7/500/400" }
       ],
       "zonaComercial": [
           { "nombre": "MAN FORMAL", "pesoPorc": 24, "totalEuros": 16235, "varPorc": 45.3, "imageUrl": "https://picsum.photos/seed/zona1/500/400" },
