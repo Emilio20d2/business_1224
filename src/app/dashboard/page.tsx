@@ -204,56 +204,51 @@ export default function DashboardPage() {
  const handleSaveList = async (newList: string[]) => {
     if (!listToEdit || !data) return;
   
-    // 1. Update the list in the general configuration
     const listsRef = doc(db, "configuracion", "listas");
     await setDoc(listsRef, { [listToEdit]: newList }, { merge: true });
 
-    // 2. Update the local state to reflect the change immediately
     setData(prevData => {
         if (!prevData) return null;
         
         const updatedData = JSON.parse(JSON.stringify(prevData));
         updatedData.listas[listToEdit] = newList;
   
-        // 3. Synchronize the corresponding data table in VentasMan
-        let listKey: 'pesoComprador' | 'zonaComercial' | 'agrupacionComercial';
+        let dataKey: keyof WeeklyData['ventasMan'] | null = null;
         switch (listToEdit) {
-            case 'comprador': listKey = 'pesoComprador'; break;
-            case 'zonaComercial': listKey = 'zonaComercial'; break;
-            case 'agrupacionComercial': listKey = 'agrupacionComercial'; break;
-            default: return updatedData;
+            case 'comprador': dataKey = 'pesoComprador'; break;
+            case 'zonaComercial': dataKey = 'zonaComercial'; break;
+            case 'agrupacionComercial': dataKey = 'agrupacionComercial'; break;
         }
         
-        const currentItems = updatedData.ventasMan[listKey];
-        const newItemsList: any[] = [];
-  
-        // Add new items from the updated list that are not in the current data
-        for (const itemName of newList) {
-            const existingItem = currentItems.find((item: any) => item.nombre === itemName);
-            if (existingItem) {
-                newItemsList.push(existingItem);
-            } else {
-                 const newItem: any = {
-                    nombre: itemName,
-                    pesoPorc: 0,
-                    totalEuros: 0,
-                    varPorc: 0,
-                    imageUrl: `https://picsum.photos/seed/${itemName.replace(/\s/g, '')}/500/400`
-                };
-                newItemsList.push(newItem);
-            }
+        if (dataKey) {
+            const currentItems = updatedData.ventasMan[dataKey];
+            const syncedItems: any[] = [];
+    
+            newList.forEach(itemName => {
+                const existingItem = currentItems.find((item: any) => item.nombre === itemName);
+                if (existingItem) {
+                    syncedItems.push(existingItem);
+                } else {
+                    syncedItems.push({
+                        nombre: itemName,
+                        pesoPorc: 0,
+                        totalEuros: 0,
+                        varPorc: 0,
+                        imageUrl: `https://picsum.photos/seed/${itemName.replace(/\s/g, '')}/500/400`
+                    });
+                }
+            });
+            
+            updatedData.ventasMan[dataKey] = syncedItems;
         }
-        
-        // Filter out items that are no longer in the master list and assign the synced list
-        updatedData.ventasMan[listKey] = newItemsList.filter((item: any) => newList.includes(item.nombre));
         
         return updatedData;
     });
 
-    setIsEditing(true); // Enable save button
+    setIsEditing(true); // Enable save button to persist the synchronized data table
     setListToEdit(null);
     setIsListDialogOpen(false);
-  };
+};
 
 
   const getTitleForList = (listName: EditableList | null) => {
@@ -296,11 +291,20 @@ export default function DashboardPage() {
     );
   }
 
-  const listOptions = {
+  const listOptions = data.listas ? {
     comprador: data.listas.comprador,
     zonaComercial: data.listas.zonaComercial,
     agrupacionComercial: data.listas.agrupacionComercial,
-  };
+  } : undefined;
+
+  if (!listOptions) {
+     return (
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        <p className="mt-4">Cargando opciones de lista...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen w-full p-4 sm:p-6 bg-background">
@@ -410,5 +414,7 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    
 
     
