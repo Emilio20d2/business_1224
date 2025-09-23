@@ -395,12 +395,12 @@ export default function DashboardPage() {
     <div className="min-h-screen w-full p-4 sm:p-6 bg-background">
       <header className="mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
         <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-          BUSSINES MAN
+          BUSSINES
         </h1>
         <div className="flex items-center gap-4">
            <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="w-[220px]">
+                  <Button variant="outline" className="w-[190px]">
                       {tabLabels[activeTab]}
                       <ChevronDown className="ml-2 h-4 w-4" />
                   </Button>
@@ -417,7 +417,7 @@ export default function DashboardPage() {
           </DropdownMenu>
           <div className="flex items-center gap-2">
              <Select value="previous-week">
-              <SelectTrigger id="semana-select" className="w-[220px]">
+              <SelectTrigger id="semana-select" className="w-[190px]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

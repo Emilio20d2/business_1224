@@ -6,7 +6,7 @@ import { AuthProvider } from '@/context/auth-context';
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 
 export const metadata = {
-  title: 'BUSSINES MAN',
+  title: 'BUSSINES',
   description: 'Panel de control de negocios',
   manifest: '/manifest.json',
   icons: {
