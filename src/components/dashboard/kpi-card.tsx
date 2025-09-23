@@ -52,6 +52,8 @@ export function DatoDoble({ label, value, variation, unit, isEditing, valueId, v
     ? parseFloat(value.replace(/[^0-9.,-]+/g, '').replace(',', '.'))
     : value;
 
+  const valueColor = typeof rawValue === 'number' && rawValue < 0 ? 'text-red-600' : '';
+
   return (
     <div className="flex justify-between items-baseline">
       {label && <span className="text-lg text-muted-foreground">{label}</span>}
@@ -69,7 +71,7 @@ export function DatoDoble({ label, value, variation, unit, isEditing, valueId, v
              {unit && <span className="text-sm text-muted-foreground">{unit}</span>}
            </div>
         ) : (
-           <div className="text-2xl font-bold">{value}{unit}</div>
+           <div className={cn("text-2xl font-bold", valueColor)}>{value}{unit}</div>
         )}
         {variation !== undefined && (
           isEditing && variationId ? (
@@ -119,6 +121,9 @@ export function DatoSimple({ label, value, isEditing, valueId, className, icon, 
       ? parseFloat(value.replace(/[^0-9.,-]+/g, '').replace(',', '.'))
       : value;
 
+    const valueColor = typeof rawValue === 'number' && rawValue < 0 ? 'text-red-600' : 
+                       (typeof value === 'string' && value.includes('-')) ? 'text-red-600' : '';
+
 
     const renderValue = () => {
         if (isEditing && valueId && onInputChange) {
@@ -137,7 +142,7 @@ export function DatoSimple({ label, value, isEditing, valueId, className, icon, 
                  </div>
             )
         }
-        return <strong className="font-semibold text-lg text-right w-full">{value}</strong>;
+        return <strong className={cn("font-semibold text-lg text-right w-full", valueColor)}>{value}</strong>;
     }
 
     const alignmentClasses = {

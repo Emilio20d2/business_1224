@@ -108,9 +108,9 @@ const AcumuladoCard = ({ title, data, isEditing, idPrefix, onInputChange }: { ti
                   </>
                  ) : (
                   <>
-                    <div className="text-right font-medium">{formatCurrency(item.totalEuros)}</div>
-                    <div className="text-right">{formatPercentage(item.varPorc)}</div>
-                    <div className="text-right">{formatPercentage(item.pesoPorc)}</div>
+                    <div className={cn("text-right font-medium", item.totalEuros < 0 && "text-red-600")}>{formatCurrency(item.totalEuros)}</div>
+                    <div className={cn("text-right", item.varPorc < 0 && "text-red-600")}>{formatPercentage(item.varPorc)}</div>
+                    <div className={cn("text-right", item.pesoPorc < 0 && "text-red-600")}>{formatPercentage(item.pesoPorc)}</div>
                   </>
                  )}
             </div>

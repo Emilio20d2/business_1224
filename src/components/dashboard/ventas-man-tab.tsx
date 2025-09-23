@@ -33,9 +33,10 @@ type VentasManTabProps = {
 
 const TrendIndicator = ({ value }: { value: number }) => {
   const trendColor = value >= 0 ? 'text-green-600' : 'text-red-600';
+  const sign = value >= 0 ? '+' : '';
   return (
     <span className={cn("text-sm font-bold", trendColor)}>
-      {value >= 0 ? '+' : ''}{value.toLocaleString('es-ES')}%
+      {sign}{value.toLocaleString('es-ES')}%
     </span>
   );
 };
@@ -188,7 +189,7 @@ export function VentasManTab({ data, isEditing, onInputChange, onImageChange }: 
     }
 
     return (
-        <Tabs defaultValue="comprador" className="w-full" onValueChange={(value) => setActiveTab(value as TableDataKey)}>
+        <Tabs defaultValue="pesoComprador" className="w-full" onValueChange={(value) => setActiveTab(value as TableDataKey)}>
             <TabsList className="grid w-full grid-cols-3 mx-auto max-w-md mb-4">
                 <TabsTrigger value="pesoComprador">Comprador</TabsTrigger>
                 <TabsTrigger value="zonaComercial">Zona Comprador</TabsTrigger>

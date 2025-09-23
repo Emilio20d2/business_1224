@@ -35,9 +35,10 @@ const desgloseIconos: { [key: string]: React.ReactNode } = {
 
 const TrendIndicator = ({ value }: { value: number }) => {
   const trendColor = value >= 0 ? 'text-green-600' : 'text-red-600';
+  const sign = value >= 0 ? '+' : '';
   return (
     <span className={cn("text-xs font-bold", trendColor)}>
-      {value >= 0 ? '+' : ''}{value.toLocaleString('es-ES')}%
+      {sign}{value.toLocaleString('es-ES')}%
     </span>
   );
 };
@@ -94,11 +95,11 @@ const SectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionNa
                     ) : (
                         <>
                             <div className="bg-background rounded-lg p-2 text-center">
-                                <div className="font-bold text-lg">{formatCurrency(data.metricasPrincipales.totalEuros)}</div>
+                                <div className={cn("font-bold text-lg", data.metricasPrincipales.totalEuros < 0 && "text-red-600")}>{formatCurrency(data.metricasPrincipales.totalEuros)}</div>
                                 <TrendIndicator value={data.metricasPrincipales.varPorcEuros} />
                             </div>
                             <div className="bg-background rounded-lg p-2 text-center">
-                                <div className="font-bold text-lg">{formatNumber(data.metricasPrincipales.totalUnidades)}</div>
+                                <div className={cn("font-bold text-lg", data.metricasPrincipales.totalUnidades < 0 && "text-red-600")}>{formatNumber(data.metricasPrincipales.totalUnidades)}</div>
                                 <TrendIndicator value={data.metricasPrincipales.varPorcUnidades} />
                             </div>
                         </>
@@ -115,7 +116,7 @@ const SectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionNa
                                 {isEditing ? (
                                     <Input type="number" inputMode="decimal" defaultValue={item.totalEuros} onChange={(e) => handleDesgloseChange(index, 'totalEuros', e.target.value)} className="font-bold w-24" />
                                 ) : (
-                                    <div className="font-bold">{formatCurrency(item.totalEuros)}</div>
+                                    <div className={cn("font-bold", item.totalEuros < 0 && "text-red-600")}>{formatCurrency(item.totalEuros)}</div>
                                 )}
                             </div>
                             <div>
