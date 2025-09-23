@@ -134,9 +134,9 @@ const DataTable = ({
     );
 };
 
-const ImageImportCard = ({ selectedRow, isEditing, onImageChange, imagePath }: { selectedRow: VentasWomanItem | null, isEditing: boolean, onImageChange: VentasWomanTabProps['onImageChange'], imagePath: string | null }) => {
+const ImageImportCard = ({ selectedRow, isEditing, onImageChange, imagePath, imageUrl }: { selectedRow: VentasWomanItem | null, isEditing: boolean, onImageChange: VentasWomanTabProps['onImageChange'], imagePath: string | null, imageUrl?: string | null }) => {
     const [isUploading, setIsUploading] = React.useState(false);
-    const displayImage = selectedRow?.imageUrl;
+    const displayImage = imageUrl ?? selectedRow?.imageUrl;
     const fileInputRef = React.useRef<HTMLInputElement>(null);
 
     const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -207,6 +207,7 @@ const CompradorTab = ({ data, isEditing, onInputChange, onImageChange }: { data:
 
     const selectedRow = selectedIndex !== null ? ventasWomanData.pesoComprador[selectedIndex] : null;
     const imagePath = selectedIndex !== null ? `ventasWoman.pesoComprador.${selectedIndex}.imageUrl` : null;
+    const imageUrl = selectedIndex !== null ? data.ventasWoman.pesoComprador[selectedIndex]?.imageUrl : null;
     const optionList = data.listas?.compradorWoman || [];
 
     return (
@@ -265,6 +266,7 @@ const CompradorTab = ({ data, isEditing, onInputChange, onImageChange }: { data:
                 isEditing={isEditing}
                 onImageChange={onImageChange}
                 imagePath={imagePath}
+                imageUrl={imageUrl}
             />
         </div>
     )

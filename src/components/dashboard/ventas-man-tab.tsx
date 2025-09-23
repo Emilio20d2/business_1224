@@ -52,7 +52,7 @@ const TrendIndicator = ({ value }: { value: number }) => {
 
 const DataTable = ({ 
     title,
-    data,
+    data, 
     list,
     headers, 
     isEditing, 
@@ -133,9 +133,9 @@ const DataTable = ({
     );
 };
 
-const ImageImportCard = ({ selectedRow, isEditing, onImageChange, imagePath }: { selectedRow: VentasManItem | null, isEditing: boolean, onImageChange: VentasManTabProps['onImageChange'], imagePath: string | null }) => {
+const ImageImportCard = ({ selectedRow, isEditing, onImageChange, imagePath, imageUrl }: { selectedRow: VentasManItem | null, isEditing: boolean, onImageChange: VentasManTabProps['onImageChange'], imagePath: string | null, imageUrl?: string | null }) => {
     const [isUploading, setIsUploading] = React.useState(false);
-    const displayImage = selectedRow?.imageUrl;
+    const displayImage = imageUrl ?? selectedRow?.imageUrl;
     const fileInputRef = React.useRef<HTMLInputElement>(null);
 
     const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -206,6 +206,7 @@ const CompradorTab = ({ data, isEditing, onInputChange, onImageChange }: { data:
 
     const selectedRow = selectedIndex !== null ? ventasManData.pesoComprador[selectedIndex] : null;
     const imagePath = selectedIndex !== null ? `ventasMan.pesoComprador.${selectedIndex}.imageUrl` : null;
+    const imageUrl = selectedIndex !== null ? data.ventasMan.pesoComprador[selectedIndex]?.imageUrl : null;
     const optionList = data.listas?.compradorMan || [];
 
 
@@ -265,6 +266,7 @@ const CompradorTab = ({ data, isEditing, onInputChange, onImageChange }: { data:
                 isEditing={isEditing}
                 onImageChange={onImageChange}
                 imagePath={imagePath}
+                imageUrl={imageUrl}
             />
         </div>
     )
