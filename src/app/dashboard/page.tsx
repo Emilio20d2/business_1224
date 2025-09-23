@@ -246,7 +246,7 @@ export default function DashboardPage() {
                 sections.nino.pesoPorc = 0;
             }
         }
-        
+
         // Auto-calculate section weights for aqneSemanal if a euros value changes
         if (path.startsWith('aqneSemanal') && finalKey === 'totalEuros') {
             const sections = updatedData.aqneSemanal;
@@ -396,20 +396,28 @@ export default function DashboardPage() {
 
     setImageLoadingStatus(prev => ({...prev, [path]: true}));
 
-    setData(prevData => {
-        if (!prevData) return null;
-        const updatedData = JSON.parse(JSON.stringify(prevData));
-        const keys = path.split('.');
-        let current: any = updatedData;
-        for (let i = 0; i < keys.length - 1; i++) {
-            current = current[keys[i]];
-        }
-        current[keys[keys.length - 1]] = dataUrl;
-        return updatedData;
+    const updateState = new Promise<WeeklyData>(resolve => {
+        setData(prevData => {
+            if (!prevData) {
+                resolve(null as any);
+                return null;
+            }
+            const updatedData = JSON.parse(JSON.stringify(prevData));
+            const keys = path.split('.');
+            let current: any = updatedData;
+            for (let i = 0; i < keys.length - 1; i++) {
+                current = current[keys[i]];
+            }
+            current[keys[keys.length - 1]] = dataUrl;
+            resolve(updatedData);
+            return updatedData;
+        });
     });
 
+    const updatedData = await updateState;
+
     try {
-        const reportRef = doc(db, "informes", data.periodo.toLowerCase().replace(' ', '-'));
+        const reportRef = doc(db, "informes", updatedData.periodo.toLowerCase().replace(' ', '-'));
         await updateDoc(reportRef, {
             [path]: dataUrl
         });
