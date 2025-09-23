@@ -137,10 +137,23 @@ export default function DashboardPage() {
                     reportData = reportSnap.data() as WeeklyData;
                     
                     let hasBeenUpdated = false;
+                    const initialWeekData = getInitialDataForWeek(week, listData);
                     
                     if (!reportData.listas) {
                       reportData.listas = listData;
                       hasBeenUpdated = true;
+                    }
+                     if (!reportData.ventasMan) {
+                        reportData.ventasMan = initialWeekData.ventasMan;
+                        hasBeenUpdated = true;
+                    }
+                    if (!reportData.ventasWoman) {
+                        reportData.ventasWoman = initialWeekData.ventasWoman;
+                        hasBeenUpdated = true;
+                    }
+                    if (!reportData.ventasNino) {
+                        reportData.ventasNino = initialWeekData.ventasNino;
+                        hasBeenUpdated = true;
                     }
                     
                     const dataKeyMapping: Record<EditableList, {ventasKey: keyof WeeklyData, tableKey: 'pesoComprador' | 'zonaComercial' | 'agrupacionComercial'}> = {
@@ -415,15 +428,16 @@ export default function DashboardPage() {
     });
 
     const updatedData = await updateState;
+    if(!updatedData) return;
 
     try {
         const reportRef = doc(db, "informes", updatedData.periodo.toLowerCase().replace(' ', '-'));
-        await updateDoc(reportRef, {
-            [path]: dataUrl
-        });
+        // We are updating the whole object to ensure consistency
+        await updateDoc(reportRef, updatedData);
+        
         toast({
             title: "Imagen guardada",
-            description: "La nueva imagen se ha guardado en la base de datos.",
+            description: "La nueva imagen y los datos actuales se han guardado.",
         });
     } catch (error) {
         console.error("Error updating image in Firestore: ", error);
