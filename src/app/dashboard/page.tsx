@@ -17,7 +17,7 @@ import { AcumuladoTab } from "@/components/dashboard/acumulado-tab";
 import { FocusSemanalTab } from '@/components/dashboard/focus-semanal-tab';
 import { VentasManTab } from '@/components/dashboard/ventas-man-tab';
 import { Button } from '@/components/ui/button';
-import { Settings, LogOut, Loader2, ChevronDown } from 'lucide-react';
+import { Settings, LogOut, Loader2, ChevronDown, Pencil } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -435,7 +435,9 @@ export default function DashboardPage() {
                 <Button variant="outline" onClick={handleCancel} disabled={isSaving}>Cancelar</Button>
               </>
             ) : (
-              <Button onClick={() => setIsEditing(true)} variant="outline">Editar</Button>
+              <Button onClick={() => setIsEditing(true)} variant="outline" size="icon">
+                <Pencil className="h-4 w-4" />
+              </Button>
             )}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
