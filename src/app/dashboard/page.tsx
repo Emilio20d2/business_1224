@@ -66,6 +66,7 @@ const getPreviousWeekRange = () => {
 
 // Nueva función de sincronización
 const synchronizeTableData = (list: string[], oldTableData: any[]) => {
+    if (!Array.isArray(list)) return []; // Return empty array if list is not an array
     const oldDataMap = new Map(oldTableData.map((item: any) => [item.nombre, item]));
     return list.map(itemName => {
         const existingItem = oldDataMap.get(itemName);
@@ -172,17 +173,22 @@ export default function DashboardPage() {
                         const { ventasKey, tableKey } = dataKeyMapping[key];
                         // @ts-ignore
                         const list = listData[key as keyof typeof listData];
+                        
+                        // Ensure the sales section exists before trying to access it
+                        if (!reportData[ventasKey]) {
+                            // @ts-ignore
+                            reportData[ventasKey] = initialWeekData[ventasKey];
+                            hasBeenUpdated = true;
+                        }
+
                         // @ts-ignore
                         const tableData = reportData[ventasKey]?.[tableKey] || [];
                         
-                        if (list && (list.length !== tableData.length || list.some((item: any, i: number) => item !== tableData[i]?.nombre))) {
-                             if (!reportData[ventasKey]) {
-                                // @ts-ignore
-                                reportData[ventasKey] = getInitialDataForWeek(week, listData)[ventasKey];
-                             }
-                             // @ts-ignore
-                             reportData[ventasKey][tableKey] = synchronizeTableData(list, tableData);
-                             hasBeenUpdated = true;
+                        // Check for differences and synchronize
+                        if (list && Array.isArray(list) && (!tableData || list.length !== tableData.length || list.some((item: any, i: number) => item !== tableData[i]?.nombre))) {
+                            // @ts-ignore
+                            reportData[ventasKey][tableKey] = synchronizeTableData(list, tableData);
+                            hasBeenUpdated = true;
                         }
                     });
                     
@@ -237,24 +243,6 @@ export default function DashboardPage() {
         const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
         const finalValue = isNaN(numericValue) ? (typeof current[finalKey] === 'number' ? 0 : value) : numericValue;
         current[finalKey] = finalValue;
-
-        // Auto-calculate section weights for datosPorSeccion if a euros value changes
-        if (path.startsWith('datosPorSeccion') && finalKey === 'totalEuros') {
-            const sections = updatedData.datosPorSeccion;
-            const totalGeneral = (sections.woman.metricasPrincipales.totalEuros || 0) +
-                                  (sections.man.metricasPrincipales.totalEuros || 0) +
-                                  (sections.nino.metricasPrincipales.totalEuros || 0);
-            
-            if (totalGeneral > 0) {
-                sections.woman.pesoPorc = parseFloat(((sections.woman.metricasPrincipales.totalEuros / totalGeneral) * 100).toFixed(2));
-                sections.man.pesoPorc = parseFloat(((sections.man.metricasPrincipales.totalEuros / totalGeneral) * 100).toFixed(2));
-                sections.nino.pesoPorc = parseFloat(((sections.nino.metricasPrincipales.totalEuros / totalGeneral) * 100).toFixed(2));
-            } else {
-                sections.woman.pesoPorc = 0;
-                sections.man.pesoPorc = 0;
-                sections.nino.pesoPorc = 0;
-            }
-        }
         
         // Auto-calculate section weights for aqneSemanal if a euros value changes
         if (path.startsWith('aqneSemanal') && finalKey === 'totalEuros') {
@@ -307,6 +295,24 @@ export default function DashboardPage() {
             }
         }
 
+        // Auto-calculate section weights for datosPorSeccion if a euros value changes
+        if (path.startsWith('datosPorSeccion') && finalKey === 'totalEuros') {
+            const sections = updatedData.datosPorSeccion;
+            const totalGeneral = (sections.woman.metricasPrincipales.totalEuros || 0) +
+                                  (sections.man.metricasPrincipales.totalEuros || 0) +
+                                  (sections.nino.metricasPrincipales.totalEuros || 0);
+            
+            if (totalGeneral > 0) {
+                sections.woman.pesoPorc = parseFloat(((sections.woman.metricasPrincipales.totalEuros / totalGeneral) * 100).toFixed(2));
+                sections.man.pesoPorc = parseFloat(((sections.man.metricasPrincipales.totalEuros / totalGeneral) * 100).toFixed(2));
+                sections.nino.pesoPorc = parseFloat(((sections.nino.metricasPrincipales.totalEuros / totalGeneral) * 100).toFixed(2));
+            } else {
+                sections.woman.pesoPorc = 0;
+                sections.man.pesoPorc = 0;
+                sections.nino.pesoPorc = 0;
+            }
+        }
+        
         return updatedData;
     });
 };
@@ -366,12 +372,14 @@ export default function DashboardPage() {
         // @ts-ignore
         const oldTableData = updatedData[ventasKey]?.[tableKey] || [];
         const newTableData = synchronizeTableData(newList, oldTableData);
-        // @ts-ignore
-        if (updatedData[ventasKey]) {
-          // @ts-ignore
-          updatedData[ventasKey][tableKey] = newTableData;
+        
+        if (!updatedData[ventasKey]) {
+           // @ts-ignore
+          updatedData[ventasKey] = getInitialDataForWeek(data.periodo, updatedData.listas)[ventasKey];
         }
-
+        // @ts-ignore
+        updatedData[ventasKey][tableKey] = newTableData;
+        
         const reportRef = doc(db, "informes", updatedData.periodo.toLowerCase().replace(' ', '-'));
         await setDoc(reportRef, updatedData, { merge: true });
         
@@ -652,7 +660,7 @@ export default function DashboardPage() {
               isOpen={isListDialogOpen}
               onClose={() => setIsListDialogOpen(false)}
               title={getTitleForList(listToEdit)}
-              items={data.listas[listToEdit]}
+              items={data.listas[listToEdit] || []}
               onSave={handleSaveList}
           />
       )}
