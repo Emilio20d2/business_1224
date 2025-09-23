@@ -83,7 +83,7 @@ const DataTable = ({
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {data.map((item, index) => (
+                    {Array.isArray(data) && data.map((item, index) => (
                         <TableRow 
                             key={item.nombre + index}
                         >
@@ -172,6 +172,10 @@ const CompradorTab = ({ ventasManData, isEditing, onInputChange, onImageChange, 
     const handleRowSelect = (index: number) => {
         setSelectedIndex(index);
     };
+    
+    if (!ventasManData || !Array.isArray(ventasManData.pesoComprador)) {
+        return <p className="text-center text-muted-foreground mt-8">No hay datos de comprador disponibles.</p>;
+    }
 
     const selectedRow = selectedIndex !== null ? ventasManData.pesoComprador[selectedIndex] : null;
     const imagePath = selectedIndex !== null ? `ventasMan.pesoComprador.${selectedIndex}.imageUrl` : null;
@@ -256,7 +260,7 @@ export function VentasManTab({ data, isEditing, onInputChange, onImageChange, im
                         title="Zona Comprador"
                         dataKey="ventasMan.zonaComercial"
                         headers={['ZONA COMPRADOR', 'PESO %', '€', '%']}
-                        data={ventasManData.zonaComercial}
+                        data={ventasManData?.zonaComercial}
                         isEditing={isEditing}
                         onInputChange={onInputChange}
                     />
@@ -264,7 +268,7 @@ export function VentasManTab({ data, isEditing, onInputChange, onImageChange, im
                         title="Agrupación Comercial"
                         dataKey="ventasMan.agrupacionComercial"
                         headers={['Agrupación Comercial', 'PESO %', '€', '%']}
-                        data={ventasManData.agrupacionComercial.slice(0, 10)}
+                        data={ventasManData?.agrupacionComercial.slice(0, 10)}
                         isEditing={isEditing}
                         onInputChange={onInputChange}
                     />

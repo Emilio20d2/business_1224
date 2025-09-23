@@ -83,7 +83,7 @@ const DataTable = ({
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {data.map((item, index) => (
+                    {Array.isArray(data) && data.map((item, index) => (
                         <TableRow 
                             key={item.nombre + index}
                         >
@@ -173,6 +173,10 @@ const CompradorTab = ({ ventasNinoData, isEditing, onInputChange, onImageChange,
         setSelectedIndex(index);
     };
 
+    if (!ventasNinoData || !Array.isArray(ventasNinoData.pesoComprador)) {
+        return <p className="text-center text-muted-foreground mt-8">No hay datos de comprador disponibles.</p>;
+    }
+
     const selectedRow = selectedIndex !== null ? ventasNinoData.pesoComprador[selectedIndex] : null;
     const imagePath = selectedIndex !== null ? `ventasNino.pesoComprador.${selectedIndex}.imageUrl` : null;
     const isLoading = imagePath ? imageLoadingStatus[imagePath] || false : false;
@@ -255,7 +259,7 @@ export function VentasNinoTab({ data, isEditing, onInputChange, onImageChange, i
                         title="Zona Comprador"
                         dataKey="ventasNino.zonaComercial"
                         headers={['ZONA COMPRADOR', 'PESO %', '€', '%']}
-                        data={ventasNinoData.zonaComercial}
+                        data={ventasNinoData?.zonaComercial}
                         isEditing={isEditing}
                         onInputChange={onInputChange}
                     />
@@ -263,7 +267,7 @@ export function VentasNinoTab({ data, isEditing, onInputChange, onImageChange, i
                         title="Agrupación Comercial"
                         dataKey="ventasNino.agrupacionComercial"
                         headers={['Agrupación Comercial', 'PESO %', '€', '%']}
-                        data={ventasNinoData.agrupacionComercial.slice(0, 10)}
+                        data={ventasNinoData?.agrupacionComercial.slice(0, 10)}
                         isEditing={isEditing}
                         onInputChange={onInputChange}
                     />

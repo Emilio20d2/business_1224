@@ -83,7 +83,7 @@ const DataTable = ({
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {data.map((item, index) => (
+                    {Array.isArray(data) && data.map((item, index) => (
                         <TableRow 
                             key={item.nombre + index}
                         >
@@ -173,6 +173,10 @@ const CompradorTab = ({ ventasWomanData, isEditing, onInputChange, onImageChange
         setSelectedIndex(index);
     };
 
+    if (!ventasWomanData || !Array.isArray(ventasWomanData.pesoComprador)) {
+        return <p className="text-center text-muted-foreground mt-8">No hay datos de comprador disponibles.</p>;
+    }
+
     const selectedRow = selectedIndex !== null ? ventasWomanData.pesoComprador[selectedIndex] : null;
     const imagePath = selectedIndex !== null ? `ventasWoman.pesoComprador.${selectedIndex}.imageUrl` : null;
     const isLoading = imagePath ? imageLoadingStatus[imagePath] || false : false;
@@ -255,7 +259,7 @@ export function VentasWomanTab({ data, isEditing, onInputChange, onImageChange, 
                         title="Zona Comprador"
                         dataKey="ventasWoman.zonaComercial"
                         headers={['ZONA COMPRADOR', 'PESO %', '€', '%']}
-                        data={ventasWomanData.zonaComercial}
+                        data={ventasWomanData?.zonaComercial}
                         isEditing={isEditing}
                         onInputChange={onInputChange}
                     />
@@ -263,7 +267,7 @@ export function VentasWomanTab({ data, isEditing, onInputChange, onImageChange, 
                         title="Agrupación Comercial"
                         dataKey="ventasWoman.agrupacionComercial"
                         headers={['Agrupación Comercial', 'PESO %', '€', '%']}
-                        data={ventasWomanData.agrupacionComercial.slice(0, 10)}
+                        data={ventasWomanData?.agrupacionComercial.slice(0, 10)}
                         isEditing={isEditing}
                         onInputChange={onInputChange}
                     />
