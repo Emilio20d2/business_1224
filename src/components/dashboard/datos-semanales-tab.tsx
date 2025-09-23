@@ -65,7 +65,7 @@ const FilaModulo = ({ icon, label, value, isEditing, id, onInputChange, unit }: 
                 <Input type="number" inputMode="decimal" defaultValue={value} className="font-bold text-right w-20" id={id} onChange={(e) => onInputChange(id, e.target.value)} />
                 <span className="text-sm text-muted-foreground">{unit}</span>
             </div>
-            : <strong className="font-bold text-right">{unit === '%' ? formatPercentage(value) : formatNumber(value)}</strong>
+            : <strong className="font-bold text-right w-14">{unit === '%' ? formatPercentage(value) : formatNumber(value)}</strong>
         }
     </div>
 )
@@ -186,7 +186,7 @@ export function DatosSemanalesTab({ data, isEditing, onInputChange }: DatosSeman
 
        {/* Gestión de Almacén y Logística */}
       <KpiCard title="Gestión de Almacén y Logística" icon={<Warehouse className="h-5 w-5 text-primary" />} className="md:col-span-6">
-        <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_1fr_1.5fr] gap-6 place-items-center">
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_1fr_1.5fr] gap-6 place-items-start">
           <ModuloAlmacen title="Entradas">
             <ModuloContenidoGrande icon={<Truck className="h-8 w-8"/>} value={data.logistica.entradasSemanales} isEditing={isEditing} id="logistica.entradasSemanales" onInputChange={onInputChange} />
           </ModuloAlmacen>
