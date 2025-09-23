@@ -234,8 +234,6 @@ export default function DashboardPage() {
                                 (sections.man.metricasPrincipales.totalEuros || 0) +
                                 (sections.nino.metricasPrincipales.totalEuros || 0);
 
-            updatedData.ventas.totalEuros = totalVentas;
-
             if (totalVentas > 0) {
                 sections.woman.pesoPorc = parseFloat(((sections.woman.metricasPrincipales.totalEuros / totalVentas) * 100).toFixed(2));
                 sections.man.pesoPorc = parseFloat(((sections.man.metricasPrincipales.totalEuros / totalVentas) * 100).toFixed(2));
