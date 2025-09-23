@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DatosSemanalesTab } from "@/components/dashboard/datos-semanales-tab";
-import { DatosPorSeccionTab } from "@/components/dashboard/datos-por-seccion-tab";
 import { AqneSemanalTab } from "@/components/dashboard/aqne-semanal-tab";
 import { AcumuladoTab } from "@/components/dashboard/acumulado-tab";
 import { FocusSemanalTab } from '@/components/dashboard/focus-semanal-tab';
@@ -40,12 +39,11 @@ import { useRouter } from 'next/navigation';
 
 
 type EditableList = 'comprador' | 'zonaComercial' | 'agrupacionComercial';
-type TabValue = "datosSemanales" | "ventasSeccion" | "aqneSemanal" | "acumulado" | "ventasMan" | "focusSemanal";
+type TabValue = "datosSemanales" | "aqneSemanal" | "acumulado" | "ventasMan" | "focusSemanal";
 
 
 const tabLabels: Record<TabValue, string> = {
     datosSemanales: "GENERAL",
-    ventasSeccion: "VENTAS SECCIÓN",
     aqneSemanal: "AQNE SEMANAL",
     acumulado: "ACUMULADO",
     ventasMan: "VENTAS MAN",
@@ -479,9 +477,6 @@ export default function DashboardPage() {
             </div>
           <TabsContent value="datosSemanales">
             <DatosSemanalesTab data={data} isEditing={isEditing} onInputChange={handleInputChange} />
-          </TabsContent>
-          <TabsContent value="ventasSeccion">
-             <DatosPorSeccionTab data={data.datosPorSeccion} isEditing={isEditing} onInputChange={handleInputChange} />
           </TabsContent>
            <TabsContent value="aqneSemanal">
              <AqneSemanalTab data={data} isEditing={isEditing} onInputChange={handleInputChange} />
