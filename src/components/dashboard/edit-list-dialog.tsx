@@ -20,16 +20,17 @@ type EditListDialogProps = {
 };
 
 export function EditListDialog({ isOpen, onClose, title, items, onSave }: EditListDialogProps) {
-  const [currentItems, setCurrentItems] = useState(items);
+  const [currentItems, setCurrentItems] = useState<string[]>([]);
   const [newItem, setNewItem] = useState('');
 
   useEffect(() => {
-    setCurrentItems(items);
+    // Sort items alphabetically when the dialog opens or items change
+    setCurrentItems([...items].sort((a, b) => a.localeCompare(b)));
   }, [items]);
 
   const handleAddItem = () => {
     if (newItem.trim() && !currentItems.includes(newItem.trim())) {
-      const updatedItems = [...currentItems, newItem.trim()];
+      const updatedItems = [...currentItems, newItem.trim()].sort((a, b) => a.localeCompare(b));
       setCurrentItems(updatedItems);
       setNewItem('');
     }

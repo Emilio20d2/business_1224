@@ -18,7 +18,7 @@ import { VentasManTab } from '@/components/dashboard/ventas-man-tab';
 import { VentasWomanTab } from '@/components/dashboard/ventas-woman-tab';
 import { VentasNinoTab } from '@/components/dashboard/ventas-nino-tab';
 import { Button } from '@/components/ui/button';
-import { Settings, LogOut, Loader2, ChevronDown, Pencil, Briefcase } from 'lucide-react';
+import { Settings, LogOut, Loader2, ChevronDown, Pencil, Briefcase, List } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,6 +29,10 @@ import {
   DropdownMenuTrigger,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+  DropdownMenuPortal
 } from "@/components/ui/dropdown-menu"
 import { startOfWeek, endOfWeek, subWeeks, format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -36,6 +40,7 @@ import { useToast } from '@/hooks/use-toast';
 import { AuthContext } from '@/context/auth-context';
 import { getInitialDataForWeek, getInitialLists } from '@/lib/data';
 import { useRouter } from 'next/navigation';
+import { EditListDialog } from '@/components/dashboard/edit-list-dialog';
 
 
 type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan' | 'compradorWoman' | 'zonaComercialWoman' | 'agrupacionComercialWoman' | 'compradorNino' | 'zonaComercialNino' | 'agrupacionComercialNino';
@@ -49,6 +54,18 @@ const tabLabels: Record<string, string> = {
     man: "MAN",
     woman: "WOMAN",
     nino: "NIÑO",
+};
+
+const listLabels: Record<EditableList, string> = {
+    compradorMan: 'Comprador MAN',
+    zonaComercialMan: 'Zona Comercial MAN',
+    agrupacionComercialMan: 'Agrupación Comercial MAN',
+    compradorWoman: 'Comprador WOMAN',
+    zonaComercialWoman: 'Zona Comercial WOMAN',
+    agrupacionComercialWoman: 'Agrupación Comercial WOMAN',
+    compradorNino: 'Comprador NIÑO',
+    zonaComercialNino: 'Zona Comercial NIÑO',
+    agrupacionComercialNino: 'Agrupación Comercial NIÑO',
 };
 
 const getPreviousWeekRange = () => {
@@ -148,6 +165,10 @@ export default function DashboardPage() {
   const [isSaving, setIsSaving] = useState(false);
   
   const [activeTab, setActiveTab] = useState<string>("datosSemanales");
+
+  const [isListDialogOpen, setListDialogOpen] = useState(false);
+  const [listToEdit, setListToEdit] = useState<EditableList | null>(null);
+  const [listTitle, setListTitle] = useState('');
 
 
   const { toast } = useToast();
@@ -286,6 +307,38 @@ export default function DashboardPage() {
     setIsEditing(false);
     fetchData(); 
   };
+  
+  const handleOpenListDialog = (listKey: EditableList, title: string) => {
+      setListToEdit(listKey);
+      setListTitle(title);
+      setListDialogOpen(true);
+  };
+  
+ const handleSaveList = async (listKey: EditableList, newItems: string[]) => {
+    setIsSaving(true);
+    try {
+        const listsRef = doc(db, "configuracion", "listas");
+        await updateDoc(listsRef, { [listKey]: newItems });
+
+        // Force a re-fetch of all data to ensure synchronization
+        await fetchData();
+
+        toast({
+            title: "Lista actualizada",
+            description: `La lista "${listLabels[listKey]}" se ha guardado correctamente.`,
+        });
+    } catch (error) {
+        console.error("Error saving list:", error);
+        toast({
+            variant: "destructive",
+            title: "Error al guardar la lista",
+            description: "No se pudo guardar la lista. Inténtalo de nuevo.",
+        });
+    } finally {
+        setIsSaving(false);
+        setListToEdit(null);
+    }
+};
 
 const handleImageChange = async (path: string, dataUrl: string) => {
     if (!data) return;
@@ -411,6 +464,31 @@ const handleImageChange = async (path: string, dataUrl: string) => {
               <DropdownMenuContent className="w-56 z-50">
                 <DropdownMenuLabel>Opciones</DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                 <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>
+                    <List className="mr-2 h-4 w-4 text-primary" />
+                    <span>Editar Listas</span>
+                  </DropdownMenuSubTrigger>
+                  <DropdownMenuPortal>
+                    <DropdownMenuSubContent>
+                      <DropdownMenuLabel>MAN</DropdownMenuLabel>
+                      <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorMan', 'Editar Lista: Comprador MAN')}>Comprador</DropdownMenuItem>
+                      <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialMan', 'Editar Lista: Zona Comercial MAN')}>Zona Comercial</DropdownMenuItem>
+                      <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercialMan', 'Editar Lista: Agrupación Comercial MAN')}>Agrupación Comercial</DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuLabel>WOMAN</DropdownMenuLabel>
+                      <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorWoman', 'Editar Lista: Comprador WOMAN')}>Comprador</DropdownMenuItem>
+                      <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialWoman', 'Editar Lista: Zona Comercial WOMAN')}>Zona Comercial</DropdownMenuItem>
+                      <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercialWoman', 'Editar Lista: Agrupación Comercial WOMAN')}>Agrupación Comercial</DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuLabel>NIÑO</DropdownMenuLabel>
+                       <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorNino', 'Editar Lista: Comprador NIÑO')}>Comprador</DropdownMenuItem>
+                      <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialNino', 'Editar Lista: Zona Comercial NIÑO')}>Zona Comercial</DropdownMenuItem>
+                      <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercialNino', 'Editar Lista: Agrupación Comercial NIÑO')}>Agrupación Comercial</DropdownMenuItem>
+                    </DropdownMenuSubContent>
+                  </DropdownMenuPortal>
+                </DropdownMenuSub>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem onSelect={() => {
                   logout();
                 }}>
@@ -468,6 +546,23 @@ const handleImageChange = async (path: string, dataUrl: string) => {
           </TabsContent>
         </Tabs>
       </main>
+      
+      {listToEdit && (
+        <EditListDialog
+          isOpen={isListDialogOpen}
+          onClose={() => {
+            setListDialogOpen(false);
+            setListToEdit(null);
+          }}
+          title={listTitle}
+          items={data.listas[listToEdit] || []}
+          onSave={(newItems) => {
+            if (listToEdit) {
+              handleSaveList(listToEdit, newItems);
+            }
+          }}
+        />
+      )}
     </div>
   );
 }
