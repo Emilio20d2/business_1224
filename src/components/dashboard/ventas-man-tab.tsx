@@ -37,7 +37,6 @@ type VentasManTabProps = {
   isEditing: boolean;
   onInputChange: (path: string, value: any) => void;
   onImageChange: (path: string, dataUrl: string) => void;
-  imageLoadingStatus: Record<string, boolean>;
 };
 
 
@@ -134,7 +133,7 @@ const DataTable = ({
     );
 };
 
-const ImageImportCard = ({ selectedRow, isEditing, onImageChange, imagePath, isLoading }: { selectedRow: VentasManItem | null, isEditing: boolean, onImageChange: (path: string, dataUrl: string) => void, imagePath: string | null, isLoading: boolean }) => {
+const ImageImportCard = ({ selectedRow, isEditing, onImageChange, imagePath }: { selectedRow: VentasManItem | null, isEditing: boolean, onImageChange: (path: string, dataUrl: string) => void, imagePath: string | null }) => {
     const displayImage = selectedRow?.imageUrl;
     const fileInputRef = React.useRef<HTMLInputElement>(null);
 
@@ -167,11 +166,6 @@ const ImageImportCard = ({ selectedRow, isEditing, onImageChange, imagePath, isL
                         </div>
                     )}
                 </div>
-                 {isLoading && (
-                    <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
-                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                    </div>
-                )}
                 {isEditing && selectedRow && (
                      <div className="absolute bottom-2 right-2">
                         <Input
@@ -180,9 +174,8 @@ const ImageImportCard = ({ selectedRow, isEditing, onImageChange, imagePath, isL
                             onChange={handleImageUpload}
                             className="hidden"
                             accept="image/*"
-                            disabled={isLoading}
                         />
-                        <Button onClick={handleButtonClick} variant="secondary" disabled={isLoading}>
+                        <Button onClick={handleButtonClick} variant="secondary">
                             <Upload className="mr-2 h-4 w-4" />
                             Cambiar Imagen
                         </Button>
@@ -193,7 +186,7 @@ const ImageImportCard = ({ selectedRow, isEditing, onImageChange, imagePath, isL
     );
 };
 
-const CompradorTab = ({ data, isEditing, onInputChange, onImageChange, imageLoadingStatus }: { data: WeeklyData, isEditing: boolean, onInputChange: VentasManTabProps['onInputChange'], onImageChange: VentasManTabProps['onImageChange'], imageLoadingStatus: Record<string, boolean> }) => {
+const CompradorTab = ({ data, isEditing, onInputChange, onImageChange }: { data: WeeklyData, isEditing: boolean, onInputChange: VentasManTabProps['onInputChange'], onImageChange: VentasManTabProps['onImageChange'] }) => {
     const [selectedIndex, setSelectedIndex] = React.useState<number | null>(0);
     const ventasManData = data.ventasMan;
 
@@ -207,7 +200,6 @@ const CompradorTab = ({ data, isEditing, onInputChange, onImageChange, imageLoad
 
     const selectedRow = selectedIndex !== null ? ventasManData.pesoComprador[selectedIndex] : null;
     const imagePath = selectedIndex !== null ? `ventasMan.pesoComprador.${selectedIndex}.imageUrl` : null;
-    const isLoading = imagePath ? imageLoadingStatus[imagePath] || false : false;
     const optionList = data.listas?.compradorMan || [];
 
 
@@ -267,13 +259,12 @@ const CompradorTab = ({ data, isEditing, onInputChange, onImageChange, imageLoad
                 isEditing={isEditing}
                 onImageChange={onImageChange}
                 imagePath={imagePath}
-                isLoading={isLoading}
             />
         </div>
     )
 }
 
-export function VentasManTab({ data, isEditing, onInputChange, onImageChange, imageLoadingStatus }: VentasManTabProps) {
+export function VentasManTab({ data, isEditing, onInputChange, onImageChange }: VentasManTabProps) {
     const [activeTab, setActiveTab] = React.useState<string>('comprador');
     
     if (!data || !data.ventasMan) return <p>Cargando datos de Ventas Man...</p>;
@@ -295,7 +286,6 @@ export function VentasManTab({ data, isEditing, onInputChange, onImageChange, im
                     isEditing={isEditing}
                     onInputChange={onInputChange}
                     onImageChange={onImageChange}
-                    imageLoadingStatus={imageLoadingStatus}
                 />
             </TabsContent>
 
@@ -336,3 +326,5 @@ export function VentasManTab({ data, isEditing, onInputChange, onImageChange, im
         </Tabs>
     );
 }
+
+    

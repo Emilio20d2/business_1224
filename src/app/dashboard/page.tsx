@@ -157,8 +157,6 @@ export default function DashboardPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   
-  const [imageLoadingStatus, setImageLoadingStatus] = useState<Record<string, boolean>>({});
-  
   const [activeTab, setActiveTab] = useState<string>("datosSemanales");
 
 
@@ -314,52 +312,29 @@ export default function DashboardPage() {
     fetchData(); // Re-fetch original data to discard changes
   };
 
-  const handleImageChange = async (path: string, dataUrl: string) => {
-      setImageLoadingStatus(prev => ({ ...prev, [path]: true }));
-  
-      // Create a new updated data object
-      const updatedData = await new Promise<WeeklyData | null>((resolve) => {
-          setData(currentData => {
-              if (!currentData) {
-                  resolve(null);
-                  return null;
-              }
-  
-              const newData = JSON.parse(JSON.stringify(currentData));
-              const keys = path.split('.');
-              let current: any = newData;
-              for (let i = 0; i < keys.length - 1; i++) {
-                  current = current[keys[i]];
-              }
-              current[keys[keys.length - 1]] = dataUrl;
-              
-              resolve(newData);
-              return newData;
-          });
-      });
-  
-      if (updatedData) {
-          try {
-              const reportRef = doc(db, "informes", updatedData.periodo.toLowerCase().replace(' ', '-'));
-              await setDoc(reportRef, updatedData, { merge: true });
-              toast({
-                  title: "Imagen guardada",
-                  description: "La nueva imagen se ha guardado correctamente.",
-              });
-          } catch (error) {
-              console.error("Error updating image in Firestore: ", error);
-              toast({
-                  variant: "destructive",
-                  title: "Error al guardar imagen",
-                  description: "No se pudo guardar la imagen. Inténtalo de nuevo.",
-              });
-          } finally {
-              setImageLoadingStatus(prev => ({ ...prev, [path]: false }));
-          }
-      } else {
-           setImageLoadingStatus(prev => ({ ...prev, [path]: false }));
-      }
-  };
+  const handleImageChange = (path: string, dataUrl: string) => {
+    if (!data) return;
+
+    setData(prevData => {
+        if (!prevData) return null;
+
+        const updatedData = JSON.parse(JSON.stringify(prevData));
+        const keys = path.split('.');
+        let current: any = updatedData;
+        
+        for (let i = 0; i < keys.length - 1; i++) {
+            current = current[keys[i]];
+        }
+        current[keys[keys.length - 1]] = dataUrl;
+        
+        return updatedData;
+    });
+
+    // Set editing to true so the user is prompted to save
+    if (!isEditing) {
+        setIsEditing(true);
+    }
+};
 
   if (authLoading || dataLoading) {
     return (
@@ -488,7 +463,6 @@ export default function DashboardPage() {
               isEditing={isEditing} 
               onInputChange={handleInputChange}
               onImageChange={handleImageChange}
-              imageLoadingStatus={imageLoadingStatus}
             />
           </TabsContent>
           <TabsContent value="woman" className="mt-0">
@@ -497,7 +471,6 @@ export default function DashboardPage() {
               isEditing={isEditing} 
               onInputChange={handleInputChange}
               onImageChange={handleImageChange}
-              imageLoadingStatus={imageLoadingStatus}
             />
           </TabsContent>
           <TabsContent value="nino" className="mt-0">
@@ -506,7 +479,6 @@ export default function DashboardPage() {
               isEditing={isEditing}
               onInputChange={handleInputChange}
               onImageChange={handleImageChange}
-              imageLoadingStatus={imageLoadingStatus}
             />
           </TabsContent>
         </Tabs>
@@ -514,3 +486,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    
