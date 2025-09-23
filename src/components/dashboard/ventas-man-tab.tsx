@@ -166,20 +166,6 @@ const ImageImportCard = ({ selectedRow, isEditing, onImageChange, imagePath }: {
     );
 };
 
-
-const analisisVentasLabels: Record<TableDataKey, string> = {
-    pesoComprador: "COMPRADOR",
-    zonaComercial: "ZONA COMPRADOR",
-    agrupacionComercial: "AGRUPACIÓN COMERCIAL",
-};
-
-const subTabLabels: Record<string, string> = {
-    analisisVentas: "ANÁLISIS DE VENTAS",
-    operaciones: "OPERACIONES",
-    focusSemanal: "FOCUS SEMANAL",
-};
-
-
 export function VentasManTab({ data, isEditing, onInputChange, onImageChange }: VentasManTabProps) {
     const [activeMainTab, setActiveMainTab] = React.useState("analisisVentas");
     const [activeAnalysisTab, setActiveAnalysisTab] = React.useState<TableDataKey>('pesoComprador');
@@ -215,43 +201,19 @@ export function VentasManTab({ data, isEditing, onInputChange, onImageChange }: 
 
     return (
         <Tabs value={activeMainTab} onValueChange={setActiveMainTab} className="w-full">
-             <div className="mb-4">
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="outline" className="w-full md:w-auto">
-                            {subTabLabels[activeMainTab]}
-                            <ChevronDown className="ml-2 h-4 w-4" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start">
-                        <DropdownMenuRadioGroup value={activeMainTab} onValueChange={setActiveMainTab}>
-                            <DropdownMenuRadioItem value="analisisVentas">ANÁLISIS DE VENTAS</DropdownMenuRadioItem>
-                            <DropdownMenuRadioItem value="operaciones">OPERACIONES</DropdownMenuRadioItem>
-                            <DropdownMenuRadioItem value="focusSemanal">FOCUS SEMANAL</DropdownMenuRadioItem>
-                        </DropdownMenuRadioGroup>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            </div>
+            <TabsList className="mb-4">
+                <TabsTrigger value="analisisVentas">ANÁLISIS DE VENTAS</TabsTrigger>
+                <TabsTrigger value="operaciones">OPERACIONES</TabsTrigger>
+                <TabsTrigger value="focusSemanal">FOCUS SEMANAL</TabsTrigger>
+            </TabsList>
 
             <TabsContent value="analisisVentas">
                 <Tabs value={activeAnalysisTab} onValueChange={(value) => setActiveAnalysisTab(value as TableDataKey)} className="w-full">
-                    <div className="mb-4">
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="outline" className="w-full md:w-auto">
-                                    {analisisVentasLabels[activeAnalysisTab]}
-                                    <ChevronDown className="ml-2 h-4 w-4" />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="start">
-                                <DropdownMenuRadioGroup value={activeAnalysisTab} onValueChange={(value) => setActiveAnalysisTab(value as TableDataKey)}>
-                                    <DropdownMenuRadioItem value="pesoComprador">COMPRADOR</DropdownMenuRadioItem>
-                                    <DropdownMenuRadioItem value="zonaComercial">ZONA COMPRADOR</DropdownMenuRadioItem>
-                                    <DropdownMenuRadioItem value="agrupacionComercial">AGRUPACIÓN COMERCIAL</DropdownMenuRadioItem>
-                                </DropdownMenuRadioGroup>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    </div>
+                    <TabsList className="mb-4">
+                        <TabsTrigger value="pesoComprador">COMPRADOR</TabsTrigger>
+                        <TabsTrigger value="zonaComercial">ZONA COMPRADOR</TabsTrigger>
+                        <TabsTrigger value="agrupacionComercial">AGRUPACIÓN COMERCIAL</TabsTrigger>
+                    </TabsList>
 
                     <TabsContent value="pesoComprador">
                         <div className="grid gap-4 items-start grid-cols-1 md:grid-cols-2">
