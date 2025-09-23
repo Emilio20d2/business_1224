@@ -165,14 +165,16 @@ export function getInitialLists(): WeeklyData['listas'] {
 
 // This function generates a new, blank report structure based on the provided lists.
 export function getInitialDataForWeek(week: string, lists: WeeklyData['listas']): WeeklyData {
-    const createVentasManItems = (items: string[]): VentasManItem[] => 
-        items.map(name => ({
+    const createVentasManItems = (items: string[]): VentasManItem[] => {
+        if (!Array.isArray(items)) return [];
+        return items.map(name => ({
             nombre: name,
             pesoPorc: 0,
             totalEuros: 0,
             varPorc: 0,
             imageUrl: "",
         }));
+    }
     
     return {
         periodo: week.toUpperCase().replace('-', ' '),
