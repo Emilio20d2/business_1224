@@ -212,7 +212,7 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
         {/* Fila Central: 6-col Grid */}
         <div className="md:col-span-6 grid grid-cols-1 md:grid-cols-6 gap-2">
           <KpiCard title="GAP" icon={<ClipboardX className="h-5 w-5 text-primary" />} className="md:col-span-2">
-              <div className="flex flex-row justify-center items-center gap-4">
+              <div className="flex flex-row justify-around items-center gap-4 h-full">
                   <DatoSimple 
                       icon={<Euro className="h-5 w-5 text-primary"/>}
                       value={isEditing ? perdidas.gap.euros : formatGap(perdidas.gap.euros, '€')} 
@@ -235,7 +235,7 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
           </KpiCard>
 
           <KpiCard title="Merma" icon={<Trash2 className="h-5 w-5 text-primary" />} className="md:col-span-2">
-              <div className="flex flex-row justify-center items-center gap-4">
+              <div className="flex flex-row justify-around items-center gap-4 h-full">
                   <DatoSimple 
                       icon={<Package className="h-5 w-5 text-primary"/>}
                       value={isEditing ? perdidas.merma.unidades : `${formatNumber(perdidas.merma.unidades)} Unid.`}
@@ -266,7 +266,7 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
           </KpiCard>
 
           <KpiCard title="Caja" icon={<Receipt className="h-5 w-5 text-primary" />} className="md:col-span-4">
-              <div className="grid grid-cols-3 items-center justify-center gap-4">
+              <div className="grid grid-cols-3 items-center justify-center gap-4 h-full">
                   <DatoSimple icon={<Clock className="h-5 w-5 text-primary"/>} label="Filas Caja" value={isEditing ? operaciones.filasCajaPorc : formatPercentage(operaciones.filasCajaPorc)} isEditing={isEditing} valueId="operaciones.filasCajaPorc" align="center" onInputChange={onInputChange} unit="%" />
                   <DatoSimple icon={<ScanLine className="h-5 w-5 text-primary"/>} label="ACO" value={isEditing ? operaciones.scoPorc : formatPercentage(operaciones.scoPorc)} isEditing={isEditing} valueId="operaciones.scoPorc" align="center" onInputChange={onInputChange} unit="%" />
                   <DatoSimple icon={<Inbox className="h-5 w-5 text-primary"/>} label="DropOff" value={isEditing ? operaciones.dropOffPorc : formatPercentage(operaciones.dropOffPorc)} isEditing={isEditing} valueId="operaciones.dropOffPorc" align="center" onInputChange={onInputChange} unit="%" />

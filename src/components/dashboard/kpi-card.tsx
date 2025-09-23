@@ -142,7 +142,7 @@ export function DatoSimple({ label, value, isEditing, valueId, className, icon, 
                  </div>
             )
         }
-        return <strong className={cn("font-semibold text-lg text-right w-full", valueColor)}>{value}</strong>;
+        return <strong className={cn("font-semibold text-lg w-full", valueColor)}>{value}</strong>;
     }
 
     const alignmentClasses = {
