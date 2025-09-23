@@ -65,38 +65,27 @@ const getPreviousWeekRange = () => {
 
 const synchronizeTableData = (list: string[], oldTableData: VentasManItem[] = []): VentasManItem[] => {
     if (!Array.isArray(list)) return [];
+    
     // Ensure oldTableData is an array before mapping
     const safeOldTableData = Array.isArray(oldTableData) ? oldTableData : [];
+    
     const oldDataMap = new Map(safeOldTableData.map(item => [item.nombre, item]));
-    
-    // Create a set of names that are already in use from the old data
-    const usedNames = new Set(safeOldTableData.map(item => item.nombre));
 
-    // Map over the old data first to preserve it
-    const preservedData = safeOldTableData.map(item => ({ ...item }));
-
-    // Find available names from the main list that are not yet used
-    const availableNames = list.filter(name => !usedNames.has(name));
-
-    // Fill the rest of the table up to the list's length with available names
-    const needed = list.length - preservedData.length;
-    if (needed > 0) {
-        for (let i = 0; i < needed; i++) {
-            const nameToAdd = availableNames.shift();
-            if (nameToAdd) {
-                preservedData.push({
-                    nombre: nameToAdd,
-                    pesoPorc: 0,
-                    totalEuros: 0,
-                    varPorc: 0,
-                    imageUrl: "",
-                });
-            }
+    // Map over the new list, preserving old data where possible
+    return list.map(itemName => {
+        const existingItem = oldDataMap.get(itemName);
+        if (existingItem) {
+            return { ...existingItem };
         }
-    }
-    
-    // Trim the data if the list has become shorter
-    return preservedData.slice(0, list.length);
+        // If the item is new in the list, create a default entry
+        return {
+            nombre: itemName,
+            pesoPorc: 0,
+            totalEuros: 0,
+            varPorc: 0,
+            imageUrl: "",
+        };
+    });
 };
 
 const synchronizeReportData = (reportData: WeeklyData, listData: WeeklyData['listas']): { updatedData: WeeklyData, hasChanged: boolean } => {
@@ -132,7 +121,7 @@ const synchronizeReportData = (reportData: WeeklyData, listData: WeeklyData['lis
         // Sync pesoComprador
         const pesoCompradorList = listData[listKeys.comprador] || [];
         const currentPesoCompradorData = updatedData[ventasKey].pesoComprador || [];
-        if (pesoCompradorList.length !== currentPesoCompradorData.length) {
+        if (pesoCompradorList.length !== currentPesoCompradorData.length || pesoCompradorList.some((item, i) => item !== currentPesoCompradorData[i]?.nombre)) {
              updatedData[ventasKey].pesoComprador = synchronizeTableData(pesoCompradorList, currentPesoCompradorData);
              hasChanged = true;
         }
@@ -140,7 +129,7 @@ const synchronizeReportData = (reportData: WeeklyData, listData: WeeklyData['lis
         // Sync zonaComercial
         const zonaComercialList = listData[listKeys.zonaComercial] || [];
         const currentZonaComercialData = updatedData[ventasKey].zonaComercial || [];
-        if (zonaComercialList.length !== currentZonaComercialData.length) {
+        if (zonaComercialList.length !== currentZonaComercialData.length || zonaComercialList.some((item, i) => item !== currentZonaComercialData[i]?.nombre)) {
              updatedData[ventasKey].zonaComercial = synchronizeTableData(zonaComercialList, currentZonaComercialData);
              hasChanged = true;
         }
@@ -148,7 +137,7 @@ const synchronizeReportData = (reportData: WeeklyData, listData: WeeklyData['lis
         // Sync agrupacionComercial
         const agrupacionComercialList = listData[listKeys.agrupacionComercial] || [];
         const currentAgrupacionComercialData = updatedData[ventasKey].agrupacionComercial || [];
-        if (agrupacionComercialList.length !== currentAgrupacionComercialData.length) {
+        if (agrupacionComercialList.length !== currentAgrupacionComercialData.length || agrupacionComercialList.some((item, i) => item !== currentAgrupacionComercialData[i]?.nombre)) {
              updatedData[ventasKey].agrupacionComercial = synchronizeTableData(agrupacionComercialList, currentAgrupacionComercialData);
              hasChanged = true;
         }
@@ -325,30 +314,37 @@ export default function DashboardPage() {
     fetchData(); // Re-fetch original data to discard changes
   };
 
- const handleImageChange = (path: string, dataUrl: string) => {
-    setImageLoadingStatus(prev => ({...prev, [path]: true}));
-
-    setData(currentData => {
-      if (!currentData) return null;
-      
-      const newData = JSON.parse(JSON.stringify(currentData));
-      
-      const keys = path.split('.');
-      let current: any = newData;
-      for (let i = 0; i < keys.length - 1; i++) {
-          current = current[keys[i]];
-      }
-      current[keys[keys.length - 1]] = dataUrl;
-      
-      const reportRef = doc(db, "informes", newData.periodo.toLowerCase().replace(' ', '-'));
-      
-      // Use a promise to ensure save happens after state update logic
-      const saveData = async () => {
+  const handleImageChange = async (path: string, dataUrl: string) => {
+      setImageLoadingStatus(prev => ({ ...prev, [path]: true }));
+  
+      // Create a new updated data object
+      const updatedData = await new Promise<WeeklyData | null>((resolve) => {
+          setData(currentData => {
+              if (!currentData) {
+                  resolve(null);
+                  return null;
+              }
+  
+              const newData = JSON.parse(JSON.stringify(currentData));
+              const keys = path.split('.');
+              let current: any = newData;
+              for (let i = 0; i < keys.length - 1; i++) {
+                  current = current[keys[i]];
+              }
+              current[keys[keys.length - 1]] = dataUrl;
+              
+              resolve(newData);
+              return newData;
+          });
+      });
+  
+      if (updatedData) {
           try {
-              await setDoc(reportRef, newData, { merge: true });
+              const reportRef = doc(db, "informes", updatedData.periodo.toLowerCase().replace(' ', '-'));
+              await setDoc(reportRef, updatedData, { merge: true });
               toast({
                   title: "Imagen guardada",
-                  description: "La nueva imagen se ha guardado.",
+                  description: "La nueva imagen se ha guardado correctamente.",
               });
           } catch (error) {
               console.error("Error updating image in Firestore: ", error);
@@ -358,15 +354,12 @@ export default function DashboardPage() {
                   description: "No se pudo guardar la imagen. Inténtalo de nuevo.",
               });
           } finally {
-              setImageLoadingStatus(prev => ({...prev, [path]: false}));
+              setImageLoadingStatus(prev => ({ ...prev, [path]: false }));
           }
-      };
-      
-      saveData();
-
-      return newData;
-    });
-};
+      } else {
+           setImageLoadingStatus(prev => ({ ...prev, [path]: false }));
+      }
+  };
 
   if (authLoading || dataLoading) {
     return (
