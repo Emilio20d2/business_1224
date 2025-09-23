@@ -201,88 +201,86 @@ export default function DashboardPage() {
     setIsListDialogOpen(true);
   };
 
- const handleSaveList = async (newList: string[]) => {
+  const handleSaveList = async (newList: string[]) => {
     if (!listToEdit || !data) return;
 
     const listsRef = doc(db, "configuracion", "listas");
+    const reportRef = doc(db, "informes", data.periodo.toLowerCase().replace(' ', '-'));
+
     try {
-        // 1. Save the new list to Firestore
-        await setDoc(listsRef, { [listToEdit]: newList }, { merge: true });
+        // Create a temporary updated data object to work with
+        const updatedData = JSON.parse(JSON.stringify(data));
 
-        // 2. Update local state to reflect the change and synchronize the data table
-        setData(prevData => {
-            if (!prevData) return null;
+        // 1. Update the list itself in the local state
+        updatedData.listas[listToEdit] = newList;
 
-            // Deep copy to avoid direct mutation
-            const updatedData = JSON.parse(JSON.stringify(prevData));
+        // 2. Determine which data table to synchronize
+        let dataKey: keyof WeeklyData['ventasMan'] | null = null;
+        switch (listToEdit) {
+            case 'comprador':
+                dataKey = 'pesoComprador';
+                break;
+            case 'zonaComercial':
+                dataKey = 'zonaComercial';
+                break;
+            case 'agrupacionComercial':
+                dataKey = 'agrupacionComercial';
+                break;
+        }
 
-            // Update the list itself in the local state
-            updatedData.listas[listToEdit] = newList;
+        if (dataKey) {
+            // Get the old table data to preserve existing values
+            const oldTableData: any[] = data.ventasMan[dataKey] || [];
+            const oldDataMap = new Map(oldTableData.map(item => [item.nombre, item]));
 
-            // Determine which data table to synchronize
-            let dataKey: keyof WeeklyData['ventasMan'] | null = null;
-            switch (listToEdit) {
-                case 'comprador':
-                    dataKey = 'pesoComprador';
-                    break;
-                case 'zonaComercial':
-                    dataKey = 'zonaComercial';
-                    break;
-                case 'agrupacionComercial':
-                    dataKey = 'agrupacionComercial';
-                    break;
-            }
-
-            if (dataKey) {
-                // Get the old table data to preserve existing values
-                const oldTableData: any[] = prevData.ventasMan[dataKey] || [];
-                const oldDataMap = new Map(oldTableData.map(item => [item.nombre, item]));
-
-                // Build the new table data based on the new list
-                const newTableData = newList.map(itemName => {
-                    const existingItem = oldDataMap.get(itemName);
-                    if (existingItem) {
-                        // If item already exists, keep its data
-                        return existingItem;
-                    } else {
-                        // If it's a new item, create a new entry with default values
-                        return {
-                            nombre: itemName,
-                            pesoPorc: 0,
-                            totalEuros: 0,
-                            varPorc: 0,
-                            imageUrl: `https://picsum.photos/seed/${itemName.replace(/\s/g, '')}/500/400`
-                        };
-                    }
-                });
-                
-                // Replace the old table data with the newly synchronized one
-                updatedData.ventasMan[dataKey] = newTableData;
-            }
+            // Build the new table data based on the new list
+            const newTableData = newList.map(itemName => {
+                const existingItem = oldDataMap.get(itemName);
+                if (existingItem) {
+                    // If item already exists, keep its data
+                    return existingItem;
+                } else {
+                    // If it's a new item, create a new entry with default values
+                    return {
+                        nombre: itemName,
+                        pesoPorc: 0,
+                        totalEuros: 0,
+                        varPorc: 0,
+                        imageUrl: `https://picsum.photos/seed/${itemName.replace(/\s/g, '')}/500/400`
+                    };
+                }
+            });
             
-            return updatedData;
-        });
+            // Replace the old table data with the newly synchronized one
+            updatedData.ventasMan[dataKey] = newTableData;
+        }
+
+        // 3. Update the local state to reflect the changes immediately in the UI
+        setData(updatedData);
+
+        // 4. Save both the configuration list and the updated report data to Firestore
+        await Promise.all([
+            setDoc(listsRef, { [listToEdit]: newList }, { merge: true }),
+            setDoc(reportRef, { ventasMan: updatedData.ventasMan }, { merge: true })
+        ]);
 
         toast({
-          title: "Lista actualizada",
-          description: `La lista de ${listToEdit} se ha guardado correctamente.`
+          title: "Lista y Datos Guardados",
+          description: `La lista de ${listToEdit} y los datos del informe se han sincronizado y guardado.`
         });
-        
-        // IMPORTANT: Set editing to true so the user can save the synchronized table data
-        setIsEditing(true);
 
     } catch (error) {
-        console.error("Error saving list:", error);
+        console.error("Error saving list and synchronizing data:", error);
         toast({
             variant: "destructive",
-            title: "Error al guardar la lista",
-            description: "No se pudo guardar la lista. Inténtalo de nuevo.",
+            title: "Error al sincronizar",
+            description: "No se pudo guardar la lista y sincronizar los datos. Inténtalo de nuevo.",
         });
     } finally {
         setListToEdit(null);
         setIsListDialogOpen(false);
     }
-};
+  };
 
 
   const getTitleForList = (listName: EditableList | null) => {
