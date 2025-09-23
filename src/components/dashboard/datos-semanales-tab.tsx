@@ -18,7 +18,8 @@ import {
   Smartphone,
   Ticket,
   ScanLine,
-  RefreshCw
+  RefreshCw,
+  Inbox
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
@@ -164,10 +165,11 @@ export function DatosSemanalesTab({ data, isEditing, onInputChange }: DatosSeman
             <DatoSimple value={isEditing ? data.operaciones.ventaIpod : formatNumber(data.operaciones.ventaIpod)} isEditing={isEditing} valueId="operaciones.ventaIpod" align="center" onInputChange={onInputChange}/>
         </KpiCard>
 
-        <KpiCard title="Caja" icon={<Receipt className="h-5 w-5 text-primary" />} className="md:col-span-2">
-            <div className="grid grid-cols-2 gap-4">
+        <KpiCard title="Caja" icon={<Receipt className="h-5 w-5 text-primary" />} className="md:col-span-3">
+            <div className="grid grid-cols-3 gap-4">
                 <DatoSimple icon={<Clock />} label="Filas Caja" value={isEditing ? data.operaciones.filasCajaPorc : formatPercentage(data.operaciones.filasCajaPorc)} isEditing={isEditing} valueId="operaciones.filasCajaPorc" align="center" onInputChange={onInputChange} unit="%" />
                 <DatoSimple icon={<ScanLine />} label="ACO" value={isEditing ? data.operaciones.scoPorc : formatPercentage(data.operaciones.scoPorc)} isEditing={isEditing} valueId="operaciones.scoPorc" align="center" onInputChange={onInputChange} unit="%" />
+                <DatoSimple icon={<Inbox />} label="DropOff" value={isEditing ? data.operaciones.dropOffPorc : formatPercentage(data.operaciones.dropOffPorc)} isEditing={isEditing} valueId="operaciones.dropOffPorc" align="center" onInputChange={onInputChange} unit="%" />
             </div>
         </KpiCard>
         
@@ -178,8 +180,8 @@ export function DatosSemanalesTab({ data, isEditing, onInputChange }: DatosSeman
             </div>
         </KpiCard>
         
-        <KpiCard title="E-Ticket" icon={<Ticket className="h-5 w-5 text-primary" />}>
-            <DatoSimple value={isEditing ? data.operaciones.eTicketPorc : formatPercentage(data.operaciones.eTicketPorc)} isEditing={isEditing} valueId="operaciones.eTicketPorc" align="center" onInputChange={onInputChange} unit="%" />
+        <KpiCard title="E-Ticket" icon={<Ticket className="h-5 w-5 text-primary" />} className="md:col-span-2">
+             <DatoSimple value={isEditing ? data.operaciones.eTicketPorc : formatPercentage(data.operaciones.eTicketPorc)} isEditing={isEditing} valueId="operaciones.eTicketPorc" align="center" onInputChange={onInputChange} unit="%" />
         </KpiCard>
       </div>
 

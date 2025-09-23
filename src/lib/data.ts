@@ -34,6 +34,7 @@ export type WeeklyData = {
     operaciones: {
         filasCajaPorc: number;
         scoPorc: number;
+        dropOffPorc: number;
         ventaIpod: number;
         eTicketPorc: number;
         sint: number;
@@ -157,7 +158,7 @@ export function getInitialDataForWeek(week: string, lists: WeeklyData['listas'])
         listas: lists,
         ventas: { totalEuros: 0, varPorcEuros: 0, totalUnidades: 0, varPorcUnidades: 0 },
         rendimientoTienda: { trafico: 0, varPorcTrafico: 0, conversion: 0, varPorcConversion: 0 },
-        operaciones: { filasCajaPorc: 0, scoPorc: 0, ventaIpod: 0, eTicketPorc: 0, sint: 0, repoPorc: 0 },
+        operaciones: { filasCajaPorc: 0, scoPorc: 0, dropOffPorc: 0, ventaIpod: 0, eTicketPorc: 0, sint: 0, repoPorc: 0 },
         logistica: { entradasSemanales: 0, salidasSemanales: 0 },
         perdidas: { gap: { euros: 0, unidades: 0 }, merma: { unidades: 0, porcentaje: 0 } },
         almacenes: {
@@ -258,5 +259,3 @@ export function getInitialDataForWeek(week: string, lists: WeeklyData['listas'])
         }
     };
 }
-
-    
