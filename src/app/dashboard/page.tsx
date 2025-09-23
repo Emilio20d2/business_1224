@@ -2,7 +2,8 @@
 import React, { useState, useContext, useEffect, useCallback } from 'react';
 import type { WeeklyData, VentasManItem } from "@/lib/data";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
-import { db } from '@/lib/firebase';
+import { db, storage } from '@/lib/firebase';
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { 
   Select, 
   SelectContent, 
@@ -340,12 +341,20 @@ export default function DashboardPage() {
     }
 };
 
-const handleImageChange = async (path: string, dataUrl: string) => {
-    if (!data) return;
+const handleImageChange = async (path: string, file: File, onUploadComplete: (success: boolean) => void) => {
+    if (!data) {
+        onUploadComplete(false);
+        return;
+    }
+
+    const storageRef = ref(storage, `informes/${data.periodo.toLowerCase().replace(' ', '-')}/${file.name}-${Date.now()}`);
 
     try {
+        const snapshot = await uploadBytes(storageRef, file);
+        const downloadURL = await getDownloadURL(snapshot.ref);
+
         const reportRef = doc(db, "informes", data.periodo.toLowerCase().replace(' ', '-'));
-        await updateDoc(reportRef, { [path]: dataUrl });
+        await updateDoc(reportRef, { [path]: downloadURL });
 
         setData(prevData => {
             if (!prevData) return null;
@@ -355,22 +364,24 @@ const handleImageChange = async (path: string, dataUrl: string) => {
             for (let i = 0; i < keys.length - 1; i++) {
                 current = current[keys[i]];
             }
-            current[keys[keys.length - 1]] = dataUrl;
+            current[keys[keys.length - 1]] = downloadURL;
             return updatedData;
         });
 
         toast({
             title: "Imagen guardada",
-            description: "La imagen se ha actualizado correctamente.",
+            description: "La imagen se ha subido y guardado correctamente.",
         });
+        onUploadComplete(true);
 
     } catch (error) {
-        console.error("Error updating image: ", error);
+        console.error("Error uploading image: ", error);
         toast({
             variant: "destructive",
             title: "Error al guardar la imagen",
-            description: "No se pudo guardar la imagen. Inténtalo de nuevo.",
+            description: "No se pudo subir la imagen. Comprueba tu conexión y los permisos de Firebase Storage.",
         });
+        onUploadComplete(false);
     }
 };
 

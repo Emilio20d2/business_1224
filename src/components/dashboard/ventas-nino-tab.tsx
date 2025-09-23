@@ -36,7 +36,7 @@ type VentasNinoTabProps = {
   data: WeeklyData;
   isEditing: boolean;
   onInputChange: (path: string, value: any) => void;
-  onImageChange: (path: string, dataUrl: string) => void;
+  onImageChange: (path: string, file: File, onUploadComplete: (success: boolean) => void) => void;
 };
 
 
@@ -134,18 +134,18 @@ const DataTable = ({
     );
 };
 
-const ImageImportCard = ({ selectedRow, isEditing, onImageChange, imagePath }: { selectedRow: VentasNinoItem | null, isEditing: boolean, onImageChange: (path: string, dataUrl: string) => void, imagePath: string | null }) => {
+const ImageImportCard = ({ selectedRow, isEditing, onImageChange, imagePath }: { selectedRow: VentasNinoItem | null, isEditing: boolean, onImageChange: VentasNinoTabProps['onImageChange'], imagePath: string | null }) => {
+    const [isUploading, setIsUploading] = React.useState(false);
     const displayImage = selectedRow?.imageUrl;
     const fileInputRef = React.useRef<HTMLInputElement>(null);
 
     const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (file && imagePath) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                onImageChange(imagePath, e.target?.result as string);
-            };
-            reader.readAsDataURL(file);
+            setIsUploading(true);
+            onImageChange(imagePath, file, (success) => {
+                setIsUploading(false);
+            });
         }
     };
 
@@ -157,6 +157,11 @@ const ImageImportCard = ({ selectedRow, isEditing, onImageChange, imagePath }: {
         <Card className="relative overflow-hidden p-0 gap-0 w-full aspect-[16/9]">
             <CardContent className="p-0 h-full">
                 <div className="w-full h-full bg-muted flex items-center justify-center">
+                    {isUploading && (
+                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-10">
+                            <Loader2 className="h-12 w-12 text-white animate-spin" />
+                        </div>
+                    )}
                     {displayImage ? (
                         <img src={displayImage} alt={selectedRow?.nombre || 'Análisis Visual'} className="h-full w-full object-cover" />
                     ) : (
@@ -168,15 +173,16 @@ const ImageImportCard = ({ selectedRow, isEditing, onImageChange, imagePath }: {
                     )}
                 </div>
                 {isEditing && selectedRow && (
-                     <div className="absolute bottom-2 right-2">
+                     <div className="absolute bottom-2 right-2 z-20">
                         <Input
                             type="file"
                             ref={fileInputRef}
                             onChange={handleImageUpload}
                             className="hidden"
                             accept="image/*"
+                            disabled={isUploading}
                         />
-                        <Button onClick={handleButtonClick} variant="secondary">
+                        <Button onClick={handleButtonClick} variant="secondary" disabled={isUploading}>
                             <Upload className="mr-2 h-4 w-4" />
                             Cambiar Imagen
                         </Button>
@@ -220,7 +226,7 @@ const CompradorTab = ({ data, isEditing, onInputChange, onImageChange }: { data:
                             <TableRow 
                                 key={item.nombre + index}
                                 onClick={() => handleRowSelect(index)}
-                                className={cn(selectedIndex === index && 'bg-muted/50')}
+                                className={cn('cursor-pointer', selectedIndex === index && 'bg-muted/50')}
                             >
                                 <TableCell>
                                     {isEditing ? (
