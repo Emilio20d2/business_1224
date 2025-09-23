@@ -167,9 +167,9 @@ const ImageImportCard = ({ selectedRow, isEditing, onImageChange, imagePath }: {
 
 
 const analisisVentasLabels: Record<TableDataKey, string> = {
-    pesoComprador: "Comprador",
-    zonaComercial: "Zona Comprador",
-    agrupacionComercial: "Agrupación Comercial",
+    pesoComprador: "COMPRADOR",
+    zonaComercial: "ZONA COMPRADOR",
+    agrupacionComercial: "AGRUPACIÓN COMERCIAL",
 };
 
 
@@ -212,14 +212,14 @@ export function VentasManTab({ data, isEditing, onInputChange, onImageChange }: 
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="outline" className="w-full md:w-auto">
-                            {activeMainTab === 'analisisVentas' ? 'Análisis de Ventas' : 'Operaciones'}
+                            {activeMainTab === 'analisisVentas' ? 'ANÁLISIS DE VENTAS' : 'OPERACIONES'}
                             <ChevronDown className="ml-2 h-4 w-4" />
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="start">
                         <DropdownMenuRadioGroup value={activeMainTab} onValueChange={setActiveMainTab}>
-                            <DropdownMenuRadioItem value="analisisVentas">Análisis de Ventas</DropdownMenuRadioItem>
-                            <DropdownMenuRadioItem value="operaciones">Operaciones</DropdownMenuRadioItem>
+                            <DropdownMenuRadioItem value="analisisVentas">ANÁLISIS DE VENTAS</DropdownMenuRadioItem>
+                            <DropdownMenuRadioItem value="operaciones">OPERACIONES</DropdownMenuRadioItem>
                         </DropdownMenuRadioGroup>
                     </DropdownMenuContent>
                 </DropdownMenu>
@@ -237,9 +237,9 @@ export function VentasManTab({ data, isEditing, onInputChange, onImageChange }: 
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="start">
                                 <DropdownMenuRadioGroup value={activeAnalysisTab} onValueChange={(value) => setActiveAnalysisTab(value as TableDataKey)}>
-                                    <DropdownMenuRadioItem value="pesoComprador">Comprador</DropdownMenuRadioItem>
-                                    <DropdownMenuRadioItem value="zonaComercial">Zona Comprador</DropdownMenuRadioItem>
-                                    <DropdownMenuRadioItem value="agrupacionComercial">Agrupación Comercial</DropdownMenuRadioItem>
+                                    <DropdownMenuRadioItem value="pesoComprador">COMPRADOR</DropdownMenuRadioItem>
+                                    <DropdownMenuRadioItem value="zonaComercial">ZONA COMPRADOR</DropdownMenuRadioItem>
+                                    <DropdownMenuRadioItem value="agrupacionComercial">AGRUPACIÓN COMERCIAL</DropdownMenuRadioItem>
                                 </DropdownMenuRadioGroup>
                             </DropdownMenuContent>
                         </DropdownMenu>

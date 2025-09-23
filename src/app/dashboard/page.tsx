@@ -44,12 +44,12 @@ type TabValue = "datosSemanales" | "ventasSeccion" | "aqneSemanal" | "acumulado"
 
 
 const tabLabels: Record<TabValue, string> = {
-    datosSemanales: "Datos Semanales",
-    ventasSeccion: "Ventas Sección",
-    aqneSemanal: "AQNE Semanal",
-    acumulado: "Acumulado",
-    ventasMan: "Ventas Man",
-    focusSemanal: "Focus Semanal"
+    datosSemanales: "GENERAL",
+    ventasSeccion: "VENTAS SECCIÓN",
+    aqneSemanal: "AQNE SEMANAL",
+    acumulado: "ACUMULADO",
+    ventasMan: "VENTAS MAN",
+    focusSemanal: "FOCUS SEMANAL"
 };
 
 const getPreviousWeekRange = () => {
@@ -440,7 +440,7 @@ export default function DashboardPage() {
                           <span>ZONA COMPRADOR</span>
                       </DropdownMenuItem>
                       <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercial')}>
-                          <span>Agrupación Comercial</span>
+                          <span>AGRUPACIÓN COMERCIAL</span>
                       </DropdownMenuItem>
                   </DropdownMenuGroup>
                  <DropdownMenuSeparator />
