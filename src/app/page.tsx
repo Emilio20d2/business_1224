@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { AuthContext } from '@/context/auth-context';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Briefcase } from 'lucide-react';
 
 export default function LoginPage() {
   const [email, setEmail] = React.useState('');
@@ -58,7 +58,10 @@ export default function LoginPage() {
     <div className="flex items-center justify-center min-h-screen bg-background">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="text-2xl">BUSSINES</CardTitle>
+          <CardTitle className="text-2xl flex items-center gap-2">
+            <Briefcase className="h-6 w-6" />
+            BUSSINES
+          </CardTitle>
           <CardDescription>
             Introduce tus credenciales para acceder al panel.
           </CardDescription>

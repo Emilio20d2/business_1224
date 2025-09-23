@@ -18,7 +18,7 @@ import { VentasManTab } from '@/components/dashboard/ventas-man-tab';
 import { VentasWomanTab } from '@/components/dashboard/ventas-woman-tab';
 import { VentasNinoTab } from '@/components/dashboard/ventas-nino-tab';
 import { Button } from '@/components/ui/button';
-import { Settings, LogOut, Loader2, ChevronDown, Pencil } from 'lucide-react';
+import { Settings, LogOut, Loader2, ChevronDown, Pencil, Briefcase } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -474,7 +474,8 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen w-full p-4 sm:p-6 bg-background">
       <header className="mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+        <h1 className="text-2xl sm:text-3xl font-bold text-foreground flex items-center gap-2">
+          <Briefcase className="h-7 w-7" />
           BUSSINES
         </h1>
         <div className="flex items-center gap-4">
