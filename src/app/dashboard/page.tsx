@@ -434,13 +434,13 @@ export default function DashboardPage() {
               </>
             ) : (
               <Button onClick={() => setIsEditing(true)} variant="outline" size="icon">
-                <Pencil className="h-4 w-4" />
+                <Pencil className="h-4 w-4 text-primary" />
               </Button>
             )}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="icon">
-                  <Settings className="h-4 w-4" />
+                  <Settings className="h-4 w-4 text-primary" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56 z-50">
