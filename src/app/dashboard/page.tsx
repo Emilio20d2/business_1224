@@ -44,9 +44,9 @@ type TabValue = "datosSemanales" | "aqneSemanal" | "acumulado" | "ventasMan";
 
 const tabLabels: Record<string, string> = {
     datosSemanales: "GENERAL",
-    aqneSemanal: "AQNE SEMANAL",
+    aqneSemanal: "AQNE",
     acumulado: "ACUMULADO",
-    ventasMan: "VENTAS MAN",
+    ventasMan: "MAN",
 };
 
 const getPreviousWeekRange = () => {
