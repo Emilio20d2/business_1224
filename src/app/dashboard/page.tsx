@@ -462,7 +462,7 @@ export default function DashboardPage() {
                 <DropdownMenuItem onSelect={() => {
                   logout();
                 }}>
-                  <LogOut className="mr-2 h-4 w-4" />
+                  <LogOut className="mr-2 h-4 w-4 text-primary" />
                   <span>Cerrar sesión</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>

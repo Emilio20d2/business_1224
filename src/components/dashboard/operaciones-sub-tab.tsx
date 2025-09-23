@@ -58,9 +58,9 @@ const ModuloContenidoGrande = ({ icon, value, isEditing, id, onInputChange }: { 
 
 const FilaModulo = ({ icon, label, value, isEditing, id, onInputChange, unit }: { icon: React.ReactNode, label: string, value: number, isEditing?: boolean, id?: string, onInputChange?: (path: string, value: string) => void; unit: string }) => (
      <div className="flex items-center justify-between gap-4 text-md w-40">
-        <div className="flex items-center gap-2 text-muted-foreground">
+        <div className="flex items-center gap-2 text-primary">
             {icon}
-            <span>{label}</span>
+            <span className="text-muted-foreground">{label}</span>
         </div>
          {isEditing && id && onInputChange ? 
             <div className="flex items-center gap-1">
@@ -79,10 +79,10 @@ export function OperacionesSubTab({ data, isEditing, onInputChange }: Operacione
       <KpiCard title="Gestión de Almacén y Logística" icon={<Warehouse className="h-5 w-5 text-primary" />} className="md:col-span-6">
         <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_1fr_1.5fr] gap-6 place-items-start">
           <ModuloAlmacen title="Entradas">
-            <ModuloContenidoGrande icon={<Truck className="h-8 w-8"/>} value={data.logistica.entradasSemanales} isEditing={isEditing} id="logistica.entradasSemanales" onInputChange={onInputChange} />
+            <ModuloContenidoGrande icon={<Truck className="h-8 w-8 text-primary"/>} value={data.logistica.entradasSemanales} isEditing={isEditing} id="logistica.entradasSemanales" onInputChange={onInputChange} />
           </ModuloAlmacen>
           <ModuloAlmacen title="Salidas">
-            <ModuloContenidoGrande icon={<PackageCheck className="h-8 w-8"/>} value={data.logistica.salidasSemanales} isEditing={isEditing} id="logistica.salidasSemanales" onInputChange={onInputChange} />
+            <ModuloContenidoGrande icon={<PackageCheck className="h-8 w-8 text-primary"/>} value={data.logistica.salidasSemanales} isEditing={isEditing} id="logistica.salidasSemanales" onInputChange={onInputChange} />
           </ModuloAlmacen>
           <ModuloAlmacen title="Ocupación">
             <FilaModulo icon={<Shirt className="h-5 w-5"/>} label="Ropa" value={data.almacenes.ropa.ocupacionPorc} isEditing={isEditing} id="almacenes.ropa.ocupacionPorc" onInputChange={onInputChange} unit="%" />
@@ -145,7 +145,7 @@ export function OperacionesSubTab({ data, isEditing, onInputChange }: Operacione
         
         <KpiCard title="Reposición" icon={<Package className="h-5 w-5 text-primary" />}>
             <div className="grid grid-cols-1 gap-4">
-                <DatoSimple icon={<RefreshCw />} label="Repo" value={isEditing ? data.operaciones.repoPorc : formatPercentage(data.operaciones.repoPorc)} isEditing={isEditing} valueId="operaciones.repoPorc" align="center" onInputChange={onInputChange} unit="%" />
+                <DatoSimple icon={<RefreshCw className="h-5 w-5 text-primary"/>} label="Repo" value={isEditing ? data.operaciones.repoPorc : formatPercentage(data.operaciones.repoPorc)} isEditing={isEditing} valueId="operaciones.repoPorc" align="center" onInputChange={onInputChange} unit="%" />
             </div>
         </KpiCard>
       </div>

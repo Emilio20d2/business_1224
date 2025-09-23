@@ -7,7 +7,8 @@ import {
   Shirt, 
   Footprints, 
   SprayCan,
-  PersonStanding
+  User,
+  Baby
 } from 'lucide-react';
 import {
   Table,
@@ -32,15 +33,15 @@ type AqneSemanalTabProps = {
 
 
 const sectionConfig = {
-    woman: { title: "WOMAN", icon: <PersonStanding className="h-5 w-5" />, color: "bg-pink-500" },
-    man: { title: "MAN", icon: <PersonStanding className="h-5 w-5" />, color: "bg-blue-500" },
-    nino: { title: "NIÑO", icon: <PersonStanding className="h-5 w-5" />, color: "bg-primary" }
+    woman: { title: "WOMAN", icon: <Shirt className="h-5 w-5 text-primary" />, color: "bg-pink-500" },
+    man: { title: "MAN", icon: <User className="h-5 w-5 text-primary" />, color: "bg-blue-500" },
+    nino: { title: "NIÑO", icon: <Baby className="h-5 w-5 text-primary" />, color: "bg-primary" }
 };
 
 const desgloseIconos: { [key: string]: React.ReactNode } = {
-    "Ropa": <Shirt className="h-4 w-4 text-muted-foreground" />,
-    "Calzado": <Footprints className="h-4 w-4 text-muted-foreground" />,
-    "Perfumería": <SprayCan className="h-4 w-4 text-muted-foreground" />
+    "Ropa": <Shirt className="h-4 w-4 text-primary" />,
+    "Calzado": <Footprints className="h-4 w-4 text-primary" />,
+    "Perfumería": <SprayCan className="h-4 w-4 text-primary" />
 };
 
 const AqneSectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionName, data: AqneData[SectionName], isEditing: boolean, onInputChange: AqneSemanalTabProps['onInputChange'] }) => {

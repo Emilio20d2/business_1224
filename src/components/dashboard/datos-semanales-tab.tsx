@@ -13,7 +13,7 @@ import {
   RefreshCw,
   Inbox,
   Package,
-  PersonStanding,
+  User,
   Baby,
   Shirt,
   Footprints,
@@ -52,15 +52,15 @@ const TrendIndicator = ({ value }: { value: number }) => {
 type SectionName = keyof WeeklyData["datosPorSeccion"];
 
 const sectionConfig = {
-    woman: { title: "WOMAN", icon: <PersonStanding className="h-5 w-5" />, color: "bg-pink-500" },
-    man: { title: "MAN", icon: <PersonStanding className="h-5 w-5" />, color: "bg-blue-500" },
-    nino: { title: "NIÑO", icon: <Baby className="h-5 w-5" />, color: "bg-primary" }
+    woman: { title: "WOMAN", icon: <Shirt className="h-5 w-5 text-primary" />, color: "bg-pink-500" },
+    man: { title: "MAN", icon: <User className="h-5 w-5 text-primary" />, color: "bg-blue-500" },
+    nino: { title: "NIÑO", icon: <Baby className="h-5 w-5 text-primary" />, color: "bg-primary" }
 };
 
 const desgloseIconos: { [key: string]: React.ReactNode } = {
-    "Ropa": <Shirt className="h-4 w-4 text-muted-foreground" />,
-    "Calzado": <Footprints className="h-4 w-4 text-muted-foreground" />,
-    "Perfumería": <SprayCan className="h-4 w-4 text-muted-foreground" />
+    "Ropa": <Shirt className="h-4 w-4 text-primary" />,
+    "Calzado": <Footprints className="h-4 w-4 text-primary" />,
+    "Perfumería": <SprayCan className="h-4 w-4 text-primary" />
 };
 
 const SectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionName, data: WeeklyData["datosPorSeccion"][SectionName], isEditing: boolean, onInputChange: DatosSemanalesTabProps['onInputChange'] }) => {
@@ -259,16 +259,16 @@ export function DatosSemanalesTab({ data, isEditing, onInputChange }: DatosSeman
 
           <KpiCard title="Caja" icon={<Receipt className="h-5 w-5 text-primary" />} className="md:col-span-4">
               <div className="grid grid-cols-3 gap-4">
-                  <DatoSimple icon={<Clock />} label="Filas Caja" value={isEditing ? data.operaciones.filasCajaPorc : formatPercentage(data.operaciones.filasCajaPorc)} isEditing={isEditing} valueId="operaciones.filasCajaPorc" align="center" onInputChange={onInputChange} unit="%" />
-                  <DatoSimple icon={<ScanLine />} label="ACO" value={isEditing ? data.operaciones.scoPorc : formatPercentage(data.operaciones.scoPorc)} isEditing={isEditing} valueId="operaciones.scoPorc" align="center" onInputChange={onInputChange} unit="%" />
-                  <DatoSimple icon={<Inbox />} label="DropOff" value={isEditing ? data.operaciones.dropOffPorc : formatPercentage(data.operaciones.dropOffPorc)} isEditing={isEditing} valueId="operaciones.dropOffPorc" align="center" onInputChange={onInputChange} unit="%" />
+                  <DatoSimple icon={<Clock className="h-5 w-5 text-primary"/>} label="Filas Caja" value={isEditing ? data.operaciones.filasCajaPorc : formatPercentage(data.operaciones.filasCajaPorc)} isEditing={isEditing} valueId="operaciones.filasCajaPorc" align="center" onInputChange={onInputChange} unit="%" />
+                  <DatoSimple icon={<ScanLine className="h-5 w-5 text-primary"/>} label="ACO" value={isEditing ? data.operaciones.scoPorc : formatPercentage(data.operaciones.scoPorc)} isEditing={isEditing} valueId="operaciones.scoPorc" align="center" onInputChange={onInputChange} unit="%" />
+                  <DatoSimple icon={<Inbox className="h-5 w-5 text-primary"/>} label="DropOff" value={isEditing ? data.operaciones.dropOffPorc : formatPercentage(data.operaciones.dropOffPorc)} isEditing={isEditing} valueId="operaciones.dropOffPorc" align="center" onInputChange={onInputChange} unit="%" />
               </div>
           </KpiCard>
           
           <KpiCard title="Operaciones" icon={<Package className="h-5 w-5 text-primary" />} className="md:col-span-2">
               <div className="grid grid-cols-2 gap-4">
-                  <DatoSimple icon={<Package />} label="SINT" value={isEditing ? data.operaciones.sint : formatNumber(data.operaciones.sint)} isEditing={isEditing} valueId="operaciones.sint" align="center" onInputChange={onInputChange} />
-                  <DatoSimple icon={<RefreshCw />} label="Repo" value={isEditing ? data.operaciones.repoPorc : formatPercentage(data.operaciones.repoPorc)} isEditing={isEditing} valueId="operaciones.repoPorc" align="center" onInputChange={onInputChange} unit="%" />
+                  <DatoSimple icon={<Package className="h-5 w-5 text-primary"/>} label="SINT" value={isEditing ? data.operaciones.sint : formatNumber(data.operaciones.sint)} isEditing={isEditing} valueId="operaciones.sint" align="center" onInputChange={onInputChange} />
+                  <DatoSimple icon={<RefreshCw className="h-5 w-5 text-primary"/>} label="Repo" value={isEditing ? data.operaciones.repoPorc : formatPercentage(data.operaciones.repoPorc)} isEditing={isEditing} valueId="operaciones.repoPorc" align="center" onInputChange={onInputChange} unit="%" />
               </div>
           </KpiCard>
         </div>
