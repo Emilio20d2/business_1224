@@ -50,6 +50,25 @@ const getPreviousWeekRange = () => {
     };
 };
 
+// Nueva función de sincronización
+const synchronizeTableData = (list: string[], oldTableData: any[]) => {
+    const oldDataMap = new Map(oldTableData.map((item: any) => [item.nombre, item]));
+    return list.map(itemName => {
+        const existingItem = oldDataMap.get(itemName);
+        if (existingItem) {
+            return existingItem;
+        } else {
+            return {
+                nombre: itemName,
+                pesoPorc: 0,
+                totalEuros: 0,
+                varPorc: 0,
+                imageUrl: "",
+            };
+        }
+    });
+};
+
 export default function DashboardPage() {
   const { user, loading: authLoading, logout } = useContext(AuthContext);
   const router = useRouter();
@@ -97,8 +116,43 @@ export default function DashboardPage() {
                 
                 if (reportSnap.exists()) {
                     reportData = reportSnap.data() as WeeklyData;
-                    // Ensure lists are in sync
+                    
+                    let hasBeenUpdated = false;
+                    const originalData = JSON.parse(JSON.stringify(reportData));
+                    
+                    if (!reportData.listas) {
+                      reportData.listas = listData;
+                      hasBeenUpdated = true;
+                    }
+                    
+                    const dataKeyMapping: Record<EditableList, keyof WeeklyData['ventasMan']> = {
+                        comprador: 'pesoComprador',
+                        zonaComercial: 'zonaComercial',
+                        agrupacionComercial: 'agrupacionComercial',
+                    };
+
+                    (Object.keys(dataKeyMapping) as EditableList[]).forEach(key => {
+                        const list = listData[key];
+                        const tableKey = dataKeyMapping[key];
+                        const tableData = reportData.ventasMan?.[tableKey] || [];
+                        
+                        if (list.length !== tableData.length) {
+                             if (!reportData.ventasMan) {
+                                reportData.ventasMan = getInitialDataForWeek(week, listData).ventasMan;
+                             }
+                             reportData.ventasMan[tableKey] = synchronizeTableData(list, tableData);
+                             hasBeenUpdated = true;
+                        }
+                    });
+                    
+                    if(hasBeenUpdated) {
+                       await setDoc(reportRef, { 
+                           listas: reportData.listas,
+                           ventasMan: reportData.ventasMan 
+                       }, { merge: true });
+                    }
                     reportData.listas = listData;
+
                 } else {
                     reportData = getInitialDataForWeek(week, listData);
                     await setDoc(reportRef, reportData);
@@ -211,31 +265,16 @@ export default function DashboardPage() {
             return;
         }
 
+        // Lógica de sincronización al guardar la lista
         const oldTableData = updatedData.ventasMan[dataKey] || [];
-        const oldDataMap = new Map(oldTableData.map((item: any) => [item.nombre, item]));
-
-        const newTableData = newList.map(itemName => {
-            const existingItem = oldDataMap.get(itemName);
-            if (existingItem) {
-                return existingItem;
-            } else {
-                return {
-                    nombre: itemName,
-                    pesoPorc: 0,
-                    totalEuros: 0,
-                    varPorc: 0,
-                    imageUrl: "",
-                };
-            }
-        });
+        const newTableData = synchronizeTableData(newList, oldTableData);
         updatedData.ventasMan[dataKey] = newTableData;
 
         setData(updatedData);
 
-        // Atomically update both documents in Firestore
         await Promise.all([
-            setDoc(listsRef, updatedData.listas, { merge: true }),
-            setDoc(reportRef, { ventasMan: updatedData.ventasMan }, { merge: true })
+            updateDoc(listsRef, { [listToEdit]: newList }),
+            updateDoc(reportRef, { [`ventasMan.${dataKey}`]: newTableData })
         ]);
 
         toast({
@@ -259,7 +298,6 @@ export default function DashboardPage() {
  const handleImageChange = async (path: string, dataUrl: string) => {
     if (!data) return;
 
-    // 1. Update local state immediately for snappy UI
     setData(prevData => {
         if (!prevData) return null;
         const updatedData = JSON.parse(JSON.stringify(prevData));
@@ -272,7 +310,6 @@ export default function DashboardPage() {
         return updatedData;
     });
 
-    // 2. Update Firestore document
     try {
         const reportRef = doc(db, "informes", data.periodo.toLowerCase().replace(' ', '-'));
         await updateDoc(reportRef, {
@@ -289,7 +326,6 @@ export default function DashboardPage() {
             title: "Error al guardar imagen",
             description: "No se pudo guardar la imagen. Inténtalo de nuevo.",
         });
-        // TODO: Optionally revert local state if Firestore update fails
     }
 };
 
