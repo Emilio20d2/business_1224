@@ -21,9 +21,9 @@ export type WeeklyData = {
         compradorWoman: string[];
         zonaComercialWoman: string[];
         agrupacionComercialWoman: string[];
-        compradorKids: string[];
-        zonaComercialKids: string[];
-        agrupacionComercialKids: string[];
+        compradorNino: string[];
+        zonaComercialNino: string[];
+        agrupacionComercialNino: string[];
     };
     ventas: {
         totalEuros: number;
@@ -67,7 +67,7 @@ export type WeeklyData = {
     datosPorSeccion: {
         woman: SeccionData;
         man: SeccionData;
-        kids: SeccionData;
+        nino: SeccionData;
     };
     ventasMan: {
         pesoComprador: VentasManItem[];
@@ -79,7 +79,7 @@ export type WeeklyData = {
         zonaComercial: VentasManItem[];
         agrupacionComercial: VentasManItem[];
     };
-    ventasKids: {
+    ventasNino: {
         pesoComprador: VentasManItem[];
         zonaComercial: VentasManItem[];
         agrupacionComercial: VentasManItem[];
@@ -87,7 +87,7 @@ export type WeeklyData = {
     aqneSemanal: {
         woman: SeccionAqneData;
         man: SeccionAqneData;
-        kids: SeccionAqneData;
+        nino: SeccionAqneData;
     };
     ventasDiariasAQNE: VentaDiaria[];
     focusSemanal: string;
@@ -145,7 +145,7 @@ type VentaDiaria = {
     total: number;
     woman: number;
     man: number;
-    kids: number;
+    nino: number;
 };
 
 // This function now provides only the lists for initial setup.
@@ -157,9 +157,9 @@ export function getInitialLists(): WeeklyData['listas'] {
         compradorWoman: ["WOMAN", "GLOBAL", "CIRCULAR", "DNWR", "SPORT", "ACCES"],
         zonaComercialWoman: ["WOMAN FORMAL", "GLB URBAN", "CIRCULAR"],
         agrupacionComercialWoman: ["PANTALON", "VESTIDO", "TEJANO", "CAMISA", "TOP", "ZAPATO"],
-        compradorKids: ["KIDS", "MINI", "NEW BORN"],
-        zonaComercialKids: ["KIDS", "MINI", "NEW BORN"],
-        agrupacionComercialKids: ["PANTALON", "VESTIDO", "TEJANO", "CAMISA"],
+        compradorNino: ["KIDS", "MINI", "NEW BORN"],
+        zonaComercialNino: ["KIDS", "MINI", "NEW BORN"],
+        agrupacionComercialNino: ["PANTALON", "VESTIDO", "TEJANO", "CAMISA"],
     };
 }
 
@@ -206,7 +206,7 @@ export function getInitialDataForWeek(week: string, lists: WeeklyData['listas'])
                     { seccion: "Perfumería", totalEuros: 0, varPorc: 0 }
                 ]
             },
-            kids: {
+            nino: {
                 pesoPorc: 0,
                 metricasPrincipales: { totalEuros: 0, varPorcEuros: 0, totalUnidades: 0, varPorcUnidades: 0 },
                 desglose: [
@@ -226,10 +226,10 @@ export function getInitialDataForWeek(week: string, lists: WeeklyData['listas'])
             zonaComercial: createVentasManItems(lists.zonaComercialWoman),
             agrupacionComercial: createVentasManItems(lists.agrupacionComercialWoman)
         },
-        ventasKids: {
-            pesoComprador: createVentasManItems(lists.compradorKids),
-            zonaComercial: createVentasManItems(lists.zonaComercialKids),
-            agrupacionComercial: createVentasManItems(lists.agrupacionComercialKids)
+        ventasNino: {
+            pesoComprador: createVentasManItems(lists.compradorNino),
+            zonaComercial: createVentasManItems(lists.zonaComercialNino),
+            agrupacionComercial: createVentasManItems(lists.agrupacionComercialNino)
         },
         aqneSemanal: {
             woman: {
@@ -250,7 +250,7 @@ export function getInitialDataForWeek(week: string, lists: WeeklyData['listas'])
                     { seccion: "Perfumería", totalEuros: 0 }
                 ]
             },
-            kids: {
+            nino: {
                 pesoPorc: 0,
                 metricasPrincipales: { totalEuros: 0, totalUnidades: 0 },
                 desglose: [
@@ -261,13 +261,13 @@ export function getInitialDataForWeek(week: string, lists: WeeklyData['listas'])
             }
         },
         ventasDiariasAQNE: [
-            { dia: "LUNES", total: 0, woman: 0, man: 0, kids: 0 },
-            { dia: "MARTES", total: 0, woman: 0, man: 0, kids: 0 },
-            { dia: "MIÉRCOLES", total: 0, woman: 0, man: 0, kids: 0 },
-            { dia: "JUEVES", total: 0, woman: 0, man: 0, kids: 0 },
-            { dia: "VIERNES", total: 0, woman: 0, man: 0, kids: 0 },
-            { dia: "SÁBADO", total: 0, woman: 0, man: 0, kids: 0 },
-            { dia: "DOMINGO", total: 0, woman: 0, man: 0, kids: 0 }
+            { dia: "LUNES", total: 0, woman: 0, man: 0, nino: 0 },
+            { dia: "MARTES", total: 0, woman: 0, man: 0, nino: 0 },
+            { dia: "MIÉRCOLES", total: 0, woman: 0, man: 0, nino: 0 },
+            { dia: "JUEVES", total: 0, woman: 0, man: 0, nino: 0 },
+            { dia: "VIERNES", total: 0, woman: 0, man: 0, nino: 0 },
+            { dia: "SÁBADO", total: 0, woman: 0, man: 0, nino: 0 },
+            { dia: "DOMINGO", total: 0, woman: 0, man: 0, nino: 0 }
         ],
         focusSemanal: "",
         acumulado: {
@@ -276,7 +276,7 @@ export function getInitialDataForWeek(week: string, lists: WeeklyData['listas'])
                 desglose: [
                     { nombre: "Woman", totalEuros: 0, varPorc: 0, pesoPorc: 0 },
                     { nombre: "Man", totalEuros: 0, varPorc: 0, pesoPorc: 0 },
-                    { nombre: "KIDS", totalEuros: 0, varPorc: 0, pesoPorc: 0 }
+                    { nombre: "Niño", totalEuros: 0, varPorc: 0, pesoPorc: 0 }
                 ]
             },
             anual: {
@@ -284,7 +284,7 @@ export function getInitialDataForWeek(week: string, lists: WeeklyData['listas'])
                 desglose: [
                     { nombre: "Woman", totalEuros: 0, varPorc: 0, pesoPorc: 0 },
                     { nombre: "Man", totalEuros: 0, varPorc: 0, pesoPorc: 0 },
-                    { nombre: "KIDS", totalEuros: 0, varPorc: 0, pesoPorc: 0 }
+                    { nombre: "Niño", totalEuros: 0, varPorc: 0, pesoPorc: 0 }
                 ]
             }
         }

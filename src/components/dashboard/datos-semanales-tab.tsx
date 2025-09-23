@@ -58,7 +58,7 @@ type SectionName = keyof WeeklyData["datosPorSeccion"];
 const sectionConfig = {
     woman: { title: "WOMAN", icon: <Shirt className="h-5 w-5 text-primary" />, color: "bg-pink-500" },
     man: { title: "MAN", icon: <User className="h-5 w-5 text-primary" />, color: "bg-blue-500" },
-    kids: { title: "KIDS", icon: <Baby className="h-5 w-5 text-primary" />, color: "bg-primary" }
+    nino: { title: "NIÑO", icon: <Baby className="h-5 w-5 text-primary" />, color: "bg-primary" }
 };
 
 const desgloseIconos: { [key: string]: React.ReactNode } = {
@@ -283,7 +283,7 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <SectionCard name="woman" data={datosPorSeccion.woman} isEditing={isEditing} onInputChange={onInputChange} />
         <SectionCard name="man" data={datosPorSeccion.man} isEditing={isEditing} onInputChange={onInputChange} />
-        <SectionCard name="kids" data={datosPorSeccion.kids} isEditing={isEditing} onInputChange={onInputChange} />
+        <SectionCard name="nino" data={datosPorSeccion.nino} isEditing={isEditing} onInputChange={onInputChange} />
       </div>
     </div>
   );

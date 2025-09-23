@@ -16,7 +16,7 @@ import { AqneSemanalTab } from "@/components/dashboard/aqne-semanal-tab";
 import { AcumuladoTab } from "@/components/dashboard/acumulado-tab";
 import { VentasManTab } from '@/components/dashboard/ventas-man-tab';
 import { VentasWomanTab } from '@/components/dashboard/ventas-woman-tab';
-import { VentasKidsTab } from '@/components/dashboard/ventas-kids-tab';
+import { VentasNinoTab } from '@/components/dashboard/ventas-nino-tab';
 import { Button } from '@/components/ui/button';
 import { Settings, LogOut, Loader2, ChevronDown, Pencil } from 'lucide-react';
 import {
@@ -40,8 +40,8 @@ import { useRouter } from 'next/navigation';
 import { OperacionesSubTab } from '@/components/dashboard/operaciones-sub-tab';
 
 
-type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan' | 'compradorWoman' | 'zonaComercialWoman' | 'agrupacionComercialWoman' | 'compradorKids' | 'zonaComercialKids' | 'agrupacionComercialKids';
-type TabValue = "datosSemanales" | "aqneSemanal" | "acumulado" | "ventasMan" | "ventasWoman" | "ventasKids";
+type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan' | 'compradorWoman' | 'zonaComercialWoman' | 'agrupacionComercialWoman' | 'compradorNino' | 'zonaComercialNino' | 'agrupacionComercialNino';
+type TabValue = "datosSemanales" | "aqneSemanal" | "acumulado" | "ventasMan" | "ventasWoman" | "ventasNino";
 
 
 const tabLabels: Record<string, string> = {
@@ -50,7 +50,7 @@ const tabLabels: Record<string, string> = {
     acumulado: "ACUMULADO",
     ventasMan: "VENTAS MAN",
     ventasWoman: "VENTAS WOMAN",
-    ventasKids: "VENTAS KIDS",
+    ventasNino: "VENTAS NIÑO",
 };
 
 const getPreviousWeekRange = () => {
@@ -148,9 +148,9 @@ export default function DashboardPage() {
                         compradorWoman: { ventasKey: 'ventasWoman', tableKey: 'pesoComprador' },
                         zonaComercialWoman: { ventasKey: 'ventasWoman', tableKey: 'zonaComercial' },
                         agrupacionComercialWoman: { ventasKey: 'ventasWoman', tableKey: 'agrupacionComercial' },
-                        compradorKids: { ventasKey: 'ventasKids', tableKey: 'pesoComprador' },
-                        zonaComercialKids: { ventasKey: 'ventasKids', tableKey: 'zonaComercial' },
-                        agrupacionComercialKids: { ventasKey: 'ventasKids', tableKey: 'agrupacionComercial' },
+                        compradorNino: { ventasKey: 'ventasNino', tableKey: 'pesoComprador' },
+                        zonaComercialNino: { ventasKey: 'ventasNino', tableKey: 'zonaComercial' },
+                        agrupacionComercialNino: { ventasKey: 'ventasNino', tableKey: 'agrupacionComercial' },
                     };
 
                     (Object.keys(dataKeyMapping) as EditableList[]).forEach(key => {
@@ -175,7 +175,7 @@ export default function DashboardPage() {
                            listas: reportData.listas,
                            ventasMan: reportData.ventasMan,
                            ventasWoman: reportData.ventasWoman,
-                           ventasKids: reportData.ventasKids
+                           ventasNino: reportData.ventasNino
                        }, { merge: true });
                     }
                     reportData.listas = listData;
@@ -232,18 +232,18 @@ export default function DashboardPage() {
             const sections = updatedData.datosPorSeccion;
             const totalVentas = (sections.woman.metricasPrincipales.totalEuros || 0) +
                                 (sections.man.metricasPrincipales.totalEuros || 0) +
-                                (sections.kids.metricasPrincipales.totalEuros || 0);
+                                (sections.nino.metricasPrincipales.totalEuros || 0);
 
             updatedData.ventas.totalEuros = totalVentas;
 
             if (totalVentas > 0) {
                 sections.woman.pesoPorc = parseFloat(((sections.woman.metricasPrincipales.totalEuros / totalVentas) * 100).toFixed(2));
                 sections.man.pesoPorc = parseFloat(((sections.man.metricasPrincipales.totalEuros / totalVentas) * 100).toFixed(2));
-                sections.kids.pesoPorc = parseFloat(((sections.kids.metricasPrincipales.totalEuros / totalVentas) * 100).toFixed(2));
+                sections.nino.pesoPorc = parseFloat(((sections.nino.metricasPrincipales.totalEuros / totalVentas) * 100).toFixed(2));
             } else {
                 sections.woman.pesoPorc = 0;
                 sections.man.pesoPorc = 0;
-                sections.kids.pesoPorc = 0;
+                sections.nino.pesoPorc = 0;
             }
         }
         
@@ -252,16 +252,16 @@ export default function DashboardPage() {
             const sections = updatedData.aqneSemanal;
             const totalVentasAqne = (sections.woman.metricasPrincipales.totalEuros || 0) +
                                     (sections.man.metricasPrincipales.totalEuros || 0) +
-                                    (sections.kids.metricasPrincipales.totalEuros || 0);
+                                    (sections.nino.metricasPrincipales.totalEuros || 0);
 
             if (totalVentasAqne > 0) {
                 sections.woman.pesoPorc = parseFloat(((sections.woman.metricasPrincipales.totalEuros / totalVentasAqne) * 100).toFixed(2));
                 sections.man.pesoPorc = parseFloat(((sections.man.metricasPrincipales.totalEuros / totalVentasAqne) * 100).toFixed(2));
-                sections.kids.pesoPorc = parseFloat(((sections.kids.metricasPrincipales.totalEuros / totalVentasAqne) * 100).toFixed(2));
+                sections.nino.pesoPorc = parseFloat(((sections.nino.metricasPrincipales.totalEuros / totalVentasAqne) * 100).toFixed(2));
             } else {
                 sections.woman.pesoPorc = 0;
                 sections.man.pesoPorc = 0;
-                sections.kids.pesoPorc = 0;
+                sections.nino.pesoPorc = 0;
             }
         }
 
@@ -271,7 +271,7 @@ export default function DashboardPage() {
             const index = parseInt(keys[1], 10);
             if (!isNaN(index) && updatedData.ventasDiariasAQNE[index]) {
                 const day = updatedData.ventasDiariasAQNE[index];
-                day.total = (day.woman || 0) + (day.man || 0) + (day.kids || 0);
+                day.total = (day.woman || 0) + (day.man || 0) + (day.nino || 0);
             }
         }
 
@@ -326,9 +326,9 @@ export default function DashboardPage() {
             compradorWoman: { ventasKey: 'ventasWoman', tableKey: 'pesoComprador' },
             zonaComercialWoman: { ventasKey: 'ventasWoman', tableKey: 'zonaComercial' },
             agrupacionComercialWoman: { ventasKey: 'ventasWoman', tableKey: 'agrupacionComercial' },
-            compradorKids: { ventasKey: 'ventasKids', tableKey: 'pesoComprador' },
-            zonaComercialKids: { ventasKey: 'ventasKids', tableKey: 'zonaComercial' },
-            agrupacionComercialKids: { ventasKey: 'ventasKids', tableKey: 'agrupacionComercial' },
+            compradorNino: { ventasKey: 'ventasNino', tableKey: 'pesoComprador' },
+            zonaComercialNino: { ventasKey: 'ventasNino', tableKey: 'zonaComercial' },
+            agrupacionComercialNino: { ventasKey: 'ventasNino', tableKey: 'agrupacionComercial' },
         };
         const { ventasKey, tableKey } = dataKeyMapping[listToEdit];
         
@@ -412,7 +412,7 @@ export default function DashboardPage() {
       if (!listName) return 'Editar Lista';
       if (listName.includes('Man')) return `Editar Lista de ${listName.replace('Man', ' (MAN)')}`;
       if (listName.includes('Woman')) return `Editar Lista de ${listName.replace('Woman', ' (WOMAN)')}`;
-      if (listName.includes('Kids')) return `Editar Lista de ${listName.replace('Kids', ' (KIDS)')}`;
+      if (listName.includes('Nino')) return `Editar Lista de ${listName.replace('Nino', ' (NIÑO)')}`;
       return 'Editar Lista';
   };
 
@@ -532,15 +532,15 @@ export default function DashboardPage() {
                       </DropdownMenuItem>
                   </DropdownMenuGroup>
                 <DropdownMenuSeparator />
-                <DropdownMenuLabel className="font-normal text-muted-foreground px-2 py-1.5 text-xs">EDITAR LISTAS KIDS</DropdownMenuLabel>
+                <DropdownMenuLabel className="font-normal text-muted-foreground px-2 py-1.5 text-xs">EDITAR LISTAS NIÑO</DropdownMenuLabel>
                   <DropdownMenuGroup>
-                      <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorKids')}>
+                      <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorNino')}>
                           <span>COMPRADOR</span>
                       </DropdownMenuItem>
-                      <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialKids')}>
+                      <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialNino')}>
                           <span>ZONA COMPRADOR</span>
                       </DropdownMenuItem>
-                      <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercialKids')}>
+                      <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercialNino')}>
                           <span>AGRUPACIÓN COMERCIAL</span>
                       </DropdownMenuItem>
                   </DropdownMenuGroup>
@@ -592,8 +592,8 @@ export default function DashboardPage() {
               onImageChange={handleImageChange}
             />
           </TabsContent>
-          <TabsContent value="ventasKids" className="mt-0">
-            <VentasKidsTab
+          <TabsContent value="ventasNino" className="mt-0">
+            <VentasNinoTab
               data={data}
               isEditing={isEditing}
               onInputChange={handleInputChange}

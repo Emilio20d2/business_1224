@@ -35,7 +35,7 @@ type AqneSemanalTabProps = {
 const sectionConfig = {
     woman: { title: "WOMAN", icon: <Shirt className="h-5 w-5 text-primary" />, color: "bg-pink-500" },
     man: { title: "MAN", icon: <User className="h-5 w-5 text-primary" />, color: "bg-blue-500" },
-    kids: { title: "KIDS", icon: <Baby className="h-5 w-5 text-primary" />, color: "bg-primary" }
+    nino: { title: "NIÑO", icon: <Baby className="h-5 w-5 text-primary" />, color: "bg-primary" }
 };
 
 const desgloseIconos: { [key: string]: React.ReactNode } = {
@@ -141,7 +141,7 @@ export function AqneSemanalTab({ data, isEditing, onInputChange }: AqneSemanalTa
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <AqneSectionCard name="woman" data={aqneData.woman} isEditing={isEditing} onInputChange={onInputChange} />
         <AqneSectionCard name="man" data={aqneData.man} isEditing={isEditing} onInputChange={onInputChange} />
-        <AqneSectionCard name="kids" data={aqneData.kids} isEditing={isEditing} onInputChange={onInputChange} />
+        <AqneSectionCard name="nino" data={aqneData.nino} isEditing={isEditing} onInputChange={onInputChange} />
       </div>
 
       <Separator />
@@ -159,7 +159,7 @@ export function AqneSemanalTab({ data, isEditing, onInputChange }: AqneSemanalTa
                             <TableHead className="text-right uppercase font-bold">Total</TableHead>
                             <TableHead className="text-right uppercase font-bold text-pink-500">Woman</TableHead>
                             <TableHead className="text-right uppercase font-bold text-blue-500">Man</TableHead>
-                            <TableHead className="text-right uppercase font-bold text-primary">KIDS</TableHead>
+                            <TableHead className="text-right uppercase font-bold text-primary">NIÑO</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -171,14 +171,14 @@ export function AqneSemanalTab({ data, isEditing, onInputChange }: AqneSemanalTa
                                         <TableCell><Input type="number" inputMode="decimal" value={venta.total} readOnly className="w-24 ml-auto text-right bg-muted" /></TableCell>
                                         <TableCell><Input type="number" inputMode="decimal" defaultValue={venta.woman} onChange={(e) => handleDailySaleChange(index, 'woman', e.target.value)} className="w-24 ml-auto text-right" /></TableCell>
                                         <TableCell><Input type="number" inputMode="decimal" defaultValue={venta.man} onChange={(e) => handleDailySaleChange(index, 'man', e.target.value)} className="w-24 ml-auto text-right" /></TableCell>
-                                        <TableCell><Input type="number" inputMode="decimal" defaultValue={venta.kids} onChange={(e) => handleDailySaleChange(index, 'kids', e.target.value)} className="w-24 ml-auto text-right" /></TableCell>
+                                        <TableCell><Input type="number" inputMode="decimal" defaultValue={venta.nino} onChange={(e) => handleDailySaleChange(index, 'nino', e.target.value)} className="w-24 ml-auto text-right" /></TableCell>
                                     </>
                                 ) : (
                                     <>
                                         <TableCell className="text-right font-bold">{formatCurrency(venta.total)}</TableCell>
                                         <TableCell className="text-right">{formatCurrency(venta.woman)}</TableCell>
                                         <TableCell className="text-right">{formatCurrency(venta.man)}</TableCell>
-                                        <TableCell className="text-right">{formatCurrency(venta.kids)}</TableCell>
+                                        <TableCell className="text-right">{formatCurrency(venta.nino)}</TableCell>
                                     </>
                                 )}
                             </TableRow>
