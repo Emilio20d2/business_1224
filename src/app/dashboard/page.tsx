@@ -159,7 +159,7 @@ export default function DashboardPage() {
                         // @ts-ignore
                         const tableData = reportData[ventasKey]?.[tableKey] || [];
                         
-                        if (list.length !== tableData.length || list.some((item, i) => item !== tableData[i]?.nombre)) {
+                        if (list && (list.length !== tableData.length || list.some((item, i) => item !== tableData[i]?.nombre))) {
                              if (!reportData[ventasKey]) {
                                 // @ts-ignore
                                 reportData[ventasKey] = getInitialDataForWeek(week, listData)[ventasKey];
