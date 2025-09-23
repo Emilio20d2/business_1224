@@ -121,7 +121,7 @@ export default function DashboardPage() {
   const previousWeek = getPreviousWeekRange();
   const weekLabel = `${previousWeek.start} - ${previousWeek.end}`;
 
- const handleInputChange = (path: string, value: string | number) => {
+ const handleInputChange = (path: string, value: string | number | object) => {
     if (!data) return;
 
     setData(prevData => {
@@ -134,8 +134,6 @@ export default function DashboardPage() {
         for (let i = 0; i < keys.length - 1; i++) {
             const key = keys[i];
             if (current[key] === undefined) {
-                 // This can happen if a sub-object doesn't exist.
-                 // For this app's structure, it's better to prevent than to create.
                  console.warn(`Path does not exist: ${path}`);
                  return prevData;
             }
@@ -144,10 +142,14 @@ export default function DashboardPage() {
         
         const finalKey = keys[keys.length - 1];
         
-        const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
-        const finalValue = isNaN(numericValue) ? (typeof current[finalKey] === 'number' ? 0 : value) : numericValue;
-        
-        current[finalKey] = finalValue;
+        if (typeof value === 'object' && value !== null) {
+          current[finalKey] = value;
+        } else {
+          const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
+          const finalValue = isNaN(numericValue) ? (typeof current[finalKey] === 'number' ? 0 : value) : numericValue;
+          current[finalKey] = finalValue;
+        }
+
 
         // Auto-calculate total for ventasDiariasAQNE
         if (keys[0] === 'ventasDiariasAQNE' && ['woman', 'man', 'nino'].includes(finalKey)) {
@@ -187,7 +189,8 @@ export default function DashboardPage() {
   
   const handleCancel = () => {
     setIsEditing(false);
-    // You might want to re-fetch or reset to original data state here
+    // TODO: Re-fetch or reset to original data state here to discard changes.
+    // For now, it just exits editing mode.
   };
 
   const handleSaveList = async (newList: string[]) => {
@@ -200,8 +203,17 @@ export default function DashboardPage() {
         const updatedData = JSON.parse(JSON.stringify(data));
         updatedData.listas[listToEdit] = newList;
 
-        type TableDataKey = keyof WeeklyData['ventasMan'];
-        const dataKey = listToEdit === 'comprador' ? 'pesoComprador' : listToEdit;
+        const dataKeyMapping: Record<EditableList, keyof WeeklyData['ventasMan']> = {
+            comprador: 'pesoComprador',
+            zonaComercial: 'zonaComercial',
+            agrupacionComercial: 'agrupacionComercial',
+        };
+        const dataKey = dataKeyMapping[listToEdit];
+        
+        if (!dataKey) {
+            console.error(`No data key mapping found for ${listToEdit}`);
+            return;
+        }
 
         const oldTableData = updatedData.ventasMan[dataKey] || [];
         const oldDataMap = new Map(oldTableData.map((item: any) => [item.nombre, item]));
@@ -224,8 +236,9 @@ export default function DashboardPage() {
 
         setData(updatedData);
 
+        // Atomically update both documents in Firestore
         await Promise.all([
-            setDoc(listsRef, updatedData.listas),
+            setDoc(listsRef, updatedData.listas, { merge: true }),
             setDoc(reportRef, { ventasMan: updatedData.ventasMan }, { merge: true })
         ]);
 
