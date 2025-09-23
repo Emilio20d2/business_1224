@@ -130,8 +130,8 @@ export default function DashboardPage() {
         const listsRef = doc(db, "configuracion", "listas");
 
         // Step 1: Fetch or create the configuration lists
-        const listsSnap = await getDoc(listsRef);
         let listData: WeeklyData['listas'];
+        const listsSnap = await getDoc(listsRef);
         if (listsSnap.exists()) {
             listData = listsSnap.data() as WeeklyData['listas'];
         } else {
@@ -140,19 +140,19 @@ export default function DashboardPage() {
         }
 
         // Step 2: Fetch or create the weekly report
-        const reportSnap = await getDoc(reportRef);
         let reportData: WeeklyData;
-        let needsSave = false;
-
+        const reportSnap = await getDoc(reportRef);
+        
         if (reportSnap.exists()) {
             reportData = reportSnap.data() as WeeklyData;
             
             // Step 3: Synchronize the report data with the latest lists
+            let needsSave = false;
             const sections = [
               { ventasKey: 'ventasMan', listKeys: { comprador: 'compradorMan', zonaComercial: 'zonaComercialMan', agrupacionComercial: 'agrupacionComercialMan' } },
               { ventasKey: 'ventasWoman', listKeys: { comprador: 'compradorWoman', zonaComercial: 'zonaComercialWoman', agrupacionComercial: 'agrupacionComercialWoman' } },
               { ventasKey: 'ventasNino', listKeys: { comprador: 'compradorNino', zonaComercial: 'zonaComercialNino', agrupacionComercial: 'agrupacionComercialNino' } },
-            ];
+            ] as const;
 
             for (const section of sections) {
                 const { ventasKey, listKeys } = section;
@@ -188,17 +188,17 @@ export default function DashboardPage() {
                 }
             }
 
+            // If synchronization happened, save the updated report
+            if (needsSave) {
+                await setDoc(reportRef, reportData, { merge: true });
+            }
+
         } else {
             // Report doesn't exist, create a fresh one
             reportData = getInitialDataForWeek(week, listData);
-            needsSave = true;
+            await setDoc(reportRef, reportData);
         }
         
-        // If any creation or synchronization happened, save the updated report
-        if (needsSave) {
-            await setDoc(reportRef, reportData, { merge: true });
-        }
-
         setData(reportData);
 
     } catch (err: any) {
@@ -228,8 +228,9 @@ export default function DashboardPage() {
     setData(prevData => {
         if (!prevData) return null;
 
-        // Create a deep copy to avoid state mutation
+        // Deep copy to prevent state mutation issues, which was the root of all evil.
         const updatedData = JSON.parse(JSON.stringify(prevData));
+        
         const keys = path.split('.');
         let current: any = updatedData;
         
@@ -362,11 +363,13 @@ const handleImageChange = async (path: string, file: File, onUploadComplete: (su
         
         toast({
             title: "Imagen cargada",
-            description: "La imagen está lista para ser guardada. Haz clic en 'Guardar' para confirmar todos los cambios.",
+            description: "La imagen está lista. Haz clic en 'Guardar' para confirmar todos los cambios.",
         });
         
         // Set editing mode to true so the user knows they have pending changes
-        setIsEditing(true);
+        if (!isEditing) {
+            setIsEditing(true);
+        }
 
         onUploadComplete(true);
 
