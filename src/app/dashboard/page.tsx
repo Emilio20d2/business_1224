@@ -136,7 +136,7 @@ export default function DashboardPage() {
                         const tableKey = dataKeyMapping[key];
                         const tableData = reportData.ventasMan?.[tableKey] || [];
                         
-                        if (list.length !== tableData.length) {
+                        if (list.length !== tableData.length || list.some((item, i) => item !== tableData[i]?.nombre)) {
                              if (!reportData.ventasMan) {
                                 reportData.ventasMan = getInitialDataForWeek(week, listData).ventasMan;
                              }
@@ -466,7 +466,7 @@ export default function DashboardPage() {
           </TabsContent>
            <TabsContent value="ventasMan">
             <VentasManTab 
-              data={data.ventasMan} 
+              data={data}
               isEditing={isEditing} 
               onInputChange={handleInputChange}
               onImageChange={handleImageChange}

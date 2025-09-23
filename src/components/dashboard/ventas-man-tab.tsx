@@ -16,7 +16,7 @@ import { formatCurrency, formatPercentage } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { Button } from '../ui/button';
 import { ImagePlus, Upload } from 'lucide-react';
-
+import { OperacionesSubTab } from './operaciones-sub-tab';
 
 type VentasManData = WeeklyData['ventasMan'];
 type TableDataKey = keyof VentasManData;
@@ -24,7 +24,7 @@ type TableData = VentasManData[TableDataKey];
 type TableItem = TableData[number];
 
 type VentasManTabProps = {
-  data: VentasManData;
+  data: WeeklyData;
   isEditing: boolean;
   onInputChange: (path: string, value: any) => void;
   onImageChange: (path: string, dataUrl: string) => void;
@@ -159,7 +159,7 @@ const ImageImportCard = ({ selectedRow, isEditing, onImageChange, imagePath }: {
 
 
 export function VentasManTab({ data, isEditing, onInputChange, onImageChange }: VentasManTabProps) {
-    const [activeTab, setActiveTab] = React.useState<TableDataKey>('pesoComprador');
+    const [activeListTab, setActiveListTab] = React.useState<TableDataKey>('pesoComprador');
     const [selectedIndexes, setSelectedIndexes] = React.useState<{ [key in TableDataKey]?: number | null }>({
         pesoComprador: 0,
         zonaComercial: 0,
@@ -174,8 +174,8 @@ export function VentasManTab({ data, isEditing, onInputChange, onImageChange }: 
 
     const getSelectedRow = (tab: TableDataKey) => {
         const index = selectedIndexes[tab];
-        if (data[tab] && index != null) {
-            return data[tab][index];
+        if (data.ventasMan[tab] && index != null) {
+            return data.ventasMan[tab][index];
         }
         return null;
     }
@@ -188,60 +188,75 @@ export function VentasManTab({ data, isEditing, onInputChange, onImageChange }: 
         return null;
     }
 
+    const ventasManData = data.ventasMan;
+
     return (
-        <Tabs defaultValue="pesoComprador" className="w-full" onValueChange={(value) => setActiveTab(value as TableDataKey)}>
-            <TabsList className="grid w-full grid-cols-3 mx-auto max-w-md mb-4">
-                <TabsTrigger value="pesoComprador">Comprador</TabsTrigger>
-                <TabsTrigger value="zonaComercial">Zona Comprador</TabsTrigger>
-                <TabsTrigger value="agrupacionComercial">Agrupación Comercial</TabsTrigger>
+        <Tabs defaultValue="analisisVentas" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mx-auto max-w-md mb-4">
+                <TabsTrigger value="analisisVentas">Análisis de Ventas</TabsTrigger>
+                <TabsTrigger value="operaciones">Operaciones</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="pesoComprador">
-                <div className="grid gap-4 items-start grid-cols-1 md:grid-cols-2">
-                    <DataTable
-                        dataKey="pesoComprador"
-                        headers={['COMPRADOR', 'PESO %', '€', '%']}
-                        data={data.pesoComprador}
-                        isEditing={isEditing}
-                        onInputChange={onInputChange}
-                        onRowSelect={(index) => handleRowSelect('pesoComprador', index)}
-                        selectedIndex={selectedIndexes.pesoComprador ?? null}
-                    />
-                    <ImageImportCard
-                        selectedRow={getSelectedRow('pesoComprador')}
-                        isEditing={isEditing}
-                        onImageChange={onImageChange}
-                        imagePath={getImagePath('pesoComprador')}
-                    />
-                </div>
+            <TabsContent value="analisisVentas">
+                <Tabs defaultValue="pesoComprador" className="w-full" onValueChange={(value) => setActiveListTab(value as TableDataKey)}>
+                    <TabsList className="grid w-full grid-cols-3 mx-auto max-w-md mb-4">
+                        <TabsTrigger value="pesoComprador">Comprador</TabsTrigger>
+                        <TabsTrigger value="zonaComercial">Zona Comprador</TabsTrigger>
+                        <TabsTrigger value="agrupacionComercial">Agrupación Comercial</TabsTrigger>
+                    </TabsList>
+
+                    <TabsContent value="pesoComprador">
+                        <div className="grid gap-4 items-start grid-cols-1 md:grid-cols-2">
+                            <DataTable
+                                dataKey="pesoComprador"
+                                headers={['COMPRADOR', 'PESO %', '€', '%']}
+                                data={ventasManData.pesoComprador}
+                                isEditing={isEditing}
+                                onInputChange={onInputChange}
+                                onRowSelect={(index) => handleRowSelect('pesoComprador', index)}
+                                selectedIndex={selectedIndexes.pesoComprador ?? null}
+                            />
+                            <ImageImportCard
+                                selectedRow={getSelectedRow('pesoComprador')}
+                                isEditing={isEditing}
+                                onImageChange={onImageChange}
+                                imagePath={getImagePath('pesoComprador')}
+                            />
+                        </div>
+                    </TabsContent>
+
+                    <TabsContent value="zonaComercial">
+                        <div className="grid gap-4 items-start grid-cols-1">
+                            <DataTable
+                                dataKey="zonaComercial"
+                                headers={['ZONA COMPRADOR', 'PESO %', '€', '%']}
+                                data={ventasManData.zonaComercial}
+                                isEditing={isEditing}
+                                onInputChange={onInputChange}
+                                onRowSelect={(index) => handleRowSelect('zonaComercial', index)}
+                                selectedIndex={selectedIndexes.zonaComercial ?? null}
+                            />
+                        </div>
+                    </TabsContent>
+
+                    <TabsContent value="agrupacionComercial">
+                        <div className="grid gap-4 items-start grid-cols-1">
+                            <DataTable
+                                dataKey="agrupacionComercial"
+                                headers={['Agrupación Comercial', 'PESO %', '€', '%']}
+                                data={ventasManData.agrupacionComercial}
+                                isEditing={isEditing}
+                                onInputChange={onInputChange}
+                                onRowSelect={(index) => handleRowSelect('agrupacionComercial', index)}
+                                selectedIndex={selectedIndexes.agrupacionComercial ?? null}
+                            />
+                        </div>
+                    </TabsContent>
+                </Tabs>
             </TabsContent>
 
-            <TabsContent value="zonaComercial">
-                 <div className="grid gap-4 items-start grid-cols-1">
-                    <DataTable
-                        dataKey="zonaComercial"
-                        headers={['ZONA COMPRADOR', 'PESO %', '€', '%']}
-                        data={data.zonaComercial}
-                        isEditing={isEditing}
-                        onInputChange={onInputChange}
-                        onRowSelect={(index) => handleRowSelect('zonaComercial', index)}
-                        selectedIndex={selectedIndexes.zonaComercial ?? null}
-                    />
-                </div>
-            </TabsContent>
-
-            <TabsContent value="agrupacionComercial">
-                <div className="grid gap-4 items-start grid-cols-1">
-                    <DataTable
-                        dataKey="agrupacionComercial"
-                        headers={['Agrupación Comercial', 'PESO %', '€', '%']}
-                        data={data.agrupacionComercial}
-                        isEditing={isEditing}
-                        onInputChange={onInputChange}
-                        onRowSelect={(index) => handleRowSelect('agrupacionComercial', index)}
-                        selectedIndex={selectedIndexes.agrupacionComercial ?? null}
-                    />
-                </div>
+            <TabsContent value="operaciones">
+                <OperacionesSubTab data={data} isEditing={isEditing} onInputChange={onInputChange} />
             </TabsContent>
         </Tabs>
     );
