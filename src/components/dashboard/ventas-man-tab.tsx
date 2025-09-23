@@ -15,8 +15,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatCurrency, formatPercentage } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { Button } from '../ui/button';
-import { ImagePlus, Upload } from 'lucide-react';
+import { ImagePlus, Upload, ChevronDown } from 'lucide-react';
 import { OperacionesSubTab } from './operaciones-sub-tab';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
 
 type VentasManData = WeeklyData['ventasMan'];
 type TableDataKey = keyof VentasManData;
@@ -158,8 +166,16 @@ const ImageImportCard = ({ selectedRow, isEditing, onImageChange, imagePath }: {
 };
 
 
+const analisisVentasLabels: Record<TableDataKey, string> = {
+    pesoComprador: "Comprador",
+    zonaComercial: "Zona Comprador",
+    agrupacionComercial: "Agrupación Comercial",
+};
+
+
 export function VentasManTab({ data, isEditing, onInputChange, onImageChange }: VentasManTabProps) {
-    const [activeListTab, setActiveListTab] = React.useState<TableDataKey>('pesoComprador');
+    const [activeMainTab, setActiveMainTab] = React.useState("analisisVentas");
+    const [activeAnalysisTab, setActiveAnalysisTab] = React.useState<TableDataKey>('pesoComprador');
     const [selectedIndexes, setSelectedIndexes] = React.useState<{ [key in TableDataKey]?: number | null }>({
         pesoComprador: 0,
         zonaComercial: 0,
@@ -191,19 +207,43 @@ export function VentasManTab({ data, isEditing, onInputChange, onImageChange }: 
     const ventasManData = data.ventasMan;
 
     return (
-        <Tabs defaultValue="analisisVentas" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mx-auto max-w-md mb-4">
-                <TabsTrigger value="analisisVentas">Análisis de Ventas</TabsTrigger>
-                <TabsTrigger value="operaciones">Operaciones</TabsTrigger>
-            </TabsList>
+        <Tabs value={activeMainTab} onValueChange={setActiveMainTab} className="w-full">
+             <div className="mb-4">
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="outline" className="w-full md:w-auto">
+                            {activeMainTab === 'analisisVentas' ? 'Análisis de Ventas' : 'Operaciones'}
+                            <ChevronDown className="ml-2 h-4 w-4" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start">
+                        <DropdownMenuRadioGroup value={activeMainTab} onValueChange={setActiveMainTab}>
+                            <DropdownMenuRadioItem value="analisisVentas">Análisis de Ventas</DropdownMenuRadioItem>
+                            <DropdownMenuRadioItem value="operaciones">Operaciones</DropdownMenuRadioItem>
+                        </DropdownMenuRadioGroup>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            </div>
 
             <TabsContent value="analisisVentas">
-                <Tabs defaultValue="pesoComprador" className="w-full" onValueChange={(value) => setActiveListTab(value as TableDataKey)}>
-                    <TabsList className="grid w-full grid-cols-3 mx-auto max-w-md mb-4">
-                        <TabsTrigger value="pesoComprador">Comprador</TabsTrigger>
-                        <TabsTrigger value="zonaComercial">Zona Comprador</TabsTrigger>
-                        <TabsTrigger value="agrupacionComercial">Agrupación Comercial</TabsTrigger>
-                    </TabsList>
+                <Tabs value={activeAnalysisTab} onValueChange={(value) => setActiveAnalysisTab(value as TableDataKey)} className="w-full">
+                    <div className="mb-4">
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="outline" className="w-full md:w-auto">
+                                    {analisisVentasLabels[activeAnalysisTab]}
+                                    <ChevronDown className="ml-2 h-4 w-4" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="start">
+                                <DropdownMenuRadioGroup value={activeAnalysisTab} onValueChange={(value) => setActiveAnalysisTab(value as TableDataKey)}>
+                                    <DropdownMenuRadioItem value="pesoComprador">Comprador</DropdownMenuRadioItem>
+                                    <DropdownMenuRadioItem value="zonaComercial">Zona Comprador</DropdownMenuRadioItem>
+                                    <DropdownMenuRadioItem value="agrupacionComercial">Agrupación Comercial</DropdownMenuRadioItem>
+                                </DropdownMenuRadioGroup>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
 
                     <TabsContent value="pesoComprador">
                         <div className="grid gap-4 items-start grid-cols-1 md:grid-cols-2">

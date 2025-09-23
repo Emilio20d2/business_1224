@@ -18,7 +18,7 @@ import { AcumuladoTab } from "@/components/dashboard/acumulado-tab";
 import { FocusSemanalTab } from '@/components/dashboard/focus-semanal-tab';
 import { VentasManTab } from '@/components/dashboard/ventas-man-tab';
 import { Button } from '@/components/ui/button';
-import { Settings, LogOut, Loader2 } from 'lucide-react';
+import { Settings, LogOut, Loader2, ChevronDown } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,6 +27,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
 } from "@/components/ui/dropdown-menu"
 import { EditListDialog } from '@/components/dashboard/edit-list-dialog';
 import { startOfWeek, endOfWeek, subWeeks, format } from 'date-fns';
@@ -38,6 +40,17 @@ import { useRouter } from 'next/navigation';
 
 
 type EditableList = 'comprador' | 'zonaComercial' | 'agrupacionComercial';
+type TabValue = "datosSemanales" | "ventasSeccion" | "aqneSemanal" | "acumulado" | "ventasMan" | "focusSemanal";
+
+
+const tabLabels: Record<TabValue, string> = {
+    datosSemanales: "Datos Semanales",
+    ventasSeccion: "Ventas Sección",
+    aqneSemanal: "AQNE Semanal",
+    acumulado: "Acumulado",
+    ventasMan: "Ventas Man",
+    focusSemanal: "Focus Semanal"
+};
 
 const getPreviousWeekRange = () => {
     const today = new Date();
@@ -81,6 +94,9 @@ export default function DashboardPage() {
 
   const [isListDialogOpen, setIsListDialogOpen] = useState(false);
   const [listToEdit, setListToEdit] = useState<EditableList | null>(null);
+  
+  const [activeTab, setActiveTab] = useState<TabValue>("datosSemanales");
+
 
   const { toast } = useToast();
 
@@ -441,17 +457,26 @@ export default function DashboardPage() {
       </header>
       
       <main>
-        <Tabs defaultValue="datosSemanales">
-          <div className="w-full overflow-x-auto pb-2">
-            <TabsList className="mb-4 inline-flex md:grid md:w-full md:grid-cols-6">
-              <TabsTrigger value="datosSemanales">Datos Semanales</TabsTrigger>
-              <TabsTrigger value="ventasSeccion">Ventas Sección</TabsTrigger>
-              <TabsTrigger value="aqneSemanal">AQNE Semanal</TabsTrigger>
-              <TabsTrigger value="acumulado">Acumulado</TabsTrigger>
-              <TabsTrigger value="ventasMan">Ventas Man</TabsTrigger>
-              <TabsTrigger value="focusSemanal">Focus Semanal</TabsTrigger>
-            </TabsList>
-          </div>
+         <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as TabValue)}>
+             <div className="mb-4">
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="outline" className="w-full md:w-auto">
+                            {tabLabels[activeTab]}
+                            <ChevronDown className="ml-2 h-4 w-4" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start">
+                        <DropdownMenuRadioGroup value={activeTab} onValueChange={(value) => setActiveTab(value as TabValue)}>
+                            {Object.entries(tabLabels).map(([value, label]) => (
+                                <DropdownMenuRadioItem key={value} value={value}>
+                                    {label}
+                                </DropdownMenuRadioItem>
+                            ))}
+                        </DropdownMenuRadioGroup>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            </div>
           <TabsContent value="datosSemanales">
             <DatosSemanalesTab data={data} isEditing={isEditing} onInputChange={handleInputChange} />
           </TabsContent>
