@@ -63,7 +63,7 @@ const listLabels: Record<EditableList, string> = {
     agrupacionComercialMan: 'Agrupación Comercial MAN',
     compradorWoman: 'Comprador WOMAN',
     zonaComercialWoman: 'Zona Comercial WOMAN',
-agrupacionComercialWoman: 'Agrupación Comercial WOMAN',
+    agrupacionComercialWoman: 'Agrupación Comercial WOMAN',
     compradorNino: 'Comprador NIÑO',
     zonaComercialNino: 'Zona Comercial NIÑO',
     agrupacionComercialNino: 'Agrupación Comercial NIÑO',
@@ -122,10 +122,11 @@ export default function DashboardPage() {
   const { toast } = useToast();
   
   const fetchData = useCallback(async () => {
+    if (!user) return;
     setDataLoading(true);
     setError(null);
     try {
-        const week = "semana-24";
+        const week = "semana-24"; // Hardcoded for now
         const reportRef = doc(db, "informes", week);
         const listsRef = doc(db, "configuracion", "listas");
 
@@ -140,8 +141,8 @@ export default function DashboardPage() {
         }
 
         // Step 2: Fetch or create the weekly report
-        let reportData: WeeklyData;
         const reportSnap = await getDoc(reportRef);
+        let reportData: WeeklyData;
         
         if (reportSnap.exists()) {
             reportData = reportSnap.data() as WeeklyData;
@@ -207,16 +208,13 @@ export default function DashboardPage() {
     } finally {
         setDataLoading(false);
     }
-  }, []);
+  }, [user]);
 
 
   useEffect(() => {
     if (!authLoading && !user) {
       router.push('/');
-      return;
-    }
-  
-    if (!authLoading && user) {
+    } else if (!authLoading && user) {
       fetchData();
     }
   }, [user, authLoading, router, fetchData]);
@@ -225,33 +223,32 @@ export default function DashboardPage() {
   const weekLabel = `${previousWeek.start} - ${previousWeek.end}`;
 
   const handleInputChange = (path: string, value: string | number) => {
+    if (!isEditing) return;
     setData(prevData => {
         if (!prevData) return null;
 
-        // Deep copy to prevent state mutation issues, which was the root of all evil.
+        // Use deep copy to prevent state mutation issues
         const updatedData = JSON.parse(JSON.stringify(prevData));
         
         const keys = path.split('.');
         let current: any = updatedData;
         
-        // Traverse the path to the second-to-last key
         for (let i = 0; i < keys.length - 1; i++) {
             const key = keys[i];
             if (current[key] === undefined) {
                  console.warn(`Path does not exist: ${path}`);
-                 return prevData; // Return original data if path is invalid
+                 return prevData;
             }
             current = current[key];
         }
         
         const finalKey = keys[keys.length - 1];
         
-        // Convert value to number if possible, otherwise keep as string
         const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
         current[finalKey] = isNaN(numericValue) ? value : numericValue;
         
         // --- Recalculation Logic ---
-        if (path.startsWith('aqneSemanal.') && finalKey === 'totalEuros') {
+        if (path.startsWith('aqneSemanal.') && (finalKey === 'totalEuros' || path.includes('metricasPrincipales'))) {
             const sections = updatedData.aqneSemanal;
             const totalVentasAqne = (sections.woman.metricasPrincipales.totalEuros || 0) +
                                     (sections.man.metricasPrincipales.totalEuros || 0) +
@@ -285,7 +282,6 @@ export default function DashboardPage() {
     setIsSaving(true);
     try {
       const docRef = doc(db, "informes", data.periodo.toLowerCase().replace(' ', '-'));
-      // Use the current state 'data' which has all the latest changes
       await setDoc(docRef, data, { merge: true });
       toast({
         title: "¡Guardado!",
@@ -297,7 +293,7 @@ export default function DashboardPage() {
       toast({
         variant: "destructive",
         title: "Error al guardar",
-        description: "No se pudieron guardar los cambios. Inténtalo de nuevo.",
+        description: `No se pudieron guardar los cambios. ${error}`,
       });
     } finally {
       setIsSaving(false);
@@ -306,7 +302,7 @@ export default function DashboardPage() {
   
   const handleCancel = () => {
     setIsEditing(false);
-    fetchData(); // Refetch data from server to discard all local changes
+    fetchData(); 
   };
   
   const handleOpenListDialog = (listKey: EditableList, title: string) => {
@@ -322,7 +318,6 @@ export default function DashboardPage() {
         const listsRef = doc(db, "configuracion", "listas");
         await updateDoc(listsRef, { [listKey]: newItems });
 
-        // After saving the list, refetch all data to ensure synchronization
         await fetchData();
 
         toast({
@@ -338,7 +333,7 @@ export default function DashboardPage() {
         });
     } finally {
         setIsSaving(false);
-        setListDialogOpen(false); // Close dialog on save
+        setListDialogOpen(false); 
         setListToEdit(null);
     }
 };
@@ -349,16 +344,12 @@ const handleImageChange = async (path: string, file: File, onUploadComplete: (su
         return;
     }
 
-    // Create a unique path in Firebase Storage
     const storageRef = ref(storage, `informes/${data.periodo.toLowerCase().replace(' ', '-')}/${file.name}-${Date.now()}`);
 
     try {
-        // Upload the file
         const snapshot = await uploadBytes(storageRef, file);
-        // Get the download URL
         const downloadURL = await getDownloadURL(snapshot.ref);
-
-        // Update the local state with the new URL
+        
         handleInputChange(path, downloadURL);
         
         toast({
@@ -366,7 +357,6 @@ const handleImageChange = async (path: string, file: File, onUploadComplete: (su
             description: "La imagen está lista. Haz clic en 'Guardar' para confirmar todos los cambios.",
         });
         
-        // Set editing mode to true so the user knows they have pending changes
         if (!isEditing) {
             setIsEditing(true);
         }
