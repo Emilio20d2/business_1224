@@ -46,11 +46,11 @@ export function AlmacenTab({ data, isEditing }: AlmacenTabProps) {
             <Table>
                 <TableHeader>
                     <TableRow>
-                      <TableHead>Sección</TableHead>
-                      <TableHead className="text-right">Ocup.</TableHead>
-                      <TableHead className="text-right">Devol.</TableHead>
-                      <TableHead className="text-right">Entradas</TableHead>
-                      <TableHead className="text-right">Salidas</TableHead>
+                      <TableHead className="uppercase font-bold">Sección</TableHead>
+                      <TableHead className="text-right uppercase font-bold">Ocup.</TableHead>
+                      <TableHead className="text-right uppercase font-bold">Devol.</TableHead>
+                      <TableHead className="text-right uppercase font-bold">Entradas</TableHead>
+                      <TableHead className="text-right uppercase font-bold">Salidas</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>

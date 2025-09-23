@@ -153,11 +153,11 @@ export function AqneSemanalTab({ data, isEditing, onInputChange }: AqneSemanalTa
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>Día</TableHead>
-                            <TableHead className="text-right">Total</TableHead>
-                            <TableHead className="text-right text-pink-500">Woman</TableHead>
-                            <TableHead className="text-right text-blue-500">Man</TableHead>
-                            <TableHead className="text-right text-primary">Niño</TableHead>
+                            <TableHead className="uppercase font-bold">Día</TableHead>
+                            <TableHead className="text-right uppercase font-bold">Total</TableHead>
+                            <TableHead className="text-right uppercase font-bold text-pink-500">Woman</TableHead>
+                            <TableHead className="text-right uppercase font-bold text-blue-500">Man</TableHead>
+                            <TableHead className="text-right uppercase font-bold text-primary">Niño</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>

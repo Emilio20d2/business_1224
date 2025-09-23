@@ -87,7 +87,7 @@ const AcumuladoCard = ({ title, data, isEditing, idPrefix, onInputChange }: { ti
       
       {/* Tabla de Desglose */}
       <div className="flex flex-col gap-2 text-sm">
-        <div className="grid grid-cols-4 gap-2 font-semibold text-muted-foreground px-2">
+        <div className="grid grid-cols-4 gap-2 font-semibold uppercase text-muted-foreground px-2">
             <div>Sección</div>
             <div className="text-right">Total €</div>
             <div className="text-right">Var %</div>

@@ -75,7 +75,7 @@ const DataTable = ({
                 <TableHeader>
                     <TableRow className="bg-muted/50 hover:bg-muted/50">
                         {headers.map((header, i) => (
-                            <TableHead key={i} className={i === 0 ? '' : 'text-right'}>{header}</TableHead>
+                            <TableHead key={i} className={cn('uppercase font-bold', i === 0 ? '' : 'text-right')}>{header}</TableHead>
                         ))}
                     </TableRow>
                 </TableHeader>
@@ -198,7 +198,7 @@ export function VentasManTab({ data, isEditing, onInputChange, onImageChange }: 
                 <TabsTrigger value="zonaComercial">ZONA COMPRADOR</TabsTrigger>
                 <TabsTrigger value="agrupacionComercial">AGRUPACIÓN COMERCIAL</TabsTrigger>
                 <TabsTrigger value="operaciones">OPERACIONES</TabsTrigger>
-                <TabsTrigger value="focusSemanal">FOCUS</TabsTrigger>
+                <TabsTrigger value="focus">FOCUS</TabsTrigger>
             </TabsList>
 
             <TabsContent value="pesoComprador">
@@ -253,7 +253,7 @@ export function VentasManTab({ data, isEditing, onInputChange, onImageChange }: 
                 <OperacionesSubTab data={data} isEditing={isEditing} onInputChange={onInputChange} />
             </TabsContent>
             
-            <TabsContent value="focusSemanal">
+            <TabsContent value="focus">
               <FocusSemanalTab 
                 text={data.focusSemanal} 
                 isEditing={isEditing} 
