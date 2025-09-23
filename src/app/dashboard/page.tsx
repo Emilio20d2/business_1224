@@ -208,13 +208,10 @@ export default function DashboardPage() {
     const reportRef = doc(db, "informes", data.periodo.toLowerCase().replace(' ', '-'));
 
     try {
-        // Create a deep copy to mutate safely
         const updatedData = JSON.parse(JSON.stringify(data));
-
-        // 1. Update the list in the local state copy
+        
         updatedData.listas[listToEdit] = newList;
 
-        // 2. Determine which data table to synchronize
         let dataKey: keyof WeeklyData['ventasMan'] | null = null;
         switch (listToEdit) {
             case 'comprador':
@@ -232,13 +229,11 @@ export default function DashboardPage() {
             const oldTableData: any[] = data.ventasMan[dataKey] || [];
             const oldDataMap = new Map(oldTableData.map(item => [item.nombre, item]));
 
-            // Rebuild the table data from the new list
             const newTableData = newList.map(itemName => {
                 const existingItem = oldDataMap.get(itemName);
                 if (existingItem) {
-                    return existingItem; // Keep existing data
+                    return existingItem;
                 } else {
-                    // Create new item with defaults
                     return {
                         nombre: itemName,
                         pesoPorc: 0,
@@ -251,10 +246,8 @@ export default function DashboardPage() {
             updatedData.ventasMan[dataKey] = newTableData;
         }
 
-        // 3. Update the component's state to reflect changes in the UI immediately
         setData(updatedData);
 
-        // 4. Save both the configuration list and the updated report data to Firestore
         await Promise.all([
             setDoc(listsRef, { [listToEdit]: newList }, { merge: true }),
             setDoc(reportRef, { ventasMan: updatedData.ventasMan }, { merge: true })
