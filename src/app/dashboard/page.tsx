@@ -66,7 +66,9 @@ const getPreviousWeekRange = () => {
 
 const synchronizeTableData = (list: string[], oldTableData: VentasManItem[] = []): VentasManItem[] => {
     if (!Array.isArray(list)) return [];
-    const oldDataMap = new Map(oldTableData.map(item => [item.nombre, item]));
+    // Ensure oldTableData is an array before mapping
+    const safeOldTableData = Array.isArray(oldTableData) ? oldTableData : [];
+    const oldDataMap = new Map(safeOldTableData.map(item => [item.nombre, item]));
     return list.map(itemName => {
         const existingItem = oldDataMap.get(itemName);
         if (existingItem) {
@@ -294,24 +296,6 @@ export default function DashboardPage() {
             }
         }
         
-        // Auto-calculate section weights for datosPorSeccion if a euros value changes
-        if (path.startsWith('datosPorSeccion.') && finalKey === 'totalEuros') {
-            const sections = updatedData.datosPorSeccion;
-            const totalGeneral = (sections.woman.metricasPrincipales.totalEuros || 0) +
-                                  (sections.man.metricasPrincipales.totalEuros || 0) +
-                                  (sections.nino.metricasPrincipales.totalEuros || 0);
-            
-            if (totalGeneral > 0) {
-                sections.woman.pesoPorc = parseFloat(((sections.woman.metricasPrincipales.totalEuros / totalGeneral) * 100).toFixed(2));
-                sections.man.pesoPorc = parseFloat(((sections.man.metricasPrincipales.totalEuros / totalGeneral) * 100).toFixed(2));
-                sections.nino.pesoPorc = parseFloat(((sections.nino.metricasPrincipales.totalEuros / totalGeneral) * 100).toFixed(2));
-            } else {
-                sections.woman.pesoPorc = 0;
-                sections.man.pesoPorc = 0;
-                sections.nino.pesoPorc = 0;
-            }
-        }
-        
         return updatedData;
     });
 };
@@ -386,42 +370,42 @@ export default function DashboardPage() {
     }
 };
 
- const handleImageChange = async (path: string, dataUrl: string) => {
+ const handleImageChange = (path: string, dataUrl: string) => {
     if (!data) return;
-
     setImageLoadingStatus(prev => ({...prev, [path]: true}));
 
-    // Use functional update to ensure we have the latest state
     setData(currentData => {
-        if (!currentData) return null;
+      if (!currentData) return null;
+      
+      const newData = JSON.parse(JSON.stringify(currentData));
+      
+      // Update the image URL
+      const keys = path.split('.');
+      let current: any = newData;
+      for (let i = 0; i < keys.length - 1; i++) {
+          current = current[keys[i]];
+      }
+      current[keys[keys.length - 1]] = dataUrl;
+      
+      // Save the entire updated data object
+      const reportRef = doc(db, "informes", newData.periodo.toLowerCase().replace(' ', '-'));
+      setDoc(reportRef, newData, { merge: true }).then(() => {
+          toast({
+              title: "Imagen guardada",
+              description: "La nueva imagen se ha guardado.",
+          });
+      }).catch(error => {
+          console.error("Error updating image in Firestore: ", error);
+          toast({
+              variant: "destructive",
+              title: "Error al guardar imagen",
+              description: "No se pudo guardar la imagen. Inténtalo de nuevo.",
+          });
+      }).finally(() => {
+          setImageLoadingStatus(prev => ({...prev, [path]: false}));
+      });
 
-        const newData = JSON.parse(JSON.stringify(currentData));
-        const keys = path.split('.');
-        let current: any = newData;
-        for (let i = 0; i < keys.length - 1; i++) {
-            current = current[keys[i]];
-        }
-        current[keys[keys.length - 1]] = dataUrl;
-        
-        // Immediately save after updating state
-        const reportRef = doc(db, "informes", newData.periodo.toLowerCase().replace(' ', '-'));
-        setDoc(reportRef, newData, { merge: true }).then(() => {
-            toast({
-                title: "Imagen guardada",
-                description: "La nueva imagen se ha guardado.",
-            });
-        }).catch(error => {
-            console.error("Error updating image in Firestore: ", error);
-            toast({
-                variant: "destructive",
-                title: "Error al guardar imagen",
-                description: "No se pudo guardar la imagen. Inténtalo de nuevo.",
-            });
-        }).finally(() => {
-            setImageLoadingStatus(prev => ({...prev, [path]: false}));
-        });
-
-        return newData;
+      return newData;
     });
 };
 
@@ -641,3 +625,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    
