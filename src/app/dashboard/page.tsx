@@ -129,6 +129,7 @@ export default function DashboardPage() {
         const reportRef = doc(db, "informes", week);
         const listsRef = doc(db, "configuracion", "listas");
 
+        // 1. Fetch lists first, it's the source of truth for structure
         let listData: WeeklyData['listas'];
         const listsSnap = await getDoc(listsRef);
         if (listsSnap.exists()) {
@@ -138,18 +139,22 @@ export default function DashboardPage() {
             await setDoc(listsRef, listData);
         }
 
+        // 2. Fetch the weekly report
         let reportData: WeeklyData;
         const reportSnap = await getDoc(reportRef);
 
         if (reportSnap.exists()) {
             reportData = reportSnap.data() as WeeklyData;
         } else {
+            // If it doesn't exist, create a fresh one from scratch using the lists
             reportData = getInitialDataForWeek(week, listData);
             await setDoc(reportRef, reportData);
         }
 
+        // 3. ALWAYS ensure the report data uses the LATEST lists
         reportData.listas = listData;
 
+        // 4. Synchronize tables in the report with the latest lists
         let needsSave = false;
         const sections = [
             { ventasKey: 'ventasMan', listKeys: { comprador: 'compradorMan', zonaComercial: 'zonaComercialMan', agrupacionComercial: 'agrupacionComercialMan' } },
@@ -160,15 +165,17 @@ export default function DashboardPage() {
         for (const section of sections) {
             const { ventasKey, listKeys } = section;
 
+            // Ensure the section object exists
             if (!reportData[ventasKey]) {
                 reportData[ventasKey] = getInitialDataForWeek('temp', listData)[ventasKey];
                 needsSave = true;
             }
 
             const syncAndCheck = (tableKey: keyof WeeklyData[typeof ventasKey], listKey: keyof typeof listKeys) => {
-                const list = listData[listKeys[listKey]] || [];
+                const currentList = listData[listKeys[listKey]] || [];
                 const currentTable = reportData[ventasKey][tableKey] || [];
-                const syncedTable = synchronizeTableData(list, currentTable);
+                const syncedTable = synchronizeTableData(currentList, currentTable);
+
                 if (JSON.stringify(syncedTable) !== JSON.stringify(reportData[ventasKey][tableKey])) {
                     (reportData[ventasKey][tableKey] as any) = syncedTable;
                     needsSave = true;
@@ -184,11 +191,12 @@ export default function DashboardPage() {
             await setDoc(reportRef, reportData, { merge: true });
         }
         
+        // 5. Set final, correct data to state
         setData(reportData);
 
     } catch (err: any) {
         console.error("Error fetching or setting Firestore document:", err);
-        setError(`Error: ${err.message}. Asegúrate de que las reglas de Firestore son correctas.`);
+        setError(`Error al conectar con la base de datos: ${err.message}. Verifica las reglas de seguridad de Firestore y la conexión a internet.`);
         toast({
             variant: "destructive",
             title: "Error de Conexión",
@@ -197,7 +205,7 @@ export default function DashboardPage() {
     } finally {
         setDataLoading(false);
     }
-  }, [user]);
+  }, [user, toast]);
 
 
   useEffect(() => {
@@ -213,26 +221,25 @@ export default function DashboardPage() {
 
   const handleInputChange = (path: string, value: any) => {
     if (!isEditing) return;
+    
     setData(prevData => {
         if (!prevData) return null;
 
+        // Create a deep copy to prevent state mutation issues
         const updatedData = JSON.parse(JSON.stringify(prevData));
         
-        const keys = path.split('.');
         let current: any = updatedData;
+        const keys = path.split('.');
         
         for (let i = 0; i < keys.length - 1; i++) {
-            const key = keys[i];
-            // If a key doesn't exist, create it. This is safer.
-            if (current[key] === undefined) {
-                current[key] = {};
+            if (current[keys[i]] === undefined) {
+                current[keys[i]] = {};
             }
-            current = current[key];
+            current = current[keys[i]];
         }
         
         const finalKey = keys[keys.length - 1];
         
-        // Handle numeric conversion safely
         const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
         current[finalKey] = isNaN(numericValue) || value === "" ? value : numericValue;
         
@@ -308,9 +315,12 @@ export default function DashboardPage() {
 
         toast({
             title: "Lista actualizada",
-            description: `La lista "${listLabels[listKey]}" se ha guardado. Los cambios se aplicarán la próxima vez que cargues los datos.`,
+            description: `La lista "${listLabels[listKey]}" se ha guardado.`,
         });
-        // Fetch data again to reflect the list changes in the current view
+        
+        setListDialogOpen(false);
+        setListToEdit(null);
+        // Fetch data again to reflect the list changes in the current view immediately
         await fetchData();
 
     } catch (error: any) {
@@ -322,8 +332,6 @@ export default function DashboardPage() {
         });
     } finally {
         setIsSaving(false);
-        setListDialogOpen(false); 
-        setListToEdit(null);
     }
 };
 
