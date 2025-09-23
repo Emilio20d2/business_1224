@@ -10,6 +10,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatCurrency, formatPercentage } from "@/lib/format";
@@ -21,8 +28,9 @@ import { FocusSemanalTab } from './focus-semanal-tab';
 
 
 type VentasManData = WeeklyData['ventasMan'];
-type TableDataKey = keyof VentasManData;
-type TableData = VentasManData[TableDataKey];
+type TableDataKey = 'pesoComprador' | 'zonaComercial' | 'agrupacionComercial';
+type TableData = VentasManItem[];
+type ListKey = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan';
 
 type VentasManTabProps = {
   data: WeeklyData;
@@ -45,22 +53,25 @@ const TrendIndicator = ({ value }: { value: number }) => {
 
 const DataTable = ({ 
     title,
-    data, 
+    data,
+    list,
     headers, 
     isEditing, 
     dataKey, 
     onInputChange,
 }: { 
     title?: string,
-    data: TableData, 
+    data: TableData | undefined, 
+    list: string[] | undefined,
     headers: string[], 
     isEditing: boolean, 
     dataKey: string, 
     onInputChange: VentasManTabProps['onInputChange'],
 }) => {
-    if (!data) {
+    if (!data || !Array.isArray(data)) {
         return <p className="text-center text-muted-foreground mt-8">No hay datos disponibles.</p>;
     }
+    const optionList = list || [];
 
     const handleChange = (index: number, field: keyof VentasManItem, value: any) => {
         const path = `${dataKey}.${index}.${field}`;
@@ -83,12 +94,28 @@ const DataTable = ({
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {Array.isArray(data) && data.map((item, index) => (
+                    {data.map((item, index) => (
                         <TableRow 
                             key={item.nombre + index}
                         >
                             <TableCell>
-                                {item.nombre}
+                                {isEditing ? (
+                                    <Select
+                                        value={item.nombre}
+                                        onValueChange={(value) => handleChange(index, 'nombre', value)}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Seleccionar" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {optionList.map(option => (
+                                                <SelectItem key={option} value={option}>{option}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                ) : (
+                                    item.nombre
+                                )}
                             </TableCell>
                             <TableCell className="text-right font-medium">
                                 {isEditing ? <Input type="number" inputMode="decimal" className="w-20 ml-auto text-right" defaultValue={item.pesoPorc} onChange={(e) => handleChange(index, 'pesoPorc', e.target.value)} /> : formatPercentage(item.pesoPorc)}
@@ -166,8 +193,9 @@ const ImageImportCard = ({ selectedRow, isEditing, onImageChange, imagePath, isL
     );
 };
 
-const CompradorTab = ({ ventasManData, isEditing, onInputChange, onImageChange, imageLoadingStatus }: { ventasManData: VentasManData, isEditing: boolean, onInputChange: VentasManTabProps['onInputChange'], onImageChange: VentasManTabProps['onImageChange'], imageLoadingStatus: Record<string, boolean> }) => {
+const CompradorTab = ({ data, isEditing, onInputChange, onImageChange, imageLoadingStatus }: { data: WeeklyData, isEditing: boolean, onInputChange: VentasManTabProps['onInputChange'], onImageChange: VentasManTabProps['onImageChange'], imageLoadingStatus: Record<string, boolean> }) => {
     const [selectedIndex, setSelectedIndex] = React.useState<number | null>(0);
+    const ventasManData = data.ventasMan;
 
     const handleRowSelect = (index: number) => {
         setSelectedIndex(index);
@@ -180,6 +208,7 @@ const CompradorTab = ({ ventasManData, isEditing, onInputChange, onImageChange, 
     const selectedRow = selectedIndex !== null ? ventasManData.pesoComprador[selectedIndex] : null;
     const imagePath = selectedIndex !== null ? `ventasMan.pesoComprador.${selectedIndex}.imageUrl` : null;
     const isLoading = imagePath ? imageLoadingStatus[imagePath] || false : false;
+    const optionList = data.listas?.compradorMan || [];
 
 
     return (
@@ -201,7 +230,23 @@ const CompradorTab = ({ ventasManData, isEditing, onInputChange, onImageChange, 
                                 className={cn(selectedIndex === index && 'bg-muted/50')}
                             >
                                 <TableCell>
-                                    {item.nombre}
+                                    {isEditing ? (
+                                        <Select
+                                            value={item.nombre}
+                                            onValueChange={(value) => onInputChange(`ventasMan.pesoComprador.${index}.nombre`, value)}
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Seleccionar" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {optionList.map(option => (
+                                                    <SelectItem key={option} value={option}>{option}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    ) : (
+                                        item.nombre
+                                    )}
                                 </TableCell>
                                 <TableCell className="text-right font-medium">
                                     {isEditing ? <Input type="number" inputMode="decimal" className="w-20 ml-auto text-right" defaultValue={item.pesoPorc} onChange={(e) => onInputChange(`ventasMan.pesoComprador.${index}.pesoPorc`, e.target.value)} /> : formatPercentage(item.pesoPorc)}
@@ -231,7 +276,7 @@ const CompradorTab = ({ ventasManData, isEditing, onInputChange, onImageChange, 
 export function VentasManTab({ data, isEditing, onInputChange, onImageChange, imageLoadingStatus }: VentasManTabProps) {
     const [activeTab, setActiveTab] = React.useState<string>('comprador');
     
-    if (!data) return <p>Cargando datos de Ventas Man...</p>;
+    if (!data || !data.ventasMan) return <p>Cargando datos de Ventas Man...</p>;
 
     const ventasManData = data.ventasMan;
 
@@ -246,7 +291,7 @@ export function VentasManTab({ data, isEditing, onInputChange, onImageChange, im
 
             <TabsContent value="comprador">
                 <CompradorTab 
-                    ventasManData={ventasManData}
+                    data={data}
                     isEditing={isEditing}
                     onInputChange={onInputChange}
                     onImageChange={onImageChange}
@@ -261,6 +306,7 @@ export function VentasManTab({ data, isEditing, onInputChange, onImageChange, im
                         dataKey="ventasMan.zonaComercial"
                         headers={['ZONA COMPRADOR', 'PESO %', '€', '%']}
                         data={ventasManData?.zonaComercial}
+                        list={data.listas?.zonaComercialMan}
                         isEditing={isEditing}
                         onInputChange={onInputChange}
                     />
@@ -268,7 +314,8 @@ export function VentasManTab({ data, isEditing, onInputChange, onImageChange, im
                         title="Agrupación Comercial"
                         dataKey="ventasMan.agrupacionComercial"
                         headers={['Agrupación Comercial', 'PESO %', '€', '%']}
-                        data={ventasManData?.agrupacionComercial.slice(0, 10)}
+                        data={ventasManData?.agrupacionComercial}
+                        list={data.listas?.agrupacionComercialMan}
                         isEditing={isEditing}
                         onInputChange={onInputChange}
                     />

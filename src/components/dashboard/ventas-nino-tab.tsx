@@ -10,6 +10,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatCurrency, formatPercentage } from "@/lib/format";
@@ -21,8 +28,9 @@ import { FocusSemanalTab } from './focus-semanal-tab';
 
 
 type VentasNinoData = WeeklyData['ventasNino'];
-type TableDataKey = keyof VentasNinoData;
-type TableData = VentasNinoData[TableDataKey];
+type TableDataKey = 'pesoComprador' | 'zonaComercial' | 'agrupacionComercial';
+type TableData = VentasNinoItem[];
+type ListKey = 'compradorNino' | 'zonaComercialNino' | 'agrupacionComercialNino';
 
 type VentasNinoTabProps = {
   data: WeeklyData;
@@ -46,21 +54,25 @@ const TrendIndicator = ({ value }: { value: number }) => {
 const DataTable = ({ 
     title,
     data, 
+    list,
     headers, 
     isEditing, 
     dataKey, 
     onInputChange,
 }: { 
     title?: string,
-    data: TableData, 
+    data: TableData | undefined, 
+    list: string[] | undefined,
     headers: string[], 
     isEditing: boolean, 
     dataKey: string, 
     onInputChange: VentasNinoTabProps['onInputChange'],
 }) => {
-    if (!data) {
+    if (!data || !Array.isArray(data)) {
         return <p className="text-center text-muted-foreground mt-8">No hay datos disponibles.</p>;
     }
+    const optionList = list || [];
+
 
     const handleChange = (index: number, field: keyof VentasNinoItem, value: any) => {
         const path = `${dataKey}.${index}.${field}`;
@@ -83,12 +95,28 @@ const DataTable = ({
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {Array.isArray(data) && data.map((item, index) => (
+                    {data.map((item, index) => (
                         <TableRow 
                             key={item.nombre + index}
                         >
                             <TableCell>
-                                {item.nombre}
+                                {isEditing ? (
+                                    <Select
+                                        value={item.nombre}
+                                        onValueChange={(value) => handleChange(index, 'nombre', value)}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Seleccionar" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {optionList.map(option => (
+                                                <SelectItem key={option} value={option}>{option}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                ) : (
+                                    item.nombre
+                                )}
                             </TableCell>
                             <TableCell className="text-right font-medium">
                                 {isEditing ? <Input type="number" inputMode="decimal" className="w-20 ml-auto text-right" defaultValue={item.pesoPorc} onChange={(e) => handleChange(index, 'pesoPorc', e.target.value)} /> : formatPercentage(item.pesoPorc)}
@@ -166,8 +194,9 @@ const ImageImportCard = ({ selectedRow, isEditing, onImageChange, imagePath, isL
     );
 };
 
-const CompradorTab = ({ ventasNinoData, isEditing, onInputChange, onImageChange, imageLoadingStatus }: { ventasNinoData: VentasNinoData, isEditing: boolean, onInputChange: VentasNinoTabProps['onInputChange'], onImageChange: VentasNinoTabProps['onImageChange'], imageLoadingStatus: Record<string, boolean> }) => {
+const CompradorTab = ({ data, isEditing, onInputChange, onImageChange, imageLoadingStatus }: { data: WeeklyData, isEditing: boolean, onInputChange: VentasNinoTabProps['onInputChange'], onImageChange: VentasNinoTabProps['onImageChange'], imageLoadingStatus: Record<string, boolean> }) => {
     const [selectedIndex, setSelectedIndex] = React.useState<number | null>(0);
+    const ventasNinoData = data.ventasNino;
 
     const handleRowSelect = (index: number) => {
         setSelectedIndex(index);
@@ -180,6 +209,8 @@ const CompradorTab = ({ ventasNinoData, isEditing, onInputChange, onImageChange,
     const selectedRow = selectedIndex !== null ? ventasNinoData.pesoComprador[selectedIndex] : null;
     const imagePath = selectedIndex !== null ? `ventasNino.pesoComprador.${selectedIndex}.imageUrl` : null;
     const isLoading = imagePath ? imageLoadingStatus[imagePath] || false : false;
+    const optionList = data.listas?.compradorNino || [];
+
 
     return (
          <div className="grid gap-4 items-start grid-cols-1 md:grid-cols-2">
@@ -200,7 +231,23 @@ const CompradorTab = ({ ventasNinoData, isEditing, onInputChange, onImageChange,
                                 className={cn(selectedIndex === index && 'bg-muted/50')}
                             >
                                 <TableCell>
-                                    {item.nombre}
+                                    {isEditing ? (
+                                        <Select
+                                            value={item.nombre}
+                                            onValueChange={(value) => onInputChange(`ventasNino.pesoComprador.${index}.nombre`, value)}
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Seleccionar" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {optionList.map(option => (
+                                                    <SelectItem key={option} value={option}>{option}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    ) : (
+                                        item.nombre
+                                    )}
                                 </TableCell>
                                 <TableCell className="text-right font-medium">
                                     {isEditing ? <Input type="number" inputMode="decimal" className="w-20 ml-auto text-right" defaultValue={item.pesoPorc} onChange={(e) => onInputChange(`ventasNino.pesoComprador.${index}.pesoPorc`, e.target.value)} /> : formatPercentage(item.pesoPorc)}
@@ -230,7 +277,7 @@ const CompradorTab = ({ ventasNinoData, isEditing, onInputChange, onImageChange,
 export function VentasNinoTab({ data, isEditing, onInputChange, onImageChange, imageLoadingStatus }: VentasNinoTabProps) {
     const [activeTab, setActiveTab] = React.useState<string>('comprador');
     
-    if (!data) return <p>Cargando datos de Ventas NIÑO...</p>;
+    if (!data || !data.ventasNino) return <p>Cargando datos de Ventas NIÑO...</p>;
 
     const ventasNinoData = data.ventasNino;
 
@@ -245,7 +292,7 @@ export function VentasNinoTab({ data, isEditing, onInputChange, onImageChange, i
 
             <TabsContent value="comprador">
                 <CompradorTab 
-                    ventasNinoData={ventasNinoData}
+                    data={data}
                     isEditing={isEditing}
                     onInputChange={onInputChange}
                     onImageChange={onImageChange}
@@ -260,6 +307,7 @@ export function VentasNinoTab({ data, isEditing, onInputChange, onImageChange, i
                         dataKey="ventasNino.zonaComercial"
                         headers={['ZONA COMPRADOR', 'PESO %', '€', '%']}
                         data={ventasNinoData?.zonaComercial}
+                        list={data.listas?.zonaComercialNino}
                         isEditing={isEditing}
                         onInputChange={onInputChange}
                     />
@@ -267,7 +315,8 @@ export function VentasNinoTab({ data, isEditing, onInputChange, onImageChange, i
                         title="Agrupación Comercial"
                         dataKey="ventasNino.agrupacionComercial"
                         headers={['Agrupación Comercial', 'PESO %', '€', '%']}
-                        data={ventasNinoData?.agrupacionComercial.slice(0, 10)}
+                        data={ventasNinoData?.agrupacionComercial}
+                        list={data.listas?.agrupacionComercialNino}
                         isEditing={isEditing}
                         onInputChange={onInputChange}
                     />

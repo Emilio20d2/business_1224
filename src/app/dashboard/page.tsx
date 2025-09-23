@@ -30,7 +30,6 @@ import {
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
 } from "@/components/ui/dropdown-menu"
-import { EditListDialog } from '@/components/dashboard/edit-list-dialog';
 import { startOfWeek, endOfWeek, subWeeks, format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
@@ -69,20 +68,35 @@ const synchronizeTableData = (list: string[], oldTableData: VentasManItem[] = []
     // Ensure oldTableData is an array before mapping
     const safeOldTableData = Array.isArray(oldTableData) ? oldTableData : [];
     const oldDataMap = new Map(safeOldTableData.map(item => [item.nombre, item]));
-    return list.map(itemName => {
-        const existingItem = oldDataMap.get(itemName);
-        if (existingItem) {
-            return existingItem;
-        } else {
-            return {
-                nombre: itemName,
-                pesoPorc: 0,
-                totalEuros: 0,
-                varPorc: 0,
-                imageUrl: "",
-            };
+    
+    // Create a set of names that are already in use from the old data
+    const usedNames = new Set(safeOldTableData.map(item => item.nombre));
+
+    // Map over the old data first to preserve it
+    const preservedData = safeOldTableData.map(item => ({ ...item }));
+
+    // Find available names from the main list that are not yet used
+    const availableNames = list.filter(name => !usedNames.has(name));
+
+    // Fill the rest of the table up to the list's length with available names
+    const needed = list.length - preservedData.length;
+    if (needed > 0) {
+        for (let i = 0; i < needed; i++) {
+            const nameToAdd = availableNames.shift();
+            if (nameToAdd) {
+                preservedData.push({
+                    nombre: nameToAdd,
+                    pesoPorc: 0,
+                    totalEuros: 0,
+                    varPorc: 0,
+                    imageUrl: "",
+                });
+            }
         }
-    });
+    }
+    
+    // Trim the data if the list has become shorter
+    return preservedData.slice(0, list.length);
 };
 
 const synchronizeReportData = (reportData: WeeklyData, listData: WeeklyData['listas']): { updatedData: WeeklyData, hasChanged: boolean } => {
@@ -108,18 +122,17 @@ const synchronizeReportData = (reportData: WeeklyData, listData: WeeklyData['lis
 
     for (const section of sections) {
         const { ventasKey, listKeys } = section;
-        const initialVentasData = getInitialDataForWeek('temp', listData)[ventasKey];
-
-        // If the whole ventas section is missing, create it
+        
+        // If the whole ventas section is missing, create it from scratch
         if (!updatedData[ventasKey]) {
-            updatedData[ventasKey] = initialVentasData;
+            updatedData[ventasKey] = getInitialDataForWeek('temp', listData)[ventasKey];
             hasChanged = true;
         }
 
         // Sync pesoComprador
         const pesoCompradorList = listData[listKeys.comprador] || [];
         const currentPesoCompradorData = updatedData[ventasKey].pesoComprador || [];
-        if (pesoCompradorList.length !== currentPesoCompradorData.length || pesoCompradorList.some((item, i) => item !== currentPesoCompradorData[i]?.nombre)) {
+        if (pesoCompradorList.length !== currentPesoCompradorData.length) {
              updatedData[ventasKey].pesoComprador = synchronizeTableData(pesoCompradorList, currentPesoCompradorData);
              hasChanged = true;
         }
@@ -127,7 +140,7 @@ const synchronizeReportData = (reportData: WeeklyData, listData: WeeklyData['lis
         // Sync zonaComercial
         const zonaComercialList = listData[listKeys.zonaComercial] || [];
         const currentZonaComercialData = updatedData[ventasKey].zonaComercial || [];
-        if (zonaComercialList.length !== currentZonaComercialData.length || zonaComercialList.some((item, i) => item !== currentZonaComercialData[i]?.nombre)) {
+        if (zonaComercialList.length !== currentZonaComercialData.length) {
              updatedData[ventasKey].zonaComercial = synchronizeTableData(zonaComercialList, currentZonaComercialData);
              hasChanged = true;
         }
@@ -135,7 +148,7 @@ const synchronizeReportData = (reportData: WeeklyData, listData: WeeklyData['lis
         // Sync agrupacionComercial
         const agrupacionComercialList = listData[listKeys.agrupacionComercial] || [];
         const currentAgrupacionComercialData = updatedData[ventasKey].agrupacionComercial || [];
-        if (agrupacionComercialList.length !== currentAgrupacionComercialData.length || agrupacionComercialList.some((item, i) => item !== currentAgrupacionComercialData[i]?.nombre)) {
+        if (agrupacionComercialList.length !== currentAgrupacionComercialData.length) {
              updatedData[ventasKey].agrupacionComercial = synchronizeTableData(agrupacionComercialList, currentAgrupacionComercialData);
              hasChanged = true;
         }
@@ -156,9 +169,6 @@ export default function DashboardPage() {
   const [isSaving, setIsSaving] = useState(false);
   
   const [imageLoadingStatus, setImageLoadingStatus] = useState<Record<string, boolean>>({});
-
-  const [isListDialogOpen, setIsListDialogOpen] = useState(false);
-  const [listToEdit, setListToEdit] = useState<EditableList | null>(null);
   
   const [activeTab, setActiveTab] = useState<string>("datosSemanales");
 
@@ -246,6 +256,13 @@ export default function DashboardPage() {
         }
         
         const finalKey = keys[keys.length - 1];
+        
+        // Handle name change from a Select component
+        if (finalKey === 'nombre') {
+            current[finalKey] = value;
+            return updatedData;
+        }
+
         const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
         current[finalKey] = isNaN(numericValue) ? value : numericValue;
         
@@ -273,26 +290,6 @@ export default function DashboardPage() {
             if (!isNaN(index) && updatedData.ventasDiariasAQNE[index]) {
                 const day = updatedData.ventasDiariasAQNE[index];
                 day.total = (day.woman || 0) + (day.man || 0) + (day.nino || 0);
-            }
-        }
-        
-        // Sync comprador with zonaComercial if names match
-        const ventasKey = keys[0] as keyof WeeklyData;
-        if ((ventasKey === 'ventasMan' || ventasKey === 'ventasWoman' || ventasKey === 'ventasNino') && keys[1] === 'pesoComprador') {
-            const compradorIndex = parseInt(keys[2], 10);
-            const compradorItem = updatedData[ventasKey]?.pesoComprador?.[compradorIndex];
-            if (compradorItem) {
-                const zonaComercialList = updatedData[ventasKey].zonaComercial;
-                const matchingZonaIndex = zonaComercialList.findIndex((item: VentasManItem) => item.nombre === compradorItem.nombre);
-
-                if (matchingZonaIndex !== -1) {
-                    updatedData[ventasKey].zonaComercial[matchingZonaIndex] = {
-                        ...updatedData[ventasKey].zonaComercial[matchingZonaIndex],
-                        pesoPorc: compradorItem.pesoPorc,
-                        totalEuros: compradorItem.totalEuros,
-                        varPorc: compradorItem.varPorc,
-                    };
-                }
             }
         }
         
@@ -328,50 +325,7 @@ export default function DashboardPage() {
     fetchData(); // Re-fetch original data to discard changes
   };
 
-  const handleSaveList = async (newList: string[]) => {
-    if (!listToEdit || !data) return;
-    
-    // Create a deep copy to avoid direct state mutation
-    const updatedData = JSON.parse(JSON.stringify(data));
-    
-    // Update the list in the copied data
-    updatedData.listas[listToEdit] = newList;
-    
-    // Synchronize the report based on the new list
-    const { updatedData: synchronizedData } = synchronizeReportData(updatedData, updatedData.listas);
-    
-    // Save the fully updated and synchronized data to Firestore
-    try {
-        const reportRef = doc(db, "informes", synchronizedData.periodo.toLowerCase().replace(' ', '-'));
-        await setDoc(reportRef, synchronizedData, { merge: true });
-        
-        // Also update the master list configuration
-        const listsRef = doc(db, "configuracion", "listas");
-        await setDoc(listsRef, synchronizedData.listas, { merge: true });
-        
-        // Update the state with the synchronized data
-        setData(synchronizedData);
-
-        toast({
-            title: "Lista Actualizada",
-            description: `La lista de ${listToEdit} y el informe se han actualizado.`
-        });
-
-    } catch (error) {
-        console.error("Error saving list and synchronizing report:", error);
-        toast({
-            variant: "destructive",
-            title: "Error al guardar",
-            description: "No se pudo guardar la lista y sincronizar el informe.",
-        });
-    } finally {
-        setIsListDialogOpen(false);
-        setListToEdit(null);
-    }
-};
-
  const handleImageChange = (path: string, dataUrl: string) => {
-    if (!data) return;
     setImageLoadingStatus(prev => ({...prev, [path]: true}));
 
     setData(currentData => {
@@ -379,7 +333,6 @@ export default function DashboardPage() {
       
       const newData = JSON.parse(JSON.stringify(currentData));
       
-      // Update the image URL
       const keys = path.split('.');
       let current: any = newData;
       for (let i = 0; i < keys.length - 1; i++) {
@@ -387,41 +340,33 @@ export default function DashboardPage() {
       }
       current[keys[keys.length - 1]] = dataUrl;
       
-      // Save the entire updated data object
       const reportRef = doc(db, "informes", newData.periodo.toLowerCase().replace(' ', '-'));
-      setDoc(reportRef, newData, { merge: true }).then(() => {
-          toast({
-              title: "Imagen guardada",
-              description: "La nueva imagen se ha guardado.",
-          });
-      }).catch(error => {
-          console.error("Error updating image in Firestore: ", error);
-          toast({
-              variant: "destructive",
-              title: "Error al guardar imagen",
-              description: "No se pudo guardar la imagen. Inténtalo de nuevo.",
-          });
-      }).finally(() => {
-          setImageLoadingStatus(prev => ({...prev, [path]: false}));
-      });
+      
+      // Use a promise to ensure save happens after state update logic
+      const saveData = async () => {
+          try {
+              await setDoc(reportRef, newData, { merge: true });
+              toast({
+                  title: "Imagen guardada",
+                  description: "La nueva imagen se ha guardado.",
+              });
+          } catch (error) {
+              console.error("Error updating image in Firestore: ", error);
+              toast({
+                  variant: "destructive",
+                  title: "Error al guardar imagen",
+                  description: "No se pudo guardar la imagen. Inténtalo de nuevo.",
+              });
+          } finally {
+              setImageLoadingStatus(prev => ({...prev, [path]: false}));
+          }
+      };
+      
+      saveData();
 
       return newData;
     });
 };
-
-  const handleOpenListDialog = (listName: EditableList) => {
-      setListToEdit(listName);
-      setIsListDialogOpen(true);
-  };
-
-  const getTitleForList = (listName: EditableList | null) => {
-      if (!listName) return 'Editar Lista';
-      if (listName.includes('Man')) return `Editar Lista de ${listName.replace('Man', ' (MAN)')}`;
-      if (listName.includes('Woman')) return `Editar Lista de ${listName.replace('Woman', ' (WOMAN)')}`;
-      if (listName.includes('Nino')) return `Editar Lista de ${listName.replace('Nino', ' (NIÑO)')}`;
-      return 'Editar Lista';
-  };
-
 
   if (authLoading || dataLoading) {
     return (
@@ -513,45 +458,6 @@ export default function DashboardPage() {
               <DropdownMenuContent className="w-56 z-50">
                 <DropdownMenuLabel>Opciones</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuLabel className="font-normal text-muted-foreground px-2 py-1.5 text-xs">EDITAR LISTAS MAN</DropdownMenuLabel>
-                  <DropdownMenuGroup>
-                      <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorMan')}>
-                          <span>COMPRADOR</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialMan')}>
-                          <span>ZONA COMPRADOR</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercialMan')}>
-                          <span>AGRUPACIÓN COMERCIAL</span>
-                      </DropdownMenuItem>
-                  </DropdownMenuGroup>
-                 <DropdownMenuSeparator />
-                 <DropdownMenuLabel className="font-normal text-muted-foreground px-2 py-1.5 text-xs">EDITAR LISTAS WOMAN</DropdownMenuLabel>
-                  <DropdownMenuGroup>
-                      <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorWoman')}>
-                          <span>COMPRADOR</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialWoman')}>
-                          <span>ZONA COMPRADOR</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercialWoman')}>
-                          <span>AGRUPACIÓN COMERCIAL</span>
-                      </DropdownMenuItem>
-                  </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuLabel className="font-normal text-muted-foreground px-2 py-1.5 text-xs">EDITAR LISTAS NIÑO</DropdownMenuLabel>
-                  <DropdownMenuGroup>
-                      <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorNino')}>
-                          <span>COMPRADOR</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialNino')}>
-                          <span>ZONA COMPRADOR</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercialNino')}>
-                          <span>AGRUPACIÓN COMERCIAL</span>
-                      </DropdownMenuItem>
-                  </DropdownMenuGroup>
-                 <DropdownMenuSeparator />
                 <DropdownMenuItem onSelect={() => {
                   logout();
                 }}>
@@ -612,18 +518,6 @@ export default function DashboardPage() {
           </TabsContent>
         </Tabs>
       </main>
-
-      {listToEdit && data.listas && (
-          <EditListDialog
-              isOpen={isListDialogOpen}
-              onClose={() => setIsListDialogOpen(false)}
-              title={getTitleForList(listToEdit)}
-              items={data.listas[listToEdit] || []}
-              onSave={handleSaveList}
-          />
-      )}
     </div>
   );
 }
-
-    
