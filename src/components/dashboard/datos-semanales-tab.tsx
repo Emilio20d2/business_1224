@@ -18,7 +18,8 @@ import {
   Shirt,
   Footprints,
   SprayCan,
-  Clock
+  Clock,
+  Percent
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
@@ -205,6 +206,7 @@ export function DatosSemanalesTab({ data, isEditing, onInputChange }: DatosSeman
           <KpiCard title="GAP" icon={<ClipboardX className="h-5 w-5 text-destructive" />} className="md:col-span-2">
               <div className="flex flex-row justify-center items-center gap-4">
                   <DatoSimple 
+                      icon={<Euro className="h-5 w-5 text-destructive"/>}
                       value={isEditing ? data.perdidas.gap.euros : formatGap(data.perdidas.gap.euros, '€')} 
                       isEditing={isEditing}
                       valueId="perdidas.gap.euros"
@@ -213,6 +215,7 @@ export function DatosSemanalesTab({ data, isEditing, onInputChange }: DatosSeman
                       onInputChange={onInputChange}
                   />
                   <DatoSimple 
+                      icon={<Package className="h-5 w-5 text-destructive"/>}
                       value={isEditing ? data.perdidas.gap.unidades : formatGap(data.perdidas.gap.unidades, 'Unid.')}
                       isEditing={isEditing}
                       valueId="perdidas.gap.unidades"
@@ -226,6 +229,7 @@ export function DatosSemanalesTab({ data, isEditing, onInputChange }: DatosSeman
           <KpiCard title="Merma" icon={<Trash2 className="h-5 w-5 text-destructive" />} className="md:col-span-2">
               <div className="flex flex-row justify-center items-center gap-4">
                   <DatoSimple 
+                      icon={<Package className="h-5 w-5 text-destructive"/>}
                       value={isEditing ? data.perdidas.merma.unidades : `${formatNumber(data.perdidas.merma.unidades)} Unid.`}
                       isEditing={isEditing}
                       valueId="perdidas.merma.unidades"
@@ -234,6 +238,7 @@ export function DatosSemanalesTab({ data, isEditing, onInputChange }: DatosSeman
                       onInputChange={onInputChange}
                   />
                   <DatoSimple 
+                      icon={<Percent className="h-5 w-5 text-destructive"/>}
                       value={isEditing ? data.perdidas.merma.porcentaje : formatPercentage(data.perdidas.merma.porcentaje)}
                       isEditing={isEditing}
                       valueId="perdidas.merma.porcentaje"

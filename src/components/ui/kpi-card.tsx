@@ -30,23 +30,62 @@ type DatoDobleProps = {
   isEditing?: boolean;
   valueId?: string;
   variationId?: string;
+  onInputChange?: (path: string, value: string) => void;
 };
 
-export function DatoDoble({ label, value, variation, unit, isEditing, valueId, variationId }: DatoDobleProps) {
+export function DatoDoble({ label, value, variation, unit, isEditing, valueId, variationId, onInputChange }: DatoDobleProps) {
   const trendColor = variation === undefined ? '' : variation >= 0 ? 'text-green-600 bg-green-100 dark:text-green-200 dark:bg-green-900/50' : 'text-red-600 bg-red-100 dark:text-red-200 dark:bg-red-900/50';
+
+  const handleValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (onInputChange && valueId) {
+      onInputChange(valueId, e.target.value);
+    }
+  };
+
+  const handleVariationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (onInputChange && variationId) {
+      onInputChange(variationId, e.target.value);
+    }
+  };
+
+  const rawValue = typeof value === 'string'
+    ? parseFloat(value.replace(/[^0-9.,-]+/g, '').replace(',', '.'))
+    : value;
+
+  const valueColor = typeof rawValue === 'number' && rawValue < 0 ? 'text-red-600' : '';
 
   return (
     <div className="flex justify-between items-baseline">
       {label && <span className="text-lg text-muted-foreground">{label}</span>}
       <div className="flex items-baseline gap-2">
-        {isEditing ? (
-           <Input type="number" inputMode="decimal" defaultValue={String(value).replace(/[^0-9.,-]+/g, '')} className="w-24 h-8" id={valueId}/>
+        {isEditing && valueId ? (
+          <div className="flex items-center gap-1">
+             <Input 
+               type="number" 
+               inputMode="decimal" 
+               defaultValue={rawValue} 
+               className="w-24 h-8" 
+               id={valueId}
+               onChange={handleValueChange}
+             />
+             {unit && <span className="text-sm text-muted-foreground">{unit}</span>}
+           </div>
         ) : (
-           <div className="text-2xl font-bold">{value}{unit}</div>
+           <div className={cn("text-2xl font-bold", valueColor)}>{value}{unit}</div>
         )}
         {variation !== undefined && (
-          isEditing ? (
-             <Input type="number" inputMode="decimal" defaultValue={variation} className="w-16 h-8" id={variationId}/>
+          isEditing && variationId ? (
+            <div className="flex items-center gap-1">
+             <Input 
+               type="number" 
+               inputMode="decimal" 
+               defaultValue={variation} 
+               className="w-16 h-8" 
+               id={variationId}
+               onChange={handleVariationChange}
+             />
+             <span className="text-sm text-muted-foreground">%</span>
+            </div>
           ) : (
             <span className={cn("rounded-md px-2 py-1 text-sm font-bold", trendColor)}>
               {variation >= 0 ? '+' : ''}{variation.toLocaleString('es-ES')}%
@@ -67,36 +106,43 @@ type DatoSimpleProps = {
   className?: string;
   icon?: React.ReactNode;
   align?: 'left' | 'center' | 'right';
+  unit?: string;
+  onInputChange?: (path: string, value: string) => void;
 };
 
-export function DatoSimple({ label, value, isEditing, valueId, className, icon, align = 'left' }: DatoSimpleProps) {
+export function DatoSimple({ label, value, isEditing, valueId, className, icon, align = 'left', unit, onInputChange }: DatoSimpleProps) {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (onInputChange && valueId) {
+            onInputChange(valueId, e.target.value);
+        }
+    };
+    
+    const rawValue = typeof value === 'string'
+      ? parseFloat(value.replace(/[^0-9.,-]+/g, '').replace(',', '.'))
+      : value;
+
+    const valueColor = typeof rawValue === 'number' && rawValue < 0 ? 'text-red-600' : 
+                       (typeof value === 'string' && value.includes('-')) ? 'text-red-600' : '';
+
+
     const renderValue = () => {
-        if (typeof value === 'object') return value;
-        
-        const stringValue = String(value);
-
-        if (stringValue.includes('€') || (stringValue.includes('Unid') && stringValue.length < 15)) {
-            const isPositive = !stringValue.includes('-');
-            const colorClass = stringValue.includes('€') 
-                ? (isPositive ? 'text-green-600' : 'text-red-600') 
-                : '';
-            return <span className={cn("font-semibold text-lg", colorClass)}>{stringValue}</span>
-        }
-
-        if (stringValue.includes(' / ')) {
-            const parts = stringValue.split(' / ');
-            const firstPart = parts[0] || '';
-            const secondPart = parts[1] || '';
-
+        if (isEditing && valueId && onInputChange) {
             return (
-                <div className="flex flex-row items-center justify-center gap-2">
-                    <span>{firstPart}</span>
-                    <span>{secondPart}</span>
-                </div>
-            );
+                 <div className="flex items-center justify-center gap-1">
+                    <Input 
+                      type="number"
+                      inputMode="decimal" 
+                      step="any" 
+                      defaultValue={typeof rawValue === 'number' ? rawValue : ''} 
+                      className="w-24 h-8 self-center text-center" 
+                      id={valueId}
+                      onChange={handleChange}
+                    />
+                    {unit && <span className="text-sm text-muted-foreground">{unit}</span>}
+                 </div>
+            )
         }
-
-        return <strong className="font-semibold text-lg">{value}</strong>;
+        return <strong className={cn("font-semibold text-lg text-right w-full", valueColor)}>{value}</strong>;
     }
 
     const alignmentClasses = {
@@ -104,26 +150,15 @@ export function DatoSimple({ label, value, isEditing, valueId, className, icon, 
         center: "flex-col items-center justify-center text-center gap-1 h-full",
         right: "justify-end",
     }
-    const labelAlignmentClasses = {
-        left: "",
-        center: "text-center !text-sm !font-normal !text-muted-foreground",
-        right: "text-right",
-    }
-    const valueAlignmentClasses = {
-        left: "text-right",
-        center: "text-center",
-        right: "text-right",
-    }
-
 
     return (
         <div className={cn("flex items-center text-md", alignmentClasses[align], className)}>
-            <div className={cn("flex flex-col gap-1 w-full", labelAlignmentClasses[align])}>
-              <span className="flex items-center gap-2 text-muted-foreground justify-center">
+            <div className={cn("flex flex-col gap-1 w-full")}>
+              <span className="flex items-center gap-2 text-muted-foreground justify-center text-sm font-normal">
                 {icon}
                 {label && label}
               </span>
-              {isEditing ? <Input type="text" defaultValue={String(value).replace(/[^0-p-9.%]+/g, '')} className="w-24 h-8 self-center" id={valueId}/> : <div className={valueAlignmentClasses[align]}>{renderValue()}</div>}
+              <div className="text-center">{renderValue()}</div>
             </div>
         </div>
     );
