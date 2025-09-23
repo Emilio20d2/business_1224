@@ -193,16 +193,16 @@ const ImageImportCard = ({ selectedRow, isEditing, onImageChange, imagePath, ima
 
 const CompradorTab = ({ data, isEditing, onInputChange, onImageChange }: { data: WeeklyData, isEditing: boolean, onInputChange: VentasManTabProps['onInputChange'], onImageChange: VentasManTabProps['onImageChange'] }) => {
     const [selectedIndex, setSelectedIndex] = React.useState<number | null>(0);
-    const ventasManData = data.ventasMan;
+    
+    const ventasManData = data?.ventasMan;
+    if (!ventasManData || !Array.isArray(ventasManData.pesoComprador)) {
+        return <p className="text-center text-muted-foreground mt-8">No hay datos de comprador disponibles.</p>;
+    }
 
     const handleRowSelect = (index: number) => {
         setSelectedIndex(index);
     };
     
-    if (!ventasManData || !Array.isArray(ventasManData.pesoComprador)) {
-        return <p className="text-center text-muted-foreground mt-8">No hay datos de comprador disponibles.</p>;
-    }
-
     const selectedRow = selectedIndex !== null ? ventasManData.pesoComprador[selectedIndex] : null;
     const imagePath = selectedIndex !== null ? `ventasMan.pesoComprador.${selectedIndex}.imageUrl` : null;
     const imageUrl = selectedIndex !== null ? data.ventasMan.pesoComprador[selectedIndex]?.imageUrl : null;

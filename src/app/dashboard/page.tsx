@@ -63,7 +63,7 @@ const listLabels: Record<EditableList, string> = {
     agrupacionComercialMan: 'Agrupación Comercial MAN',
     compradorWoman: 'Comprador WOMAN',
     zonaComercialWoman: 'Zona Comercial WOMAN',
-    agrupacionComercialWoman: 'Agrupación Comercial WOMAN',
+agrupacionComercialWoman: 'Agrupación Comercial WOMAN',
     compradorNino: 'Comprador NIÑO',
     zonaComercialNino: 'Zona Comercial NIÑO',
     agrupacionComercialNino: 'Agrupación Comercial NIÑO',
@@ -353,32 +353,20 @@ const handleImageChange = async (path: string, file: File, onUploadComplete: (su
         const snapshot = await uploadBytes(storageRef, file);
         const downloadURL = await getDownloadURL(snapshot.ref);
 
-        const reportRef = doc(db, "informes", data.periodo.toLowerCase().replace(' ', '-'));
-        await updateDoc(reportRef, { [path]: downloadURL });
-
-        setData(prevData => {
-            if (!prevData) return null;
-            const updatedData = JSON.parse(JSON.stringify(prevData));
-            const keys = path.split('.');
-            let current = updatedData;
-            for (let i = 0; i < keys.length - 1; i++) {
-                current = current[keys[i]];
-            }
-            current[keys[keys.length - 1]] = downloadURL;
-            return updatedData;
-        });
-
+        handleInputChange(path, downloadURL);
+        
         toast({
-            title: "Imagen guardada",
-            description: "La imagen se ha subido y guardado correctamente.",
+            title: "Imagen cargada",
+            description: "La imagen está lista para ser guardada. Haz clic en 'Guardar' para confirmar todos los cambios.",
         });
         onUploadComplete(true);
+        setIsEditing(true);
 
     } catch (error) {
         console.error("Error uploading image: ", error);
         toast({
             variant: "destructive",
-            title: "Error al guardar la imagen",
+            title: "Error al subir la imagen",
             description: "No se pudo subir la imagen. Comprueba tu conexión y los permisos de Firebase Storage.",
         });
         onUploadComplete(false);
@@ -577,5 +565,3 @@ const handleImageChange = async (path: string, file: File, onUploadComplete: (su
     </div>
   );
 }
-
-    
