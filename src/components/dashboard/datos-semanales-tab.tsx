@@ -117,8 +117,8 @@ export function DatosSemanalesTab({ data, isEditing, onInputChange }: DatosSeman
         />
       </KpiCard>
       
-      {/* Fila Central: 5x2 Grid */}
-      <div className="md:col-span-6 grid grid-cols-1 md:grid-cols-5 gap-2">
+      {/* Fila Central: 6-col Grid */}
+      <div className="md:col-span-6 grid grid-cols-1 md:grid-cols-6 gap-2">
         <KpiCard title="GAP" icon={<ClipboardX className="h-5 w-5 text-destructive" />} className="md:col-span-2">
              <div className="flex flex-row justify-center items-center gap-4">
                 <DatoSimple 
@@ -161,11 +161,15 @@ export function DatosSemanalesTab({ data, isEditing, onInputChange }: DatosSeman
             </div>
         </KpiCard>
         
-        <KpiCard title="V. Ipod" icon={<Smartphone className="h-5 w-5 text-primary" />}>
+        <KpiCard title="V. Ipod" icon={<Smartphone className="h-5 w-5 text-primary" />} className="md:col-span-1">
             <DatoSimple value={isEditing ? data.operaciones.ventaIpod : formatNumber(data.operaciones.ventaIpod)} isEditing={isEditing} valueId="operaciones.ventaIpod" align="center" onInputChange={onInputChange}/>
         </KpiCard>
 
-        <KpiCard title="Caja" icon={<Receipt className="h-5 w-5 text-primary" />} className="md:col-span-3">
+        <KpiCard title="E-Ticket" icon={<Ticket className="h-5 w-5 text-primary" />} className="md:col-span-1">
+             <DatoSimple value={isEditing ? data.operaciones.eTicketPorc : formatPercentage(data.operaciones.eTicketPorc)} isEditing={isEditing} valueId="operaciones.eTicketPorc" align="center" onInputChange={onInputChange} unit="%" />
+        </KpiCard>
+
+        <KpiCard title="Caja" icon={<Receipt className="h-5 w-5 text-primary" />} className="md:col-span-4">
             <div className="grid grid-cols-3 gap-4">
                 <DatoSimple icon={<Clock />} label="Filas Caja" value={isEditing ? data.operaciones.filasCajaPorc : formatPercentage(data.operaciones.filasCajaPorc)} isEditing={isEditing} valueId="operaciones.filasCajaPorc" align="center" onInputChange={onInputChange} unit="%" />
                 <DatoSimple icon={<ScanLine />} label="ACO" value={isEditing ? data.operaciones.scoPorc : formatPercentage(data.operaciones.scoPorc)} isEditing={isEditing} valueId="operaciones.scoPorc" align="center" onInputChange={onInputChange} unit="%" />
@@ -178,10 +182,6 @@ export function DatosSemanalesTab({ data, isEditing, onInputChange }: DatosSeman
                 <DatoSimple icon={<Package />} label="SINT" value={isEditing ? data.operaciones.sint : formatNumber(data.operaciones.sint)} isEditing={isEditing} valueId="operaciones.sint" align="center" onInputChange={onInputChange} />
                 <DatoSimple icon={<RefreshCw />} label="Repo" value={isEditing ? data.operaciones.repoPorc : formatPercentage(data.operaciones.repoPorc)} isEditing={isEditing} valueId="operaciones.repoPorc" align="center" onInputChange={onInputChange} unit="%" />
             </div>
-        </KpiCard>
-        
-        <KpiCard title="E-Ticket" icon={<Ticket className="h-5 w-5 text-primary" />} className="md:col-span-2">
-             <DatoSimple value={isEditing ? data.operaciones.eTicketPorc : formatPercentage(data.operaciones.eTicketPorc)} isEditing={isEditing} valueId="operaciones.eTicketPorc" align="center" onInputChange={onInputChange} unit="%" />
         </KpiCard>
       </div>
 
