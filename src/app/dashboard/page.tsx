@@ -48,9 +48,9 @@ const tabLabels: Record<string, string> = {
     datosSemanales: "GENERAL",
     aqneSemanal: "AQNE",
     acumulado: "ACUMULADO",
-    ventasMan: "VENTAS MAN",
-    ventasWoman: "VENTAS WOMAN",
-    ventasNino: "VENTAS NIÑO",
+    ventasMan: "MAN",
+    ventasWoman: "WOMAN",
+    ventasNino: "NIÑO",
 };
 
 const getPreviousWeekRange = () => {
@@ -155,7 +155,7 @@ export default function DashboardPage() {
 
                     (Object.keys(dataKeyMapping) as EditableList[]).forEach(key => {
                         const { ventasKey, tableKey } = dataKeyMapping[key];
-                        const list = listData[key];
+                        const list = listData[key as keyof typeof listData];
                         // @ts-ignore
                         const tableData = reportData[ventasKey]?.[tableKey] || [];
                         
