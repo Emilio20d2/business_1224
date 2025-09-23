@@ -136,7 +136,6 @@ const DataTable = ({
 const ImageImportCard = ({ selectedRow, isEditing, onImageChange, imagePath, imageUrl }: { selectedRow: VentasManItem | null, isEditing: boolean, onImageChange: VentasManTabProps['onImageChange'], imagePath: string | null, imageUrl?: string | null }) => {
     const [isUploading, setIsUploading] = React.useState(false);
     const displayImage = imageUrl ?? selectedRow?.imageUrl;
-    const fileInputRef = React.useRef<HTMLInputElement>(null);
 
     const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -146,10 +145,8 @@ const ImageImportCard = ({ selectedRow, isEditing, onImageChange, imagePath, ima
                 setIsUploading(false);
             });
         }
-    };
-
-    const handleButtonClick = () => {
-        fileInputRef.current?.click();
+        // Reset file input value to allow re-uploading the same file
+        event.target.value = '';
     };
 
     return (
@@ -173,17 +170,19 @@ const ImageImportCard = ({ selectedRow, isEditing, onImageChange, imagePath, ima
                 </div>
                 {isEditing && selectedRow && (
                      <div className="absolute bottom-2 right-2 z-20">
-                        <Input
-                            type="file"
-                            ref={fileInputRef}
-                            onChange={handleImageUpload}
-                            className="hidden"
-                            accept="image/*"
-                            disabled={isUploading}
-                        />
-                        <Button onClick={handleButtonClick} variant="secondary" disabled={isUploading}>
+                        <Button asChild variant="secondary" disabled={isUploading}>
+                          <label htmlFor="file-upload-man">
                             <Upload className="mr-2 h-4 w-4" />
                             Cambiar Imagen
+                            <input
+                                id="file-upload-man"
+                                type="file"
+                                onChange={handleImageUpload}
+                                className="sr-only"
+                                accept="image/*"
+                                disabled={isUploading}
+                            />
+                          </label>
                         </Button>
                     </div>
                 )}
