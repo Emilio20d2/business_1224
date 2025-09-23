@@ -214,7 +214,7 @@ export function VentasManTab({ data, listas, isEditing, onInputChange }: VentasM
             </TabsContent>
 
             <TabsContent value="zonaComercial">
-                <div className="grid gap-4 items-start grid-cols-1 md:grid-cols-2">
+                 <div className="grid gap-4 items-start grid-cols-1">
                     <DataTable
                         dataKey="zonaComercial"
                         headers={['ZONA COMPRADOR', 'PESO %', '€', '%']}
@@ -224,16 +224,11 @@ export function VentasManTab({ data, listas, isEditing, onInputChange }: VentasM
                         onRowSelect={(index) => handleRowSelect('zonaComercial', index)}
                         selectedIndex={selectedIndexes.zonaComercial ?? null}
                     />
-                    <ImageImportCard
-                        selectedRow={(data.zonaComercial && selectedIndexes.zonaComercial != null) ? data.zonaComercial[selectedIndexes.zonaComercial] : null}
-                        isEditing={isEditing}
-                        onImageChange={handleImageChange('zonaComercial')}
-                    />
                 </div>
             </TabsContent>
 
             <TabsContent value="agrupacionComercial">
-                <div className="grid gap-4 items-start grid-cols-1 md:grid-cols-2">
+                <div className="grid gap-4 items-start grid-cols-1">
                     <DataTable
                         dataKey="agrupacionComercial"
                         headers={['Agrupación Comercial', 'PESO %', '€', '%']}
@@ -242,11 +237,6 @@ export function VentasManTab({ data, listas, isEditing, onInputChange }: VentasM
                         onInputChange={onInputChange}
                         onRowSelect={(index) => handleRowSelect('agrupacionComercial', index)}
                         selectedIndex={selectedIndexes.agrupacionComercial ?? null}
-                    />
-                    <ImageImportCard
-                        selectedRow={(data.agrupacionComercial && selectedIndexes.agrupacionComercial != null) ? data.agrupacionComercial[selectedIndexes.agrupacionComercial] : null}
-                        isEditing={isEditing}
-                        onImageChange={handleImageChange('agrupacionComercial')}
                     />
                 </div>
             </TabsContent>
