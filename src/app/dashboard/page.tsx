@@ -203,51 +203,79 @@ export default function DashboardPage() {
 
  const handleSaveList = async (newList: string[]) => {
     if (!listToEdit || !data) return;
-  
+
     const listsRef = doc(db, "configuracion", "listas");
-    await setDoc(listsRef, { [listToEdit]: newList }, { merge: true });
+    try {
+        await setDoc(listsRef, { [listToEdit]: newList }, { merge: true });
 
-    setData(prevData => {
-        if (!prevData) return null;
-        
-        const updatedData = JSON.parse(JSON.stringify(prevData));
-        updatedData.listas[listToEdit] = newList;
-  
-        let dataKey: keyof WeeklyData['ventasMan'] | null = null;
-        switch (listToEdit) {
-            case 'comprador': dataKey = 'pesoComprador'; break;
-            case 'zonaComercial': dataKey = 'zonaComercial'; break;
-            case 'agrupacionComercial': dataKey = 'agrupacionComercial'; break;
-        }
-        
-        if (dataKey) {
-            const currentItems = updatedData.ventasMan[dataKey];
-            const syncedItems: any[] = [];
-    
-            newList.forEach(itemName => {
-                const existingItem = currentItems.find((item: any) => item.nombre === itemName);
-                if (existingItem) {
-                    syncedItems.push(existingItem);
-                } else {
-                    syncedItems.push({
-                        nombre: itemName,
-                        pesoPorc: 0,
-                        totalEuros: 0,
-                        varPorc: 0,
-                        imageUrl: `https://picsum.photos/seed/${itemName.replace(/\s/g, '')}/500/400`
-                    });
-                }
-            });
+        setData(prevData => {
+            if (!prevData) return null;
+
+            const updatedData = JSON.parse(JSON.stringify(prevData));
+            // Update the lists in the local state
+            updatedData.listas[listToEdit] = newList;
+
+            let dataKey: keyof WeeklyData['ventasMan'] | null = null;
+            switch (listToEdit) {
+                case 'comprador':
+                    dataKey = 'pesoComprador';
+                    break;
+                case 'zonaComercial':
+                    dataKey = 'zonaComercial';
+                    break;
+                case 'agrupacionComercial':
+                    dataKey = 'agrupacionComercial';
+                    break;
+            }
+
+            if (dataKey) {
+                const currentTableData: any[] = updatedData.ventasMan[dataKey] || [];
+                const syncedTableData: any[] = [];
+
+                // Create a map of existing data for easy lookup
+                const existingDataMap = new Map(currentTableData.map(item => [item.nombre, item]));
+
+                // Iterate over the new list to build the synced data
+                newList.forEach(itemName => {
+                    const existingItem = existingDataMap.get(itemName);
+                    if (existingItem) {
+                        // If item exists, keep it
+                        syncedTableData.push(existingItem);
+                    } else {
+                        // If item is new, create a new entry
+                        syncedTableData.push({
+                            nombre: itemName,
+                            pesoPorc: 0,
+                            totalEuros: 0,
+                            varPorc: 0,
+                            imageUrl: `https://picsum.photos/seed/${itemName.replace(/\s/g, '')}/500/400`
+                        });
+                    }
+                });
+
+                updatedData.ventasMan[dataKey] = syncedTableData;
+            }
             
-            updatedData.ventasMan[dataKey] = syncedItems;
-        }
-        
-        return updatedData;
-    });
+            return updatedData;
+        });
 
-    setIsEditing(true); // Enable save button to persist the synchronized data table
-    setListToEdit(null);
-    setIsListDialogOpen(false);
+        toast({
+          title: "Lista actualizada",
+          description: `La lista de ${listToEdit} se ha guardado correctamente.`
+        });
+        setIsEditing(true); // Enable save button to persist the synchronized data table
+
+    } catch (error) {
+        console.error("Error saving list:", error);
+        toast({
+            variant: "destructive",
+            title: "Error al guardar la lista",
+            description: "No se pudo guardar la lista. Inténtalo de nuevo.",
+        });
+    } finally {
+        setListToEdit(null);
+        setIsListDialogOpen(false);
+    }
 };
 
 
