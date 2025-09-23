@@ -80,14 +80,13 @@ const getPreviousWeekRange = () => {
     };
 };
 
-const synchronizeTableData = (list: string[], oldTableData: VentasManItem[] = []): VentasManItem[] => {
-    if (!Array.isArray(list)) return [];
-    
+// Helper function to safely synchronize a table with a list
+const synchronizeTableData = (list: string[] = [], oldTableData: VentasManItem[] = []): VentasManItem[] => {
+    const safeList = Array.isArray(list) ? list : [];
     const safeOldTableData = Array.isArray(oldTableData) ? oldTableData : [];
-    
     const oldDataMap = new Map(safeOldTableData.map(item => [item.nombre, item]));
 
-    return list.map(itemName => {
+    return safeList.map(itemName => {
         const existingItem = oldDataMap.get(itemName);
         if (existingItem) {
             return { ...existingItem };
@@ -100,58 +99,6 @@ const synchronizeTableData = (list: string[], oldTableData: VentasManItem[] = []
             imageUrl: "",
         };
     });
-};
-
-const synchronizeReportData = (reportData: WeeklyData, listData: WeeklyData['listas']): { updatedData: WeeklyData, hasChanged: boolean } => {
-    let hasChanged = false;
-    const updatedData = JSON.parse(JSON.stringify(reportData));
-    
-    updatedData.listas = listData;
-
-    const sections: Array<{
-        ventasKey: 'ventasMan' | 'ventasWoman' | 'ventasNino';
-        listKeys: {
-            comprador: keyof WeeklyData['listas'];
-            zonaComercial: keyof WeeklyData['listas'];
-            agrupacionComercial: keyof WeeklyData['listas'];
-        }
-    }> = [
-        { ventasKey: 'ventasMan', listKeys: { comprador: 'compradorMan', zonaComercial: 'zonaComercialMan', agrupacionComercial: 'agrupacionComercialMan' } },
-        { ventasKey: 'ventasWoman', listKeys: { comprador: 'compradorWoman', zonaComercial: 'zonaComercialWoman', agrupacionComercial: 'agrupacionComercialWoman' } },
-        { ventasKey: 'ventasNino', listKeys: { comprador: 'compradorNino', zonaComercial: 'zonaComercialNino', agrupacionComercial: 'agrupacionComercialNino' } },
-    ];
-
-    for (const section of sections) {
-        const { ventasKey, listKeys } = section;
-        
-        if (!updatedData[ventasKey]) {
-            updatedData[ventasKey] = getInitialDataForWeek('temp', listData)[ventasKey];
-            hasChanged = true;
-        }
-
-        const pesoCompradorList = listData[listKeys.comprador] || [];
-        const currentPesoCompradorData = updatedData[ventasKey]?.pesoComprador || [];
-        if (pesoCompradorList.length !== currentPesoCompradorData.length || pesoCompradorList.some((item, i) => item !== currentPesoCompradorData[i]?.nombre)) {
-             updatedData[ventasKey].pesoComprador = synchronizeTableData(pesoCompradorList, currentPesoCompradorData);
-             hasChanged = true;
-        }
-
-        const zonaComercialList = listData[listKeys.zonaComercial] || [];
-        const currentZonaComercialData = updatedData[ventasKey]?.zonaComercial || [];
-        if (zonaComercialList.length !== currentZonaComercialData.length || zonaComercialList.some((item, i) => item !== currentZonaComercialData[i]?.nombre)) {
-             updatedData[ventasKey].zonaComercial = synchronizeTableData(zonaComercialList, currentZonaComercialData);
-             hasChanged = true;
-        }
-        
-        const agrupacionComercialList = listData[listKeys.agrupacionComercial] || [];
-        const currentAgrupacionComercialData = updatedData[ventasKey]?.agrupacionComercial || [];
-        if (agrupacionComercialList.length !== currentAgrupacionComercialData.length || agrupacionComercialList.some((item, i) => item !== currentAgrupacionComercialData[i]?.nombre)) {
-             updatedData[ventasKey].agrupacionComercial = synchronizeTableData(agrupacionComercialList, currentAgrupacionComercialData);
-             hasChanged = true;
-        }
-    }
-
-    return { updatedData, hasChanged };
 };
 
 
@@ -182,6 +129,7 @@ export default function DashboardPage() {
         const reportRef = doc(db, "informes", week);
         const listsRef = doc(db, "configuracion", "listas");
 
+        // Step 1: Fetch or create the configuration lists
         const listsSnap = await getDoc(listsRef);
         let listData: WeeklyData['listas'];
         if (listsSnap.exists()) {
@@ -191,20 +139,66 @@ export default function DashboardPage() {
             await setDoc(listsRef, listData);
         }
 
+        // Step 2: Fetch or create the weekly report
         const reportSnap = await getDoc(reportRef);
         let reportData: WeeklyData;
+        let needsSave = false;
+
         if (reportSnap.exists()) {
             reportData = reportSnap.data() as WeeklyData;
-            const { updatedData, hasChanged } = synchronizeReportData(reportData, listData);
-            if (hasChanged) {
-                await setDoc(reportRef, updatedData, { merge: true });
-                reportData = updatedData;
+            
+            // Step 3: Synchronize the report data with the latest lists
+            const sections = [
+              { ventasKey: 'ventasMan', listKeys: { comprador: 'compradorMan', zonaComercial: 'zonaComercialMan', agrupacionComercial: 'agrupacionComercialMan' } },
+              { ventasKey: 'ventasWoman', listKeys: { comprador: 'compradorWoman', zonaComercial: 'zonaComercialWoman', agrupacionComercial: 'agrupacionComercialWoman' } },
+              { ventasKey: 'ventasNino', listKeys: { comprador: 'compradorNino', zonaComercial: 'zonaComercialNino', agrupacionComercial: 'agrupacionComercialNino' } },
+            ];
+
+            for (const section of sections) {
+                const { ventasKey, listKeys } = section;
+
+                // Ensure the main sales section exists
+                if (!reportData[ventasKey]) {
+                    reportData[ventasKey] = getInitialDataForWeek('temp', listData)[ventasKey];
+                    needsSave = true;
+                }
+
+                // Sync comprador
+                const compradorList = listData[listKeys.comprador] || [];
+                const syncedComprador = synchronizeTableData(compradorList, reportData[ventasKey].pesoComprador);
+                if (JSON.stringify(syncedComprador) !== JSON.stringify(reportData[ventasKey].pesoComprador)) {
+                    reportData[ventasKey].pesoComprador = syncedComprador;
+                    needsSave = true;
+                }
+
+                // Sync zonaComercial
+                const zonaList = listData[listKeys.zonaComercial] || [];
+                const syncedZona = synchronizeTableData(zonaList, reportData[ventasKey].zonaComercial);
+                if (JSON.stringify(syncedZona) !== JSON.stringify(reportData[ventasKey].zonaComercial)) {
+                    reportData[ventasKey].zonaComercial = syncedZona;
+                    needsSave = true;
+                }
+
+                // Sync agrupacionComercial
+                const agrupacionList = listData[listKeys.agrupacionComercial] || [];
+                const syncedAgrupacion = synchronizeTableData(agrupacionList, reportData[ventasKey].agrupacionComercial);
+                 if (JSON.stringify(syncedAgrupacion) !== JSON.stringify(reportData[ventasKey].agrupacionComercial)) {
+                    reportData[ventasKey].agrupacionComercial = syncedAgrupacion;
+                    needsSave = true;
+                }
             }
+
         } else {
+            // Report doesn't exist, create a fresh one
             reportData = getInitialDataForWeek(week, listData);
-            await setDoc(reportRef, reportData);
+            needsSave = true;
         }
         
+        // If any creation or synchronization happened, save the updated report
+        if (needsSave) {
+            await setDoc(reportRef, reportData, { merge: true });
+        }
+
         setData(reportData);
 
     } catch (err: any) {
@@ -234,24 +228,28 @@ export default function DashboardPage() {
     setData(prevData => {
         if (!prevData) return null;
 
+        // Create a deep copy to avoid state mutation
         const updatedData = JSON.parse(JSON.stringify(prevData));
         const keys = path.split('.');
         let current: any = updatedData;
         
+        // Traverse the path to the second-to-last key
         for (let i = 0; i < keys.length - 1; i++) {
             const key = keys[i];
             if (current[key] === undefined) {
                  console.warn(`Path does not exist: ${path}`);
-                 return prevData;
+                 return prevData; // Return original data if path is invalid
             }
             current = current[key];
         }
         
         const finalKey = keys[keys.length - 1];
         
+        // Convert value to number if possible, otherwise keep as string
         const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
         current[finalKey] = isNaN(numericValue) ? value : numericValue;
         
+        // --- Recalculation Logic ---
         if (path.startsWith('aqneSemanal.') && finalKey === 'totalEuros') {
             const sections = updatedData.aqneSemanal;
             const totalVentasAqne = (sections.woman.metricasPrincipales.totalEuros || 0) +
@@ -286,6 +284,7 @@ export default function DashboardPage() {
     setIsSaving(true);
     try {
       const docRef = doc(db, "informes", data.periodo.toLowerCase().replace(' ', '-'));
+      // Use the current state 'data' which has all the latest changes
       await setDoc(docRef, data, { merge: true });
       toast({
         title: "¡Guardado!",
@@ -306,7 +305,7 @@ export default function DashboardPage() {
   
   const handleCancel = () => {
     setIsEditing(false);
-    fetchData(); 
+    fetchData(); // Refetch data from server to discard all local changes
   };
   
   const handleOpenListDialog = (listKey: EditableList, title: string) => {
@@ -316,12 +315,13 @@ export default function DashboardPage() {
   };
   
  const handleSaveList = async (listKey: EditableList, newItems: string[]) => {
+    if (!listKey) return;
     setIsSaving(true);
     try {
         const listsRef = doc(db, "configuracion", "listas");
         await updateDoc(listsRef, { [listKey]: newItems });
 
-        // Force a re-fetch of all data to ensure synchronization
+        // After saving the list, refetch all data to ensure synchronization
         await fetchData();
 
         toast({
@@ -337,6 +337,7 @@ export default function DashboardPage() {
         });
     } finally {
         setIsSaving(false);
+        setListDialogOpen(false); // Close dialog on save
         setListToEdit(null);
     }
 };
@@ -347,20 +348,27 @@ const handleImageChange = async (path: string, file: File, onUploadComplete: (su
         return;
     }
 
+    // Create a unique path in Firebase Storage
     const storageRef = ref(storage, `informes/${data.periodo.toLowerCase().replace(' ', '-')}/${file.name}-${Date.now()}`);
 
     try {
+        // Upload the file
         const snapshot = await uploadBytes(storageRef, file);
+        // Get the download URL
         const downloadURL = await getDownloadURL(snapshot.ref);
 
+        // Update the local state with the new URL
         handleInputChange(path, downloadURL);
         
         toast({
             title: "Imagen cargada",
             description: "La imagen está lista para ser guardada. Haz clic en 'Guardar' para confirmar todos los cambios.",
         });
-        onUploadComplete(true);
+        
+        // Set editing mode to true so the user knows they have pending changes
         setIsEditing(true);
+
+        onUploadComplete(true);
 
     } catch (error) {
         console.error("Error uploading image: ", error);
