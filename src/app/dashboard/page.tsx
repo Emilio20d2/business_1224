@@ -135,6 +135,7 @@ export default function DashboardPage() {
         if (listsSnap.exists()) {
             listData = listsSnap.data() as WeeklyData['listas'];
         } else {
+            // If lists don't exist, create them with the full initial data
             listData = getInitialLists();
             await setDoc(listsRef, listData);
         }
@@ -173,7 +174,8 @@ export default function DashboardPage() {
 
             const syncAndCheck = (tableKey: keyof WeeklyData[typeof ventasKey], listKey: keyof typeof listKeys) => {
                 const currentList = listData[listKeys[listKey]] || [];
-                const currentTable = reportData[ventasKey][tableKey] || [];
+                // Ensure tableData is an array before processing
+                const currentTable = Array.isArray(reportData[ventasKey][tableKey]) ? reportData[ventasKey][tableKey] : [];
                 const syncedTable = synchronizeTableData(currentList, currentTable);
 
                 if (JSON.stringify(syncedTable) !== JSON.stringify(reportData[ventasKey][tableKey])) {
@@ -233,6 +235,8 @@ export default function DashboardPage() {
         
         for (let i = 0; i < keys.length - 1; i++) {
             if (current[keys[i]] === undefined) {
+                // If a path segment doesn't exist, create it.
+                // This is crucial for nested properties.
                 current[keys[i]] = {};
             }
             current = current[keys[i]];
