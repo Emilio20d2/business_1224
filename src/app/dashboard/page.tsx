@@ -201,10 +201,11 @@ export default function DashboardPage() {
         updatedData.listas[listToEdit] = newList;
 
         type TableDataKey = keyof WeeklyData['ventasMan'];
-        const dataKey = listToEdit as TableDataKey;
-        const oldTableData: WeeklyData['ventasMan'][TableDataKey] = updatedData.ventasMan[dataKey] || [];
-        const oldDataMap = new Map(oldTableData.map(item => [item.nombre, item]));
-        
+        const dataKey = listToEdit === 'comprador' ? 'pesoComprador' : listToEdit;
+
+        const oldTableData = updatedData.ventasMan[dataKey] || [];
+        const oldDataMap = new Map(oldTableData.map((item: any) => [item.nombre, item]));
+
         const newTableData = newList.map(itemName => {
             const existingItem = oldDataMap.get(itemName);
             if (existingItem) {
@@ -407,5 +408,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-    
