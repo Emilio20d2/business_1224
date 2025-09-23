@@ -16,7 +16,7 @@ export function FocusSemanalTab({ text, isEditing, onInputChange }: FocusSemanal
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <ClipboardCheck className="h-5 w-5 text-primary" />
-          Focus Semanal
+          Focus
         </CardTitle>
       </CardHeader>
       <CardContent>

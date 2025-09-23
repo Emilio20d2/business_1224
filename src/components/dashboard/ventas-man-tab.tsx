@@ -198,7 +198,7 @@ export function VentasManTab({ data, isEditing, onInputChange, onImageChange }: 
                 <TabsTrigger value="zonaComercial">ZONA COMPRADOR</TabsTrigger>
                 <TabsTrigger value="agrupacionComercial">AGRUPACIÓN COMERCIAL</TabsTrigger>
                 <TabsTrigger value="operaciones">OPERACIONES</TabsTrigger>
-                <TabsTrigger value="focusSemanal">FOCUS SEMANAL</TabsTrigger>
+                <TabsTrigger value="focusSemanal">FOCUS</TabsTrigger>
             </TabsList>
 
             <TabsContent value="pesoComprador">
