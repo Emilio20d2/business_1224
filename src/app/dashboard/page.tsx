@@ -238,10 +238,8 @@ export default function DashboardPage() {
                     pesoPorc: 0,
                     totalEuros: 0,
                     varPorc: 0,
+                    imageUrl: `https://picsum.photos/seed/${itemName.replace(/\s/g, '')}/500/400`
                 };
-                if (listKey === 'pesoComprador') {
-                    newItem.imageUrl = `https://picsum.photos/seed/${itemName.replace(/\s/g, '')}/500/400`;
-                }
                 newItemsList.push(newItem);
             }
         }
