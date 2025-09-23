@@ -234,13 +234,16 @@ export default function DashboardPage() {
                 if (existingItem) {
                     return existingItem;
                 } else {
-                    return {
+                     const newItem: any = {
                         nombre: itemName,
                         pesoPorc: 0,
                         totalEuros: 0,
                         varPorc: 0,
-                        imageUrl: `https://picsum.photos/seed/${itemName.replace(/\s/g, '')}/500/400`
                     };
+                    if (dataKey === 'pesoComprador') {
+                        newItem.imageUrl = '';
+                    }
+                    return newItem;
                 }
             });
             updatedData.ventasMan[dataKey] = newTableData;

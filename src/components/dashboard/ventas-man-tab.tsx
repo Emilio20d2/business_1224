@@ -112,7 +112,7 @@ const DataTable = ({ data, headers, isEditing, allItems, onRowClick, dataKey, on
 };
 
 const ImageImportCard = ({ selectedRow, isEditing, onImageChange }: { selectedRow: TableItem | null, isEditing: boolean, onImageChange: (dataUrl: string) => void }) => {
-    const displayImage = selectedRow && 'imageUrl' in selectedRow ? selectedRow.imageUrl : null;
+    const displayImage = selectedRow?.imageUrl;
     const fileInputRef = React.useRef<HTMLInputElement>(null);
 
     const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {

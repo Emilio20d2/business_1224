@@ -109,7 +109,7 @@ type VentasManItem = {
     pesoPorc: number;
     totalEuros: number;
     varPorc: number;
-    imageUrl: string;
+    imageUrl?: string;
 };
 
 type VentaDiaria = {
@@ -231,23 +231,23 @@ const initialReportData: Omit<WeeklyData, 'periodo' | 'listas'> = {
     },
     "ventasMan": {
       "pesoComprador": [
-          { "nombre": "MAN", "pesoPorc": 30, "totalEuros": 20338, "varPorc": 28.2, "imageUrl": "https://picsum.photos/seed/man1/500/400" },
-          { "nombre": "GLOBAL", "pesoPorc": 30, "totalEuros": 20012, "varPorc": 2.4, "imageUrl": "https://picsum.photos/seed/man2/500/400" },
-          { "nombre": "CIRCULAR", "pesoPorc": 16, "totalEuros": 10436, "varPorc": -3.3, "imageUrl": "https://picsum.photos/seed/man3/500/400" },
-          { "nombre": "DNWR", "pesoPorc": 14, "totalEuros": 9081, "varPorc": 6.5, "imageUrl": "https://picsum.photos/seed/man4/500/400" },
-          { "nombre": "SPORT", "pesoPorc": 5, "totalEuros": 3400, "varPorc": 15.1, "imageUrl": "https://picsum.photos/seed/man5/500/400" },
-          { "nombre": "ACCES", "pesoPorc": 3, "totalEuros": 2050, "varPorc": -5.0, "imageUrl": "https://picsum.photos/seed/man6/500/400" },
-          { "nombre": "BASIC", "pesoPorc": 2, "totalEuros": 1500, "varPorc": 12.0, "imageUrl": "https://picsum.photos/seed/man7/500/400" }
+          { "nombre": "MAN", "pesoPorc": 30, "totalEuros": 20338, "varPorc": 28.2 },
+          { "nombre": "GLOBAL", "pesoPorc": 30, "totalEuros": 20012, "varPorc": 2.4 },
+          { "nombre": "CIRCULAR", "pesoPorc": 16, "totalEuros": 10436, "varPorc": -3.3 },
+          { "nombre": "DNWR", "pesoPorc": 14, "totalEuros": 9081, "varPorc": 6.5 },
+          { "nombre": "SPORT", "pesoPorc": 5, "totalEuros": 3400, "varPorc": 15.1 },
+          { "nombre": "ACCES", "pesoPorc": 3, "totalEuros": 2050, "varPorc": -5.0 },
+          { "nombre": "BASIC", "pesoPorc": 2, "totalEuros": 1500, "varPorc": 12.0 }
       ],
       "zonaComercial": [
-          { "nombre": "MAN FORMAL", "pesoPorc": 24, "totalEuros": 16235, "varPorc": 45.3, "imageUrl": "https://picsum.photos/seed/zona1/500/400" },
-          { "nombre": "GLB URBAN", "pesoPorc": 16, "totalEuros": 11038, "varPorc": 25.5, "imageUrl": "https://picsum.photos/seed/zona2/500/400" },
-          { "nombre": "CIRCULAR", "pesoPorc": 16, "totalEuros": 10436, "varPorc": -3.3, "imageUrl": "https://picsum.photos/seed/zona3/500/400" }
+          { "nombre": "MAN FORMAL", "pesoPorc": 24, "totalEuros": 16235, "varPorc": 45.3 },
+          { "nombre": "GLB URBAN", "pesoPorc": 16, "totalEuros": 11038, "varPorc": 25.5 },
+          { "nombre": "CIRCULAR", "pesoPorc": 16, "totalEuros": 10436, "varPorc": -3.3 }
       ],
       "agrupacionComercial": [
-          { "nombre": "PANTALON", "pesoPorc": 26, "totalEuros": 36607, "varPorc": 20.1, "imageUrl": "https://picsum.photos/seed/agrup1/500/400" },
-          { "nombre": "SASTRERIA", "pesoPorc": 15, "totalEuros": 20252, "varPorc": -7.3, "imageUrl": "https://picsum.photos/seed/agrup2/500/400" },
-          { "nombre": "TEJANO", "pesoPorc": 15, "totalEuros": 20167, "varPorc": 22.8, "imageUrl": "https://picsum.photos/seed/agrup3/500/400" }
+          { "nombre": "PANTALON", "pesoPorc": 26, "totalEuros": 36607, "varPorc": 20.1 },
+          { "nombre": "SASTRERIA", "pesoPorc": 15, "totalEuros": 20252, "varPorc": -7.3 },
+          { "nombre": "TEJANO", "pesoPorc": 15, "totalEuros": 20167, "varPorc": 22.8 }
       ]
     },
     "aqneSemanal": {
