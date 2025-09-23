@@ -1,0 +1,21 @@
+{
+  "name": "BUSSINES",
+  "short_name": "BUSSINES",
+  "description": "Panel de control de negocios",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f0f4f3",
+  "theme_color": "#73AFA5",
+  "icons": [
+    {
+      "src": "/logo.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "/logo.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}
