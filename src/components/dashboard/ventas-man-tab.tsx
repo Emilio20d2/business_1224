@@ -52,7 +52,7 @@ const TrendIndicator = ({ value }: { value: number }) => {
 };
 
 const DataTable = ({ data, headers, isEditing, allItems, onRowClick, dataKey, onInputChange, selectedIndex }: { data: TableData, headers: string[], isEditing: boolean, allItems: string[], onRowClick: (index: number) => void, dataKey: TableDataKey, onInputChange: VentasManTabProps['onInputChange'], selectedIndex: number | null }) => {
-    if (!data || data.length === 0) {
+    if (!data) {
         return <p className="text-center text-muted-foreground mt-8">No hay datos disponibles para esta sección.</p>;
     }
 
@@ -65,7 +65,7 @@ const DataTable = ({ data, headers, isEditing, allItems, onRowClick, dataKey, on
         <Card>
             <Table>
                 <TableHeader>
-                    <TableRow className="bg-muted hover:bg-muted">
+                    <TableRow className="bg-muted/50 hover:bg-muted/50">
                         {headers.map((header, i) => (
                             <TableHead key={i} className={i === 0 ? '' : 'text-right'}>{header}</TableHead>
                         ))}
@@ -74,13 +74,13 @@ const DataTable = ({ data, headers, isEditing, allItems, onRowClick, dataKey, on
                 <TableBody>
                     {data.map((item, index) => (
                         <TableRow 
-                            key={index} 
+                            key={item.nombre + index} 
                             onClick={() => onRowClick(index)}
                             className={cn("cursor-pointer", selectedIndex === index && 'bg-muted/50')}
                         >
                             <TableCell>
                                 {isEditing ? (
-                                    <Select defaultValue={item.nombre} onValueChange={(value) => handleChange(index, 'nombre', value)}>
+                                    <Select value={item.nombre} onValueChange={(value) => handleChange(index, 'nombre', value)}>
                                         <SelectTrigger className="w-full">
                                             <SelectValue />
                                         </SelectTrigger>
@@ -95,13 +95,13 @@ const DataTable = ({ data, headers, isEditing, allItems, onRowClick, dataKey, on
                                 )}
                             </TableCell>
                             <TableCell className="text-right font-medium">
-                                {isEditing ? <Input type="number" inputMode="decimal" className="w-20 ml-auto text-right" defaultValue={item.pesoPorc} onChange={(e) => handleChange(index, 'pesoPorc', e.target.value)} /> : formatPercentage(item.pesoPorc)}
+                                {isEditing ? <Input type="number" inputMode="decimal" className="w-20 ml-auto text-right" value={item.pesoPorc} onChange={(e) => handleChange(index, 'pesoPorc', e.target.value)} /> : formatPercentage(item.pesoPorc)}
                             </TableCell>
                             <TableCell className="text-right font-medium">
-                                {isEditing ? <Input type="number" inputMode="decimal" className="w-24 ml-auto text-right" defaultValue={item.totalEuros} onChange={(e) => handleChange(index, 'totalEuros', e.target.value)} /> : formatCurrency(item.totalEuros)}
+                                {isEditing ? <Input type="number" inputMode="decimal" className="w-24 ml-auto text-right" value={item.totalEuros} onChange={(e) => handleChange(index, 'totalEuros', e.target.value)} /> : formatCurrency(item.totalEuros)}
                             </TableCell>
                             <TableCell className="text-right">
-                                {isEditing ? <Input type="number" inputMode="decimal" className="w-20 ml-auto text-right" defaultValue={item.varPorc} onChange={(e) => handleChange(index, 'varPorc', e.target.value)} /> : <TrendIndicator value={item.varPorc} />}
+                                {isEditing ? <Input type="number" inputMode="decimal" className="w-20 ml-auto text-right" value={item.varPorc} onChange={(e) => handleChange(index, 'varPorc', e.target.value)} /> : <TrendIndicator value={item.varPorc} />}
                             </TableCell>
                         </TableRow>
                     ))}
@@ -165,23 +165,17 @@ const ImageImportCard = ({ selectedRow, isEditing, onImageChange }: { selectedRo
 };
 
 
-const SubTabContent = ({ data, headers, isEditing, allItems, dataKey, onInputChange, showImage }: { data: TableData, headers: string[], isEditing: boolean, allItems: string[], dataKey: TableDataKey, onInputChange: VentasManTabProps['onInputChange'], showImage: boolean }) => {
-    const [selectedIndex, setSelectedIndex] = React.useState<number | null>(data.length > 0 ? 0 : null);
+const SubTabContent = ({ data, headers, isEditing, allItems, dataKey, onInputChange, showImage, selectedIndex, setSelectedIndex }: { data: TableData, headers: string[], isEditing: boolean, allItems: string[], dataKey: TableDataKey, onInputChange: VentasManTabProps['onInputChange'], showImage: boolean, selectedIndex: number | null, setSelectedIndex: (index: number | null) => void }) => {
 
     React.useEffect(() => {
-        if (data.length > 0 && selectedIndex === null) {
+        if (data && data.length > 0 && selectedIndex === null) {
             setSelectedIndex(0);
-        } else if (data.length === 0) {
+        } else if (data && selectedIndex !== null && selectedIndex >= data.length) {
+            setSelectedIndex(data.length > 0 ? data.length - 1 : null);
+        } else if (!data || data.length === 0) {
             setSelectedIndex(null);
-        } else if (selectedIndex !== null && selectedIndex >= data.length) {
-            setSelectedIndex(data.length -1);
         }
-    }, [data, selectedIndex]);
-
-
-    const handleRowClick = (index: number) => {
-        setSelectedIndex(index);
-    };
+    }, [data, selectedIndex, setSelectedIndex]);
 
     const handleImageChange = (dataUrl: string) => {
         if (selectedIndex !== null) {
@@ -190,11 +184,11 @@ const SubTabContent = ({ data, headers, isEditing, allItems, dataKey, onInputCha
         }
     };
     
-    const selectedRow = selectedIndex !== null && data[selectedIndex] ? data[selectedIndex] : null;
+    const selectedRow = selectedIndex !== null && data && data[selectedIndex] ? data[selectedIndex] : null;
     
     return (
         <div className={cn("grid gap-4 items-start", showImage ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1")}>
-             <DataTable data={data} headers={headers} isEditing={isEditing} allItems={allItems} onRowClick={handleRowClick} dataKey={dataKey} onInputChange={onInputChange} selectedIndex={selectedIndex} />
+             <DataTable data={data} headers={headers} isEditing={isEditing} allItems={allItems} onRowClick={setSelectedIndex} dataKey={dataKey} onInputChange={onInputChange} selectedIndex={selectedIndex} />
              {showImage && <ImageImportCard selectedRow={selectedRow} isEditing={isEditing} onImageChange={handleImageChange} />}
         </div>
     );
@@ -202,6 +196,9 @@ const SubTabContent = ({ data, headers, isEditing, allItems, dataKey, onInputCha
 
 
 export function VentasManTab({ data, isEditing, listOptions, onInputChange }: VentasManTabProps) {
+  const [selectedCompradorIndex, setSelectedCompradorIndex] = React.useState<number | null>(0);
+  const [selectedZonaIndex, setSelectedZonaIndex] = React.useState<number | null>(0);
+  const [selectedAgrupacionIndex, setSelectedAgrupacionIndex] = React.useState<number | null>(0);
     
   return (
     <Tabs defaultValue="comprador" className="w-full">
@@ -211,13 +208,43 @@ export function VentasManTab({ data, isEditing, listOptions, onInputChange }: Ve
         <TabsTrigger value="agrupacionComercial">Agrupación Comercial</TabsTrigger>
       </TabsList>
       <TabsContent value="comprador">
-        <SubTabContent data={data.pesoComprador} headers={['COMPRADOR', 'PESO %', '€', '%']} isEditing={isEditing} allItems={listOptions.comprador} dataKey="pesoComprador" onInputChange={onInputChange} showImage={true} />
+        <SubTabContent 
+            data={data.pesoComprador} 
+            headers={['COMPRADOR', 'PESO %', '€', '%']} 
+            isEditing={isEditing} 
+            allItems={listOptions.comprador} 
+            dataKey="pesoComprador" 
+            onInputChange={onInputChange} 
+            showImage={true} 
+            selectedIndex={selectedCompradorIndex}
+            setSelectedIndex={setSelectedCompradorIndex}
+        />
       </TabsContent>
       <TabsContent value="zonaComercial">
-        <SubTabContent data={data.zonaComercial} headers={['ZONA COMPRADOR', 'PESO %', '€', '%']} isEditing={isEditing} allItems={listOptions.zonaComercial} dataKey="zonaComercial" onInputChange={onInputChange} showImage={false} />
+        <SubTabContent 
+            data={data.zonaComercial} 
+            headers={['ZONA COMPRADOR', 'PESO %', '€', '%']} 
+            isEditing={isEditing} 
+            allItems={listOptions.zonaComercial} 
+            dataKey="zonaComercial" 
+            onInputChange={onInputChange} 
+            showImage={false} 
+            selectedIndex={selectedZonaIndex}
+            setSelectedIndex={setSelectedZonaIndex}
+        />
       </TabsContent>
       <TabsContent value="agrupacionComercial">
-         <SubTabContent data={data.agrupacionComercial} headers={['Agrupación Comercial', 'PESO %', '€', '%']} isEditing={isEditing} allItems={listOptions.agrupacionComercial} dataKey="agrupacionComercial" onInputChange={onInputChange} showImage={false} />
+         <SubTabContent 
+            data={data.agrupacionComercial} 
+            headers={['Agrupación Comercial', 'PESO %', '€', '%']} 
+            isEditing={isEditing} 
+            allItems={listOptions.agrupacionComercial} 
+            dataKey="agrupacionComercial" 
+            onInputChange={onInputChange} 
+            showImage={false} 
+            selectedIndex={selectedAgrupacionIndex}
+            setSelectedIndex={setSelectedAgrupacionIndex}
+        />
       </TabsContent>
     </Tabs>
   );
