@@ -10,8 +10,8 @@ export const metadata = {
   description: 'Panel de control de negocios',
   manifest: '/manifest.json',
   icons: {
-    icon: '/logo.png',
-    apple: '/logo.png',
+    icon: '/logo.jpg',
+    apple: '/logo.jpg',
   },
 };
 
