@@ -15,6 +15,8 @@ import { DatosSemanalesTab } from "@/components/dashboard/datos-semanales-tab";
 import { AqneSemanalTab } from "@/components/dashboard/aqne-semanal-tab";
 import { AcumuladoTab } from "@/components/dashboard/acumulado-tab";
 import { VentasManTab } from '@/components/dashboard/ventas-man-tab';
+import { VentasWomanTab } from '@/components/dashboard/ventas-woman-tab';
+import { VentasKidsTab } from '@/components/dashboard/ventas-kids-tab';
 import { Button } from '@/components/ui/button';
 import { Settings, LogOut, Loader2, ChevronDown, Pencil } from 'lucide-react';
 import {
@@ -38,15 +40,17 @@ import { useRouter } from 'next/navigation';
 import { OperacionesSubTab } from '@/components/dashboard/operaciones-sub-tab';
 
 
-type EditableList = 'comprador' | 'zonaComercial' | 'agrupacionComercial';
-type TabValue = "datosSemanales" | "aqneSemanal" | "acumulado" | "ventasMan";
+type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan' | 'compradorWoman' | 'zonaComercialWoman' | 'agrupacionComercialWoman' | 'compradorKids' | 'zonaComercialKids' | 'agrupacionComercialKids';
+type TabValue = "datosSemanales" | "aqneSemanal" | "acumulado" | "ventasMan" | "ventasWoman" | "ventasKids";
 
 
 const tabLabels: Record<string, string> = {
     datosSemanales: "GENERAL",
     aqneSemanal: "AQNE",
     acumulado: "ACUMULADO",
-    ventasMan: "MAN",
+    ventasMan: "VENTAS MAN",
+    ventasWoman: "VENTAS WOMAN",
+    ventasKids: "VENTAS KIDS",
 };
 
 const getPreviousWeekRange = () => {
@@ -131,29 +135,37 @@ export default function DashboardPage() {
                     reportData = reportSnap.data() as WeeklyData;
                     
                     let hasBeenUpdated = false;
-                    const originalData = JSON.parse(JSON.stringify(reportData));
                     
                     if (!reportData.listas) {
                       reportData.listas = listData;
                       hasBeenUpdated = true;
                     }
                     
-                    const dataKeyMapping: Record<EditableList, keyof WeeklyData['ventasMan']> = {
-                        comprador: 'pesoComprador',
-                        zonaComercial: 'zonaComercial',
-                        agrupacionComercial: 'agrupacionComercial',
+                    const dataKeyMapping: Record<EditableList, {ventasKey: keyof WeeklyData, tableKey: 'pesoComprador' | 'zonaComercial' | 'agrupacionComercial'}> = {
+                        compradorMan: { ventasKey: 'ventasMan', tableKey: 'pesoComprador' },
+                        zonaComercialMan: { ventasKey: 'ventasMan', tableKey: 'zonaComercial' },
+                        agrupacionComercialMan: { ventasKey: 'ventasMan', tableKey: 'agrupacionComercial' },
+                        compradorWoman: { ventasKey: 'ventasWoman', tableKey: 'pesoComprador' },
+                        zonaComercialWoman: { ventasKey: 'ventasWoman', tableKey: 'zonaComercial' },
+                        agrupacionComercialWoman: { ventasKey: 'ventasWoman', tableKey: 'agrupacionComercial' },
+                        compradorKids: { ventasKey: 'ventasKids', tableKey: 'pesoComprador' },
+                        zonaComercialKids: { ventasKey: 'ventasKids', tableKey: 'zonaComercial' },
+                        agrupacionComercialKids: { ventasKey: 'ventasKids', tableKey: 'agrupacionComercial' },
                     };
 
                     (Object.keys(dataKeyMapping) as EditableList[]).forEach(key => {
+                        const { ventasKey, tableKey } = dataKeyMapping[key];
                         const list = listData[key];
-                        const tableKey = dataKeyMapping[key];
-                        const tableData = reportData.ventasMan?.[tableKey] || [];
+                        // @ts-ignore
+                        const tableData = reportData[ventasKey]?.[tableKey] || [];
                         
                         if (list.length !== tableData.length || list.some((item, i) => item !== tableData[i]?.nombre)) {
-                             if (!reportData.ventasMan) {
-                                reportData.ventasMan = getInitialDataForWeek(week, listData).ventasMan;
+                             if (!reportData[ventasKey]) {
+                                // @ts-ignore
+                                reportData[ventasKey] = getInitialDataForWeek(week, listData)[ventasKey];
                              }
-                             reportData.ventasMan[tableKey] = synchronizeTableData(list, tableData);
+                             // @ts-ignore
+                             reportData[ventasKey][tableKey] = synchronizeTableData(list, tableData);
                              hasBeenUpdated = true;
                         }
                     });
@@ -161,7 +173,9 @@ export default function DashboardPage() {
                     if(hasBeenUpdated) {
                        await setDoc(reportRef, { 
                            listas: reportData.listas,
-                           ventasMan: reportData.ventasMan 
+                           ventasMan: reportData.ventasMan,
+                           ventasWoman: reportData.ventasWoman,
+                           ventasKids: reportData.ventasKids
                        }, { merge: true });
                     }
                     reportData.listas = listData;
@@ -218,18 +232,18 @@ export default function DashboardPage() {
             const sections = updatedData.datosPorSeccion;
             const totalVentas = (sections.woman.metricasPrincipales.totalEuros || 0) +
                                 (sections.man.metricasPrincipales.totalEuros || 0) +
-                                (sections.nino.metricasPrincipales.totalEuros || 0);
+                                (sections.kids.metricasPrincipales.totalEuros || 0);
 
             updatedData.ventas.totalEuros = totalVentas;
 
             if (totalVentas > 0) {
                 sections.woman.pesoPorc = parseFloat(((sections.woman.metricasPrincipales.totalEuros / totalVentas) * 100).toFixed(2));
                 sections.man.pesoPorc = parseFloat(((sections.man.metricasPrincipales.totalEuros / totalVentas) * 100).toFixed(2));
-                sections.nino.pesoPorc = parseFloat(((sections.nino.metricasPrincipales.totalEuros / totalVentas) * 100).toFixed(2));
+                sections.kids.pesoPorc = parseFloat(((sections.kids.metricasPrincipales.totalEuros / totalVentas) * 100).toFixed(2));
             } else {
                 sections.woman.pesoPorc = 0;
                 sections.man.pesoPorc = 0;
-                sections.nino.pesoPorc = 0;
+                sections.kids.pesoPorc = 0;
             }
         }
         
@@ -238,16 +252,16 @@ export default function DashboardPage() {
             const sections = updatedData.aqneSemanal;
             const totalVentasAqne = (sections.woman.metricasPrincipales.totalEuros || 0) +
                                     (sections.man.metricasPrincipales.totalEuros || 0) +
-                                    (sections.nino.metricasPrincipales.totalEuros || 0);
+                                    (sections.kids.metricasPrincipales.totalEuros || 0);
 
             if (totalVentasAqne > 0) {
                 sections.woman.pesoPorc = parseFloat(((sections.woman.metricasPrincipales.totalEuros / totalVentasAqne) * 100).toFixed(2));
                 sections.man.pesoPorc = parseFloat(((sections.man.metricasPrincipales.totalEuros / totalVentasAqne) * 100).toFixed(2));
-                sections.nino.pesoPorc = parseFloat(((sections.nino.metricasPrincipales.totalEuros / totalVentasAqne) * 100).toFixed(2));
+                sections.kids.pesoPorc = parseFloat(((sections.kids.metricasPrincipales.totalEuros / totalVentasAqne) * 100).toFixed(2));
             } else {
                 sections.woman.pesoPorc = 0;
                 sections.man.pesoPorc = 0;
-                sections.nino.pesoPorc = 0;
+                sections.kids.pesoPorc = 0;
             }
         }
 
@@ -257,7 +271,7 @@ export default function DashboardPage() {
             const index = parseInt(keys[1], 10);
             if (!isNaN(index) && updatedData.ventasDiariasAQNE[index]) {
                 const day = updatedData.ventasDiariasAQNE[index];
-                day.total = (day.woman || 0) + (day.man || 0) + (day.nino || 0);
+                day.total = (day.woman || 0) + (day.man || 0) + (day.kids || 0);
             }
         }
 
@@ -305,28 +319,36 @@ export default function DashboardPage() {
         const updatedData = JSON.parse(JSON.stringify(data));
         updatedData.listas[listToEdit] = newList;
 
-        const dataKeyMapping: Record<EditableList, keyof WeeklyData['ventasMan']> = {
-            comprador: 'pesoComprador',
-            zonaComercial: 'zonaComercial',
-            agrupacionComercial: 'agrupacionComercial',
+        const dataKeyMapping: Record<EditableList, {ventasKey: keyof WeeklyData, tableKey: 'pesoComprador' | 'zonaComercial' | 'agrupacionComercial'}> = {
+            compradorMan: { ventasKey: 'ventasMan', tableKey: 'pesoComprador' },
+            zonaComercialMan: { ventasKey: 'ventasMan', tableKey: 'zonaComercial' },
+            agrupacionComercialMan: { ventasKey: 'ventasMan', tableKey: 'agrupacionComercial' },
+            compradorWoman: { ventasKey: 'ventasWoman', tableKey: 'pesoComprador' },
+            zonaComercialWoman: { ventasKey: 'ventasWoman', tableKey: 'zonaComercial' },
+            agrupacionComercialWoman: { ventasKey: 'ventasWoman', tableKey: 'agrupacionComercial' },
+            compradorKids: { ventasKey: 'ventasKids', tableKey: 'pesoComprador' },
+            zonaComercialKids: { ventasKey: 'ventasKids', tableKey: 'zonaComercial' },
+            agrupacionComercialKids: { ventasKey: 'ventasKids', tableKey: 'agrupacionComercial' },
         };
-        const dataKey = dataKeyMapping[listToEdit];
+        const { ventasKey, tableKey } = dataKeyMapping[listToEdit];
         
-        if (!dataKey) {
+        if (!ventasKey || !tableKey) {
             console.error(`No data key mapping found for ${listToEdit}`);
             return;
         }
 
         // Lógica de sincronización al guardar la lista
-        const oldTableData = updatedData.ventasMan[dataKey] || [];
+        // @ts-ignore
+        const oldTableData = updatedData[ventasKey][tableKey] || [];
         const newTableData = synchronizeTableData(newList, oldTableData);
-        updatedData.ventasMan[dataKey] = newTableData;
+        // @ts-ignore
+        updatedData[ventasKey][tableKey] = newTableData;
 
         setData(updatedData);
 
         await Promise.all([
             updateDoc(listsRef, { [listToEdit]: newList }),
-            updateDoc(reportRef, { [`ventasMan.${dataKey}`]: newTableData })
+            updateDoc(reportRef, { [`${ventasKey}.${tableKey}`]: newTableData })
         ]);
 
         toast({
@@ -387,12 +409,11 @@ export default function DashboardPage() {
   };
 
   const getTitleForList = (listName: EditableList | null) => {
-      switch (listName) {
-          case 'comprador': return 'Editar Lista de Compradores';
-          case 'zonaComercial': return 'Editar Lista de Zonas de Comprador';
-          case 'agrupacionComercial': return 'Editar Agrupación Comercial';
-          default: return 'Editar Lista';
-      }
+      if (!listName) return 'Editar Lista';
+      if (listName.includes('Man')) return `Editar Lista de ${listName.replace('Man', ' (MAN)')}`;
+      if (listName.includes('Woman')) return `Editar Lista de ${listName.replace('Woman', ' (WOMAN)')}`;
+      if (listName.includes('Kids')) return `Editar Lista de ${listName.replace('Kids', ' (KIDS)')}`;
+      return 'Editar Lista';
   };
 
 
@@ -485,15 +506,41 @@ export default function DashboardPage() {
               <DropdownMenuContent className="w-56 z-50">
                 <DropdownMenuLabel>Opciones</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuLabel className="font-normal text-muted-foreground px-2 py-1.5 text-xs">EDITAR LISTAS DE CATEGORÍAS</DropdownMenuLabel>
+                <DropdownMenuLabel className="font-normal text-muted-foreground px-2 py-1.5 text-xs">EDITAR LISTAS MAN</DropdownMenuLabel>
                   <DropdownMenuGroup>
-                      <DropdownMenuItem onSelect={() => handleOpenListDialog('comprador')}>
+                      <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorMan')}>
                           <span>COMPRADOR</span>
                       </DropdownMenuItem>
-                      <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercial')}>
+                      <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialMan')}>
                           <span>ZONA COMPRADOR</span>
                       </DropdownMenuItem>
-                      <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercial')}>
+                      <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercialMan')}>
+                          <span>AGRUPACIÓN COMERCIAL</span>
+                      </DropdownMenuItem>
+                  </DropdownMenuGroup>
+                 <DropdownMenuSeparator />
+                 <DropdownMenuLabel className="font-normal text-muted-foreground px-2 py-1.5 text-xs">EDITAR LISTAS WOMAN</DropdownMenuLabel>
+                  <DropdownMenuGroup>
+                      <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorWoman')}>
+                          <span>COMPRADOR</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialWoman')}>
+                          <span>ZONA COMPRADOR</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercialWoman')}>
+                          <span>AGRUPACIÓN COMERCIAL</span>
+                      </DropdownMenuItem>
+                  </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+                <DropdownMenuLabel className="font-normal text-muted-foreground px-2 py-1.5 text-xs">EDITAR LISTAS KIDS</DropdownMenuLabel>
+                  <DropdownMenuGroup>
+                      <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorKids')}>
+                          <span>COMPRADOR</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialKids')}>
+                          <span>ZONA COMPRADOR</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercialKids')}>
                           <span>AGRUPACIÓN COMERCIAL</span>
                       </DropdownMenuItem>
                   </DropdownMenuGroup>
@@ -513,7 +560,11 @@ export default function DashboardPage() {
       <main>
          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as TabValue)}>
           <TabsContent value="datosSemanales" className="mt-0">
-            <DatosSemanalesTab data={data} isEditing={isEditing} onInputChange={handleInputChange} />
+            <DatosSemanalesTab 
+              data={data}
+              isEditing={isEditing} 
+              onInputChange={handleInputChange} 
+            />
           </TabsContent>
            <TabsContent value="aqneSemanal" className="mt-0">
              <AqneSemanalTab data={data} isEditing={isEditing} onInputChange={handleInputChange} />
@@ -525,6 +576,22 @@ export default function DashboardPage() {
             <VentasManTab 
               data={data}
               isEditing={isEditing} 
+              onInputChange={handleInputChange}
+              onImageChange={handleImageChange}
+            />
+          </TabsContent>
+          <TabsContent value="ventasWoman" className="mt-0">
+            <VentasWomanTab 
+              data={data}
+              isEditing={isEditing} 
+              onInputChange={handleInputChange}
+              onImageChange={handleImageChange}
+            />
+          </TabsContent>
+          <TabsContent value="ventasKids" className="mt-0">
+            <VentasKidsTab
+              data={data}
+              isEditing={isEditing}
               onInputChange={handleInputChange}
               onImageChange={handleImageChange}
             />

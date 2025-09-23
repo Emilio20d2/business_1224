@@ -25,7 +25,7 @@ type AcumuladoTabProps = {
 const COLORS = {
   'Woman': 'hsl(355, 71%, 60%)',
   'Man': 'hsl(217, 56%, 60%)',
-  'Niño': 'hsl(172, 29%, 57%)'
+  'KIDS': 'hsl(172, 29%, 57%)'
 };
 
 const AcumuladoCard = ({ title, data, isEditing, idPrefix, onInputChange }: { title: string, data: AcumuladoPeriodoData, isEditing: boolean, idPrefix: string, onInputChange: AcumuladoTabProps['onInputChange'] }) => {

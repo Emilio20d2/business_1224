@@ -1,6 +1,6 @@
 "use client"
 import React from 'react';
-import type { WeeklyData, VentasManItem } from "@/lib/data";
+import type { WeeklyData, VentasManItem as VentasKidsItem } from "@/lib/data";
 import { Input } from '@/components/ui/input';
 import {
   Table,
@@ -20,11 +20,11 @@ import { OperacionesSubTab } from './operaciones-sub-tab';
 import { FocusSemanalTab } from './focus-semanal-tab';
 
 
-type VentasManData = WeeklyData['ventasMan'];
-type TableDataKey = keyof VentasManData;
-type TableData = VentasManData[TableDataKey];
+type VentasKidsData = WeeklyData['ventasKids'];
+type TableDataKey = keyof VentasKidsData;
+type TableData = VentasKidsData[TableDataKey];
 
-type VentasManTabProps = {
+type VentasKidsTabProps = {
   data: WeeklyData;
   isEditing: boolean;
   onInputChange: (path: string, value: any) => void;
@@ -55,13 +55,13 @@ const DataTable = ({
     headers: string[], 
     isEditing: boolean, 
     dataKey: string, 
-    onInputChange: VentasManTabProps['onInputChange'],
+    onInputChange: VentasKidsTabProps['onInputChange'],
 }) => {
     if (!data) {
         return <p className="text-center text-muted-foreground mt-8">No hay datos disponibles.</p>;
     }
 
-    const handleChange = (index: number, field: keyof VentasManItem, value: any) => {
+    const handleChange = (index: number, field: keyof VentasKidsItem, value: any) => {
         const path = `${dataKey}.${index}.${field}`;
         onInputChange(path, value);
     };
@@ -106,7 +106,7 @@ const DataTable = ({
     );
 };
 
-const ImageImportCard = ({ selectedRow, isEditing, onImageChange, imagePath }: { selectedRow: VentasManItem | null, isEditing: boolean, onImageChange: (path: string, dataUrl: string) => void, imagePath: string | null }) => {
+const ImageImportCard = ({ selectedRow, isEditing, onImageChange, imagePath }: { selectedRow: VentasKidsItem | null, isEditing: boolean, onImageChange: (path: string, dataUrl: string) => void, imagePath: string | null }) => {
     const displayImage = selectedRow?.imageUrl;
     const fileInputRef = React.useRef<HTMLInputElement>(null);
 
@@ -159,15 +159,15 @@ const ImageImportCard = ({ selectedRow, isEditing, onImageChange, imagePath }: {
     );
 };
 
-const CompradorTab = ({ ventasManData, isEditing, onInputChange, onImageChange }: { ventasManData: VentasManData, isEditing: boolean, onInputChange: VentasManTabProps['onInputChange'], onImageChange: VentasManTabProps['onImageChange'] }) => {
+const CompradorTab = ({ ventasKidsData, isEditing, onInputChange, onImageChange }: { ventasKidsData: VentasKidsData, isEditing: boolean, onInputChange: VentasKidsTabProps['onInputChange'], onImageChange: VentasKidsTabProps['onImageChange'] }) => {
     const [selectedIndex, setSelectedIndex] = React.useState<number | null>(0);
 
     const handleRowSelect = (index: number) => {
         setSelectedIndex(index);
     };
 
-    const selectedRow = selectedIndex !== null ? ventasManData.pesoComprador[selectedIndex] : null;
-    const imagePath = selectedIndex !== null ? `ventasMan.pesoComprador.${selectedIndex}.imageUrl` : null;
+    const selectedRow = selectedIndex !== null ? ventasKidsData.pesoComprador[selectedIndex] : null;
+    const imagePath = selectedIndex !== null ? `ventasKids.pesoComprador.${selectedIndex}.imageUrl` : null;
 
     return (
          <div className="grid gap-4 items-start grid-cols-1 md:grid-cols-2">
@@ -181,7 +181,7 @@ const CompradorTab = ({ ventasManData, isEditing, onInputChange, onImageChange }
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {ventasManData.pesoComprador.map((item, index) => (
+                        {ventasKidsData.pesoComprador.map((item, index) => (
                             <TableRow 
                                 key={item.nombre + index}
                                 onClick={() => handleRowSelect(index)}
@@ -191,13 +191,13 @@ const CompradorTab = ({ ventasManData, isEditing, onInputChange, onImageChange }
                                     {item.nombre}
                                 </TableCell>
                                 <TableCell className="text-right font-medium">
-                                    {isEditing ? <Input type="number" inputMode="decimal" className="w-20 ml-auto text-right" defaultValue={item.pesoPorc} onChange={(e) => onInputChange(`ventasMan.pesoComprador.${index}.pesoPorc`, e.target.value)} /> : formatPercentage(item.pesoPorc)}
+                                    {isEditing ? <Input type="number" inputMode="decimal" className="w-20 ml-auto text-right" defaultValue={item.pesoPorc} onChange={(e) => onInputChange(`ventasKids.pesoComprador.${index}.pesoPorc`, e.target.value)} /> : formatPercentage(item.pesoPorc)}
                                 </TableCell>
                                 <TableCell className="text-right font-medium">
-                                    {isEditing ? <Input type="number" inputMode="decimal" className="w-24 ml-auto text-right" defaultValue={item.totalEuros} onChange={(e) => onInputChange(`ventasMan.pesoComprador.${index}.totalEuros`, e.target.value)} /> : formatCurrency(item.totalEuros)}
+                                    {isEditing ? <Input type="number" inputMode="decimal" className="w-24 ml-auto text-right" defaultValue={item.totalEuros} onChange={(e) => onInputChange(`ventasKids.pesoComprador.${index}.totalEuros`, e.target.value)} /> : formatCurrency(item.totalEuros)}
                                 </TableCell>
                                 <TableCell className="text-right">
-                                    {isEditing ? <Input type="number" inputMode="decimal" className="w-20 ml-auto text-right" defaultValue={item.varPorc} onChange={(e) => onInputChange(`ventasMan.pesoComprador.${index}.varPorc`, e.target.value)} /> : <TrendIndicator value={item.varPorc} />}
+                                    {isEditing ? <Input type="number" inputMode="decimal" className="w-20 ml-auto text-right" defaultValue={item.varPorc} onChange={(e) => onInputChange(`ventasKids.pesoComprador.${index}.varPorc`, e.target.value)} /> : <TrendIndicator value={item.varPorc} />}
                                 </TableCell>
                             </TableRow>
                         ))}
@@ -214,12 +214,12 @@ const CompradorTab = ({ ventasManData, isEditing, onInputChange, onImageChange }
     )
 }
 
-export function VentasManTab({ data, isEditing, onInputChange, onImageChange }: VentasManTabProps) {
+export function VentasKidsTab({ data, isEditing, onInputChange, onImageChange }: VentasKidsTabProps) {
     const [activeTab, setActiveTab] = React.useState<string>('comprador');
     
-    if (!data) return <p>Cargando datos de Ventas Man...</p>;
+    if (!data) return <p>Cargando datos de Ventas KIDS...</p>;
 
-    const ventasManData = data.ventasMan;
+    const ventasKidsData = data.ventasKids;
 
     return (
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -232,7 +232,7 @@ export function VentasManTab({ data, isEditing, onInputChange, onImageChange }: 
 
             <TabsContent value="comprador">
                 <CompradorTab 
-                    ventasManData={ventasManData}
+                    ventasKidsData={ventasKidsData}
                     isEditing={isEditing}
                     onInputChange={onInputChange}
                     onImageChange={onImageChange}
@@ -243,17 +243,17 @@ export function VentasManTab({ data, isEditing, onInputChange, onImageChange }: 
                 <div className="grid gap-4 items-start grid-cols-1 md:grid-cols-2">
                     <DataTable
                         title="Zona Comprador"
-                        dataKey="ventasMan.zonaComercial"
+                        dataKey="ventasKids.zonaComercial"
                         headers={['ZONA COMPRADOR', 'PESO %', '€', '%']}
-                        data={ventasManData.zonaComercial}
+                        data={ventasKidsData.zonaComercial}
                         isEditing={isEditing}
                         onInputChange={onInputChange}
                     />
                     <DataTable
                         title="Agrupación Comercial"
-                        dataKey="ventasMan.agrupacionComercial"
+                        dataKey="ventasKids.agrupacionComercial"
                         headers={['Agrupación Comercial', 'PESO %', '€', '%']}
-                        data={ventasManData.agrupacionComercial.slice(0, 10)}
+                        data={ventasKidsData.agrupacionComercial.slice(0, 10)}
                         isEditing={isEditing}
                         onInputChange={onInputChange}
                     />
