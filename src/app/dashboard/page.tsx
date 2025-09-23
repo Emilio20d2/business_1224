@@ -1,7 +1,7 @@
 "use client"
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, useCallback } from 'react';
 import type { WeeklyData, VentasManItem } from "@/lib/data";
-import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from '@/lib/firebase';
 import { 
   Select, 
@@ -64,10 +64,9 @@ const getPreviousWeekRange = () => {
     };
 };
 
-// Nueva función de sincronización
-const synchronizeTableData = (list: string[], oldTableData: any[]) => {
-    if (!Array.isArray(list)) return []; // Return empty array if list is not an array
-    const oldDataMap = new Map(oldTableData.map((item: any) => [item.nombre, item]));
+const synchronizeTableData = (list: string[], oldTableData: VentasManItem[] = []): VentasManItem[] => {
+    if (!Array.isArray(list)) return [];
+    const oldDataMap = new Map(oldTableData.map(item => [item.nombre, item]));
     return list.map(itemName => {
         const existingItem = oldDataMap.get(itemName);
         if (existingItem) {
@@ -83,6 +82,66 @@ const synchronizeTableData = (list: string[], oldTableData: any[]) => {
         }
     });
 };
+
+const synchronizeReportData = (reportData: WeeklyData, listData: WeeklyData['listas']): { updatedData: WeeklyData, hasChanged: boolean } => {
+    let hasChanged = false;
+    const updatedData = JSON.parse(JSON.stringify(reportData));
+    
+    // Ensure `listas` is up to date in the report
+    updatedData.listas = listData;
+
+    // Define sections to check and synchronize
+    const sections: Array<{
+        ventasKey: 'ventasMan' | 'ventasWoman' | 'ventasNino';
+        listKeys: {
+            comprador: keyof WeeklyData['listas'];
+            zonaComercial: keyof WeeklyData['listas'];
+            agrupacionComercial: keyof WeeklyData['listas'];
+        }
+    }> = [
+        { ventasKey: 'ventasMan', listKeys: { comprador: 'compradorMan', zonaComercial: 'zonaComercialMan', agrupacionComercial: 'agrupacionComercialMan' } },
+        { ventasKey: 'ventasWoman', listKeys: { comprador: 'compradorWoman', zonaComercial: 'zonaComercialWoman', agrupacionComercial: 'agrupacionComercialWoman' } },
+        { ventasKey: 'ventasNino', listKeys: { comprador: 'compradorNino', zonaComercial: 'zonaComercialNino', agrupacionComercial: 'agrupacionComercialNino' } },
+    ];
+
+    for (const section of sections) {
+        const { ventasKey, listKeys } = section;
+        const initialVentasData = getInitialDataForWeek('temp', listData)[ventasKey];
+
+        // If the whole ventas section is missing, create it
+        if (!updatedData[ventasKey]) {
+            updatedData[ventasKey] = initialVentasData;
+            hasChanged = true;
+        }
+
+        // Sync pesoComprador
+        const pesoCompradorList = listData[listKeys.comprador];
+        const currentPesoCompradorData = updatedData[ventasKey].pesoComprador || [];
+        if (pesoCompradorList.length !== currentPesoCompradorData.length || pesoCompradorList.some((item, i) => item !== currentPesoCompradorData[i]?.nombre)) {
+             updatedData[ventasKey].pesoComprador = synchronizeTableData(pesoCompradorList, currentPesoCompradorData);
+             hasChanged = true;
+        }
+
+        // Sync zonaComercial
+        const zonaComercialList = listData[listKeys.zonaComercial];
+        const currentZonaComercialData = updatedData[ventasKey].zonaComercial || [];
+        if (zonaComercialList.length !== currentZonaComercialData.length || zonaComercialList.some((item, i) => item !== currentZonaComercialData[i]?.nombre)) {
+             updatedData[ventasKey].zonaComercial = synchronizeTableData(zonaComercialList, currentZonaComercialData);
+             hasChanged = true;
+        }
+        
+        // Sync agrupacionComercial
+        const agrupacionComercialList = listData[listKeys.agrupacionComercial];
+        const currentAgrupacionComercialData = updatedData[ventasKey].agrupacionComercial || [];
+        if (agrupacionComercialList.length !== currentAgrupacionComercialData.length || agrupacionComercialList.some((item, i) => item !== currentAgrupacionComercialData[i]?.nombre)) {
+             updatedData[ventasKey].agrupacionComercial = synchronizeTableData(agrupacionComercialList, currentAgrupacionComercialData);
+             hasChanged = true;
+        }
+    }
+
+    return { updatedData, hasChanged };
+};
+
 
 export default function DashboardPage() {
   const { user, loading: authLoading, logout } = useContext(AuthContext);
@@ -103,6 +162,53 @@ export default function DashboardPage() {
 
 
   const { toast } = useToast();
+  
+  const fetchData = useCallback(async () => {
+    setDataLoading(true);
+    setError(null);
+    try {
+        const week = "semana-24";
+        const reportRef = doc(db, "informes", week);
+        const listsRef = doc(db, "configuracion", "listas");
+
+        // 1. Get lists configuration
+        const listsSnap = await getDoc(listsRef);
+        let listData: WeeklyData['listas'];
+        if (listsSnap.exists()) {
+            listData = listsSnap.data() as WeeklyData['listas'];
+        } else {
+            // Create initial lists if they don't exist
+            listData = getInitialLists();
+            await setDoc(listsRef, listData);
+        }
+
+        // 2. Get weekly report
+        const reportSnap = await getDoc(reportRef);
+        let reportData: WeeklyData;
+        if (reportSnap.exists()) {
+            reportData = reportSnap.data() as WeeklyData;
+            // 3. Synchronize report data with list data
+            const { updatedData, hasChanged } = synchronizeReportData(reportData, listData);
+            if (hasChanged) {
+                await setDoc(reportRef, updatedData, { merge: true });
+                reportData = updatedData;
+            }
+        } else {
+            // Create initial report if it doesn't exist
+            reportData = getInitialDataForWeek(week, listData);
+            await setDoc(reportRef, reportData);
+        }
+        
+        setData(reportData);
+
+    } catch (err: any) {
+        console.error("Error fetching or setting Firestore document:", err);
+        setError(`Error: ${err.message}. Asegúrate de que las reglas de Firestore son correctas.`);
+    } finally {
+        setDataLoading(false);
+    }
+  }, []);
+
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -111,110 +217,9 @@ export default function DashboardPage() {
     }
   
     if (!authLoading && user) {
-        const fetchData = async () => {
-            setDataLoading(true);
-            setError(null);
-            try {
-                const week = "semana-24";
-                const reportRef = doc(db, "informes", week);
-                const listsRef = doc(db, "configuracion", "listas");
-
-                const [reportSnap, listsSnap] = await Promise.all([
-                    getDoc(reportRef),
-                    getDoc(listsRef)
-                ]);
-
-                let reportData: WeeklyData;
-                let listData: WeeklyData['listas'];
-
-                if (listsSnap.exists()) {
-                    listData = listsSnap.data() as WeeklyData['listas'];
-                } else {
-                    listData = getInitialLists();
-                    await setDoc(listsRef, listData);
-                }
-                
-                if (reportSnap.exists()) {
-                    reportData = reportSnap.data() as WeeklyData;
-                    
-                    let hasBeenUpdated = false;
-                    const initialWeekData = getInitialDataForWeek(week, listData);
-                    
-                    if (!reportData.listas) {
-                      reportData.listas = listData;
-                      hasBeenUpdated = true;
-                    }
-                     if (!reportData.ventasMan) {
-                        reportData.ventasMan = initialWeekData.ventasMan;
-                        hasBeenUpdated = true;
-                    }
-                    if (!reportData.ventasWoman) {
-                        reportData.ventasWoman = initialWeekData.ventasWoman;
-                        hasBeenUpdated = true;
-                    }
-                    if (!reportData.ventasNino) {
-                        reportData.ventasNino = initialWeekData.ventasNino;
-                        hasBeenUpdated = true;
-                    }
-                    
-                    const dataKeyMapping: Record<EditableList, {ventasKey: keyof WeeklyData, tableKey: 'pesoComprador' | 'zonaComercial' | 'agrupacionComercial'}> = {
-                        compradorMan: { ventasKey: 'ventasMan', tableKey: 'pesoComprador' },
-                        zonaComercialMan: { ventasKey: 'ventasMan', tableKey: 'zonaComercial' },
-                        agrupacionComercialMan: { ventasKey: 'ventasMan', tableKey: 'agrupacionComercial' },
-                        compradorWoman: { ventasKey: 'ventasWoman', tableKey: 'pesoComprador' },
-                        zonaComercialWoman: { ventasKey: 'ventasWoman', tableKey: 'zonaComercial' },
-                        agrupacionComercialWoman: { ventasKey: 'ventasWoman', tableKey: 'agrupacionComercial' },
-                        compradorNino: { ventasKey: 'ventasNino', tableKey: 'pesoComprador' },
-                        zonaComercialNino: { ventasKey: 'ventasNino', tableKey: 'zonaComercial' },
-                        agrupacionComercialNino: { ventasKey: 'ventasNino', tableKey: 'agrupacionComercial' },
-                    };
-
-                    (Object.keys(dataKeyMapping) as EditableList[]).forEach(key => {
-                        const { ventasKey, tableKey } = dataKeyMapping[key];
-                        // @ts-ignore
-                        const list = listData[key as keyof typeof listData];
-                        
-                        // Ensure the sales section exists before trying to access it
-                        if (!reportData[ventasKey]) {
-                            // @ts-ignore
-                            reportData[ventasKey] = initialWeekData[ventasKey];
-                            hasBeenUpdated = true;
-                        }
-
-                        // @ts-ignore
-                        const tableData = reportData[ventasKey]?.[tableKey] || [];
-                        
-                        // Check for differences and synchronize
-                        if (list && Array.isArray(list) && (!tableData || list.length !== tableData.length || list.some((item: any, i: number) => item !== tableData[i]?.nombre))) {
-                            // @ts-ignore
-                            reportData[ventasKey][tableKey] = synchronizeTableData(list, tableData);
-                            hasBeenUpdated = true;
-                        }
-                    });
-                    
-                    if(hasBeenUpdated) {
-                       await setDoc(reportRef, reportData, { merge: true });
-                    }
-                    reportData.listas = listData;
-
-                } else {
-                    reportData = getInitialDataForWeek(week, listData);
-                    await setDoc(reportRef, reportData);
-                }
-                
-                setData(reportData);
-
-            } catch (err: any) {
-                console.error("Error fetching or setting Firestore document:", err);
-                setError(`Error: ${err.message}. Asegúrate de que las reglas de Firestore son correctas.`);
-            } finally {
-                setDataLoading(false);
-            }
-        };
-      
       fetchData();
     }
-  }, [user, authLoading, router]);
+  }, [user, authLoading, router, fetchData]);
 
   const previousWeek = getPreviousWeekRange();
   const weekLabel = `${previousWeek.start} - ${previousWeek.end}`;
@@ -239,13 +244,11 @@ export default function DashboardPage() {
         }
         
         const finalKey = keys[keys.length - 1];
-
         const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
-        const finalValue = isNaN(numericValue) ? (typeof current[finalKey] === 'number' ? 0 : value) : numericValue;
-        current[finalKey] = finalValue;
+        current[finalKey] = isNaN(numericValue) ? value : numericValue;
         
         // Auto-calculate section weights for aqneSemanal if a euros value changes
-        if (path.startsWith('aqneSemanal') && finalKey === 'totalEuros') {
+        if (path.startsWith('aqneSemanal.') && finalKey === 'totalEuros') {
             const sections = updatedData.aqneSemanal;
             const totalVentasAqne = (sections.woman.metricasPrincipales.totalEuros || 0) +
                                     (sections.man.metricasPrincipales.totalEuros || 0) +
@@ -261,8 +264,7 @@ export default function DashboardPage() {
                 sections.nino.pesoPorc = 0;
             }
         }
-
-
+        
         // Auto-calculate total for ventasDiariasAQNE
         if (keys[0] === 'ventasDiariasAQNE') {
             const index = parseInt(keys[1], 10);
@@ -271,20 +273,17 @@ export default function DashboardPage() {
                 day.total = (day.woman || 0) + (day.man || 0) + (day.nino || 0);
             }
         }
-
+        
         // Sync comprador with zonaComercial if names match
         const ventasKey = keys[0] as keyof WeeklyData;
         if ((ventasKey === 'ventasMan' || ventasKey === 'ventasWoman' || ventasKey === 'ventasNino') && keys[1] === 'pesoComprador') {
             const compradorIndex = parseInt(keys[2], 10);
-            // @ts-ignore
-            const compradorItem: VentasManItem = updatedData[ventasKey].pesoComprador[compradorIndex];
+            const compradorItem = updatedData[ventasKey]?.pesoComprador?.[compradorIndex];
             if (compradorItem) {
-                // @ts-ignore
-                const zonaComercialList: VentasManItem[] = updatedData[ventasKey].zonaComercial;
-                const matchingZonaIndex = zonaComercialList.findIndex(item => item.nombre === compradorItem.nombre);
+                const zonaComercialList = updatedData[ventasKey].zonaComercial;
+                const matchingZonaIndex = zonaComercialList.findIndex((item: VentasManItem) => item.nombre === compradorItem.nombre);
 
                 if (matchingZonaIndex !== -1) {
-                    // @ts-ignore
                     updatedData[ventasKey].zonaComercial[matchingZonaIndex] = {
                         ...updatedData[ventasKey].zonaComercial[matchingZonaIndex],
                         pesoPorc: compradorItem.pesoPorc,
@@ -294,9 +293,9 @@ export default function DashboardPage() {
                 }
             }
         }
-
+        
         // Auto-calculate section weights for datosPorSeccion if a euros value changes
-        if (path.startsWith('datosPorSeccion') && finalKey === 'totalEuros') {
+        if (path.startsWith('datosPorSeccion.') && finalKey === 'totalEuros') {
             const sections = updatedData.datosPorSeccion;
             const totalGeneral = (sections.woman.metricasPrincipales.totalEuros || 0) +
                                   (sections.man.metricasPrincipales.totalEuros || 0) +
@@ -342,60 +341,44 @@ export default function DashboardPage() {
   
   const handleCancel = () => {
     setIsEditing(false);
-    // TODO: Re-fetch or reset to original data state here to discard changes.
-    // For now, it just exits editing mode.
+    fetchData(); // Re-fetch original data to discard changes
   };
 
   const handleSaveList = async (newList: string[]) => {
     if (!listToEdit || !data) return;
-
+    
+    // Create a deep copy to avoid direct state mutation
+    const updatedData = JSON.parse(JSON.stringify(data));
+    
+    // Update the list in the copied data
+    updatedData.listas[listToEdit] = newList;
+    
+    // Synchronize the report based on the new list
+    const { updatedData: synchronizedData } = synchronizeReportData(updatedData, updatedData.listas);
+    
+    // Save the fully updated and synchronized data to Firestore
     try {
+        const reportRef = doc(db, "informes", synchronizedData.periodo.toLowerCase().replace(' ', '-'));
+        await setDoc(reportRef, synchronizedData, { merge: true });
+        
+        // Also update the master list configuration
         const listsRef = doc(db, "configuracion", "listas");
-        await updateDoc(listsRef, { [listToEdit]: newList });
-
-        const updatedData = JSON.parse(JSON.stringify(data));
-        updatedData.listas[listToEdit!] = newList;
-
-        const dataKeyMapping: Record<EditableList, {ventasKey: keyof WeeklyData, tableKey: 'pesoComprador' | 'zonaComercial' | 'agrupacionComercial'}> = {
-            compradorMan: { ventasKey: 'ventasMan', tableKey: 'pesoComprador' },
-            zonaComercialMan: { ventasKey: 'ventasMan', tableKey: 'zonaComercial' },
-            agrupacionComercialMan: { ventasKey: 'ventasMan', tableKey: 'agrupacionComercial' },
-            compradorWoman: { ventasKey: 'ventasWoman', tableKey: 'pesoComprador' },
-            zonaComercialWoman: { ventasKey: 'ventasWoman', tableKey: 'zonaComercial' },
-            agrupacionComercialWoman: { ventasKey: 'ventasWoman', tableKey: 'agrupacionComercial' },
-            compradorNino: { ventasKey: 'ventasNino', tableKey: 'pesoComprador' },
-            zonaComercialNino: { ventasKey: 'ventasNino', tableKey: 'zonaComercial' },
-            agrupacionComercialNino: { ventasKey: 'ventasNino', tableKey: 'agrupacionComercial' },
-        };
-        const { ventasKey, tableKey } = dataKeyMapping[listToEdit!];
+        await setDoc(listsRef, synchronizedData.listas, { merge: true });
         
-        // @ts-ignore
-        const oldTableData = updatedData[ventasKey]?.[tableKey] || [];
-        const newTableData = synchronizeTableData(newList, oldTableData);
-        
-        if (!updatedData[ventasKey]) {
-           // @ts-ignore
-          updatedData[ventasKey] = getInitialDataForWeek(data.periodo, updatedData.listas)[ventasKey];
-        }
-        // @ts-ignore
-        updatedData[ventasKey][tableKey] = newTableData;
-        
-        const reportRef = doc(db, "informes", updatedData.periodo.toLowerCase().replace(' ', '-'));
-        await setDoc(reportRef, updatedData, { merge: true });
-        
-        setData(updatedData);
+        // Update the state with the synchronized data
+        setData(synchronizedData);
 
         toast({
-            title: "Lista Actualizada y Sincronizada",
-            description: `La lista de ${listToEdit} y el informe se han guardado.`
+            title: "Lista Actualizada",
+            description: `La lista de ${listToEdit} y el informe se han actualizado.`
         });
 
     } catch (error) {
-        console.error("Error saving list:", error);
+        console.error("Error saving list and synchronizing report:", error);
         toast({
             variant: "destructive",
-            title: "Error al guardar la lista",
-            description: "No se pudo guardar la lista de configuración.",
+            title: "Error al guardar",
+            description: "No se pudo guardar la lista y sincronizar el informe.",
         });
     } finally {
         setIsListDialogOpen(false);
@@ -408,47 +391,38 @@ export default function DashboardPage() {
 
     setImageLoadingStatus(prev => ({...prev, [path]: true}));
 
-    const updatedData = await new Promise<WeeklyData | null>(resolve => {
-        setData(currentData => {
-            if (!currentData) {
-                resolve(null);
-                return null;
-            }
-            const newData = JSON.parse(JSON.stringify(currentData));
-            const keys = path.split('.');
-            let current: any = newData;
-            for (let i = 0; i < keys.length - 1; i++) {
-                current = current[keys[i]];
-            }
-            current[keys[keys.length - 1]] = dataUrl;
-            resolve(newData);
-            return newData;
-        });
-    });
+    // Use functional update to ensure we have the latest state
+    setData(currentData => {
+        if (!currentData) return null;
 
-    if(!updatedData) {
-      setImageLoadingStatus(prev => ({...prev, [path]: false}));
-      return;
-    }
-
-    try {
-        const reportRef = doc(db, "informes", updatedData.periodo.toLowerCase().replace(' ', '-'));
-        await setDoc(reportRef, updatedData, { merge: true });
+        const newData = JSON.parse(JSON.stringify(currentData));
+        const keys = path.split('.');
+        let current: any = newData;
+        for (let i = 0; i < keys.length - 1; i++) {
+            current = current[keys[i]];
+        }
+        current[keys[keys.length - 1]] = dataUrl;
         
-        toast({
-            title: "Imagen guardada",
-            description: "La nueva imagen y los datos actuales se han guardado.",
+        // Immediately save after updating state
+        const reportRef = doc(db, "informes", newData.periodo.toLowerCase().replace(' ', '-'));
+        setDoc(reportRef, newData, { merge: true }).then(() => {
+            toast({
+                title: "Imagen guardada",
+                description: "La nueva imagen se ha guardado.",
+            });
+        }).catch(error => {
+            console.error("Error updating image in Firestore: ", error);
+            toast({
+                variant: "destructive",
+                title: "Error al guardar imagen",
+                description: "No se pudo guardar la imagen. Inténtalo de nuevo.",
+            });
+        }).finally(() => {
+            setImageLoadingStatus(prev => ({...prev, [path]: false}));
         });
-    } catch (error) {
-        console.error("Error updating image in Firestore: ", error);
-        toast({
-            variant: "destructive",
-            title: "Error al guardar imagen",
-            description: "No se pudo guardar la imagen. Inténtalo de nuevo.",
-        });
-    } finally {
-      setImageLoadingStatus(prev => ({...prev, [path]: false}));
-    }
+
+        return newData;
+    });
 };
 
   const handleOpenListDialog = (listName: EditableList) => {
@@ -482,7 +456,7 @@ export default function DashboardPage() {
         <p className="text-lg font-semibold text-destructive">Error al Cargar Datos</p>
         <p className="text-muted-foreground">{error}</p>
         <p className="text-sm mt-2 text-muted-foreground">Asegúrate de que la base de datos Firestore está creada en tu proyecto y que las reglas de seguridad son correctas.</p>
-        <button onClick={() => window.location.reload()} className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-md">Reintentar</button>
+        <Button onClick={fetchData} className="mt-4">Reintentar</Button>
       </div>
     );
   }
@@ -490,8 +464,8 @@ export default function DashboardPage() {
   if (!data) {
      return (
       <div className="flex flex-col items-center justify-center min-h-screen">
-        <Loader2 className="h-12 w-12 animate-spin text-primary" />
-        <p className="mt-4">Cargando datos del informe...</p>
+        <p>No se encontraron datos para la semana.</p>
+        <Button onClick={fetchData} className="mt-4">Cargar datos</Button>
       </div>
     );
   }

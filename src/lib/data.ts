@@ -165,7 +165,7 @@ export function getInitialLists(): WeeklyData['listas'] {
 
 // This function generates a new, blank report structure based on the provided lists.
 export function getInitialDataForWeek(week: string, lists: WeeklyData['listas']): WeeklyData {
-    const createVentasManItems = (items: string[]): VentasManItem[] => {
+    const createVentasManItems = (items: string[] | undefined): VentasManItem[] => {
         if (!Array.isArray(items)) return [];
         return items.map(name => ({
             nombre: name,
@@ -219,19 +219,19 @@ export function getInitialDataForWeek(week: string, lists: WeeklyData['listas'])
             }
         },
         ventasMan: {
-            pesoComprador: createVentasManItems(lists.compradorMan),
-            zonaComercial: createVentasManItems(lists.zonaComercialMan),
-            agrupacionComercial: createVentasManItems(lists.agrupacionComercialMan)
+            pesoComprador: createVentasManItems(lists?.compradorMan),
+            zonaComercial: createVentasManItems(lists?.zonaComercialMan),
+            agrupacionComercial: createVentasManItems(lists?.agrupacionComercialMan)
         },
         ventasWoman: {
-            pesoComprador: createVentasManItems(lists.compradorWoman),
-            zonaComercial: createVentasManItems(lists.zonaComercialWoman),
-            agrupacionComercial: createVentasManItems(lists.agrupacionComercialWoman)
+            pesoComprador: createVentasManItems(lists?.compradorWoman),
+            zonaComercial: createVentasManItems(lists?.zonaComercialWoman),
+            agrupacionComercial: createVentasManItems(lists?.agrupacionComercialWoman)
         },
         ventasNino: {
-            pesoComprador: createVentasManItems(lists.compradorNino),
-            zonaComercial: createVentasManItems(lists.zonaComercialNino),
-            agrupacionComercial: createVentasManItems(lists.agrupacionComercialNino)
+            pesoComprador: createVentasManItems(lists?.compradorNino),
+            zonaComercial: createVentasManItems(lists?.zonaComercialNino),
+            agrupacionComercial: createVentasManItems(lists?.agrupacionComercialNino)
         },
         aqneSemanal: {
             woman: {
