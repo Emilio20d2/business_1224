@@ -260,7 +260,7 @@ export default function DashboardPage() {
     switch (listName) {
       case 'comprador': return 'Editar Lista de Compradores';
       case 'zonaComercial': return 'Editar Lista de Zonas de Comprador';
-      case 'agrupacionComercial': return 'Editar Lista de Agrupación Comercial';
+      case 'agrupacionComercial': return 'Editar Agrupación Comercial';
       default: return 'Editar Lista';
     }
   }
@@ -410,3 +410,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    
