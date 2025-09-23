@@ -92,6 +92,8 @@ export default function DashboardPage() {
   const [error, setError] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  
+  const [imageLoadingStatus, setImageLoadingStatus] = useState<Record<string, boolean>>({});
 
   const [isListDialogOpen, setIsListDialogOpen] = useState(false);
   const [listToEdit, setListToEdit] = useState<EditableList | null>(null);
@@ -227,17 +229,17 @@ export default function DashboardPage() {
         const finalValue = isNaN(numericValue) ? (typeof current[finalKey] === 'number' ? 0 : value) : numericValue;
         current[finalKey] = finalValue;
 
-        // Auto-calculate section weights for datosPorSeccion
+        // Auto-calculate section weights for datosPorSeccion if a euros value changes
         if (path.startsWith('datosPorSeccion') && finalKey === 'totalEuros') {
             const sections = updatedData.datosPorSeccion;
-            const totalVentas = (sections.woman.metricasPrincipales.totalEuros || 0) +
-                                (sections.man.metricasPrincipales.totalEuros || 0) +
-                                (sections.nino.metricasPrincipales.totalEuros || 0);
-
-            if (totalVentas > 0) {
-                sections.woman.pesoPorc = parseFloat(((sections.woman.metricasPrincipales.totalEuros / totalVentas) * 100).toFixed(2));
-                sections.man.pesoPorc = parseFloat(((sections.man.metricasPrincipales.totalEuros / totalVentas) * 100).toFixed(2));
-                sections.nino.pesoPorc = parseFloat(((sections.nino.metricasPrincipales.totalEuros / totalVentas) * 100).toFixed(2));
+            const totalGeneral = (sections.woman.metricasPrincipales.totalEuros || 0) +
+                                  (sections.man.metricasPrincipales.totalEuros || 0) +
+                                  (sections.nino.metricasPrincipales.totalEuros || 0);
+            
+            if (totalGeneral > 0) {
+                sections.woman.pesoPorc = parseFloat(((sections.woman.metricasPrincipales.totalEuros / totalGeneral) * 100).toFixed(2));
+                sections.man.pesoPorc = parseFloat(((sections.man.metricasPrincipales.totalEuros / totalGeneral) * 100).toFixed(2));
+                sections.nino.pesoPorc = parseFloat(((sections.nino.metricasPrincipales.totalEuros / totalGeneral) * 100).toFixed(2));
             } else {
                 sections.woman.pesoPorc = 0;
                 sections.man.pesoPorc = 0;
@@ -245,7 +247,7 @@ export default function DashboardPage() {
             }
         }
         
-        // Auto-calculate section weights for aqneSemanal
+        // Auto-calculate section weights for aqneSemanal if a euros value changes
         if (path.startsWith('aqneSemanal') && finalKey === 'totalEuros') {
             const sections = updatedData.aqneSemanal;
             const totalVentasAqne = (sections.woman.metricasPrincipales.totalEuros || 0) +
@@ -392,6 +394,8 @@ export default function DashboardPage() {
  const handleImageChange = async (path: string, dataUrl: string) => {
     if (!data) return;
 
+    setImageLoadingStatus(prev => ({...prev, [path]: true}));
+
     setData(prevData => {
         if (!prevData) return null;
         const updatedData = JSON.parse(JSON.stringify(prevData));
@@ -420,6 +424,8 @@ export default function DashboardPage() {
             title: "Error al guardar imagen",
             description: "No se pudo guardar la imagen. Inténtalo de nuevo.",
         });
+    } finally {
+      setImageLoadingStatus(prev => ({...prev, [path]: false}));
     }
 };
 
@@ -603,6 +609,7 @@ export default function DashboardPage() {
               isEditing={isEditing} 
               onInputChange={handleInputChange}
               onImageChange={handleImageChange}
+              imageLoadingStatus={imageLoadingStatus}
             />
           </TabsContent>
           <TabsContent value="woman" className="mt-0">
@@ -611,6 +618,7 @@ export default function DashboardPage() {
               isEditing={isEditing} 
               onInputChange={handleInputChange}
               onImageChange={handleImageChange}
+              imageLoadingStatus={imageLoadingStatus}
             />
           </TabsContent>
           <TabsContent value="nino" className="mt-0">
@@ -619,6 +627,7 @@ export default function DashboardPage() {
               isEditing={isEditing}
               onInputChange={handleInputChange}
               onImageChange={handleImageChange}
+              imageLoadingStatus={imageLoadingStatus}
             />
           </TabsContent>
         </Tabs>

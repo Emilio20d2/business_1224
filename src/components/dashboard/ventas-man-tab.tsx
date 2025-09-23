@@ -15,7 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatCurrency, formatPercentage } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { Button } from '../ui/button';
-import { ImagePlus, Upload } from 'lucide-react';
+import { ImagePlus, Loader2, Upload } from 'lucide-react';
 import { OperacionesSubTab } from './operaciones-sub-tab';
 import { FocusSemanalTab } from './focus-semanal-tab';
 
@@ -29,6 +29,7 @@ type VentasManTabProps = {
   isEditing: boolean;
   onInputChange: (path: string, value: any) => void;
   onImageChange: (path: string, dataUrl: string) => void;
+  imageLoadingStatus: Record<string, boolean>;
 };
 
 
@@ -106,7 +107,7 @@ const DataTable = ({
     );
 };
 
-const ImageImportCard = ({ selectedRow, isEditing, onImageChange, imagePath }: { selectedRow: VentasManItem | null, isEditing: boolean, onImageChange: (path: string, dataUrl: string) => void, imagePath: string | null }) => {
+const ImageImportCard = ({ selectedRow, isEditing, onImageChange, imagePath, isLoading }: { selectedRow: VentasManItem | null, isEditing: boolean, onImageChange: (path: string, dataUrl: string) => void, imagePath: string | null, isLoading: boolean }) => {
     const displayImage = selectedRow?.imageUrl;
     const fileInputRef = React.useRef<HTMLInputElement>(null);
 
@@ -139,6 +140,11 @@ const ImageImportCard = ({ selectedRow, isEditing, onImageChange, imagePath }: {
                         </div>
                     )}
                 </div>
+                 {isLoading && (
+                    <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
+                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    </div>
+                )}
                 {isEditing && selectedRow && (
                      <div className="absolute bottom-2 right-2">
                         <Input
@@ -147,8 +153,9 @@ const ImageImportCard = ({ selectedRow, isEditing, onImageChange, imagePath }: {
                             onChange={handleImageUpload}
                             className="hidden"
                             accept="image/*"
+                            disabled={isLoading}
                         />
-                        <Button onClick={handleButtonClick} variant="secondary">
+                        <Button onClick={handleButtonClick} variant="secondary" disabled={isLoading}>
                             <Upload className="mr-2 h-4 w-4" />
                             Cambiar Imagen
                         </Button>
@@ -159,7 +166,7 @@ const ImageImportCard = ({ selectedRow, isEditing, onImageChange, imagePath }: {
     );
 };
 
-const CompradorTab = ({ ventasManData, isEditing, onInputChange, onImageChange }: { ventasManData: VentasManData, isEditing: boolean, onInputChange: VentasManTabProps['onInputChange'], onImageChange: VentasManTabProps['onImageChange'] }) => {
+const CompradorTab = ({ ventasManData, isEditing, onInputChange, onImageChange, imageLoadingStatus }: { ventasManData: VentasManData, isEditing: boolean, onInputChange: VentasManTabProps['onInputChange'], onImageChange: VentasManTabProps['onImageChange'], imageLoadingStatus: Record<string, boolean> }) => {
     const [selectedIndex, setSelectedIndex] = React.useState<number | null>(0);
 
     const handleRowSelect = (index: number) => {
@@ -168,6 +175,8 @@ const CompradorTab = ({ ventasManData, isEditing, onInputChange, onImageChange }
 
     const selectedRow = selectedIndex !== null ? ventasManData.pesoComprador[selectedIndex] : null;
     const imagePath = selectedIndex !== null ? `ventasMan.pesoComprador.${selectedIndex}.imageUrl` : null;
+    const isLoading = imagePath ? imageLoadingStatus[imagePath] || false : false;
+
 
     return (
          <div className="grid gap-4 items-start grid-cols-1 md:grid-cols-2">
@@ -209,12 +218,13 @@ const CompradorTab = ({ ventasManData, isEditing, onInputChange, onImageChange }
                 isEditing={isEditing}
                 onImageChange={onImageChange}
                 imagePath={imagePath}
+                isLoading={isLoading}
             />
         </div>
     )
 }
 
-export function VentasManTab({ data, isEditing, onInputChange, onImageChange }: VentasManTabProps) {
+export function VentasManTab({ data, isEditing, onInputChange, onImageChange, imageLoadingStatus }: VentasManTabProps) {
     const [activeTab, setActiveTab] = React.useState<string>('comprador');
     
     if (!data) return <p>Cargando datos de Ventas Man...</p>;
@@ -236,6 +246,7 @@ export function VentasManTab({ data, isEditing, onInputChange, onImageChange }: 
                     isEditing={isEditing}
                     onInputChange={onInputChange}
                     onImageChange={onImageChange}
+                    imageLoadingStatus={imageLoadingStatus}
                 />
             </TabsContent>
 
