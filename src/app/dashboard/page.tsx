@@ -566,5 +566,3 @@ const handleImageChange = async (path: string, file: File, onUploadComplete: (su
     </div>
   );
 }
-
-    
