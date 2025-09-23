@@ -206,15 +206,20 @@ export default function DashboardPage() {
 
     const listsRef = doc(db, "configuracion", "listas");
     try {
+        // 1. Save the new list to Firestore
         await setDoc(listsRef, { [listToEdit]: newList }, { merge: true });
 
+        // 2. Update local state to reflect the change and synchronize the data table
         setData(prevData => {
             if (!prevData) return null;
 
+            // Deep copy to avoid direct mutation
             const updatedData = JSON.parse(JSON.stringify(prevData));
-            // Update the lists in the local state
+
+            // Update the list itself in the local state
             updatedData.listas[listToEdit] = newList;
 
+            // Determine which data table to synchronize
             let dataKey: keyof WeeklyData['ventasMan'] | null = null;
             switch (listToEdit) {
                 case 'comprador':
@@ -229,31 +234,30 @@ export default function DashboardPage() {
             }
 
             if (dataKey) {
-                const currentTableData: any[] = updatedData.ventasMan[dataKey] || [];
-                const syncedTableData: any[] = [];
+                // Get the old table data to preserve existing values
+                const oldTableData: any[] = prevData.ventasMan[dataKey] || [];
+                const oldDataMap = new Map(oldTableData.map(item => [item.nombre, item]));
 
-                // Create a map of existing data for easy lookup
-                const existingDataMap = new Map(currentTableData.map(item => [item.nombre, item]));
-
-                // Iterate over the new list to build the synced data
-                newList.forEach(itemName => {
-                    const existingItem = existingDataMap.get(itemName);
+                // Build the new table data based on the new list
+                const newTableData = newList.map(itemName => {
+                    const existingItem = oldDataMap.get(itemName);
                     if (existingItem) {
-                        // If item exists, keep it
-                        syncedTableData.push(existingItem);
+                        // If item already exists, keep its data
+                        return existingItem;
                     } else {
-                        // If item is new, create a new entry
-                        syncedTableData.push({
+                        // If it's a new item, create a new entry with default values
+                        return {
                             nombre: itemName,
                             pesoPorc: 0,
                             totalEuros: 0,
                             varPorc: 0,
                             imageUrl: `https://picsum.photos/seed/${itemName.replace(/\s/g, '')}/500/400`
-                        });
+                        };
                     }
                 });
-
-                updatedData.ventasMan[dataKey] = syncedTableData;
+                
+                // Replace the old table data with the newly synchronized one
+                updatedData.ventasMan[dataKey] = newTableData;
             }
             
             return updatedData;
@@ -263,7 +267,9 @@ export default function DashboardPage() {
           title: "Lista actualizada",
           description: `La lista de ${listToEdit} se ha guardado correctamente.`
         });
-        setIsEditing(true); // Enable save button to persist the synchronized data table
+        
+        // IMPORTANT: Set editing to true so the user can save the synchronized table data
+        setIsEditing(true);
 
     } catch (error) {
         console.error("Error saving list:", error);
@@ -442,7 +448,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-    
-
-    
