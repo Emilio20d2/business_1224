@@ -1,5 +1,4 @@
 
-
 type DesgloseItem = {
     nombre: string;
     totalEuros: number;
@@ -70,9 +69,9 @@ export type WeeklyData = {
         agrupacionComercial: VentasManItem[];
     };
     aqneSemanal: {
-        woman: SeccionData;
-        man: SeccionData;
-        nino: SeccionData;
+        woman: SeccionAqneData;
+        man: SeccionAqneData;
+        nino: SeccionAqneData;
     };
     ventasDiariasAQNE: VentaDiaria[];
     focusSemanal: string;
@@ -102,6 +101,18 @@ type SeccionData = {
         seccion: string;
         totalEuros: number;
         varPorc: number;
+    }[];
+};
+
+type SeccionAqneData = {
+    pesoPorc: number;
+    metricasPrincipales: {
+        totalEuros: number;
+        totalUnidades: number;
+    };
+    desglose: {
+        seccion: string;
+        totalEuros: number;
     }[];
 };
 
@@ -191,29 +202,29 @@ export function getInitialDataForWeek(week: string, lists: WeeklyData['listas'])
         aqneSemanal: {
             woman: {
                 pesoPorc: 0,
-                metricasPrincipales: { totalEuros: 0, varPorcEuros: 0, totalUnidades: 0, varPorcUnidades: 0 },
+                metricasPrincipales: { totalEuros: 0, totalUnidades: 0 },
                 desglose: [
-                    { seccion: "Ropa", totalEuros: 0, varPorc: 0 },
-                    { seccion: "Calzado", totalEuros: 0, varPorc: 0 },
-                    { seccion: "Perfumería", totalEuros: 0, varPorc: 0 }
+                    { seccion: "Ropa", totalEuros: 0 },
+                    { seccion: "Calzado", totalEuros: 0 },
+                    { seccion: "Perfumería", totalEuros: 0 }
                 ]
             },
             man: {
                 pesoPorc: 0,
-                metricasPrincipales: { totalEuros: 0, varPorcEuros: 0, totalUnidades: 0, varPorcUnidades: 0 },
+                metricasPrincipales: { totalEuros: 0, totalUnidades: 0 },
                 desglose: [
-                    { seccion: "Ropa", totalEuros: 0, varPorc: 0 },
-                    { seccion: "Calzado", totalEuros: 0, varPorc: 0 },
-                    { seccion: "Perfumería", totalEuros: 0, varPorc: 0 }
+                    { seccion: "Ropa", totalEuros: 0 },
+                    { seccion: "Calzado", totalEuros: 0 },
+                    { seccion: "Perfumería", totalEuros: 0 }
                 ]
             },
             nino: {
                 pesoPorc: 0,
-                metricasPrincipales: { totalEuros: 0, varPorcEuros: 0, totalUnidades: 0, varPorcUnidades: 0 },
+                metricasPrincipales: { totalEuros: 0, totalUnidades: 0 },
                 desglose: [
-                    { seccion: "Ropa", totalEuros: 0, varPorc: 0 },
-                    { seccion: "Calzado", totalEuros: 0, varPorc: 0 },
-                    { seccion: "Perfumería", totalEuros: 0, varPorc: 0 }
+                    { seccion: "Ropa", totalEuros: 0 },
+                    { seccion: "Calzado", totalEuros: 0 },
+                    { seccion: "Perfumería", totalEuros: 0 }
                 ]
             }
         },

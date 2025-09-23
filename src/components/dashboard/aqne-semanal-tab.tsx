@@ -21,8 +21,8 @@ import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 
 
-type SectionData = WeeklyData["aqneSemanal"];
-type SectionName = keyof SectionData;
+type AqneData = WeeklyData["aqneSemanal"];
+type SectionName = keyof AqneData;
 
 type AqneSemanalTabProps = {
   data: WeeklyData;
@@ -43,7 +43,7 @@ const desgloseIconos: { [key: string]: React.ReactNode } = {
     "Perfumería": <SprayCan className="h-4 w-4 text-muted-foreground" />
 };
 
-const AqneSectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionName, data: SectionData[SectionName], isEditing: boolean, onInputChange: AqneSemanalTabProps['onInputChange'] }) => {
+const AqneSectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionName, data: AqneData[SectionName], isEditing: boolean, onInputChange: AqneSemanalTabProps['onInputChange'] }) => {
     const config = sectionConfig[name];
 
     const handleMetricChange = (field: string, value: string) => {
@@ -189,3 +189,5 @@ export function AqneSemanalTab({ data, isEditing, onInputChange }: AqneSemanalTa
     </div>
   );
 }
+
+    
