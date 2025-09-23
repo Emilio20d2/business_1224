@@ -115,7 +115,7 @@ const synchronizeReportData = (reportData: WeeklyData, listData: WeeklyData['lis
         }
 
         // Sync pesoComprador
-        const pesoCompradorList = listData[listKeys.comprador];
+        const pesoCompradorList = listData[listKeys.comprador] || [];
         const currentPesoCompradorData = updatedData[ventasKey].pesoComprador || [];
         if (pesoCompradorList.length !== currentPesoCompradorData.length || pesoCompradorList.some((item, i) => item !== currentPesoCompradorData[i]?.nombre)) {
              updatedData[ventasKey].pesoComprador = synchronizeTableData(pesoCompradorList, currentPesoCompradorData);
@@ -123,7 +123,7 @@ const synchronizeReportData = (reportData: WeeklyData, listData: WeeklyData['lis
         }
 
         // Sync zonaComercial
-        const zonaComercialList = listData[listKeys.zonaComercial];
+        const zonaComercialList = listData[listKeys.zonaComercial] || [];
         const currentZonaComercialData = updatedData[ventasKey].zonaComercial || [];
         if (zonaComercialList.length !== currentZonaComercialData.length || zonaComercialList.some((item, i) => item !== currentZonaComercialData[i]?.nombre)) {
              updatedData[ventasKey].zonaComercial = synchronizeTableData(zonaComercialList, currentZonaComercialData);
@@ -131,7 +131,7 @@ const synchronizeReportData = (reportData: WeeklyData, listData: WeeklyData['lis
         }
         
         // Sync agrupacionComercial
-        const agrupacionComercialList = listData[listKeys.agrupacionComercial];
+        const agrupacionComercialList = listData[listKeys.agrupacionComercial] || [];
         const currentAgrupacionComercialData = updatedData[ventasKey].agrupacionComercial || [];
         if (agrupacionComercialList.length !== currentAgrupacionComercialData.length || agrupacionComercialList.some((item, i) => item !== currentAgrupacionComercialData[i]?.nombre)) {
              updatedData[ventasKey].agrupacionComercial = synchronizeTableData(agrupacionComercialList, currentAgrupacionComercialData);
