@@ -1,6 +1,6 @@
 "use client"
 import React, { useState, useContext, useEffect } from 'react';
-import type { WeeklyData } from "@/lib/data";
+import type { WeeklyData, VentasManItem } from "@/lib/data";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from '@/lib/firebase';
 import { 
@@ -41,16 +41,16 @@ import { OperacionesSubTab } from '@/components/dashboard/operaciones-sub-tab';
 
 
 type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan' | 'compradorWoman' | 'zonaComercialWoman' | 'agrupacionComercialWoman' | 'compradorNino' | 'zonaComercialNino' | 'agrupacionComercialNino';
-type TabValue = "datosSemanales" | "aqneSemanal" | "acumulado" | "ventasMan" | "ventasWoman" | "ventasNino";
+type TabValue = "datosSemanales" | "aqneSemanal" | "acumulado" | "man" | "woman" | "nino";
 
 
 const tabLabels: Record<string, string> = {
     datosSemanales: "GENERAL",
     aqneSemanal: "AQNE",
     acumulado: "ACUMULADO",
-    ventasMan: "MAN",
-    ventasWoman: "WOMAN",
-    ventasNino: "NIÑO",
+    man: "MAN",
+    woman: "WOMAN",
+    nino: "NIÑO",
 };
 
 const getPreviousWeekRange = () => {
@@ -275,6 +275,28 @@ export default function DashboardPage() {
             }
         }
 
+        // Sync comprador with zonaComercial if names match
+        const ventasKey = keys[0] as keyof WeeklyData;
+        if ((ventasKey === 'ventasMan' || ventasKey === 'ventasWoman' || ventasKey === 'ventasNino') && keys[1] === 'pesoComprador') {
+            const compradorIndex = parseInt(keys[2], 10);
+            // @ts-ignore
+            const compradorItem: VentasManItem = updatedData[ventasKey].pesoComprador[compradorIndex];
+            if (compradorItem) {
+                // @ts-ignore
+                const zonaComercialList: VentasManItem[] = updatedData[ventasKey].zonaComercial;
+                const matchingZonaIndex = zonaComercialList.findIndex(item => item.nombre === compradorItem.nombre);
+
+                if (matchingZonaIndex !== -1) {
+                    // @ts-ignore
+                    updatedData[ventasKey].zonaComercial[matchingZonaIndex] = {
+                        ...updatedData[ventasKey].zonaComercial[matchingZonaIndex],
+                        pesoPorc: compradorItem.pesoPorc,
+                        totalEuros: compradorItem.totalEuros,
+                        varPorc: compradorItem.varPorc,
+                    };
+                }
+            }
+        }
 
         return updatedData;
     });
@@ -576,7 +598,7 @@ export default function DashboardPage() {
            <TabsContent value="acumulado" className="mt-0">
              <AcumuladoTab data={data.acumulado} isEditing={isEditing} onInputChange={handleInputChange} />
           </TabsContent>
-           <TabsContent value="ventasMan" className="mt-0">
+           <TabsContent value="man" className="mt-0">
             <VentasManTab 
               data={data}
               isEditing={isEditing} 
@@ -584,7 +606,7 @@ export default function DashboardPage() {
               onImageChange={handleImageChange}
             />
           </TabsContent>
-          <TabsContent value="ventasWoman" className="mt-0">
+          <TabsContent value="woman" className="mt-0">
             <VentasWomanTab 
               data={data}
               isEditing={isEditing} 
@@ -592,7 +614,7 @@ export default function DashboardPage() {
               onImageChange={handleImageChange}
             />
           </TabsContent>
-          <TabsContent value="ventasNino" className="mt-0">
+          <TabsContent value="nino" className="mt-0">
             <VentasNinoTab
               data={data}
               isEditing={isEditing}
