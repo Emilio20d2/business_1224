@@ -65,7 +65,7 @@ const FilaModulo = ({ icon, label, value, isEditing, id, onInputChange, unit }: 
                 <Input type="number" inputMode="decimal" defaultValue={value} className="font-bold text-right w-20" id={id} onChange={(e) => onInputChange(id, e.target.value)} />
                 <span className="text-sm text-muted-foreground">{unit}</span>
             </div>
-            : <strong className="font-bold text-right w-14">{unit === '%' ? formatPercentage(value) : formatNumber(value)}</strong>
+            : <div className="font-bold text-right w-14">{unit === '%' ? formatPercentage(value) : formatNumber(value)}</div>
         }
     </div>
 )
