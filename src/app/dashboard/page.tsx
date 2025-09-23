@@ -188,7 +188,7 @@ export default function DashboardPage() {
   const previousWeek = getPreviousWeekRange();
   const weekLabel = `${previousWeek.start} - ${previousWeek.end}`;
 
- const handleInputChange = (path: string, value: string | number) => {
+  const handleInputChange = (path: string, value: string | number) => {
     if (!data) return;
 
     setData(prevData => {
@@ -213,15 +213,35 @@ export default function DashboardPage() {
         const finalValue = isNaN(numericValue) ? (typeof current[finalKey] === 'number' ? 0 : value) : numericValue;
         current[finalKey] = finalValue;
 
+        // Auto-calculate section weights
+        if (keys[0] === 'datosPorSeccion' && finalKey === 'totalEuros') {
+            const sections = updatedData.datosPorSeccion;
+            const totalVentas = (sections.woman.metricasPrincipales.totalEuros || 0) +
+                                (sections.man.metricasPrincipales.totalEuros || 0) +
+                                (sections.nino.metricasPrincipales.totalEuros || 0);
+
+            updatedData.ventas.totalEuros = totalVentas;
+
+            if (totalVentas > 0) {
+                sections.woman.pesoPorc = parseFloat(((sections.woman.metricasPrincipales.totalEuros / totalVentas) * 100).toFixed(2));
+                sections.man.pesoPorc = parseFloat(((sections.man.metricasPrincipales.totalEuros / totalVentas) * 100).toFixed(2));
+                sections.nino.pesoPorc = parseFloat(((sections.nino.metricasPrincipales.totalEuros / totalVentas) * 100).toFixed(2));
+            } else {
+                sections.woman.pesoPorc = 0;
+                sections.man.pesoPorc = 0;
+                sections.nino.pesoPorc = 0;
+            }
+        }
 
         // Auto-calculate total for ventasDiariasAQNE
-        if (keys[0] === 'ventasDiariasAQNE' && ['woman', 'man', 'nino'].includes(finalKey)) {
+        if (keys[0] === 'ventasDiariasAQNE') {
             const index = parseInt(keys[1], 10);
             if (!isNaN(index) && updatedData.ventasDiariasAQNE[index]) {
                 const day = updatedData.ventasDiariasAQNE[index];
                 day.total = (day.woman || 0) + (day.man || 0) + (day.nino || 0);
             }
         }
+
 
         return updatedData;
     });
