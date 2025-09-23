@@ -254,7 +254,7 @@ export function VentasManTab({ data, isEditing, onInputChange, onImageChange }: 
                         title="Agrupación Comercial"
                         dataKey="agrupacionComercial"
                         headers={['Agrupación Comercial', 'PESO %', '€', '%']}
-                        data={ventasManData.agrupacionComercial}
+                        data={ventasManData.agrupacionComercial.slice(0, 10)}
                         isEditing={isEditing}
                         onInputChange={onInputChange}
                     />
