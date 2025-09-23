@@ -24,12 +24,13 @@ export function EditListDialog({ isOpen, onClose, title, items, onSave }: EditLi
   const [newItem, setNewItem] = useState('');
 
   useEffect(() => {
-    setCurrentItems(items);
+    setCurrentItems([...items].sort((a, b) => a.localeCompare(b)));
   }, [items]);
 
   const handleAddItem = () => {
     if (newItem.trim() && !currentItems.includes(newItem.trim())) {
-      setCurrentItems([...currentItems, newItem.trim()]);
+      const updatedItems = [...currentItems, newItem.trim()].sort((a, b) => a.localeCompare(b));
+      setCurrentItems(updatedItems);
       setNewItem('');
     }
   };
