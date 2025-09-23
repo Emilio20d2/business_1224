@@ -68,7 +68,7 @@ const AqneSectionCard = ({ name, data, isEditing, onInputChange }: { name: Secti
                     </div>
                      {isEditing ? (
                         <div className="flex items-center gap-1">
-                            <Input type="number" defaultValue={data.pesoPorc} onChange={(e) => handlePesoChange(e.target.value)} className="w-16 h-8 text-right" />
+                            <Input type="number" inputMode="decimal" defaultValue={data.pesoPorc} onChange={(e) => handlePesoChange(e.target.value)} className="w-16 h-8 text-right" />
                             <span className="text-sm font-bold text-muted-foreground">%</span>
                         </div>
                     ) : (
@@ -83,11 +83,11 @@ const AqneSectionCard = ({ name, data, isEditing, onInputChange }: { name: Secti
                     {isEditing ? (
                         <>
                             <div className="bg-background rounded-lg p-2 text-center">
-                                <Input type="number" defaultValue={data.metricasPrincipales.totalEuros} onChange={(e) => handleMetricChange('totalEuros', e.target.value)} className="font-bold text-lg w-full text-center" />
+                                <Input type="number" inputMode="decimal" defaultValue={data.metricasPrincipales.totalEuros} onChange={(e) => handleMetricChange('totalEuros', e.target.value)} className="font-bold text-lg w-full text-center" />
                                 <span className="text-xs">Total €</span>
                             </div>
                             <div className="bg-background rounded-lg p-2 text-center">
-                                <Input type="number" defaultValue={data.metricasPrincipales.totalUnidades} onChange={(e) => handleMetricChange('totalUnidades', e.target.value)} className="font-bold text-lg w-full text-center" />
+                                <Input type="number" inputMode="decimal" defaultValue={data.metricasPrincipales.totalUnidades} onChange={(e) => handleMetricChange('totalUnidades', e.target.value)} className="font-bold text-lg w-full text-center" />
                                  <span className="text-xs">Total Unid.</span>
                             </div>
                         </>
@@ -113,7 +113,7 @@ const AqneSectionCard = ({ name, data, isEditing, onInputChange }: { name: Secti
                                     {desgloseIconos[item.seccion] || <Shirt className="h-4 w-4 text-muted-foreground" />}
                                 </div>
                                 {isEditing ? (
-                                    <Input type="number" defaultValue={item.totalEuros} onChange={(e) => handleDesgloseChange(index, 'totalEuros', e.target.value)} className="font-bold w-24" />
+                                    <Input type="number" inputMode="decimal" defaultValue={item.totalEuros} onChange={(e) => handleDesgloseChange(index, 'totalEuros', e.target.value)} className="font-bold w-24" />
                                 ) : (
                                     <div className="font-bold">{formatCurrency(item.totalEuros)}</div>
                                 )}
@@ -166,10 +166,10 @@ export function AqneSemanalTab({ data, isEditing, onInputChange }: AqneSemanalTa
                                 <TableCell className="font-medium">{venta.dia}</TableCell>
                                 {isEditing ? (
                                     <>
-                                        <TableCell><Input type="number" value={venta.total} readOnly className="w-24 ml-auto text-right bg-muted" /></TableCell>
-                                        <TableCell><Input type="number" defaultValue={venta.woman} onChange={(e) => handleDailySaleChange(index, 'woman', e.target.value)} className="w-24 ml-auto text-right" /></TableCell>
-                                        <TableCell><Input type="number" defaultValue={venta.man} onChange={(e) => handleDailySaleChange(index, 'man', e.target.value)} className="w-24 ml-auto text-right" /></TableCell>
-                                        <TableCell><Input type="number" defaultValue={venta.nino} onChange={(e) => handleDailySaleChange(index, 'nino', e.target.value)} className="w-24 ml-auto text-right" /></TableCell>
+                                        <TableCell><Input type="number" inputMode="decimal" value={venta.total} readOnly className="w-24 ml-auto text-right bg-muted" /></TableCell>
+                                        <TableCell><Input type="number" inputMode="decimal" defaultValue={venta.woman} onChange={(e) => handleDailySaleChange(index, 'woman', e.target.value)} className="w-24 ml-auto text-right" /></TableCell>
+                                        <TableCell><Input type="number" inputMode="decimal" defaultValue={venta.man} onChange={(e) => handleDailySaleChange(index, 'man', e.target.value)} className="w-24 ml-auto text-right" /></TableCell>
+                                        <TableCell><Input type="number" inputMode="decimal" defaultValue={venta.nino} onChange={(e) => handleDailySaleChange(index, 'nino', e.target.value)} className="w-24 ml-auto text-right" /></TableCell>
                                     </>
                                 ) : (
                                     <>

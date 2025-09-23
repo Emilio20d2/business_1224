@@ -68,7 +68,7 @@ const SectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionNa
                     </div>
                      {isEditing ? (
                         <div className="flex items-center gap-1">
-                            <Input type="number" defaultValue={data.pesoPorc} onChange={(e) => handlePesoChange(e.target.value)} className="w-16 h-8 text-right" />
+                            <Input type="number" inputMode="decimal" defaultValue={data.pesoPorc} onChange={(e) => handlePesoChange(e.target.value)} className="w-16 h-8 text-right" />
                             <span className="text-sm font-bold text-muted-foreground">%</span>
                         </div>
                     ) : (
@@ -83,12 +83,12 @@ const SectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionNa
                     {isEditing ? (
                         <>
                             <div className="bg-background rounded-lg p-2 text-center">
-                                <Input type="number" defaultValue={data.metricasPrincipales.totalEuros} onChange={(e) => handleMetricChange('totalEuros', e.target.value)} className="font-bold text-lg w-full text-center" />
-                                <Input type="number" defaultValue={data.metricasPrincipales.varPorcEuros} onChange={(e) => handleMetricChange('varPorcEuros', e.target.value)} className="text-xs font-bold w-full text-center mt-1" />
+                                <Input type="number" inputMode="decimal" defaultValue={data.metricasPrincipales.totalEuros} onChange={(e) => handleMetricChange('totalEuros', e.target.value)} className="font-bold text-lg w-full text-center" />
+                                <Input type="number" inputMode="decimal" defaultValue={data.metricasPrincipales.varPorcEuros} onChange={(e) => handleMetricChange('varPorcEuros', e.target.value)} className="text-xs font-bold w-full text-center mt-1" />
                             </div>
                             <div className="bg-background rounded-lg p-2 text-center">
-                                <Input type="number" defaultValue={data.metricasPrincipales.totalUnidades} onChange={(e) => handleMetricChange('totalUnidades', e.target.value)} className="font-bold text-lg w-full text-center" />
-                                <Input type="number" defaultValue={data.metricasPrincipales.varPorcUnidades} onChange={(e) => handleMetricChange('varPorcUnidades', e.target.value)} className="text-xs font-bold w-full text-center mt-1" />
+                                <Input type="number" inputMode="decimal" defaultValue={data.metricasPrincipales.totalUnidades} onChange={(e) => handleMetricChange('totalUnidades', e.target.value)} className="font-bold text-lg w-full text-center" />
+                                <Input type="number" inputMode="decimal" defaultValue={data.metricasPrincipales.varPorcUnidades} onChange={(e) => handleMetricChange('varPorcUnidades', e.target.value)} className="text-xs font-bold w-full text-center mt-1" />
                             </div>
                         </>
                     ) : (
@@ -113,14 +113,14 @@ const SectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionNa
                                     {desgloseIconos[item.seccion] || <Shirt className="h-4 w-4 text-muted-foreground" />}
                                 </div>
                                 {isEditing ? (
-                                    <Input type="number" defaultValue={item.totalEuros} onChange={(e) => handleDesgloseChange(index, 'totalEuros', e.target.value)} className="font-bold w-24" />
+                                    <Input type="number" inputMode="decimal" defaultValue={item.totalEuros} onChange={(e) => handleDesgloseChange(index, 'totalEuros', e.target.value)} className="font-bold w-24" />
                                 ) : (
                                     <div className="font-bold">{formatCurrency(item.totalEuros)}</div>
                                 )}
                             </div>
                             <div>
                                 {isEditing ? (
-                                    <Input type="number" defaultValue={item.varPorc} onChange={(e) => handleDesgloseChange(index, 'varPorc', e.target.value)} className="text-xs font-bold w-16 text-right" />
+                                    <Input type="number" inputMode="decimal" defaultValue={item.varPorc} onChange={(e) => handleDesgloseChange(index, 'varPorc', e.target.value)} className="text-xs font-bold w-16 text-right" />
                                 ) : (
                                     <TrendIndicator value={item.varPorc} />
                                 )}

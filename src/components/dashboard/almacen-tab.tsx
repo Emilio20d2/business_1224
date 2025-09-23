@@ -23,16 +23,16 @@ const AlmacenRow = ({ name, almacen, isEditing }: { name: string, almacen: Almac
     <TableRow>
       <TableCell className="font-medium">{name}</TableCell>
       <TableCell className="text-right">
-        {isEditing ? <Input type="number" defaultValue={almacen.ocupacionPorc} className="w-20 ml-auto" /> : formatPercentage(almacen.ocupacionPorc)}
+        {isEditing ? <Input type="number" inputMode="decimal" defaultValue={almacen.ocupacionPorc} className="w-20 ml-auto" /> : formatPercentage(almacen.ocupacionPorc)}
       </TableCell>
       <TableCell className="text-right">
-        {isEditing ? <Input type="number" defaultValue={almacen.devolucionUnidades ?? ''} className="w-20 ml-auto" /> : formatNumber(almacen.devolucionUnidades)}
+        {isEditing ? <Input type="number" inputMode="decimal" defaultValue={almacen.devolucionUnidades ?? ''} className="w-20 ml-auto" /> : formatNumber(almacen.devolucionUnidades)}
       </TableCell>
       <TableCell className="text-right">
-        {isEditing ? <Input type="number" defaultValue={almacen.entradas} className="w-20 ml-auto" /> : formatNumber(almacen.entradas)}
+        {isEditing ? <Input type="number" inputMode="decimal" defaultValue={almacen.entradas} className="w-20 ml-auto" /> : formatNumber(almacen.entradas)}
       </TableCell>
       <TableCell className="text-right">
-        {isEditing ? <Input type="number" defaultValue={almacen.salidas} className="w-20 ml-auto" /> : formatNumber(almacen.salidas)}
+        {isEditing ? <Input type="number" inputMode="decimal" defaultValue={almacen.salidas} className="w-20 ml-auto" /> : formatNumber(almacen.salidas)}
       </TableCell>
     </TableRow>
   );

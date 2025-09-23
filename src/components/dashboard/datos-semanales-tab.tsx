@@ -62,7 +62,7 @@ const FilaModulo = ({ icon, label, value, isEditing, id, onInputChange, unit }: 
         </div>
          {isEditing && id && onInputChange ? 
             <div className="flex items-center gap-1">
-                <Input type="number" defaultValue={value} className="font-bold text-right w-20" id={id} onChange={(e) => onInputChange(id, e.target.value)} />
+                <Input type="number" inputMode="decimal" defaultValue={value} className="font-bold text-right w-20" id={id} onChange={(e) => onInputChange(id, e.target.value)} />
                 <span className="text-sm text-muted-foreground">{unit}</span>
             </div>
             : <strong className="font-bold text-right">{unit === '%' ? formatPercentage(value) : formatNumber(value)}</strong>

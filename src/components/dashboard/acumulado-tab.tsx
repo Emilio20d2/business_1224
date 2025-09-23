@@ -102,9 +102,9 @@ const AcumuladoCard = ({ title, data, isEditing, idPrefix, onInputChange }: { ti
 
                  {isEditing ? (
                   <>
-                    <Input type="number" defaultValue={item.totalEuros} className="w-full text-right" id={`${idPrefix}-desglose-${index}-euros`} onChange={(e) => handleChange(index, 'totalEuros', e.target.value)} />
-                    <Input type="number" step="0.1" defaultValue={item.varPorc} className="w-full text-right" id={`${idPrefix}-desglose-${index}-var`} onChange={(e) => handleChange(index, 'varPorc', e.target.value)} />
-                    <Input type="number" step="0.1" defaultValue={item.pesoPorc} className="w-full text-right" id={`${idPrefix}-desglose-${index}-peso`} onChange={(e) => handleChange(index, 'pesoPorc', e.target.value)} />
+                    <Input type="number" inputMode="decimal" defaultValue={item.totalEuros} className="w-full text-right" id={`${idPrefix}-desglose-${index}-euros`} onChange={(e) => handleChange(index, 'totalEuros', e.target.value)} />
+                    <Input type="number" inputMode="decimal" step="0.1" defaultValue={item.varPorc} className="w-full text-right" id={`${idPrefix}-desglose-${index}-var`} onChange={(e) => handleChange(index, 'varPorc', e.target.value)} />
+                    <Input type="number" inputMode="decimal" step="0.1" defaultValue={item.pesoPorc} className="w-full text-right" id={`${idPrefix}-desglose-${index}-peso`} onChange={(e) => handleChange(index, 'pesoPorc', e.target.value)} />
                   </>
                  ) : (
                   <>
@@ -131,5 +131,3 @@ export function AcumuladoTab({ data, isEditing, onInputChange }: AcumuladoTabPro
     </div>
   );
 }
-
-    

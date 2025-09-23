@@ -126,6 +126,7 @@ export function DatoSimple({ label, value, isEditing, valueId, className, icon, 
                  <div className="flex items-center justify-center gap-1">
                     <Input 
                       type="number"
+                      inputMode="decimal" 
                       step="any" 
                       defaultValue={typeof rawValue === 'number' ? rawValue : ''} 
                       className="w-24 h-8 self-center text-center" 
