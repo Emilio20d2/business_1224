@@ -208,10 +208,10 @@ export default function DashboardPage() {
     const reportRef = doc(db, "informes", data.periodo.toLowerCase().replace(' ', '-'));
 
     try {
-        // Create a temporary updated data object to work with
+        // Create a deep copy to mutate safely
         const updatedData = JSON.parse(JSON.stringify(data));
 
-        // 1. Update the list itself in the local state
+        // 1. Update the list in the local state copy
         updatedData.listas[listToEdit] = newList;
 
         // 2. Determine which data table to synchronize
@@ -229,18 +229,16 @@ export default function DashboardPage() {
         }
 
         if (dataKey) {
-            // Get the old table data to preserve existing values
             const oldTableData: any[] = data.ventasMan[dataKey] || [];
             const oldDataMap = new Map(oldTableData.map(item => [item.nombre, item]));
 
-            // Build the new table data based on the new list
+            // Rebuild the table data from the new list
             const newTableData = newList.map(itemName => {
                 const existingItem = oldDataMap.get(itemName);
                 if (existingItem) {
-                    // If item already exists, keep its data
-                    return existingItem;
+                    return existingItem; // Keep existing data
                 } else {
-                    // If it's a new item, create a new entry with default values
+                    // Create new item with defaults
                     return {
                         nombre: itemName,
                         pesoPorc: 0,
@@ -250,12 +248,10 @@ export default function DashboardPage() {
                     };
                 }
             });
-            
-            // Replace the old table data with the newly synchronized one
             updatedData.ventasMan[dataKey] = newTableData;
         }
 
-        // 3. Update the local state to reflect the changes immediately in the UI
+        // 3. Update the component's state to reflect changes in the UI immediately
         setData(updatedData);
 
         // 4. Save both the configuration list and the updated report data to Firestore
@@ -266,7 +262,7 @@ export default function DashboardPage() {
 
         toast({
           title: "Lista y Datos Guardados",
-          description: `La lista de ${listToEdit} y los datos del informe se han sincronizado y guardado.`
+          description: `La lista de ${listToEdit} y los datos del informe se han sincronizado y guardado en la base de datos.`
         });
 
     } catch (error) {
@@ -277,8 +273,8 @@ export default function DashboardPage() {
             description: "No se pudo guardar la lista y sincronizar los datos. Inténtalo de nuevo.",
         });
     } finally {
-        setListToEdit(null);
         setIsListDialogOpen(false);
+        setListToEdit(null);
     }
   };
 
