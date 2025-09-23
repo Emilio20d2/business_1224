@@ -15,7 +15,7 @@ export function KpiCard({ title, icon, children, className }: KpiCardProps) {
       <h3 className="flex items-center gap-3 text-base font-semibold leading-none tracking-tight text-card-foreground/80 -m-4 mb-0 border-b p-3">
         {icon} {title}
       </h3>
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 h-full">
         {children}
       </div>
     </div>
@@ -152,13 +152,13 @@ export function DatoSimple({ label, value, isEditing, valueId, className, icon, 
     }
 
     return (
-        <div className={cn("flex items-center text-md", alignmentClasses[align], className)}>
+        <div className={cn("flex items-center text-md w-full", alignmentClasses[align], className)}>
             <div className={cn("flex flex-col gap-1 w-full")}>
               <span className="flex items-center gap-2 text-muted-foreground justify-center text-sm font-normal">
                 {icon}
                 {label && label}
               </span>
-              <div className="text-center">{renderValue()}</div>
+              <div className="text-center flex justify-center">{renderValue()}</div>
             </div>
         </div>
     );
