@@ -36,6 +36,7 @@ import { useToast } from '@/hooks/use-toast';
 import { AuthContext } from '@/context/auth-context';
 import { getInitialDataForWeek, getInitialLists } from '@/lib/data';
 import { useRouter } from 'next/navigation';
+import { OperacionesSubTab } from '@/components/dashboard/operaciones-sub-tab';
 
 
 type EditableList = 'comprador' | 'zonaComercial' | 'agrupacionComercial';
@@ -397,8 +398,24 @@ export default function DashboardPage() {
           BUSSINES MAN
         </h1>
         <div className="flex items-center gap-4">
+           <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="w-[220px]">
+                      {tabLabels[activeTab]}
+                      <ChevronDown className="ml-2 h-4 w-4" />
+                  </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start">
+                  <DropdownMenuRadioGroup value={activeTab} onValueChange={(value) => setActiveTab(value as TabValue)}>
+                      {Object.entries(tabLabels).map(([value, label]) => (
+                          <DropdownMenuRadioItem key={value} value={value}>
+                              {label}
+                          </DropdownMenuRadioItem>
+                      ))}
+                  </DropdownMenuRadioGroup>
+              </DropdownMenuContent>
+          </DropdownMenu>
           <div className="flex items-center gap-2">
-            <label htmlFor="semana-select" className="text-sm font-medium text-muted-foreground">Informe:</label>
              <Select value="previous-week">
               <SelectTrigger id="semana-select" className="w-[220px]">
                 <SelectValue />
@@ -456,35 +473,16 @@ export default function DashboardPage() {
       
       <main>
          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as TabValue)}>
-             <div className="mb-4">
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="outline" className="w-full md:w-auto">
-                            {tabLabels[activeTab]}
-                            <ChevronDown className="ml-2 h-4 w-4" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start">
-                        <DropdownMenuRadioGroup value={activeTab} onValueChange={(value) => setActiveTab(value as TabValue)}>
-                            {Object.entries(tabLabels).map(([value, label]) => (
-                                <DropdownMenuRadioItem key={value} value={value}>
-                                    {label}
-                                </DropdownMenuRadioItem>
-                            ))}
-                        </DropdownMenuRadioGroup>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            </div>
-          <TabsContent value="datosSemanales">
+          <TabsContent value="datosSemanales" className="mt-0">
             <DatosSemanalesTab data={data} isEditing={isEditing} onInputChange={handleInputChange} />
           </TabsContent>
-           <TabsContent value="aqneSemanal">
+           <TabsContent value="aqneSemanal" className="mt-0">
              <AqneSemanalTab data={data} isEditing={isEditing} onInputChange={handleInputChange} />
           </TabsContent>
-           <TabsContent value="acumulado">
+           <TabsContent value="acumulado" className="mt-0">
              <AcumuladoTab data={data.acumulado} isEditing={isEditing} onInputChange={handleInputChange} />
           </TabsContent>
-           <TabsContent value="ventasMan">
+           <TabsContent value="ventasMan" className="mt-0">
             <VentasManTab 
               data={data}
               isEditing={isEditing} 
@@ -492,7 +490,7 @@ export default function DashboardPage() {
               onImageChange={handleImageChange}
             />
           </TabsContent>
-          <TabsContent value="focusSemanal">
+          <TabsContent value="focusSemanal" className="mt-0">
             <FocusSemanalTab text={data.focusSemanal} isEditing={isEditing} onInputChange={handleInputChange} />
           </TabsContent>
         </Tabs>
