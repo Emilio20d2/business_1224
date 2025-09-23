@@ -217,10 +217,17 @@ export default function VentasManPage() {
                     ]);
 
                     let pageData: PageData;
+                    let listsData: WeeklyData['listas'];
+                    
+                    if (listsSnap.exists()) {
+                        listsData = listsSnap.data() as WeeklyData['listas'];
+                    } else {
+                        listsData = getInitialLists();
+                        await setDoc(listsRef, listsData);
+                    }
 
-                    if (reportSnap.exists() && listsSnap.exists()) {
+                    if (reportSnap.exists()) {
                         const reportData = reportSnap.data() as WeeklyData;
-                        const listsData = listsSnap.data() as WeeklyData['listas'];
                         pageData = {
                             periodo: reportData.periodo,
                             listas: listsData,
@@ -228,15 +235,12 @@ export default function VentasManPage() {
                         };
                     } else {
                         // Create initial data if it doesn't exist
-                        const initialLists = getInitialLists();
-                        const initialReport = getInitialDataForWeek(week, initialLists);
-                        
-                        await setDoc(listsRef, initialLists);
+                        const initialReport = getInitialDataForWeek(week, listsData);
                         await setDoc(reportRef, initialReport);
 
                         pageData = {
                             periodo: initialReport.periodo,
-                            listas: initialLists,
+                            listas: listsData,
                             ventasMan: initialReport.ventasMan,
                         };
                     }
@@ -315,17 +319,17 @@ export default function VentasManPage() {
         const reportRef = doc(db, "informes", data.periodo.toLowerCase().replace(' ', '-'));
         
         try {
-            // Create a deep copy to avoid direct state mutation
+            // 1. Create a deep copy to avoid direct state mutation
             const updatedData = JSON.parse(JSON.stringify(data));
 
-            // 1. Update the list in our local state copy
+            // 2. Update the list in the local state copy
             updatedData.listas[listToEdit] = newList;
 
-            // 2. Sync the corresponding data table
+            // 3. Sync the corresponding data table
             const dataKey = listToEdit as TableDataKey;
             const oldTableData: TableItem[] = updatedData.ventasMan[dataKey] || [];
             const oldDataMap = new Map(oldTableData.map(item => [item.nombre, item]));
-
+            
             const newTableData = newList.map(itemName => {
                 const existingItem = oldDataMap.get(itemName);
                 if (existingItem) {
@@ -342,10 +346,10 @@ export default function VentasManPage() {
             });
             updatedData.ventasMan[dataKey] = newTableData;
 
-            // 3. Set the new state to update the UI
+            // 4. Set the new state to update the UI
             setData(updatedData);
 
-            // 4. Save both the updated lists and the synced report data to Firestore
+            // 5. Save both the updated lists and the synced report data to Firestore
             await Promise.all([
                 setDoc(listsRef, updatedData.listas),
                 setDoc(reportRef, { ventasMan: updatedData.ventasMan }, { merge: true })
@@ -536,3 +540,5 @@ export default function VentasManPage() {
         </div>
     );
 }
+
+    

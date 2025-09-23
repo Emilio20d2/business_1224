@@ -90,11 +90,11 @@ export default function DashboardPage() {
                 
                 if (reportSnap.exists()) {
                     const fullReport = reportSnap.data() as WeeklyData;
-                    const { ventasMan, ...mainReportData } = fullReport;
+                    const { ventasMan, listas, ...mainReportData } = fullReport;
                     reportData = mainReportData;
                 } else {
                     const initialData = getInitialDataForWeek(week, listData);
-                    const { ventasMan, ...mainReportData } = initialData;
+                    const { ventasMan, listas, ...mainReportData } = initialData;
                     reportData = mainReportData;
                     await setDoc(reportRef, initialData);
                 }
@@ -302,3 +302,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    
