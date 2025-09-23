@@ -1,7 +1,4 @@
 import React from 'react';
-import type { WeeklyData } from "@/lib/data";
-import { formatCurrency, formatPercentage } from "@/lib/utils";
-import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
@@ -33,3 +30,5 @@ export function VentasManTab({ }: VentasManTabProps) {
     </Card>
   );
 }
+
+    
