@@ -274,7 +274,7 @@ const CompradorTab = ({ data, isEditing, onInputChange, onImageChange }: { data:
 export function VentasManTab({ data, isEditing, onInputChange, onImageChange }: VentasManTabProps) {
     const [activeTab, setActiveTab] = React.useState<string>('comprador');
     
-    if (!data || !data.ventasMan) return <p>Cargando datos de Ventas Man...</p>;
+    if (!data || !data.ventasMan || !data.listas) return <p>Cargando datos de Ventas Man...</p>;
 
     const ventasManData = data.ventasMan;
 

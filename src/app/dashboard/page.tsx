@@ -147,6 +147,9 @@ export default function DashboardPage() {
         if (reportSnap.exists()) {
             reportData = reportSnap.data() as WeeklyData;
             
+            // CRITICAL FIX: Ensure report data always has the latest lists
+            reportData.listas = listData;
+
             // Step 3: Synchronize the report data with the latest lists
             let needsSave = false;
             const sections = [
@@ -338,7 +341,7 @@ export default function DashboardPage() {
     }
 };
 
-const handleImageChange = async (path: string, file: File, onUploadComplete: (success: boolean) => void) => {
+const handleImageChange = (path: string, file: File, onUploadComplete: (success: boolean) => void) => {
     if (!data) {
         onUploadComplete(false);
         return;
@@ -347,22 +350,19 @@ const handleImageChange = async (path: string, file: File, onUploadComplete: (su
     const storageRef = ref(storage, `informes/${data.periodo.toLowerCase().replace(' ', '-')}/${file.name}-${Date.now()}`);
 
     try {
-        const snapshot = await uploadBytes(storageRef, file);
-        const downloadURL = await getDownloadURL(snapshot.ref);
-        
-        handleInputChange(path, downloadURL);
-        
-        toast({
-            title: "Imagen cargada",
-            description: "La imagen está lista. Haz clic en 'Guardar' para confirmar todos los cambios.",
+        uploadBytes(storageRef, file).then(snapshot => {
+            getDownloadURL(snapshot.ref).then(downloadURL => {
+                handleInputChange(path, downloadURL);
+                onUploadComplete(true);
+                toast({
+                    title: "Imagen cargada",
+                    description: "La imagen está lista. Haz clic en 'Guardar' para confirmar todos los cambios.",
+                });
+                if (!isEditing) {
+                    setIsEditing(true);
+                }
+            });
         });
-        
-        if (!isEditing) {
-            setIsEditing(true);
-        }
-
-        onUploadComplete(true);
-
     } catch (error) {
         console.error("Error uploading image: ", error);
         toast({
@@ -547,7 +547,7 @@ const handleImageChange = async (path: string, file: File, onUploadComplete: (su
         </Tabs>
       </main>
       
-      {listToEdit && (
+      {listToEdit && data.listas && (
         <EditListDialog
           isOpen={isListDialogOpen}
           onClose={() => {
