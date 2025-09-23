@@ -561,7 +561,11 @@ export default function DashboardPage() {
          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as TabValue)}>
           <TabsContent value="datosSemanales" className="mt-0">
             <DatosSemanalesTab 
-              data={data}
+              ventas={data.ventas}
+              rendimientoTienda={data.rendimientoTienda}
+              operaciones={data.operaciones}
+              perdidas={data.perdidas}
+              datosPorSeccion={data.datosPorSeccion}
               isEditing={isEditing} 
               onInputChange={handleInputChange} 
             />

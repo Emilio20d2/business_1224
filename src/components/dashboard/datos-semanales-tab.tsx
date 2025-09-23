@@ -27,7 +27,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
 type DatosSemanalesTabProps = {
-  data: WeeklyData;
+  ventas: WeeklyData['ventas'];
+  rendimientoTienda: WeeklyData['rendimientoTienda'];
+  operaciones: WeeklyData['operaciones'];
+  perdidas: WeeklyData['perdidas'];
+  datosPorSeccion: WeeklyData['datosPorSeccion'];
   isEditing: boolean;
   onInputChange: (path: string, value: string | number) => void;
 };
@@ -89,7 +93,7 @@ const SectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionNa
                     </div>
                      {isEditing ? (
                         <div className="flex items-center gap-1">
-                            <Input type="number" inputMode="decimal" defaultValue={data.pesoPorc} onChange={(e) => handlePesoChange(e.target.value)} className="w-16 h-8 text-right" />
+                            <Input type="number" inputMode="decimal" value={data.pesoPorc} onChange={(e) => handlePesoChange(e.target.value)} className="w-16 h-8 text-right" readOnly/>
                             <span className="text-sm font-bold text-muted-foreground">%</span>
                         </div>
                     ) : (
@@ -155,10 +159,9 @@ const SectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionNa
 };
 
 
-export function DatosSemanalesTab({ data, isEditing, onInputChange }: DatosSemanalesTabProps) {
-  const { ventas, rendimientoTienda, operaciones, perdidas, datosPorSeccion } = data;
+export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perdidas, datosPorSeccion, isEditing, onInputChange }: DatosSemanalesTabProps) {
   
-  if (!data) return <p>Cargando datos...</p>;
+  if (!ventas || !rendimientoTienda || !operaciones || !perdidas || !datosPorSeccion) return <p>Cargando datos...</p>;
   
   return (
     <div className="space-y-4">
