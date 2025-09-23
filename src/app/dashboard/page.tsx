@@ -213,7 +213,7 @@ export default function DashboardPage() {
         const finalValue = isNaN(numericValue) ? (typeof current[finalKey] === 'number' ? 0 : value) : numericValue;
         current[finalKey] = finalValue;
 
-        // Auto-calculate section weights
+        // Auto-calculate section weights for datosPorSeccion
         if (keys[0] === 'datosPorSeccion' && finalKey === 'totalEuros') {
             const sections = updatedData.datosPorSeccion;
             const totalVentas = (sections.woman.metricasPrincipales.totalEuros || 0) +
@@ -232,6 +232,25 @@ export default function DashboardPage() {
                 sections.nino.pesoPorc = 0;
             }
         }
+        
+        // Auto-calculate section weights for aqneSemanal
+        if (keys[0] === 'aqneSemanal' && finalKey === 'totalEuros') {
+            const sections = updatedData.aqneSemanal;
+            const totalVentasAqne = (sections.woman.metricasPrincipales.totalEuros || 0) +
+                                    (sections.man.metricasPrincipales.totalEuros || 0) +
+                                    (sections.nino.metricasPrincipales.totalEuros || 0);
+
+            if (totalVentasAqne > 0) {
+                sections.woman.pesoPorc = parseFloat(((sections.woman.metricasPrincipales.totalEuros / totalVentasAqne) * 100).toFixed(2));
+                sections.man.pesoPorc = parseFloat(((sections.man.metricasPrincipales.totalEuros / totalVentasAqne) * 100).toFixed(2));
+                sections.nino.pesoPorc = parseFloat(((sections.nino.metricasPrincipales.totalEuros / totalVentasAqne) * 100).toFixed(2));
+            } else {
+                sections.woman.pesoPorc = 0;
+                sections.man.pesoPorc = 0;
+                sections.nino.pesoPorc = 0;
+            }
+        }
+
 
         // Auto-calculate total for ventasDiariasAQNE
         if (keys[0] === 'ventasDiariasAQNE') {
