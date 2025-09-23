@@ -1,13 +1,6 @@
 "use client"
 import React from 'react';
 import type { WeeklyData } from "@/lib/data";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from "@/components/ui/select";
 import { Input } from '@/components/ui/input';
 import {
   Table,
@@ -26,16 +19,15 @@ import { ImagePlus, Upload } from 'lucide-react';
 
 
 type VentasManData = WeeklyData['ventasMan'];
-type ListasData = WeeklyData['listas'];
 type TableDataKey = keyof VentasManData;
 type TableData = VentasManData[TableDataKey];
 type TableItem = TableData[number];
 
 type VentasManTabProps = {
   data: VentasManData;
-  listas: ListasData;
   isEditing: boolean;
   onInputChange: (path: string, value: any) => void;
+  onImageChange: (path: string, dataUrl: string) => void;
 };
 
 
@@ -111,16 +103,16 @@ const DataTable = ({
     );
 };
 
-const ImageImportCard = ({ selectedRow, isEditing, onImageChange }: { selectedRow: TableItem | null, isEditing: boolean, onImageChange: (dataUrl: string) => void }) => {
+const ImageImportCard = ({ selectedRow, isEditing, onImageChange, imagePath }: { selectedRow: TableItem | null, isEditing: boolean, onImageChange: (path: string, dataUrl: string) => void, imagePath: string | null }) => {
     const displayImage = selectedRow?.imageUrl;
     const fileInputRef = React.useRef<HTMLInputElement>(null);
 
     const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
-        if (file) {
+        if (file && imagePath) {
             const reader = new FileReader();
             reader.onload = (e) => {
-                onImageChange(e.target?.result as string);
+                onImageChange(imagePath, e.target?.result as string);
             };
             reader.readAsDataURL(file);
         }
@@ -165,7 +157,8 @@ const ImageImportCard = ({ selectedRow, isEditing, onImageChange }: { selectedRo
 };
 
 
-export function VentasManTab({ data, listas, isEditing, onInputChange }: VentasManTabProps) {
+export function VentasManTab({ data, isEditing, onInputChange, onImageChange }: VentasManTabProps) {
+    const [activeTab, setActiveTab] = React.useState<TableDataKey>('pesoComprador');
     const [selectedIndexes, setSelectedIndexes] = React.useState<{ [key in TableDataKey]?: number | null }>({
         pesoComprador: 0,
         zonaComercial: 0,
@@ -178,23 +171,31 @@ export function VentasManTab({ data, listas, isEditing, onInputChange }: VentasM
         setSelectedIndexes(prev => ({ ...prev, [tab]: index }));
     };
 
-    const handleImageChange = (tab: TableDataKey) => (dataUrl: string) => {
+    const getSelectedRow = (tab: TableDataKey) => {
         const index = selectedIndexes[tab];
-        if (index !== null && index !== undefined) {
-          const path = `ventasMan.${tab}.${index}.imageUrl`;
-          onInputChange(path, dataUrl);
+        if (data[tab] && index != null) {
+            return data[tab][index];
         }
-    };
-  
+        return null;
+    }
+
+    const getImagePath = (tab: TableDataKey) => {
+        const index = selectedIndexes[tab];
+        if (index != null) {
+            return `ventasMan.${tab}.${index}.imageUrl`;
+        }
+        return null;
+    }
+
     return (
-        <Tabs defaultValue="comprador" className="w-full">
+        <Tabs defaultValue="comprador" className="w-full" onValueChange={(value) => setActiveTab(value as TableDataKey)}>
             <TabsList className="grid w-full grid-cols-3 mx-auto max-w-md mb-4">
-                <TabsTrigger value="comprador">Comprador</TabsTrigger>
+                <TabsTrigger value="pesoComprador">Comprador</TabsTrigger>
                 <TabsTrigger value="zonaComercial">Zona Comprador</TabsTrigger>
                 <TabsTrigger value="agrupacionComercial">Agrupación Comercial</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="comprador">
+            <TabsContent value="pesoComprador">
                 <div className="grid gap-4 items-start grid-cols-1 md:grid-cols-2">
                     <DataTable
                         dataKey="pesoComprador"
@@ -206,9 +207,10 @@ export function VentasManTab({ data, listas, isEditing, onInputChange }: VentasM
                         selectedIndex={selectedIndexes.pesoComprador ?? null}
                     />
                     <ImageImportCard
-                        selectedRow={(data.pesoComprador && selectedIndexes.pesoComprador != null) ? data.pesoComprador[selectedIndexes.pesoComprador] : null}
+                        selectedRow={getSelectedRow('pesoComprador')}
                         isEditing={isEditing}
-                        onImageChange={handleImageChange('pesoComprador')}
+                        onImageChange={onImageChange}
+                        imagePath={getImagePath('pesoComprador')}
                     />
                 </div>
             </TabsContent>

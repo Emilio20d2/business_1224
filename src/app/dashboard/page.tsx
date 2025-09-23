@@ -1,7 +1,7 @@
 "use client"
 import React, { useState, useContext, useEffect } from 'react';
 import type { WeeklyData } from "@/lib/data";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from '@/lib/firebase';
 import { 
   Select, 
@@ -121,7 +121,7 @@ export default function DashboardPage() {
   const previousWeek = getPreviousWeekRange();
   const weekLabel = `${previousWeek.start} - ${previousWeek.end}`;
 
- const handleInputChange = (path: string, value: string | number | object) => {
+ const handleInputChange = (path: string, value: string | number) => {
     if (!data) return;
 
     setData(prevData => {
@@ -141,14 +141,10 @@ export default function DashboardPage() {
         }
         
         const finalKey = keys[keys.length - 1];
-        
-        if (typeof value === 'object' && value !== null) {
-          current[finalKey] = value;
-        } else {
-          const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
-          const finalValue = isNaN(numericValue) ? (typeof current[finalKey] === 'number' ? 0 : value) : numericValue;
-          current[finalKey] = finalValue;
-        }
+
+        const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
+        const finalValue = isNaN(numericValue) ? (typeof current[finalKey] === 'number' ? 0 : value) : numericValue;
+        current[finalKey] = finalValue;
 
 
         // Auto-calculate total for ventasDiariasAQNE
@@ -257,6 +253,43 @@ export default function DashboardPage() {
     } finally {
         setIsListDialogOpen(false);
         setListToEdit(null);
+    }
+};
+
+ const handleImageChange = async (path: string, dataUrl: string) => {
+    if (!data) return;
+
+    // 1. Update local state immediately for snappy UI
+    setData(prevData => {
+        if (!prevData) return null;
+        const updatedData = JSON.parse(JSON.stringify(prevData));
+        const keys = path.split('.');
+        let current: any = updatedData;
+        for (let i = 0; i < keys.length - 1; i++) {
+            current = current[keys[i]];
+        }
+        current[keys[keys.length - 1]] = dataUrl;
+        return updatedData;
+    });
+
+    // 2. Update Firestore document
+    try {
+        const reportRef = doc(db, "informes", data.periodo.toLowerCase().replace(' ', '-'));
+        await updateDoc(reportRef, {
+            [path]: dataUrl
+        });
+        toast({
+            title: "Imagen guardada",
+            description: "La nueva imagen se ha guardado en la base de datos.",
+        });
+    } catch (error) {
+        console.error("Error updating image in Firestore: ", error);
+        toast({
+            variant: "destructive",
+            title: "Error al guardar imagen",
+            description: "No se pudo guardar la imagen. Inténtalo de nuevo.",
+        });
+        // TODO: Optionally revert local state if Firestore update fails
     }
 };
 
@@ -398,9 +431,9 @@ export default function DashboardPage() {
            <TabsContent value="ventasMan">
             <VentasManTab 
               data={data.ventasMan} 
-              listas={data.listas} 
               isEditing={isEditing} 
               onInputChange={handleInputChange}
+              onImageChange={handleImageChange}
             />
           </TabsContent>
           <TabsContent value="focusSemanal">
