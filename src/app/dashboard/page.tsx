@@ -82,7 +82,7 @@ export default function DashboardPage() {
 
                 const [reportSnap, listsSnap] = await Promise.all([
                     getDoc(reportRef),
-                    getDoc(listsSnap)
+                    getDoc(listsRef)
                 ]);
 
                 let reportData: WeeklyData;
