@@ -139,8 +139,7 @@ export function OperacionesSubTab({ data, isEditing, onInputChange }: Operacione
         </KpiCard>
         
         <KpiCard title="Reposición" icon={<Package className="h-5 w-5 text-primary" />}>
-            <div className="grid grid-cols-2 gap-4">
-                <DatoSimple icon={<Package />} label="SINT" value={isEditing ? data.operaciones.sint : formatNumber(data.operaciones.sint)} isEditing={isEditing} valueId="operaciones.sint" align="center" onInputChange={onInputChange} />
+            <div className="grid grid-cols-1 gap-4">
                 <DatoSimple icon={<RefreshCw />} label="Repo" value={isEditing ? data.operaciones.repoPorc : formatPercentage(data.operaciones.repoPorc)} isEditing={isEditing} valueId="operaciones.repoPorc" align="center" onInputChange={onInputChange} unit="%" />
             </div>
         </KpiCard>
