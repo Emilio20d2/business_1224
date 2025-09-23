@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatCurrency, formatPercentage } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -44,21 +44,19 @@ const TrendIndicator = ({ value }: { value: number }) => {
 };
 
 const DataTable = ({ 
+    title,
     data, 
     headers, 
     isEditing, 
     dataKey, 
     onInputChange,
-    onRowSelect,
-    selectedIndex,
 }: { 
+    title?: string,
     data: TableData, 
     headers: string[], 
     isEditing: boolean, 
     dataKey: TableDataKey, 
     onInputChange: VentasManTabProps['onInputChange'],
-    onRowSelect: (index: number) => void,
-    selectedIndex: number | null,
 }) => {
     if (!data) {
         return <p className="text-center text-muted-foreground mt-8">No hay datos disponibles.</p>;
@@ -71,6 +69,11 @@ const DataTable = ({
 
     return (
         <Card>
+            {title && (
+                <CardHeader>
+                    <CardTitle>{title}</CardTitle>
+                </CardHeader>
+            )}
             <Table>
                 <TableHeader>
                     <TableRow className="bg-muted/50 hover:bg-muted/50">
@@ -83,8 +86,6 @@ const DataTable = ({
                     {data.map((item, index) => (
                         <TableRow 
                             key={item.nombre + index}
-                            onClick={() => onRowSelect(index)}
-                            className={cn(selectedIndex === index && 'bg-muted/50')}
                         >
                             <TableCell>
                                 {item.nombre}
@@ -159,92 +160,103 @@ const ImageImportCard = ({ selectedRow, isEditing, onImageChange, imagePath }: {
     );
 };
 
-export function VentasManTab({ data, isEditing, onInputChange, onImageChange }: VentasManTabProps) {
-    const [activeTab, setActiveTab] = React.useState<string>('pesoComprador');
-    const [selectedIndexes, setSelectedIndexes] = React.useState<{ [key: string]: number | null }>({
-        pesoComprador: 0,
-        zonaComercial: 0,
-        agrupacionComercial: 0,
-    });
-    
-    if (!data) return <p>Cargando datos de Ventas Man...</p>;
+const CompradorTab = ({ ventasManData, isEditing, onInputChange, onImageChange }: { ventasManData: VentasManData, isEditing: boolean, onInputChange: VentasManTabProps['onInputChange'], onImageChange: VentasManTabProps['onImageChange'] }) => {
+    const [selectedIndex, setSelectedIndex] = React.useState<number | null>(0);
 
-    const handleRowSelect = (tab: TableDataKey, index: number) => {
-        setSelectedIndexes(prev => ({ ...prev, [tab]: index }));
+    const handleRowSelect = (index: number) => {
+        setSelectedIndex(index);
     };
 
-    const getSelectedRow = (tab: TableDataKey) => {
-        const index = selectedIndexes[tab];
-        if (data.ventasMan[tab] && index != null) {
-            return data.ventasMan[tab][index];
-        }
-        return null;
-    }
+    const selectedRow = selectedIndex !== null ? ventasManData.pesoComprador[selectedIndex] : null;
+    const imagePath = selectedIndex !== null ? `ventasMan.pesoComprador.${selectedIndex}.imageUrl` : null;
 
-    const getImagePath = (tab: TableDataKey) => {
-        const index = selectedIndexes[tab];
-        if (index != null) {
-            return `ventasMan.${tab}.${index}.imageUrl`;
-        }
-        return null;
-    }
+    return (
+         <div className="grid gap-4 items-start grid-cols-1 md:grid-cols-2">
+            <Card>
+                <Table>
+                    <TableHeader>
+                        <TableRow className="bg-muted/50 hover:bg-muted/50">
+                            {['COMPRADOR', 'PESO %', '€', '%'].map((header, i) => (
+                                <TableHead key={i} className={cn('uppercase font-bold', i === 0 ? '' : 'text-right')}>{header}</TableHead>
+                            ))}
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {ventasManData.pesoComprador.map((item, index) => (
+                            <TableRow 
+                                key={item.nombre + index}
+                                onClick={() => handleRowSelect(index)}
+                                className={cn(selectedIndex === index && 'bg-muted/50')}
+                            >
+                                <TableCell>
+                                    {item.nombre}
+                                </TableCell>
+                                <TableCell className="text-right font-medium">
+                                    {isEditing ? <Input type="number" inputMode="decimal" className="w-20 ml-auto text-right" defaultValue={item.pesoPorc} onChange={(e) => onInputChange(`ventasMan.pesoComprador.${index}.pesoPorc`, e.target.value)} /> : formatPercentage(item.pesoPorc)}
+                                </TableCell>
+                                <TableCell className="text-right font-medium">
+                                    {isEditing ? <Input type="number" inputMode="decimal" className="w-24 ml-auto text-right" defaultValue={item.totalEuros} onChange={(e) => onInputChange(`ventasMan.pesoComprador.${index}.totalEuros`, e.target.value)} /> : formatCurrency(item.totalEuros)}
+                                </TableCell>
+                                <TableCell className="text-right">
+                                    {isEditing ? <Input type="number" inputMode="decimal" className="w-20 ml-auto text-right" defaultValue={item.varPorc} onChange={(e) => onInputChange(`ventasMan.pesoComprador.${index}.varPorc`, e.target.value)} /> : <TrendIndicator value={item.varPorc} />}
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </Card>
+            <ImageImportCard
+                selectedRow={selectedRow}
+                isEditing={isEditing}
+                onImageChange={onImageChange}
+                imagePath={imagePath}
+            />
+        </div>
+    )
+}
+
+export function VentasManTab({ data, isEditing, onInputChange, onImageChange }: VentasManTabProps) {
+    const [activeTab, setActiveTab] = React.useState<string>('comprador');
+    
+    if (!data) return <p>Cargando datos de Ventas Man...</p>;
 
     const ventasManData = data.ventasMan;
 
     return (
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="mb-4">
-                <TabsTrigger value="pesoComprador">COMPRADOR</TabsTrigger>
-                <TabsTrigger value="zonaComercial">ZONA COMPRADOR</TabsTrigger>
-                <TabsTrigger value="agrupacionComercial">AGRUPACIÓN COMERCIAL</TabsTrigger>
+                <TabsTrigger value="comprador">COMPRADOR</TabsTrigger>
+                <TabsTrigger value="zonaYAgrupacion">ZONA Y AGRUPACIÓN</TabsTrigger>
                 <TabsTrigger value="operaciones">OPERACIONES</TabsTrigger>
                 <TabsTrigger value="focus">FOCUS</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="pesoComprador">
-                <div className="grid gap-4 items-start grid-cols-1 md:grid-cols-2">
-                    <DataTable
-                        dataKey="pesoComprador"
-                        headers={['COMPRADOR', 'PESO %', '€', '%']}
-                        data={ventasManData.pesoComprador}
-                        isEditing={isEditing}
-                        onInputChange={onInputChange}
-                        onRowSelect={(index) => handleRowSelect('pesoComprador', index)}
-                        selectedIndex={selectedIndexes.pesoComprador ?? null}
-                    />
-                    <ImageImportCard
-                        selectedRow={getSelectedRow('pesoComprador')}
-                        isEditing={isEditing}
-                        onImageChange={onImageChange}
-                        imagePath={getImagePath('pesoComprador')}
-                    />
-                </div>
+            <TabsContent value="comprador">
+                <CompradorTab 
+                    ventasManData={ventasManData}
+                    isEditing={isEditing}
+                    onInputChange={onInputChange}
+                    onImageChange={onImageChange}
+                />
             </TabsContent>
 
-            <TabsContent value="zonaComercial">
-                <div className="grid gap-4 items-start grid-cols-1">
+            <TabsContent value="zonaYAgrupacion">
+                <div className="grid gap-4 items-start grid-cols-1 md:grid-cols-2">
                     <DataTable
+                        title="Zona Comprador"
                         dataKey="zonaComercial"
                         headers={['ZONA COMPRADOR', 'PESO %', '€', '%']}
                         data={ventasManData.zonaComercial}
                         isEditing={isEditing}
                         onInputChange={onInputChange}
-                        onRowSelect={(index) => handleRowSelect('zonaComercial', index)}
-                        selectedIndex={selectedIndexes.zonaComercial ?? null}
                     />
-                </div>
-            </TabsContent>
-
-            <TabsContent value="agrupacionComercial">
-                <div className="grid gap-4 items-start grid-cols-1">
                     <DataTable
+                        title="Agrupación Comercial"
                         dataKey="agrupacionComercial"
                         headers={['Agrupación Comercial', 'PESO %', '€', '%']}
                         data={ventasManData.agrupacionComercial}
                         isEditing={isEditing}
                         onInputChange={onInputChange}
-                        onRowSelect={(index) => handleRowSelect('agrupacionComercial', index)}
-                        selectedIndex={selectedIndexes.agrupacionComercial ?? null}
                     />
                 </div>
             </TabsContent>
