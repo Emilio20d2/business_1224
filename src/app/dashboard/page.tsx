@@ -228,7 +228,7 @@ export default function DashboardPage() {
         current[finalKey] = finalValue;
 
         // Auto-calculate section weights for datosPorSeccion
-        if (keys[0] === 'datosPorSeccion' && finalKey === 'totalEuros') {
+        if (path.startsWith('datosPorSeccion') && finalKey === 'totalEuros') {
             const sections = updatedData.datosPorSeccion;
             const totalVentas = (sections.woman.metricasPrincipales.totalEuros || 0) +
                                 (sections.man.metricasPrincipales.totalEuros || 0) +
@@ -248,7 +248,7 @@ export default function DashboardPage() {
         }
         
         // Auto-calculate section weights for aqneSemanal
-        if (keys[0] === 'aqneSemanal' && finalKey === 'totalEuros') {
+        if (path.startsWith('aqneSemanal') && finalKey === 'totalEuros') {
             const sections = updatedData.aqneSemanal;
             const totalVentasAqne = (sections.woman.metricasPrincipales.totalEuros || 0) +
                                     (sections.man.metricasPrincipales.totalEuros || 0) +
