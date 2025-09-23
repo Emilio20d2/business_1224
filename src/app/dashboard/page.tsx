@@ -170,6 +170,7 @@ export default function DashboardPage() {
 
                     (Object.keys(dataKeyMapping) as EditableList[]).forEach(key => {
                         const { ventasKey, tableKey } = dataKeyMapping[key];
+                        // @ts-ignore
                         const list = listData[key as keyof typeof listData];
                         // @ts-ignore
                         const tableData = reportData[ventasKey]?.[tableKey] || [];
@@ -186,12 +187,7 @@ export default function DashboardPage() {
                     });
                     
                     if(hasBeenUpdated) {
-                       await setDoc(reportRef, { 
-                           listas: reportData.listas,
-                           ventasMan: reportData.ventasMan,
-                           ventasWoman: reportData.ventasWoman,
-                           ventasNino: reportData.ventasNino
-                       }, { merge: true });
+                       await setDoc(reportRef, reportData, { merge: true });
                     }
                     reportData.listas = listData;
 
@@ -259,7 +255,7 @@ export default function DashboardPage() {
                 sections.nino.pesoPorc = 0;
             }
         }
-
+        
         // Auto-calculate section weights for aqneSemanal if a euros value changes
         if (path.startsWith('aqneSemanal') && finalKey === 'totalEuros') {
             const sections = updatedData.aqneSemanal;
@@ -347,12 +343,17 @@ export default function DashboardPage() {
   const handleSaveList = async (newList: string[]) => {
     if (!listToEdit || !data) return;
 
-    const listsRef = doc(db, "configuracion", "listas");
-    const reportRef = doc(db, "informes", data.periodo.toLowerCase().replace(' ', '-'));
-    
     try {
-        const updatedData = JSON.parse(JSON.stringify(data));
-        updatedData.listas[listToEdit] = newList;
+      // 1. Update lists in Firestore
+      const listsRef = doc(db, "configuracion", "listas");
+      await updateDoc(listsRef, { [listToEdit]: newList });
+
+      // 2. Update local state with the new list and synchronized tables
+      setData(prevData => {
+        if (!prevData) return null;
+
+        const updatedData = JSON.parse(JSON.stringify(prevData));
+        updatedData.listas[listToEdit!] = newList;
 
         const dataKeyMapping: Record<EditableList, {ventasKey: keyof WeeklyData, tableKey: 'pesoComprador' | 'zonaComercial' | 'agrupacionComercial'}> = {
             compradorMan: { ventasKey: 'ventasMan', tableKey: 'pesoComprador' },
@@ -365,38 +366,31 @@ export default function DashboardPage() {
             zonaComercialNino: { ventasKey: 'ventasNino', tableKey: 'zonaComercial' },
             agrupacionComercialNino: { ventasKey: 'ventasNino', tableKey: 'agrupacionComercial' },
         };
-        const { ventasKey, tableKey } = dataKeyMapping[listToEdit];
+        const { ventasKey, tableKey } = dataKeyMapping[listToEdit!];
         
-        if (!ventasKey || !tableKey) {
-            console.error(`No data key mapping found for ${listToEdit}`);
-            return;
-        }
-
-        // Lógica de sincronización al guardar la lista
         // @ts-ignore
-        const oldTableData = updatedData[ventasKey][tableKey] || [];
+        const oldTableData = updatedData[ventasKey]?.[tableKey] || [];
         const newTableData = synchronizeTableData(newList, oldTableData);
         // @ts-ignore
-        updatedData[ventasKey][tableKey] = newTableData;
+        if (updatedData[ventasKey]) {
+          // @ts-ignore
+          updatedData[ventasKey][tableKey] = newTableData;
+        }
 
-        setData(updatedData);
+        return updatedData;
+      });
 
-        await Promise.all([
-            updateDoc(listsRef, { [listToEdit]: newList }),
-            updateDoc(reportRef, { [`${ventasKey}.${tableKey}`]: newTableData })
-        ]);
-
-        toast({
-            title: "Lista y Datos Sincronizados",
-            description: `La lista de ${listToEdit} y los datos del informe se han guardado.`
-        });
+      toast({
+          title: "Lista Actualizada",
+          description: `La lista de ${listToEdit} se ha guardado. Los cambios se reflejarán en el informe la próxima vez que guarde.`
+      });
 
     } catch (error) {
-        console.error("Error saving list and synchronizing data:", error);
+        console.error("Error saving list:", error);
         toast({
             variant: "destructive",
-            title: "Error al sincronizar",
-            description: "No se pudo guardar la lista y sincronizar los datos.",
+            title: "Error al guardar la lista",
+            description: "No se pudo guardar la lista de configuración.",
         });
     } finally {
         setIsListDialogOpen(false);
@@ -432,8 +426,7 @@ export default function DashboardPage() {
 
     try {
         const reportRef = doc(db, "informes", updatedData.periodo.toLowerCase().replace(' ', '-'));
-        // We are updating the whole object to ensure consistency
-        await updateDoc(reportRef, updatedData);
+        await setDoc(reportRef, updatedData, { merge: true });
         
         toast({
             title: "Imagen guardada",
