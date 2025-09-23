@@ -18,7 +18,7 @@ import { AcumuladoTab } from "@/components/dashboard/acumulado-tab";
 import { FocusSemanalTab } from '@/components/dashboard/focus-semanal-tab';
 import { VentasManTab } from '@/components/dashboard/ventas-man-tab';
 import { Button } from '@/components/ui/button';
-import { Settings, LogOut, Loader2, ArrowRight } from 'lucide-react';
+import { Settings, LogOut, Loader2 } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,6 +28,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { EditListDialog } from '@/components/dashboard/edit-list-dialog';
 import { startOfWeek, endOfWeek, subWeeks, format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
@@ -35,6 +36,8 @@ import { AuthContext } from '@/context/auth-context';
 import { getInitialDataForWeek, getInitialLists } from '@/lib/data';
 import { useRouter } from 'next/navigation';
 
+
+type EditableList = 'comprador' | 'zonaComercial' | 'agrupacionComercial';
 
 const getPreviousWeekRange = () => {
     const today = new Date();
@@ -51,11 +54,14 @@ export default function DashboardPage() {
   const { user, loading: authLoading, logout } = useContext(AuthContext);
   const router = useRouter();
 
-  const [data, setData] = useState<Omit<WeeklyData, 'ventasMan'> | null>(null);
+  const [data, setData] = useState<WeeklyData | null>(null);
   const [dataLoading, setDataLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+
+  const [isListDialogOpen, setIsListDialogOpen] = useState(false);
+  const [listToEdit, setListToEdit] = useState<EditableList | null>(null);
 
   const { toast } = useToast();
 
@@ -76,10 +82,10 @@ export default function DashboardPage() {
 
                 const [reportSnap, listsSnap] = await Promise.all([
                     getDoc(reportRef),
-                    getDoc(listsRef)
+                    getDoc(listsSnap)
                 ]);
 
-                let reportData: Omit<WeeklyData, 'listas' | 'ventasMan'>;
+                let reportData: WeeklyData;
                 let listData: WeeklyData['listas'];
 
                 if (listsSnap.exists()) {
@@ -90,14 +96,12 @@ export default function DashboardPage() {
                 }
                 
                 if (reportSnap.exists()) {
-                    const fullReport = reportSnap.data() as WeeklyData;
-                    const { ventasMan, listas, ...mainReportData } = fullReport;
-                    reportData = mainReportData;
+                    reportData = reportSnap.data() as WeeklyData;
+                    // Ensure lists are in sync
+                    reportData.listas = listData;
                 } else {
-                    const initialData = getInitialDataForWeek(week, listData);
-                    const { ventasMan, listas, ...mainReportData } = initialData;
-                    reportData = mainReportData;
-                    await setDoc(reportRef, initialData);
+                    reportData = getInitialDataForWeek(week, listData);
+                    await setDoc(reportRef, reportData);
                 }
                 
                 setData(reportData);
@@ -130,6 +134,9 @@ export default function DashboardPage() {
         for (let i = 0; i < keys.length - 1; i++) {
             const key = keys[i];
             if (current[key] === undefined) {
+                 // This can happen if a sub-object doesn't exist.
+                 // For this app's structure, it's better to prevent than to create.
+                 console.warn(`Path does not exist: ${path}`);
                  return prevData;
             }
             current = current[key];
@@ -160,7 +167,6 @@ export default function DashboardPage() {
     setIsSaving(true);
     try {
       const docRef = doc(db, "informes", data.periodo.toLowerCase().replace(' ', '-'));
-      // We save the main data, excluding ventasMan which is managed separately
       await setDoc(docRef, data, { merge: true });
       toast({
         title: "¡Guardado!",
@@ -182,6 +188,76 @@ export default function DashboardPage() {
   const handleCancel = () => {
     setIsEditing(false);
     // You might want to re-fetch or reset to original data state here
+  };
+
+  const handleSaveList = async (newList: string[]) => {
+    if (!listToEdit || !data) return;
+
+    const listsRef = doc(db, "configuracion", "listas");
+    const reportRef = doc(db, "informes", data.periodo.toLowerCase().replace(' ', '-'));
+    
+    try {
+        const updatedData = JSON.parse(JSON.stringify(data));
+        updatedData.listas[listToEdit] = newList;
+
+        type TableDataKey = keyof WeeklyData['ventasMan'];
+        const dataKey = listToEdit as TableDataKey;
+        const oldTableData: WeeklyData['ventasMan'][TableDataKey] = updatedData.ventasMan[dataKey] || [];
+        const oldDataMap = new Map(oldTableData.map(item => [item.nombre, item]));
+        
+        const newTableData = newList.map(itemName => {
+            const existingItem = oldDataMap.get(itemName);
+            if (existingItem) {
+                return existingItem;
+            } else {
+                return {
+                    nombre: itemName,
+                    pesoPorc: 0,
+                    totalEuros: 0,
+                    varPorc: 0,
+                    imageUrl: "",
+                };
+            }
+        });
+        updatedData.ventasMan[dataKey] = newTableData;
+
+        setData(updatedData);
+
+        await Promise.all([
+            setDoc(listsRef, updatedData.listas),
+            setDoc(reportRef, { ventasMan: updatedData.ventasMan }, { merge: true })
+        ]);
+
+        toast({
+            title: "Lista y Datos Sincronizados",
+            description: `La lista de ${listToEdit} y los datos del informe se han guardado.`
+        });
+
+    } catch (error) {
+        console.error("Error saving list and synchronizing data:", error);
+        toast({
+            variant: "destructive",
+            title: "Error al sincronizar",
+            description: "No se pudo guardar la lista y sincronizar los datos.",
+        });
+    } finally {
+        setIsListDialogOpen(false);
+        setListToEdit(null);
+    }
+};
+
+  const handleOpenListDialog = (listName: EditableList) => {
+      setListToEdit(listName);
+      setIsListDialogOpen(true);
+  };
+
+  const getTitleForList = (listName: EditableList | null) => {
+      switch (listName) {
+          case 'comprador': return 'Editar Lista de Compradores';
+          case 'zonaComercial': return 'Editar Lista de Zonas de Comprador';
+          case 'agrupacionComercial': return 'Editar Agrupación Comercial';
+          default: return 'Editar Lista';
+      }
   };
 
 
@@ -256,9 +332,18 @@ export default function DashboardPage() {
               <DropdownMenuContent className="w-56 z-50">
                 <DropdownMenuLabel>Opciones</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                 <DropdownMenuItem onSelect={() => router.push('/dashboard/ventas-man')}>
-                      <span>Ir a Ventas Man</span>
-                  </DropdownMenuItem>
+                <DropdownMenuLabel className="font-normal text-muted-foreground px-2 py-1.5 text-xs">Editar Listas de Categorías</DropdownMenuLabel>
+                  <DropdownMenuGroup>
+                      <DropdownMenuItem onSelect={() => handleOpenListDialog('comprador')}>
+                          <span>COMPRADOR</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercial')}>
+                          <span>ZONA COMPRADOR</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercial')}>
+                          <span>Agrupación Comercial</span>
+                      </DropdownMenuItem>
+                  </DropdownMenuGroup>
                  <DropdownMenuSeparator />
                 <DropdownMenuItem onSelect={() => {
                   logout();
@@ -297,13 +382,30 @@ export default function DashboardPage() {
              <AcumuladoTab data={data.acumulado} isEditing={isEditing} onInputChange={handleInputChange} />
           </TabsContent>
            <TabsContent value="ventasMan">
-            <VentasManTab />
+            <VentasManTab 
+              data={data.ventasMan} 
+              listas={data.listas} 
+              isEditing={isEditing} 
+              onInputChange={handleInputChange}
+            />
           </TabsContent>
           <TabsContent value="focusSemanal">
             <FocusSemanalTab text={data.focusSemanal} isEditing={isEditing} onInputChange={handleInputChange} />
           </TabsContent>
         </Tabs>
       </main>
+
+      {listToEdit && (
+          <EditListDialog
+              isOpen={isListDialogOpen}
+              onClose={() => setIsListDialogOpen(false)}
+              title={getTitleForList(listToEdit)}
+              items={data.listas[listToEdit]}
+              onSave={handleSaveList}
+          />
+      )}
     </div>
   );
 }
+
+    

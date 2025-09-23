@@ -1,33 +1,261 @@
+"use client"
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from '@/components/ui/button';
-import { useRouter } from 'next/navigation';
-import { ArrowRight } from 'lucide-react';
+import type { WeeklyData } from "@/lib/data";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select";
+import { Input } from '@/components/ui/input';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { formatCurrency, formatPercentage } from "@/lib/format";
+import { cn } from "@/lib/utils";
+import { Button } from '../ui/button';
+import { ImagePlus, Upload } from 'lucide-react';
 
+
+type VentasManData = WeeklyData['ventasMan'];
+type ListasData = WeeklyData['listas'];
+type TableDataKey = keyof VentasManData;
+type TableData = VentasManData[TableDataKey];
+type TableItem = TableData[number];
 
 type VentasManTabProps = {
-  // This component no longer holds complex logic, it's just a placeholder.
+  data: VentasManData;
+  listas: ListasData;
+  isEditing: boolean;
+  onInputChange: (path: string, value: any) => void;
 };
 
-export function VentasManTab({ }: VentasManTabProps) {
-    const router = useRouter();
+
+const TrendIndicator = ({ value }: { value: number }) => {
+  const trendColor = value >= 0 ? 'text-green-600' : 'text-red-600';
+  return (
+    <span className={cn("text-sm font-bold", trendColor)}>
+      {value >= 0 ? '+' : ''}{value.toLocaleString('es-ES')}%
+    </span>
+  );
+};
+
+const DataTable = ({ data, headers, isEditing, allItems, dataKey, onInputChange }: { data: TableData, headers: string[], isEditing: boolean, allItems: string[], dataKey: TableDataKey, onInputChange: VentasManTabProps['onInputChange'] }) => {
+    if (!data) {
+        return <p className="text-center text-muted-foreground mt-8">No hay datos disponibles.</p>;
+    }
+
+    const handleChange = (index: number, field: keyof TableItem, value: any) => {
+        const path = `ventasMan.${dataKey}.${index}.${field}`;
+        onInputChange(path, value);
+    };
+
+    return (
+        <Card>
+            <Table>
+                <TableHeader>
+                    <TableRow className="bg-muted/50 hover:bg-muted/50">
+                        {headers.map((header, i) => (
+                            <TableHead key={i} className={i === 0 ? '' : 'text-right'}>{header}</TableHead>
+                        ))}
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {data.map((item, index) => (
+                        <TableRow key={item.nombre + index}>
+                            <TableCell>
+                                {isEditing ? (
+                                    <Select value={item.nombre} onValueChange={(value) => handleChange(index, 'nombre', value)}>
+                                        <SelectTrigger className="w-full">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {allItems.map(option => (
+                                                <SelectItem key={option} value={option}>{option}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                ) : (
+                                    item.nombre
+                                )}
+                            </TableCell>
+                            <TableCell className="text-right font-medium">
+                                {isEditing ? <Input type="number" inputMode="decimal" className="w-20 ml-auto text-right" defaultValue={item.pesoPorc} onChange={(e) => handleChange(index, 'pesoPorc', e.target.value)} /> : formatPercentage(item.pesoPorc)}
+                            </TableCell>
+                            <TableCell className="text-right font-medium">
+                                {isEditing ? <Input type="number" inputMode="decimal" className="w-24 ml-auto text-right" defaultValue={item.totalEuros} onChange={(e) => handleChange(index, 'totalEuros', e.target.value)} /> : formatCurrency(item.totalEuros)}
+                            </TableCell>
+                            <TableCell className="text-right">
+                                {isEditing ? <Input type="number" inputMode="decimal" className="w-20 ml-auto text-right" defaultValue={item.varPorc} onChange={(e) => handleChange(index, 'varPorc', e.target.value)} /> : <TrendIndicator value={item.varPorc} />}
+                            </TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+        </Card>
+    );
+};
+
+const ImageImportCard = ({ selectedRow, isEditing, onImageChange }: { selectedRow: TableItem | null, isEditing: boolean, onImageChange: (dataUrl: string) => void }) => {
+    const displayImage = selectedRow?.imageUrl;
+    const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+    const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                onImageChange(e.target?.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleButtonClick = () => {
+        fileInputRef.current?.click();
+    };
+
+    return (
+        <Card className="relative overflow-hidden p-0 gap-0 w-full aspect-[16/9]">
+            <CardContent className="p-0 h-full">
+                <div className="w-full h-full bg-muted flex items-center justify-center">
+                    {displayImage ? (
+                        <img src={displayImage} alt={selectedRow?.nombre || 'Análisis Visual'} className="h-full w-full object-cover" />
+                    ) : (
+                        <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                            <ImagePlus className="h-12 w-12" />
+                            <p className="text-sm font-medium">Análisis Visual</p>
+                            <p className="text-xs text-center">Selecciona una fila para ver o cambiar la imagen.</p>
+                        </div>
+                    )}
+                </div>
+                {isEditing && selectedRow && (
+                     <div className="absolute bottom-2 right-2">
+                        <Input
+                            type="file"
+                            ref={fileInputRef}
+                            onChange={handleImageUpload}
+                            className="hidden"
+                            accept="image/*"
+                        />
+                        <Button onClick={handleButtonClick} variant="secondary">
+                            <Upload className="mr-2 h-4 w-4" />
+                            Cambiar Imagen
+                        </Button>
+                    </div>
+                )}
+            </CardContent>
+        </Card>
+    );
+};
+
+
+const SubTabContent = ({
+  dataKey,
+  headers,
+  data,
+  list,
+  isEditing,
+  onInputChange,
+}: {
+  dataKey: TableDataKey;
+  headers: string[];
+  data: TableData;
+  list: string[];
+  isEditing: boolean;
+  onInputChange: (path: string, value: any) => void;
+}) => {
+  const [selectedIndex, setSelectedIndex] = React.useState<number | null>(data?.length > 0 ? 0 : null);
+
+  React.useEffect(() => {
+    // Reset selection if data changes and selected index is out of bounds
+    if (data && (selectedIndex === null || selectedIndex >= data.length)) {
+      setSelectedIndex(data.length > 0 ? 0 : null);
+    }
+  }, [data, selectedIndex]);
+
+  const handleImageChange = (index: number | null) => (dataUrl: string) => {
+    if (index !== null) {
+      const path = `ventasMan.${dataKey}.${index}.imageUrl`;
+      onInputChange(path, dataUrl);
+    }
+  };
+  
+  const selectedRow = selectedIndex !== null && data?.[selectedIndex] ? data[selectedIndex] : null;
 
   return (
-    <Card>
-        <CardHeader>
-            <CardTitle>Gestión de Ventas Man</CardTitle>
-            <CardDescription>
-                La gestión de Ventas Man se ha movido a una página dedicada para mejorar el rendimiento y la usabilidad.
-            </CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-col items-center justify-center text-center gap-4 pt-6">
-            <p>Haz clic en el botón para acceder a la sección de Ventas Man.</p>
-            <Button onClick={() => router.push('/dashboard/ventas-man')}>
-                Ir a Ventas Man
-                <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-        </CardContent>
-    </Card>
+    <div className="grid gap-4 items-start grid-cols-1 md:grid-cols-2">
+      <DataTable
+        data={data}
+        headers={headers}
+        isEditing={isEditing}
+        allItems={list}
+        onRowClick={setSelectedIndex}
+        dataKey={dataKey}
+        onInputChange={onInputChange}
+      />
+      <ImageImportCard
+        selectedRow={selectedRow}
+        isEditing={isEditing}
+        onImageChange={handleImageChange(selectedIndex)}
+      />
+    </div>
+  );
+};
+
+
+export function VentasManTab({ data, listas, isEditing, onInputChange }: VentasManTabProps) {
+  if (!data) return <p>Cargando datos de Ventas Man...</p>;
+
+  return (
+    <Tabs defaultValue="comprador" className="w-full">
+        <TabsList className="grid w-full grid-cols-3 mx-auto max-w-md mb-4">
+            <TabsTrigger value="comprador">Comprador</TabsTrigger>
+            <TabsTrigger value="zonaComercial">Zona Comprador</TabsTrigger>
+            <TabsTrigger value="agrupacionComercial">Agrupación Comercial</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="comprador">
+            <SubTabContent
+              dataKey="pesoComprador"
+              headers={['COMPRADOR', 'PESO %', '€', '%']}
+              data={data.pesoComprador}
+              list={listas.comprador}
+              isEditing={isEditing}
+              onInputChange={onInputChange}
+            />
+        </TabsContent>
+
+        <TabsContent value="zonaComercial">
+             <SubTabContent
+              dataKey="zonaComercial"
+              headers={['ZONA COMPRADOR', 'PESO %', '€', '%']}
+              data={data.zonaComercial}
+              list={listas.zonaComercial}
+              isEditing={isEditing}
+              onInputChange={onInputChange}
+            />
+        </TabsContent>
+
+        <TabsContent value="agrupacionComercial">
+             <SubTabContent
+              dataKey="agrupacionComercial"
+              headers={['Agrupación Comercial', 'PESO %', '€', '%']}
+              data={data.agrupacionComercial}
+              list={listas.agrupacionComercial}
+              isEditing={isEditing}
+              onInputChange={onInputChange}
+            />
+        </TabsContent>
+    </Tabs>
   );
 }
 
