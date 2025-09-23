@@ -24,8 +24,8 @@ export function EditListDialog({ isOpen, onClose, title, items, onSave }: EditLi
   const [newItem, setNewItem] = useState('');
 
   useEffect(() => {
+    // This effect now correctly reacts to changes in `items` or `isOpen`
     if (isOpen) {
-      // Sort items alphabetically when the dialog opens or items change
       setCurrentItems([...items].sort((a, b) => a.localeCompare(b)));
     }
   }, [items, isOpen]);

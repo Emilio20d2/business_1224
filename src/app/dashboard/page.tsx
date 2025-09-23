@@ -80,12 +80,12 @@ const getPreviousWeekRange = () => {
     };
 };
 
-// Helper function to safely synchronize a table with a list
-const synchronizeTableData = (list: string[] = [], oldTableData: VentasManItem[] = []): VentasManItem[] => {
+const synchronizeTableData = (list: string[], oldTableData: VentasManItem[]): VentasManItem[] => {
     const safeList = Array.isArray(list) ? list : [];
     const safeOldTableData = Array.isArray(oldTableData) ? oldTableData : [];
+    
     const oldDataMap = new Map(safeOldTableData.map(item => [item.nombre, item]));
-
+    
     return safeList.map(itemName => {
         const existingItem = oldDataMap.get(itemName);
         if (existingItem) {
@@ -115,22 +115,21 @@ export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState<string>("datosSemanales");
 
   const [isListDialogOpen, setListDialogOpen] = useState(false);
-  const [listToEdit, setListToEdit] = useState<EditableList | null>(null);
-  const [listTitle, setListTitle] = useState('');
+  const [listToEdit, setListToEdit] = useState<{ listKey: EditableList, title: string } | null>(null);
 
 
   const { toast } = useToast();
   
-  const fetchData = useCallback(async () => {
+ const fetchData = useCallback(async () => {
     if (!user) return;
     setDataLoading(true);
     setError(null);
     try {
-        const week = "semana-24"; // Hardcoded for now
+        const week = "semana-24";
         const reportRef = doc(db, "informes", week);
         const listsRef = doc(db, "configuracion", "listas");
 
-        // Step 1: Fetch or create the configuration lists
+        // 1. Fetch or create the configuration lists
         let listData: WeeklyData['listas'];
         const listsSnap = await getDoc(listsRef);
         if (listsSnap.exists()) {
@@ -140,67 +139,53 @@ export default function DashboardPage() {
             await setDoc(listsRef, listData);
         }
 
-        // Step 2: Fetch or create the weekly report
+        // 2. Fetch or create the weekly report
         const reportSnap = await getDoc(reportRef);
         let reportData: WeeklyData;
         
         if (reportSnap.exists()) {
             reportData = reportSnap.data() as WeeklyData;
-            
-            // CRITICAL FIX: Ensure report data always has the latest lists
-            reportData.listas = listData;
-
-            // Step 3: Synchronize the report data with the latest lists
-            let needsSave = false;
-            const sections = [
-              { ventasKey: 'ventasMan', listKeys: { comprador: 'compradorMan', zonaComercial: 'zonaComercialMan', agrupacionComercial: 'agrupacionComercialMan' } },
-              { ventasKey: 'ventasWoman', listKeys: { comprador: 'compradorWoman', zonaComercial: 'zonaComercialWoman', agrupacionComercial: 'agrupacionComercialWoman' } },
-              { ventasKey: 'ventasNino', listKeys: { comprador: 'compradorNino', zonaComercial: 'zonaComercialNino', agrupacionComercial: 'agrupacionComercialNino' } },
-            ] as const;
-
-            for (const section of sections) {
-                const { ventasKey, listKeys } = section;
-
-                // Ensure the main sales section exists
-                if (!reportData[ventasKey]) {
-                    reportData[ventasKey] = getInitialDataForWeek('temp', listData)[ventasKey];
-                    needsSave = true;
-                }
-
-                // Sync comprador
-                const compradorList = listData[listKeys.comprador] || [];
-                const syncedComprador = synchronizeTableData(compradorList, reportData[ventasKey].pesoComprador);
-                if (JSON.stringify(syncedComprador) !== JSON.stringify(reportData[ventasKey].pesoComprador)) {
-                    reportData[ventasKey].pesoComprador = syncedComprador;
-                    needsSave = true;
-                }
-
-                // Sync zonaComercial
-                const zonaList = listData[listKeys.zonaComercial] || [];
-                const syncedZona = synchronizeTableData(zonaList, reportData[ventasKey].zonaComercial);
-                if (JSON.stringify(syncedZona) !== JSON.stringify(reportData[ventasKey].zonaComercial)) {
-                    reportData[ventasKey].zonaComercial = syncedZona;
-                    needsSave = true;
-                }
-
-                // Sync agrupacionComercial
-                const agrupacionList = listData[listKeys.agrupacionComercial] || [];
-                const syncedAgrupacion = synchronizeTableData(agrupacionList, reportData[ventasKey].agrupacionComercial);
-                 if (JSON.stringify(syncedAgrupacion) !== JSON.stringify(reportData[ventasKey].agrupacionComercial)) {
-                    reportData[ventasKey].agrupacionComercial = syncedAgrupacion;
-                    needsSave = true;
-                }
-            }
-
-            // If synchronization happened, save the updated report
-            if (needsSave) {
-                await setDoc(reportRef, reportData, { merge: true });
-            }
-
         } else {
-            // Report doesn't exist, create a fresh one
             reportData = getInitialDataForWeek(week, listData);
             await setDoc(reportRef, reportData);
+        }
+
+        // 3. ALWAYS synchronize the report with the latest lists
+        reportData.listas = listData; // Ensure report always has the latest lists
+
+        let needsSave = false;
+        const sections = [
+            { ventasKey: 'ventasMan', listKeys: { comprador: 'compradorMan', zonaComercial: 'zonaComercialMan', agrupacionComercial: 'agrupacionComercialMan' } },
+            { ventasKey: 'ventasWoman', listKeys: { comprador: 'compradorWoman', zonaComercial: 'zonaComercialWoman', agrupacionComercial: 'agrupacionComercialWoman' } },
+            { ventasKey: 'ventasNino', listKeys: { comprador: 'compradorNino', zonaComercial: 'zonaComercialNino', agrupacionComercial: 'agrupacionComercialNino' } },
+        ] as const;
+
+        for (const section of sections) {
+            const { ventasKey, listKeys } = section;
+
+            if (!reportData[ventasKey]) {
+                reportData[ventasKey] = getInitialDataForWeek('temp', listData)[ventasKey];
+                needsSave = true;
+            }
+
+            const syncAndCheck = (tableKey: keyof WeeklyData[typeof ventasKey], listKey: keyof typeof listKeys) => {
+                const list = listData[listKeys[listKey]] || [];
+                // Ensure table exists before syncing
+                const currentTable = reportData[ventasKey][tableKey] || [];
+                const syncedTable = synchronizeTableData(list, currentTable);
+                if (JSON.stringify(syncedTable) !== JSON.stringify(reportData[ventasKey][tableKey])) {
+                    (reportData[ventasKey][tableKey] as any) = syncedTable;
+                    needsSave = true;
+                }
+            };
+            
+            syncAndCheck('pesoComprador', 'comprador');
+            syncAndCheck('zonaComercial', 'zonaComercial');
+            syncAndCheck('agrupacionComercial', 'agrupacionComercial');
+        }
+
+        if (needsSave) {
+            await setDoc(reportRef, reportData, { merge: true });
         }
         
         setData(reportData);
@@ -230,7 +215,6 @@ export default function DashboardPage() {
     setData(prevData => {
         if (!prevData) return null;
 
-        // Use deep copy to prevent state mutation issues
         const updatedData = JSON.parse(JSON.stringify(prevData));
         
         const keys = path.split('.');
@@ -250,7 +234,6 @@ export default function DashboardPage() {
         const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
         current[finalKey] = isNaN(numericValue) ? value : numericValue;
         
-        // --- Recalculation Logic ---
         if (path.startsWith('aqneSemanal.') && (finalKey === 'totalEuros' || path.includes('metricasPrincipales'))) {
             const sections = updatedData.aqneSemanal;
             const totalVentasAqne = (sections.woman.metricasPrincipales.totalEuros || 0) +
@@ -309,8 +292,7 @@ export default function DashboardPage() {
   };
   
   const handleOpenListDialog = (listKey: EditableList, title: string) => {
-      setListToEdit(listKey);
-      setListTitle(title);
+      setListToEdit({ listKey, title });
       setListDialogOpen(true);
   };
   
@@ -554,11 +536,11 @@ const handleImageChange = (path: string, file: File, onUploadComplete: (success:
             setListDialogOpen(false);
             setListToEdit(null);
           }}
-          title={listTitle}
-          items={data.listas[listToEdit] || []}
+          title={listToEdit.title}
+          items={data.listas[listToEdit.listKey] || []}
           onSave={(newItems) => {
             if (listToEdit) {
-              handleSaveList(listToEdit, newItems);
+              handleSaveList(listToEdit.listKey, newItems);
             }
           }}
         />
