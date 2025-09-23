@@ -175,7 +175,7 @@ export default function DashboardPage() {
                         // @ts-ignore
                         const tableData = reportData[ventasKey]?.[tableKey] || [];
                         
-                        if (list && (list.length !== tableData.length || list.some((item, i) => item !== tableData[i]?.nombre))) {
+                        if (list && (list.length !== tableData.length || list.some((item: any, i: number) => item !== tableData[i]?.nombre))) {
                              if (!reportData[ventasKey]) {
                                 // @ts-ignore
                                 reportData[ventasKey] = getInitialDataForWeek(week, listData)[ventasKey];
@@ -344,15 +344,10 @@ export default function DashboardPage() {
     if (!listToEdit || !data) return;
 
     try {
-      // 1. Update lists in Firestore
-      const listsRef = doc(db, "configuracion", "listas");
-      await updateDoc(listsRef, { [listToEdit]: newList });
+        const listsRef = doc(db, "configuracion", "listas");
+        await updateDoc(listsRef, { [listToEdit]: newList });
 
-      // 2. Update local state with the new list and synchronized tables
-      setData(prevData => {
-        if (!prevData) return null;
-
-        const updatedData = JSON.parse(JSON.stringify(prevData));
+        const updatedData = JSON.parse(JSON.stringify(data));
         updatedData.listas[listToEdit!] = newList;
 
         const dataKeyMapping: Record<EditableList, {ventasKey: keyof WeeklyData, tableKey: 'pesoComprador' | 'zonaComercial' | 'agrupacionComercial'}> = {
@@ -377,13 +372,15 @@ export default function DashboardPage() {
           updatedData[ventasKey][tableKey] = newTableData;
         }
 
-        return updatedData;
-      });
+        const reportRef = doc(db, "informes", updatedData.periodo.toLowerCase().replace(' ', '-'));
+        await setDoc(reportRef, updatedData, { merge: true });
+        
+        setData(updatedData);
 
-      toast({
-          title: "Lista Actualizada",
-          description: `La lista de ${listToEdit} se ha guardado. Los cambios se reflejarán en el informe la próxima vez que guarde.`
-      });
+        toast({
+            title: "Lista Actualizada y Sincronizada",
+            description: `La lista de ${listToEdit} y el informe se han guardado.`
+        });
 
     } catch (error) {
         console.error("Error saving list:", error);
@@ -403,26 +400,28 @@ export default function DashboardPage() {
 
     setImageLoadingStatus(prev => ({...prev, [path]: true}));
 
-    const updateState = new Promise<WeeklyData>(resolve => {
-        setData(prevData => {
-            if (!prevData) {
-                resolve(null as any);
+    const updatedData = await new Promise<WeeklyData | null>(resolve => {
+        setData(currentData => {
+            if (!currentData) {
+                resolve(null);
                 return null;
             }
-            const updatedData = JSON.parse(JSON.stringify(prevData));
+            const newData = JSON.parse(JSON.stringify(currentData));
             const keys = path.split('.');
-            let current: any = updatedData;
+            let current: any = newData;
             for (let i = 0; i < keys.length - 1; i++) {
                 current = current[keys[i]];
             }
             current[keys[keys.length - 1]] = dataUrl;
-            resolve(updatedData);
-            return updatedData;
+            resolve(newData);
+            return newData;
         });
     });
 
-    const updatedData = await updateState;
-    if(!updatedData) return;
+    if(!updatedData) {
+      setImageLoadingStatus(prev => ({...prev, [path]: false}));
+      return;
+    }
 
     try {
         const reportRef = doc(db, "informes", updatedData.periodo.toLowerCase().replace(' ', '-'));
@@ -648,7 +647,7 @@ export default function DashboardPage() {
         </Tabs>
       </main>
 
-      {listToEdit && (
+      {listToEdit && data.listas && (
           <EditListDialog
               isOpen={isListDialogOpen}
               onClose={() => setIsListDialogOpen(false)}
