@@ -121,7 +121,7 @@ type VentaDiaria = {
 };
 
 // This function now provides only the lists for initial setup.
-export function getInitialLists() {
+export function getInitialLists(): WeeklyData['listas'] {
     return {
         "comprador": ["MAN", "GLOBAL", "CIRCULAR", "DNWR", "SPORT", "ACCES", "BASIC"],
         "zonaComercial": ["MAN FORMAL", "GLB URBAN", "CIRCULAR"],
@@ -130,7 +130,7 @@ export function getInitialLists() {
 }
 
 // This function generates a new, blank report structure based on the provided lists.
-export function getInitialDataForWeek(week: string, lists: { comprador: string[]; zonaComercial: string[]; agrupacionComercial: string[] }): Omit<WeeklyData, 'listas'> {
+export function getInitialDataForWeek(week: string, lists: WeeklyData['listas']): Omit<WeeklyData, 'listas'> {
     const createVentasManItems = (items: string[]): VentasManItem[] => 
         items.map(name => ({
             nombre: name,

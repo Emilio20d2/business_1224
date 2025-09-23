@@ -13,12 +13,11 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DatosSemanalesTab } from "@/components/dashboard/datos-semanales-tab";
 import { DatosPorSeccionTab } from "@/components/dashboard/datos-por-seccion-tab";
-import { VentasManTab } from "@/components/dashboard/ventas-man-tab";
 import { AqneSemanalTab } from "@/components/dashboard/aqne-semanal-tab";
 import { AcumuladoTab } from "@/components/dashboard/acumulado-tab";
 import { FocusSemanalTab } from '@/components/dashboard/focus-semanal-tab';
 import { Button } from '@/components/ui/button';
-import { Settings, LogOut, Loader2 } from 'lucide-react';
+import { Settings, LogOut, Loader2, ArrowRight } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,19 +29,11 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { startOfWeek, endOfWeek, subWeeks, format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { EditListDialog } from '@/components/dashboard/edit-list-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { AuthContext } from '@/context/auth-context';
 import { getInitialDataForWeek, getInitialLists } from '@/lib/data';
 import { useRouter } from 'next/navigation';
 
-
-type EditableList = 'comprador' | 'zonaComercial' | 'agrupacionComercial';
-type ListData = {
-    comprador: string[];
-    zonaComercial: string[];
-    agrupacionComercial: string[];
-};
 
 const getPreviousWeekRange = () => {
     const today = new Date();
@@ -59,13 +50,11 @@ export default function DashboardPage() {
   const { user, loading: authLoading, logout } = useContext(AuthContext);
   const router = useRouter();
 
-  const [data, setData] = useState<WeeklyData | null>(null);
+  const [data, setData] = useState<Omit<WeeklyData, 'ventasMan'> | null>(null);
   const [dataLoading, setDataLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [isListDialogOpen, setIsListDialogOpen] = useState(false);
-  const [listToEdit, setListToEdit] = useState<EditableList | null>(null);
 
   const { toast } = useToast();
 
@@ -89,30 +78,28 @@ export default function DashboardPage() {
                     getDoc(listsRef)
                 ]);
 
-                let reportData: Omit<WeeklyData, 'listas'>;
-                let listData: ListData;
+                let reportData: Omit<WeeklyData, 'listas' | 'ventasMan'>;
+                let listData: WeeklyData['listas'];
 
-                // Handle list data
                 if (listsSnap.exists()) {
-                    listData = listsSnap.data() as ListData;
+                    listData = listsSnap.data() as WeeklyData['listas'];
                 } else {
                     listData = getInitialLists();
                     await setDoc(listsRef, listData);
                 }
                 
-                // Handle report data
                 if (reportSnap.exists()) {
-                    reportData = reportSnap.data() as Omit<WeeklyData, 'listas'>;
+                    const fullReport = reportSnap.data() as WeeklyData;
+                    const { ventasMan, ...mainReportData } = fullReport;
+                    reportData = mainReportData;
                 } else {
-                    reportData = getInitialDataForWeek(week, listData);
-                    await setDoc(reportRef, reportData);
+                    const initialData = getInitialDataForWeek(week, listData);
+                    const { ventasMan, ...mainReportData } = initialData;
+                    reportData = mainReportData;
+                    await setDoc(reportRef, initialData);
                 }
                 
-                // Combine data into state
-                setData({
-                    ...reportData,
-                    listas: listData,
-                });
+                setData(reportData);
 
             } catch (err: any) {
                 console.error("Error fetching or setting Firestore document:", err);
@@ -171,9 +158,9 @@ export default function DashboardPage() {
     if (!data) return;
     setIsSaving(true);
     try {
-      const { listas, ...reportData } = data; // Exclude listas from report save
       const docRef = doc(db, "informes", data.periodo.toLowerCase().replace(' ', '-'));
-      await setDoc(docRef, reportData, { merge: true });
+      // We save the main data, excluding ventasMan which is managed separately
+      await setDoc(docRef, data, { merge: true });
       toast({
         title: "¡Guardado!",
         description: "Los cambios se han guardado en la base de datos.",
@@ -196,89 +183,6 @@ export default function DashboardPage() {
     // You might want to re-fetch or reset to original data state here
   };
 
-  const handleOpenListDialog = (listName: EditableList) => {
-    setListToEdit(listName);
-    setIsListDialogOpen(true);
-  };
-
-  const handleSaveList = async (newList: string[]) => {
-    if (!listToEdit || !data) return;
-
-    const listsRef = doc(db, "configuracion", "listas");
-    const reportRef = doc(db, "informes", data.periodo.toLowerCase().replace(' ', '-'));
-
-    try {
-        const updatedData = JSON.parse(JSON.stringify(data));
-        
-        // 1. Update the list in the local state
-        updatedData.listas[listToEdit] = newList;
-
-        // 2. Determine which data table to sync
-        let dataKey: keyof WeeklyData['ventasMan'] | null = null;
-        if (listToEdit === 'comprador') dataKey = 'pesoComprador';
-        else if (listToEdit === 'zonaComercial') dataKey = 'zonaComercial';
-        else if (listToEdit === 'agrupacionComercial') dataKey = 'agrupacionComercial';
-        
-        if (dataKey) {
-            // 3. Rebuild the corresponding data table to match the new list
-            const oldTableData: any[] = data.ventasMan[dataKey] || [];
-            const oldDataMap = new Map(oldTableData.map(item => [item.nombre, item]));
-
-            const newTableData = newList.map(itemName => {
-                const existingItem = oldDataMap.get(itemName);
-                if (existingItem) {
-                    return existingItem; // Keep existing data if item name persists
-                } else {
-                     // Create new item with default values
-                     const newItem: any = {
-                        nombre: itemName,
-                        pesoPorc: 0,
-                        totalEuros: 0,
-                        varPorc: 0,
-                    };
-                    return newItem;
-                }
-            });
-            updatedData.ventasMan[dataKey] = newTableData;
-        }
-
-        // 4. Update the component state with the fully synced data
-        setData(updatedData);
-
-        // 5. Save both the list and the synced report data to Firestore
-        const { listas, ...reportDataToSave } = updatedData;
-        await Promise.all([
-            setDoc(listsRef, listas),
-            setDoc(reportRef, reportDataToSave)
-        ]);
-
-        toast({
-          title: "Lista y Datos Sincronizados",
-          description: `La lista de ${listToEdit} y los datos del informe se han guardado en la base de datos.`
-        });
-
-    } catch (error) {
-        console.error("Error saving list and synchronizing data:", error);
-        toast({
-            variant: "destructive",
-            title: "Error al sincronizar",
-            description: "No se pudo guardar la lista y sincronizar los datos. Inténtalo de nuevo.",
-        });
-    } finally {
-        setIsListDialogOpen(false);
-        setListToEdit(null);
-    }
-  };
-
-
-  const getTitleForList = (listName: EditableList | null) => {
-    switch (listName) {
-      case 'comprador': return 'Editar Lista de Compradores';
-      case 'zonaComercial': return 'Editar Lista de Zonas de Comprador';
-      case 'agrupacionComercial': return 'Editar Agrupación Comercial';
-      default: return 'Editar Lista';
-    }
-  }
 
   if (authLoading || dataLoading) {
     return (
@@ -302,7 +206,7 @@ export default function DashboardPage() {
     );
   }
 
-  if (!data || !data.listas) {
+  if (!data) {
      return (
       <div className="flex flex-col items-center justify-center min-h-screen">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -311,20 +215,6 @@ export default function DashboardPage() {
     );
   }
 
-  const listOptions = data.listas ? {
-    comprador: data.listas.comprador,
-    zonaComercial: data.listas.zonaComercial,
-    agrupacionComercial: data.listas.agrupacionComercial,
-  } : undefined;
-
-  if (!listOptions) {
-     return (
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <Loader2 className="h-12 w-12 animate-spin text-primary" />
-        <p className="mt-4">Cargando opciones de lista...</p>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen w-full p-4 sm:p-6 bg-background">
@@ -363,19 +253,11 @@ export default function DashboardPage() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56 z-50">
-                <DropdownMenuLabel>Editar Listas de Categorías</DropdownMenuLabel>
+                <DropdownMenuLabel>Opciones</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuItem onSelect={() => handleOpenListDialog('comprador')}>
-                      <span>COMPRADOR</span>
+                 <DropdownMenuItem onSelect={() => router.push('/dashboard/ventas-man')}>
+                      <span>Ir a Ventas Man</span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercial')}>
-                      <span>ZONA COMPRADOR</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercial')}>
-                      <span>Agrupación Comercial</span>
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
                  <DropdownMenuSeparator />
                 <DropdownMenuItem onSelect={() => {
                   logout();
@@ -392,10 +274,9 @@ export default function DashboardPage() {
       <main>
         <Tabs defaultValue="datosSemanales">
           <div className="w-full overflow-x-auto pb-2">
-            <TabsList className="mb-4 inline-flex md:grid md:w-full md:grid-cols-6">
+            <TabsList className="mb-4 inline-flex md:grid md:w-full md:grid-cols-5">
               <TabsTrigger value="datosSemanales">Datos Semanales</TabsTrigger>
               <TabsTrigger value="ventasSeccion">Ventas Sección</TabsTrigger>
-              <TabsTrigger value="ventasMan">Ventas Man</TabsTrigger>
               <TabsTrigger value="aqneSemanal">AQNE Semanal</TabsTrigger>
               <TabsTrigger value="acumulado">Acumulado</TabsTrigger>
               <TabsTrigger value="focusSemanal">Focus Semanal</TabsTrigger>
@@ -406,9 +287,6 @@ export default function DashboardPage() {
           </TabsContent>
           <TabsContent value="ventasSeccion">
              <DatosPorSeccionTab data={data.datosPorSeccion} isEditing={isEditing} onInputChange={handleInputChange} />
-          </TabsContent>
-           <TabsContent value="ventasMan">
-             <VentasManTab data={data.ventasMan} isEditing={isEditing} listOptions={listOptions} onInputChange={handleInputChange} />
           </TabsContent>
            <TabsContent value="aqneSemanal">
              <AqneSemanalTab data={data} isEditing={isEditing} onInputChange={handleInputChange} />
@@ -421,16 +299,6 @@ export default function DashboardPage() {
           </TabsContent>
         </Tabs>
       </main>
-
-      {listToEdit && (
-        <EditListDialog
-          isOpen={isListDialogOpen}
-          onClose={() => setIsListDialogOpen(false)}
-          title={getTitleForList(listToEdit)}
-          items={listOptions[listToEdit]}
-          onSave={handleSaveList}
-        />
-      )}
     </div>
   );
 }

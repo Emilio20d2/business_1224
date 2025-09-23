@@ -1,272 +1,35 @@
 import React from 'react';
 import type { WeeklyData } from "@/lib/data";
-import { formatCurrency, formatPercentage } from "@/lib/format";
+import { formatCurrency, formatPercentage } from "@/lib/utils";
 import { cn } from "@/lib/utils";
-import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import { ImagePlus, Upload } from 'lucide-react';
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/components/ui/select";
-import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
+import { ArrowRight } from 'lucide-react';
 
-
-type VentasManData = WeeklyData["ventasMan"];
-type TableDataKey = 'pesoComprador' | 'zonaComercial' | 'agrupacionComercial';
-type TableData = VentasManData[TableDataKey];
-type TableItem = TableData[number];
-
-type ListOptions = {
-    comprador: string[];
-    zonaComercial: string[];
-    agrupacionComercial: string[];
-}
 
 type VentasManTabProps = {
-  data: VentasManData;
-  isEditing: boolean;
-  listOptions: ListOptions;
-  onInputChange: (path: string, value: string | number) => void;
+  // This component no longer holds complex logic, it's just a placeholder.
 };
 
-const TrendIndicator = ({ value }: { value: number }) => {
-  const trendColor = value >= 0 ? 'text-green-600' : 'text-red-600';
-  return (
-    <span className={cn("text-sm font-bold", trendColor)}>
-      {value >= 0 ? '+' : ''}{value.toLocaleString('es-ES')}%
-    </span>
-  );
-};
-
-const DataTable = ({ data, headers, isEditing, allItems, onRowClick, dataKey, onInputChange, selectedIndex }: { data: TableData, headers: string[], isEditing: boolean, allItems: string[], onRowClick: (index: number) => void, dataKey: TableDataKey, onInputChange: VentasManTabProps['onInputChange'], selectedIndex: number | null }) => {
-    if (!data) {
-        return <p className="text-center text-muted-foreground mt-8">No hay datos disponibles para esta sección.</p>;
-    }
-
-    const handleChange = (index: number, field: keyof TableItem, value: any) => {
-        const path = `ventasMan.${dataKey}.${index}.${field}`;
-        onInputChange(path, value);
-    };
-    
-    return (
-        <Card>
-            <Table>
-                <TableHeader>
-                    <TableRow className="bg-muted/50 hover:bg-muted/50">
-                        {headers.map((header, i) => (
-                            <TableHead key={i} className={i === 0 ? '' : 'text-right'}>{header}</TableHead>
-                        ))}
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {data.map((item, index) => (
-                        <TableRow 
-                            key={item.nombre + index} 
-                            onClick={() => onRowClick(index)}
-                            className={cn("cursor-pointer", selectedIndex === index && 'bg-muted/50')}
-                        >
-                            <TableCell>
-                                {isEditing ? (
-                                    <Select value={item.nombre} onValueChange={(value) => handleChange(index, 'nombre', value)}>
-                                        <SelectTrigger className="w-full">
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {allItems.map(option => (
-                                                <SelectItem key={option} value={option}>{option}</SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                ) : (
-                                    item.nombre
-                                )}
-                            </TableCell>
-                            <TableCell className="text-right font-medium">
-                                {isEditing ? <Input type="number" inputMode="decimal" className="w-20 ml-auto text-right" defaultValue={item.pesoPorc} onChange={(e) => handleChange(index, 'pesoPorc', e.target.value)} /> : formatPercentage(item.pesoPorc)}
-                            </TableCell>
-                            <TableCell className="text-right font-medium">
-                                {isEditing ? <Input type="number" inputMode="decimal" className="w-24 ml-auto text-right" defaultValue={item.totalEuros} onChange={(e) => handleChange(index, 'totalEuros', e.target.value)} /> : formatCurrency(item.totalEuros)}
-                            </TableCell>
-                            <TableCell className="text-right">
-                                {isEditing ? <Input type="number" inputMode="decimal" className="w-20 ml-auto text-right" defaultValue={item.varPorc} onChange={(e) => handleChange(index, 'varPorc', e.target.value)} /> : <TrendIndicator value={item.varPorc} />}
-                            </TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
-        </Card>
-    );
-};
-
-const ImageImportCard = ({ selectedRow, isEditing, onImageChange }: { selectedRow: TableItem | null, isEditing: boolean, onImageChange: (dataUrl: string) => void }) => {
-    const displayImage = selectedRow?.imageUrl;
-    const fileInputRef = React.useRef<HTMLInputElement>(null);
-
-    const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                onImageChange(e.target?.result as string);
-            };
-            reader.readAsDataURL(file);
-        }
-    };
-
-    const handleButtonClick = () => {
-        fileInputRef.current?.click();
-    };
-
-    return (
-        <Card className="relative overflow-hidden p-0 gap-0 w-full aspect-[16/9]">
-            <CardContent className="p-0 h-full">
-                <div className="w-full h-full bg-muted flex items-center justify-center">
-                    {displayImage ? (
-                        <img src={displayImage} alt={selectedRow?.nombre || 'Análisis Visual'} className="h-full w-full object-cover" />
-                    ) : (
-                        <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                            <ImagePlus className="h-12 w-12" />
-                            <p className="text-sm font-medium">Análisis Visual</p>
-                            <p className="text-xs text-center">Selecciona una fila para ver o cambiar la imagen.</p>
-                        </div>
-                    )}
-                </div>
-                {isEditing && selectedRow && (
-                     <div className="absolute bottom-2 right-2">
-                        <Input 
-                            type="file" 
-                            ref={fileInputRef} 
-                            onChange={handleImageUpload}
-                            className="hidden"
-                            accept="image/*"
-                        />
-                        <Button onClick={handleButtonClick} variant="secondary">
-                            <Upload className="mr-2 h-4 w-4" />
-                            Cambiar Imagen
-                        </Button>
-                    </div>
-                )}
-            </CardContent>
-        </Card>
-    );
-};
-
-
-export function VentasManTab({ data, isEditing, listOptions, onInputChange }: VentasManTabProps) {
-    const [selectedCompradorIndex, setSelectedCompradorIndex] = React.useState<number | null>(0);
-    const [selectedZonaIndex, setSelectedZonaIndex] = React.useState<number | null>(0);
-    const [selectedAgrupacionIndex, setSelectedAgrupacionIndex] = React.useState<number | null>(0);
-
-    const handleImageChange = (dataKey: TableDataKey, index: number | null) => (dataUrl: string) => {
-        if (index !== null) {
-            const path = `ventasMan.${dataKey}.${index}.imageUrl`;
-            onInputChange(path, dataUrl);
-        }
-    };
-
-    const selectedCompradorRow = selectedCompradorIndex !== null && data.pesoComprador?.[selectedCompradorIndex] ? data.pesoComprador[selectedCompradorIndex] : null;
-
-    React.useEffect(() => {
-        if (data.pesoComprador && data.pesoComprador.length > 0 && selectedCompradorIndex === null) {
-            setSelectedCompradorIndex(0);
-        } else if (data.pesoComprador && selectedCompradorIndex !== null && selectedCompradorIndex >= data.pesoComprador.length) {
-            setSelectedCompradorIndex(data.pesoComprador.length > 0 ? data.pesoComprador.length - 1 : null);
-        } else if (!data.pesoComprador || data.pesoComprador.length === 0) {
-            setSelectedCompradorIndex(null);
-        }
-    }, [data.pesoComprador, selectedCompradorIndex]);
-
-    React.useEffect(() => {
-        if (data.zonaComercial && data.zonaComercial.length > 0 && selectedZonaIndex === null) {
-            setSelectedZonaIndex(0);
-        } else if (data.zonaComercial && selectedZonaIndex !== null && selectedZonaIndex >= data.zonaComercial.length) {
-            setSelectedZonaIndex(data.zonaComercial.length > 0 ? data.zonaComercial.length - 1 : null);
-        } else if (!data.zonaComercial || data.zonaComercial.length === 0) {
-            setSelectedZonaIndex(null);
-        }
-    }, [data.zonaComercial, selectedZonaIndex]);
-    
-    React.useEffect(() => {
-        if (data.agrupacionComercial && data.agrupacionComercial.length > 0 && selectedAgrupacionIndex === null) {
-            setSelectedAgrupacionIndex(0);
-        } else if (data.agrupacionComercial && selectedAgrupacionIndex !== null && selectedAgrupacionIndex >= data.agrupacionComercial.length) {
-            setSelectedAgrupacionIndex(data.agrupacionComercial.length > 0 ? data.agrupacionComercial.length - 1 : null);
-        } else if (!data.agrupacionComercial || data.agrupacionComercial.length === 0) {
-            setSelectedAgrupacionIndex(null);
-        }
-    }, [data.agrupacionComercial, selectedAgrupacionIndex]);
-
+export function VentasManTab({ }: VentasManTabProps) {
+    const router = useRouter();
 
   return (
-    <Tabs defaultValue="comprador" className="w-full">
-      <TabsList className="grid w-full grid-cols-3 mx-auto max-w-md mb-4">
-        <TabsTrigger value="comprador">Comprador</TabsTrigger>
-        <TabsTrigger value="zonaComercial">Zona Comprador</TabsTrigger>
-        <TabsTrigger value="agrupacionComercial">Agrupación Comercial</TabsTrigger>
-      </TabsList>
-      
-      <TabsContent value="comprador">
-         <div className="grid gap-4 items-start grid-cols-1 md:grid-cols-2">
-            <DataTable 
-                data={data.pesoComprador} 
-                headers={['COMPRADOR', 'PESO %', '€', '%']} 
-                isEditing={isEditing} 
-                allItems={listOptions.comprador} 
-                onRowClick={setSelectedCompradorIndex} 
-                dataKey="pesoComprador" 
-                onInputChange={onInputChange} 
-                selectedIndex={selectedCompradorIndex} 
-            />
-            <ImageImportCard 
-                selectedRow={selectedCompradorRow} 
-                isEditing={isEditing} 
-                onImageChange={handleImageChange('pesoComprador', selectedCompradorIndex)} 
-            />
-         </div>
-      </TabsContent>
-
-      <TabsContent value="zonaComercial">
-         <div className="grid gap-4 items-start grid-cols-1">
-            <DataTable 
-                data={data.zonaComercial} 
-                headers={['ZONA COMPRADOR', 'PESO %', '€', '%']} 
-                isEditing={isEditing} 
-                allItems={listOptions.zonaComercial} 
-                onRowClick={setSelectedZonaIndex} 
-                dataKey="zonaComercial" 
-                onInputChange={onInputChange} 
-                selectedIndex={selectedZonaIndex} 
-            />
-         </div>
-      </TabsContent>
-
-      <TabsContent value="agrupacionComercial">
-         <div className="grid gap-4 items-start grid-cols-1">
-            <DataTable 
-                data={data.agrupacionComercial} 
-                headers={['Agrupación Comercial', 'PESO %', '€', '%']} 
-                isEditing={isEditing} 
-                allItems={listOptions.agrupacionComercial} 
-                onRowClick={setSelectedAgrupacionIndex} 
-                dataKey="agrupacionComercial" 
-                onInputChange={onInputChange} 
-                selectedIndex={selectedAgrupacionIndex} 
-            />
-         </div>
-      </TabsContent>
-    </Tabs>
+    <Card>
+        <CardHeader>
+            <CardTitle>Gestión de Ventas Man</CardTitle>
+            <CardDescription>
+                La gestión de Ventas Man se ha movido a una página dedicada para mejorar el rendimiento y la usabilidad.
+            </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col items-center justify-center text-center gap-4 pt-6">
+            <p>Haz clic en el botón para acceder a la sección de Ventas Man.</p>
+            <Button onClick={() => router.push('/dashboard/ventas-man')}>
+                Ir a Ventas Man
+                <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+        </CardContent>
+    </Card>
   );
 }
