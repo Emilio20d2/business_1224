@@ -13,8 +13,7 @@ import {
   RefreshCw,
   Inbox,
   Package,
-  Woman,
-  Man,
+  PersonStanding,
   Baby,
   Shirt,
   Footprints,
@@ -52,8 +51,8 @@ const TrendIndicator = ({ value }: { value: number }) => {
 type SectionName = keyof WeeklyData["datosPorSeccion"];
 
 const sectionConfig = {
-    woman: { title: "WOMAN", icon: <Woman className="h-5 w-5" />, color: "bg-pink-500" },
-    man: { title: "MAN", icon: <Man className="h-5 w-5" />, color: "bg-blue-500" },
+    woman: { title: "WOMAN", icon: <PersonStanding className="h-5 w-5" />, color: "bg-pink-500" },
+    man: { title: "MAN", icon: <PersonStanding className="h-5 w-5" />, color: "bg-blue-500" },
     nino: { title: "NIÑO", icon: <Baby className="h-5 w-5" />, color: "bg-primary" }
 };
 
