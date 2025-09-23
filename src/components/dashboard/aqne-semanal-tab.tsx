@@ -166,7 +166,7 @@ export function AqneSemanalTab({ data, isEditing, onInputChange }: AqneSemanalTa
                                 <TableCell className="font-medium">{venta.dia}</TableCell>
                                 {isEditing ? (
                                     <>
-                                        <TableCell><Input type="number" defaultValue={venta.total} onChange={(e) => handleDailySaleChange(index, 'total', e.target.value)} className="w-24 ml-auto text-right" /></TableCell>
+                                        <TableCell><Input type="number" value={venta.total} readOnly className="w-24 ml-auto text-right bg-muted" /></TableCell>
                                         <TableCell><Input type="number" defaultValue={venta.woman} onChange={(e) => handleDailySaleChange(index, 'woman', e.target.value)} className="w-24 ml-auto text-right" /></TableCell>
                                         <TableCell><Input type="number" defaultValue={venta.man} onChange={(e) => handleDailySaleChange(index, 'man', e.target.value)} className="w-24 ml-auto text-right" /></TableCell>
                                         <TableCell><Input type="number" defaultValue={venta.nino} onChange={(e) => handleDailySaleChange(index, 'nino', e.target.value)} className="w-24 ml-auto text-right" /></TableCell>

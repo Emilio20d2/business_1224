@@ -142,21 +142,25 @@ export default function DashboardPage() {
         for (let i = 0; i < keys.length - 1; i++) {
             const key = keys[i];
             if (current[key] === undefined) {
-                 // Path does not exist, return original data
                  return prevData;
             }
             current = current[key];
         }
         
         const finalKey = keys[keys.length - 1];
-        const target = current[finalKey];
+        
+        const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
+        const finalValue = isNaN(numericValue) ? (typeof current[finalKey] === 'number' ? 0 : value) : numericValue;
+        
+        current[finalKey] = finalValue;
 
-        // If the target is a number, convert the input value to a number
-        if (typeof target === 'number') {
-            const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
-            current[finalKey] = isNaN(numericValue) ? 0 : numericValue;
-        } else {
-            current[finalKey] = value;
+        // Auto-calculate total for ventasDiariasAQNE
+        if (keys[0] === 'ventasDiariasAQNE' && ['woman', 'man', 'nino'].includes(finalKey)) {
+            const index = parseInt(keys[1], 10);
+            if (!isNaN(index) && updatedData.ventasDiariasAQNE[index]) {
+                const day = updatedData.ventasDiariasAQNE[index];
+                day.total = (day.woman || 0) + (day.man || 0) + (day.nino || 0);
+            }
         }
 
         return updatedData;
