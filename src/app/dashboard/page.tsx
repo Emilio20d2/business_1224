@@ -89,16 +89,8 @@ export default function DashboardPage() {
                     getDoc(listsRef)
                 ]);
 
-                let reportData: WeeklyData;
+                let reportData: Omit<WeeklyData, 'listas'>;
                 let listData: ListData;
-
-                // Handle report data
-                if (reportSnap.exists()) {
-                    reportData = reportSnap.data() as WeeklyData;
-                } else {
-                    reportData = getInitialDataForWeek(week);
-                    await setDoc(reportRef, reportData);
-                }
 
                 // Handle list data
                 if (listsSnap.exists()) {
@@ -106,6 +98,14 @@ export default function DashboardPage() {
                 } else {
                     listData = getInitialLists();
                     await setDoc(listsRef, listData);
+                }
+                
+                // Handle report data
+                if (reportSnap.exists()) {
+                    reportData = reportSnap.data() as Omit<WeeklyData, 'listas'>;
+                } else {
+                    reportData = getInitialDataForWeek(week, listData);
+                    await setDoc(reportRef, reportData);
                 }
                 
                 // Combine data into state
@@ -210,55 +210,51 @@ export default function DashboardPage() {
     try {
         const updatedData = JSON.parse(JSON.stringify(data));
         
+        // 1. Update the list in the local state
         updatedData.listas[listToEdit] = newList;
 
+        // 2. Determine which data table to sync
         let dataKey: keyof WeeklyData['ventasMan'] | null = null;
-        switch (listToEdit) {
-            case 'comprador':
-                dataKey = 'pesoComprador';
-                break;
-            case 'zonaComercial':
-                dataKey = 'zonaComercial';
-                break;
-            case 'agrupacionComercial':
-                dataKey = 'agrupacionComercial';
-                break;
-        }
-
+        if (listToEdit === 'comprador') dataKey = 'pesoComprador';
+        else if (listToEdit === 'zonaComercial') dataKey = 'zonaComercial';
+        else if (listToEdit === 'agrupacionComercial') dataKey = 'agrupacionComercial';
+        
         if (dataKey) {
+            // 3. Rebuild the corresponding data table to match the new list
             const oldTableData: any[] = data.ventasMan[dataKey] || [];
             const oldDataMap = new Map(oldTableData.map(item => [item.nombre, item]));
 
             const newTableData = newList.map(itemName => {
                 const existingItem = oldDataMap.get(itemName);
                 if (existingItem) {
-                    return existingItem;
+                    return existingItem; // Keep existing data if item name persists
                 } else {
+                     // Create new item with default values
                      const newItem: any = {
                         nombre: itemName,
                         pesoPorc: 0,
                         totalEuros: 0,
                         varPorc: 0,
                     };
-                    if (dataKey === 'pesoComprador') {
-                        newItem.imageUrl = '';
-                    }
                     return newItem;
                 }
             });
             updatedData.ventasMan[dataKey] = newTableData;
         }
 
+        // 4. Update the component state with the fully synced data
         setData(updatedData);
 
+        // 5. Save both the list and the synced report data to Firestore
+        const { listas, ...reportDataToSave } = updatedData;
         await Promise.all([
-            setDoc(listsRef, { [listToEdit]: newList }, { merge: true }),
-            setDoc(reportRef, { ventasMan: updatedData.ventasMan }, { merge: true })
+            setDoc(listsRef, listas),
+            setDoc(reportRef, reportDataToSave)
         ]);
 
         toast({
-          title: "Lista y Datos Guardados",
-          description: `La lista de ${listToEdit} y los datos del informe se han sincronizado y guardado en la base de datos.`
+          title: "Lista y Datos Sincronizados",
+          description: `La lista de ${listToEdit} y los datos del informe se han guardado en la base de datos.`
         });
 
     } catch (error) {

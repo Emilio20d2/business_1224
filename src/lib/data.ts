@@ -123,198 +123,124 @@ type VentaDiaria = {
 // This function now provides only the lists for initial setup.
 export function getInitialLists() {
     return {
-        "comprador": ["MAN", "GLOBAL", "CIRCULAR", "DNWR", "SPORT", "ACCES", "BASIC", "EXTRA1", "EXTRA2"],
-        "zonaComercial": ["MAN FORMAL", "GLB URBAN", "CIRCULAR", "ZONA D", "ZONA E", "ZONA F", "ZONA G", "ZONA H", "ZONA I", "ZONA J"],
+        "comprador": ["MAN", "GLOBAL", "CIRCULAR", "DNWR", "SPORT", "ACCES", "BASIC"],
+        "zonaComercial": ["MAN FORMAL", "GLB URBAN", "CIRCULAR"],
         "agrupacionComercial": ["PANTALON", "SASTRERIA", "TEJANO", "CAMISA", "POLO", "ZAPATO", "BERMUDA", "TRICOT", "ACCESORIOS", "BAÑO"]
     };
 }
 
-
-const initialReportData: Omit<WeeklyData, 'periodo' | 'listas'> = {
-    "ventas": {
-        "totalEuros": 244494,
-        "varPorcEuros": 14.5,
-        "totalUnidades": 12654,
-        "varPorcUnidades": 7.5
-    },
-    "rendimientoTienda": {
-        "trafico": 35402,
-        "varPorcTrafico": 8.7,
-        "conversion": 18.6,
-        "varPorcConversion": -2.5
-    },
-    "operaciones": {
-        "filasCajaPorc": 10,
-        "scoPorc": 28.8,
-        "ventaIpod": 21,
-        "eTicketPorc": 50,
-        "sint": 735,
-        "repoPorc": 3.2
-    },
-    "logistica": {
-        "entradasSemanales": 5876,
-        "salidasSemanales": 4731
-    },
-    "perdidas": {
-        "gap": {
-            "euros": 5.5,
-            "unidades": -1.4
-        },
-        "merma": {
-            "unidades": 668,
-            "porcentaje": 1.68
-        }
-    },
-    "almacenes": {
-          "ropa": {
-              "ocupacionPorc": 88,
-              "devolucionUnidades": 292,
-              "entradas": 1200,
-              "salidas": 900
-          },
-          "calzado": {
-              "ocupacionPorc": 100,
-              "devolucionUnidades": 58,
-              "entradas": 400,
-              "salidas": 350
-          },
-          "perfumeria": {
-              "ocupacionPorc": 75,
-              "devolucionUnidades": null,
-              "entradas": 250,
-              "salidas": 200
-          }
-      },
-      "datosPorSeccion": {
-        "woman": {
-            "pesoPorc": 58,
-            "metricasPrincipales": {
-                "totalEuros": 168414,
-                "varPorcEuros": 13.8,
-                "totalUnidades": 7026,
-                "varPorcUnidades": 7.5
-            },
-            "desglose": [
-                { "seccion": "Ropa", "totalEuros": 154234, "varPorc": 13.0 },
-                { "seccion": "Calzado", "totalEuros": 8174, "varPorc": 21.2 },
-                { "seccion": "Perfumería", "totalEuros": 6006, "varPorc": 27.0 }
-            ]
-        },
-        "man": {
-            "pesoPorc": 26,
-            "metricasPrincipales": {
-                "totalEuros": 76080,
-                "varPorcEuros": 14.2,
-                "totalUnidades": 2658,
-                "varPorcUnidades": 7.3
-            },
-            "desglose": [
-                { "seccion": "Ropa", "totalEuros": 67147, "varPorc": 10.9 },
-                { "seccion": "Calzado", "totalEuros": 5074, "varPorc": 64.9 },
-                { "seccion": "Perfumería", "totalEuros": 3859, "varPorc": 30.0 }
-            ]
-        },
-        "nino": {
-            "pesoPorc": 16,
-            "metricasPrincipales": {
-                "totalEuros": 45590,
-                "varPorcEuros": 17.7,
-                "totalUnidades": 2970,
-                "varPorcUnidades": 7.5
-            },
-            "desglose": [
-                { "seccion": "Ropa", "totalEuros": 41219, "varPorc": 15.0 },
-                { "seccion": "Calzado", "totalEuros": 3599, "varPorc": 33.5 },
-                { "seccion": "Perfumería", "totalEuros": 772, "varPorc": 268.0 }
-            ]
-        }
-    },
-    "ventasMan": {
-      "pesoComprador": [
-          { "nombre": "MAN", "pesoPorc": 30, "totalEuros": 20338, "varPorc": 28.2 },
-          { "nombre": "GLOBAL", "pesoPorc": 30, "totalEuros": 20012, "varPorc": 2.4 },
-          { "nombre": "CIRCULAR", "pesoPorc": 16, "totalEuros": 10436, "varPorc": -3.3 },
-          { "nombre": "DNWR", "pesoPorc": 14, "totalEuros": 9081, "varPorc": 6.5 },
-          { "nombre": "SPORT", "pesoPorc": 5, "totalEuros": 3400, "varPorc": 15.1 },
-          { "nombre": "ACCES", "pesoPorc": 3, "totalEuros": 2050, "varPorc": -5.0 },
-          { "nombre": "BASIC", "pesoPorc": 2, "totalEuros": 1500, "varPorc": 12.0 }
-      ],
-      "zonaComercial": [
-          { "nombre": "MAN FORMAL", "pesoPorc": 24, "totalEuros": 16235, "varPorc": 45.3 },
-          { "nombre": "GLB URBAN", "pesoPorc": 16, "totalEuros": 11038, "varPorc": 25.5 },
-          { "nombre": "CIRCULAR", "pesoPorc": 16, "totalEuros": 10436, "varPorc": -3.3 }
-      ],
-      "agrupacionComercial": [
-          { "nombre": "PANTALON", "pesoPorc": 26, "totalEuros": 36607, "varPorc": 20.1 },
-          { "nombre": "SASTRERIA", "pesoPorc": 15, "totalEuros": 20252, "varPorc": -7.3 },
-          { "nombre": "TEJANO", "pesoPorc": 15, "totalEuros": 20167, "varPorc": 22.8 }
-      ]
-    },
-    "aqneSemanal": {
-        "woman": {
-            "pesoPorc": 58,
-            "metricasPrincipales": { "totalEuros": 168414, "varPorcEuros": 13.8, "totalUnidades": 7026, "varPorcUnidades": 7.5 },
-            "desglose": [
-                { "seccion": "Ropa", "totalEuros": 154234, "varPorc": 13.0 },
-                { "seccion": "Calzado", "totalEuros": 8174, "varPorc": 21.2 },
-                { "seccion": "Perfumería", "totalEuros": 6006, "varPorc": 27.0 }
-            ]
-        },
-        "man": {
-            "pesoPorc": 26,
-            "metricasPrincipales": { "totalEuros": 76080, "varPorcEuros": 14.2, "totalUnidades": 2658, "varPorcUnidades": 7.3 },
-            "desglose": [
-                { "seccion": "Ropa", "totalEuros": 67147, "varPorc": 10.9 },
-                { "seccion": "Calzado", "totalEuros": 5074, "varPorc": 64.9 },
-                { "seccion": "Perfumería", "totalEuros": 3859, "varPorc": 30.0 }
-            ]
-        },
-        "nino": {
-            "pesoPorc": 16,
-            "metricasPrincipales": { "totalEuros": 45590, "varPorcEuros": 17.7, "totalUnidades": 2970, "varPorcUnidades": 7.5 },
-            "desglose": [
-                { "seccion": "Ropa", "totalEuros": 41219, "varPorc": 15.0 },
-                { "seccion": "Calzado", "totalEuros": 3599, "varPorc": 33.5 },
-                { "seccion": "Perfumería", "totalEuros": 772, "varPorc": 268.0 }
-            ]
-        }
-    },
-    "ventasDiariasAQNE": [
-        { "dia": "LUNES", "total": 39699, "woman": 19965, "man": 11653, "nino": 8081 },
-        { "dia": "MARTES", "total": 35233, "woman": 20662, "man": 9198, "nino": 5373 },
-        { "dia": "MIÉRCOLES", "total": 36012, "woman": 19373, "man": 9897, "nino": 6742 },
-        { "dia": "JUEVES", "total": 38415, "woman": 24154, "man": 8719, "nino": 5542 },
-        { "dia": "VIERNES", "total": 50686, "woman": 28746, "man": 12332, "nino": 9608 },
-        { "dia": "SÁBADO", "total": 101809, "woman": 58416, "man": 25779, "nino": 17614 },
-        { "dia": "DOMINGO", "total": 0, "woman": 0, "man": 0, "nino": 0 }
-    ],
-    "focusSemanal": "Aquí puedes escribir tus objetivos y foco para la semana.",
-    "acumulado": {
-        "mensual": {
-            "totalEuros": 1421369,
-            "varPorcTotal": 12.6,
-            "desglose": [
-                { "nombre": "Woman", "totalEuros": 816587, "varPorc": 11.0, "pesoPorc": 57.5 },
-                { "nombre": "Man", "totalEuros": 382012, "varPorc": 18.6, "pesoPorc": 26.9 },
-                { "nombre": "Niño", "totalEuros": 222770, "varPorc": 8.3, "pesoPorc": 15.7 }
-            ]
-        },
-        "anual": {
-            "totalEuros": 18604000,
-            "varPorcTotal": 19.4,
-            "desglose": [
-                { "nombre": "Woman", "totalEuros": 10001000, "varPorc": 20.0, "pesoPorc": 53.8 },
-                { "nombre": "Man", "totalEuros": 5712000, "varPorc": 21.2, "pesoPorc": 30.7 },
-                { "nombre": "Niño", "totalEuros": 2891000, "varPorc": 14.0, "pesoPorc": 15.5 }
-            ]
-        }
-    }
-  };
-
-// This function now only cares about the report data. Lists are handled separately.
-export function getInitialDataForWeek(week: string): any {
+// This function generates a new, blank report structure based on the provided lists.
+export function getInitialDataForWeek(week: string, lists: { comprador: string[]; zonaComercial: string[]; agrupacionComercial: string[] }): Omit<WeeklyData, 'listas'> {
+    const createVentasManItems = (items: string[]): VentasManItem[] => 
+        items.map(name => ({
+            nombre: name,
+            pesoPorc: 0,
+            totalEuros: 0,
+            varPorc: 0,
+        }));
+    
     return {
-        ...initialReportData,
         periodo: week.toUpperCase().replace('-', ' '),
-    }
+        ventas: { totalEuros: 0, varPorcEuros: 0, totalUnidades: 0, varPorcUnidades: 0 },
+        rendimientoTienda: { trafico: 0, varPorcTrafico: 0, conversion: 0, varPorcConversion: 0 },
+        operaciones: { filasCajaPorc: 0, scoPorc: 0, ventaIpod: 0, eTicketPorc: 0, sint: 0, repoPorc: 0 },
+        logistica: { entradasSemanales: 0, salidasSemanales: 0 },
+        perdidas: { gap: { euros: 0, unidades: 0 }, merma: { unidades: 0, porcentaje: 0 } },
+        almacenes: {
+            ropa: { ocupacionPorc: 0, devolucionUnidades: 0, entradas: 0, salidas: 0 },
+            calzado: { ocupacionPorc: 0, devolucionUnidades: 0, entradas: 0, salidas: 0 },
+            perfumeria: { ocupacionPorc: 0, devolucionUnidades: null, entradas: 0, salidas: 0 }
+        },
+        datosPorSeccion: {
+            woman: {
+                pesoPorc: 0,
+                metricasPrincipales: { totalEuros: 0, varPorcEuros: 0, totalUnidades: 0, varPorcUnidades: 0 },
+                desglose: [
+                    { seccion: "Ropa", totalEuros: 0, varPorc: 0 },
+                    { seccion: "Calzado", totalEuros: 0, varPorc: 0 },
+                    { seccion: "Perfumería", totalEuros: 0, varPorc: 0 }
+                ]
+            },
+            man: {
+                pesoPorc: 0,
+                metricasPrincipales: { totalEuros: 0, varPorcEuros: 0, totalUnidades: 0, varPorcUnidades: 0 },
+                desglose: [
+                    { seccion: "Ropa", totalEuros: 0, varPorc: 0 },
+                    { seccion: "Calzado", totalEuros: 0, varPorc: 0 },
+                    { seccion: "Perfumería", totalEuros: 0, varPorc: 0 }
+                ]
+            },
+            nino: {
+                pesoPorc: 0,
+                metricasPrincipales: { totalEuros: 0, varPorcEuros: 0, totalUnidades: 0, varPorcUnidades: 0 },
+                desglose: [
+                    { seccion: "Ropa", totalEuros: 0, varPorc: 0 },
+                    { seccion: "Calzado", totalEuros: 0, varPorc: 0 },
+                    { seccion: "Perfumería", totalEuros: 0, varPorc: 0 }
+                ]
+            }
+        },
+        ventasMan: {
+            pesoComprador: createVentasManItems(lists.comprador),
+            zonaComercial: createVentasManItems(lists.zonaComercial),
+            agrupacionComercial: createVentasManItems(lists.agrupacionComercial)
+        },
+        aqneSemanal: {
+            woman: {
+                pesoPorc: 0,
+                metricasPrincipales: { totalEuros: 0, varPorcEuros: 0, totalUnidades: 0, varPorcUnidades: 0 },
+                desglose: [
+                    { seccion: "Ropa", totalEuros: 0, varPorc: 0 },
+                    { seccion: "Calzado", totalEuros: 0, varPorc: 0 },
+                    { seccion: "Perfumería", totalEuros: 0, varPorc: 0 }
+                ]
+            },
+            man: {
+                pesoPorc: 0,
+                metricasPrincipales: { totalEuros: 0, varPorcEuros: 0, totalUnidades: 0, varPorcUnidades: 0 },
+                desglose: [
+                    { seccion: "Ropa", totalEuros: 0, varPorc: 0 },
+                    { seccion: "Calzado", totalEuros: 0, varPorc: 0 },
+                    { seccion: "Perfumería", totalEuros: 0, varPorc: 0 }
+                ]
+            },
+            nino: {
+                pesoPorc: 0,
+                metricasPrincipales: { totalEuros: 0, varPorcEuros: 0, totalUnidades: 0, varPorcUnidades: 0 },
+                desglose: [
+                    { seccion: "Ropa", totalEuros: 0, varPorc: 0 },
+                    { seccion: "Calzado", totalEuros: 0, varPorc: 0 },
+                    { seccion: "Perfumería", totalEuros: 0, varPorc: 0 }
+                ]
+            }
+        },
+        ventasDiariasAQNE: [
+            { dia: "LUNES", total: 0, woman: 0, man: 0, nino: 0 },
+            { dia: "MARTES", total: 0, woman: 0, man: 0, nino: 0 },
+            { dia: "MIÉRCOLES", total: 0, woman: 0, man: 0, nino: 0 },
+            { dia: "JUEVES", total: 0, woman: 0, man: 0, nino: 0 },
+            { dia: "VIERNES", total: 0, woman: 0, man: 0, nino: 0 },
+            { dia: "SÁBADO", total: 0, woman: 0, man: 0, nino: 0 },
+            { dia: "DOMINGO", total: 0, woman: 0, man: 0, nino: 0 }
+        ],
+        focusSemanal: "",
+        acumulado: {
+            mensual: {
+                totalEuros: 0, varPorcTotal: 0,
+                desglose: [
+                    { nombre: "Woman", totalEuros: 0, varPorc: 0, pesoPorc: 0 },
+                    { nombre: "Man", totalEuros: 0, varPorc: 0, pesoPorc: 0 },
+                    { nombre: "Niño", totalEuros: 0, varPorc: 0, pesoPorc: 0 }
+                ]
+            },
+            anual: {
+                totalEuros: 0, varPorcTotal: 0,
+                desglose: [
+                    { nombre: "Woman", totalEuros: 0, varPorc: 0, pesoPorc: 0 },
+                    { nombre: "Man", totalEuros: 0, varPorc: 0, pesoPorc: 0 },
+                    { nombre: "Niño", totalEuros: 0, varPorc: 0, pesoPorc: 0 }
+                ]
+            }
+        }
+    };
 }
