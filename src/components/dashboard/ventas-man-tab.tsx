@@ -95,13 +95,13 @@ const DataTable = ({ data, headers, isEditing, allItems, onRowClick, dataKey, on
                                 )}
                             </TableCell>
                             <TableCell className="text-right font-medium">
-                                {isEditing ? <Input type="number" inputMode="decimal" className="w-20 ml-auto text-right" value={item.pesoPorc} onChange={(e) => handleChange(index, 'pesoPorc', e.target.value)} /> : formatPercentage(item.pesoPorc)}
+                                {isEditing ? <Input type="number" inputMode="decimal" className="w-20 ml-auto text-right" defaultValue={item.pesoPorc} onChange={(e) => handleChange(index, 'pesoPorc', e.target.value)} /> : formatPercentage(item.pesoPorc)}
                             </TableCell>
                             <TableCell className="text-right font-medium">
-                                {isEditing ? <Input type="number" inputMode="decimal" className="w-24 ml-auto text-right" value={item.totalEuros} onChange={(e) => handleChange(index, 'totalEuros', e.target.value)} /> : formatCurrency(item.totalEuros)}
+                                {isEditing ? <Input type="number" inputMode="decimal" className="w-24 ml-auto text-right" defaultValue={item.totalEuros} onChange={(e) => handleChange(index, 'totalEuros', e.target.value)} /> : formatCurrency(item.totalEuros)}
                             </TableCell>
                             <TableCell className="text-right">
-                                {isEditing ? <Input type="number" inputMode="decimal" className="w-20 ml-auto text-right" value={item.varPorc} onChange={(e) => handleChange(index, 'varPorc', e.target.value)} /> : <TrendIndicator value={item.varPorc} />}
+                                {isEditing ? <Input type="number" inputMode="decimal" className="w-20 ml-auto text-right" defaultValue={item.varPorc} onChange={(e) => handleChange(index, 'varPorc', e.target.value)} /> : <TrendIndicator value={item.varPorc} />}
                             </TableCell>
                         </TableRow>
                     ))}
@@ -165,41 +165,51 @@ const ImageImportCard = ({ selectedRow, isEditing, onImageChange }: { selectedRo
 };
 
 
-const SubTabContent = ({ data, headers, isEditing, allItems, dataKey, onInputChange, showImage, selectedIndex, setSelectedIndex }: { data: TableData, headers: string[], isEditing: boolean, allItems: string[], dataKey: TableDataKey, onInputChange: VentasManTabProps['onInputChange'], showImage: boolean, selectedIndex: number | null, setSelectedIndex: (index: number | null) => void }) => {
+export function VentasManTab({ data, isEditing, listOptions, onInputChange }: VentasManTabProps) {
+    const [selectedCompradorIndex, setSelectedCompradorIndex] = React.useState<number | null>(0);
+    const [selectedZonaIndex, setSelectedZonaIndex] = React.useState<number | null>(0);
+    const [selectedAgrupacionIndex, setSelectedAgrupacionIndex] = React.useState<number | null>(0);
 
-    React.useEffect(() => {
-        if (data && data.length > 0 && selectedIndex === null) {
-            setSelectedIndex(0);
-        } else if (data && selectedIndex !== null && selectedIndex >= data.length) {
-            setSelectedIndex(data.length > 0 ? data.length - 1 : null);
-        } else if (!data || data.length === 0) {
-            setSelectedIndex(null);
-        }
-    }, [data, selectedIndex, setSelectedIndex]);
-
-    const handleImageChange = (dataUrl: string) => {
-        if (selectedIndex !== null) {
-            const path = `ventasMan.${dataKey}.${selectedIndex}.imageUrl`;
+    const handleImageChange = (dataKey: TableDataKey, index: number | null) => (dataUrl: string) => {
+        if (index !== null) {
+            const path = `ventasMan.${dataKey}.${index}.imageUrl`;
             onInputChange(path, dataUrl);
         }
     };
+
+    const selectedCompradorRow = selectedCompradorIndex !== null && data.pesoComprador?.[selectedCompradorIndex] ? data.pesoComprador[selectedCompradorIndex] : null;
+
+    React.useEffect(() => {
+        if (data.pesoComprador && data.pesoComprador.length > 0 && selectedCompradorIndex === null) {
+            setSelectedCompradorIndex(0);
+        } else if (data.pesoComprador && selectedCompradorIndex !== null && selectedCompradorIndex >= data.pesoComprador.length) {
+            setSelectedCompradorIndex(data.pesoComprador.length > 0 ? data.pesoComprador.length - 1 : null);
+        } else if (!data.pesoComprador || data.pesoComprador.length === 0) {
+            setSelectedCompradorIndex(null);
+        }
+    }, [data.pesoComprador, selectedCompradorIndex]);
+
+    React.useEffect(() => {
+        if (data.zonaComercial && data.zonaComercial.length > 0 && selectedZonaIndex === null) {
+            setSelectedZonaIndex(0);
+        } else if (data.zonaComercial && selectedZonaIndex !== null && selectedZonaIndex >= data.zonaComercial.length) {
+            setSelectedZonaIndex(data.zonaComercial.length > 0 ? data.zonaComercial.length - 1 : null);
+        } else if (!data.zonaComercial || data.zonaComercial.length === 0) {
+            setSelectedZonaIndex(null);
+        }
+    }, [data.zonaComercial, selectedZonaIndex]);
     
-    const selectedRow = selectedIndex !== null && data && data[selectedIndex] ? data[selectedIndex] : null;
-    
-    return (
-        <div className={cn("grid gap-4 items-start", showImage ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1")}>
-             <DataTable data={data} headers={headers} isEditing={isEditing} allItems={allItems} onRowClick={setSelectedIndex} dataKey={dataKey} onInputChange={onInputChange} selectedIndex={selectedIndex} />
-             {showImage && <ImageImportCard selectedRow={selectedRow} isEditing={isEditing} onImageChange={handleImageChange} />}
-        </div>
-    );
-}
+    React.useEffect(() => {
+        if (data.agrupacionComercial && data.agrupacionComercial.length > 0 && selectedAgrupacionIndex === null) {
+            setSelectedAgrupacionIndex(0);
+        } else if (data.agrupacionComercial && selectedAgrupacionIndex !== null && selectedAgrupacionIndex >= data.agrupacionComercial.length) {
+            setSelectedAgrupacionIndex(data.agrupacionComercial.length > 0 ? data.agrupacionComercial.length - 1 : null);
+        } else if (!data.agrupacionComercial || data.agrupacionComercial.length === 0) {
+            setSelectedAgrupacionIndex(null);
+        }
+    }, [data.agrupacionComercial, selectedAgrupacionIndex]);
 
 
-export function VentasManTab({ data, isEditing, listOptions, onInputChange }: VentasManTabProps) {
-  const [selectedCompradorIndex, setSelectedCompradorIndex] = React.useState<number | null>(0);
-  const [selectedZonaIndex, setSelectedZonaIndex] = React.useState<number | null>(0);
-  const [selectedAgrupacionIndex, setSelectedAgrupacionIndex] = React.useState<number | null>(0);
-    
   return (
     <Tabs defaultValue="comprador" className="w-full">
       <TabsList className="grid w-full grid-cols-3 mx-auto max-w-md mb-4">
@@ -207,44 +217,55 @@ export function VentasManTab({ data, isEditing, listOptions, onInputChange }: Ve
         <TabsTrigger value="zonaComercial">Zona Comprador</TabsTrigger>
         <TabsTrigger value="agrupacionComercial">Agrupación Comercial</TabsTrigger>
       </TabsList>
+      
       <TabsContent value="comprador">
-        <SubTabContent 
-            data={data.pesoComprador} 
-            headers={['COMPRADOR', 'PESO %', '€', '%']} 
-            isEditing={isEditing} 
-            allItems={listOptions.comprador} 
-            dataKey="pesoComprador" 
-            onInputChange={onInputChange} 
-            showImage={true} 
-            selectedIndex={selectedCompradorIndex}
-            setSelectedIndex={setSelectedCompradorIndex}
-        />
+         <div className="grid gap-4 items-start grid-cols-1 md:grid-cols-2">
+            <DataTable 
+                data={data.pesoComprador} 
+                headers={['COMPRADOR', 'PESO %', '€', '%']} 
+                isEditing={isEditing} 
+                allItems={listOptions.comprador} 
+                onRowClick={setSelectedCompradorIndex} 
+                dataKey="pesoComprador" 
+                onInputChange={onInputChange} 
+                selectedIndex={selectedCompradorIndex} 
+            />
+            <ImageImportCard 
+                selectedRow={selectedCompradorRow} 
+                isEditing={isEditing} 
+                onImageChange={handleImageChange('pesoComprador', selectedCompradorIndex)} 
+            />
+         </div>
       </TabsContent>
+
       <TabsContent value="zonaComercial">
-        <SubTabContent 
-            data={data.zonaComercial} 
-            headers={['ZONA COMPRADOR', 'PESO %', '€', '%']} 
-            isEditing={isEditing} 
-            allItems={listOptions.zonaComercial} 
-            dataKey="zonaComercial" 
-            onInputChange={onInputChange} 
-            showImage={false} 
-            selectedIndex={selectedZonaIndex}
-            setSelectedIndex={setSelectedZonaIndex}
-        />
+         <div className="grid gap-4 items-start grid-cols-1">
+            <DataTable 
+                data={data.zonaComercial} 
+                headers={['ZONA COMPRADOR', 'PESO %', '€', '%']} 
+                isEditing={isEditing} 
+                allItems={listOptions.zonaComercial} 
+                onRowClick={setSelectedZonaIndex} 
+                dataKey="zonaComercial" 
+                onInputChange={onInputChange} 
+                selectedIndex={selectedZonaIndex} 
+            />
+         </div>
       </TabsContent>
+
       <TabsContent value="agrupacionComercial">
-         <SubTabContent 
-            data={data.agrupacionComercial} 
-            headers={['Agrupación Comercial', 'PESO %', '€', '%']} 
-            isEditing={isEditing} 
-            allItems={listOptions.agrupacionComercial} 
-            dataKey="agrupacionComercial" 
-            onInputChange={onInputChange} 
-            showImage={false} 
-            selectedIndex={selectedAgrupacionIndex}
-            setSelectedIndex={setSelectedAgrupacionIndex}
-        />
+         <div className="grid gap-4 items-start grid-cols-1">
+            <DataTable 
+                data={data.agrupacionComercial} 
+                headers={['Agrupación Comercial', 'PESO %', '€', '%']} 
+                isEditing={isEditing} 
+                allItems={listOptions.agrupacionComercial} 
+                onRowClick={setSelectedAgrupacionIndex} 
+                dataKey="agrupacionComercial" 
+                onInputChange={onInputChange} 
+                selectedIndex={selectedAgrupacionIndex} 
+            />
+         </div>
       </TabsContent>
     </Tabs>
   );
