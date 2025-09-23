@@ -13,7 +13,9 @@ import {
   RefreshCw,
   Inbox,
   Package,
-  PersonStanding,
+  Woman,
+  Man,
+  Baby,
   Shirt,
   Footprints,
   SprayCan,
@@ -50,9 +52,9 @@ const TrendIndicator = ({ value }: { value: number }) => {
 type SectionName = keyof WeeklyData["datosPorSeccion"];
 
 const sectionConfig = {
-    woman: { title: "WOMAN", icon: <PersonStanding className="h-5 w-5" />, color: "bg-pink-500" },
-    man: { title: "MAN", icon: <PersonStanding className="h-5 w-5" />, color: "bg-blue-500" },
-    nino: { title: "NIÑO", icon: <PersonStanding className="h-5 w-5" />, color: "bg-primary" }
+    woman: { title: "WOMAN", icon: <Woman className="h-5 w-5" />, color: "bg-pink-500" },
+    man: { title: "MAN", icon: <Man className="h-5 w-5" />, color: "bg-blue-500" },
+    nino: { title: "NIÑO", icon: <Baby className="h-5 w-5" />, color: "bg-primary" }
 };
 
 const desgloseIconos: { [key: string]: React.ReactNode } = {
@@ -97,7 +99,7 @@ const SectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionNa
                 </CardTitle>
             </CardHeader>
             <CardContent>
-                <div className="grid grid-cols-2 gap-2 my-4">
+                <div className="grid grid-cols-2 gap-2 my-2">
                     {isEditing ? (
                         <>
                             <div className="bg-background rounded-lg p-2 text-center">
@@ -123,7 +125,7 @@ const SectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionNa
                     )}
                 </div>
                 <Separator className="my-2" />
-                <div className="flex flex-col gap-2 mt-4 text-sm">
+                <div className="flex flex-col gap-2 mt-2 text-sm">
                     {data.desglose.map((item, index) => (
                          <div key={index} className="flex justify-between items-center">
                             <div className="flex items-center gap-2">
