@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 import { Button } from '../ui/button';
 import { ImagePlus, Upload, ChevronDown } from 'lucide-react';
 import { OperacionesSubTab } from './operaciones-sub-tab';
+import { FocusSemanalTab } from './focus-semanal-tab';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -172,6 +173,12 @@ const analisisVentasLabels: Record<TableDataKey, string> = {
     agrupacionComercial: "AGRUPACIÓN COMERCIAL",
 };
 
+const subTabLabels: Record<string, string> = {
+    analisisVentas: "ANÁLISIS DE VENTAS",
+    operaciones: "OPERACIONES",
+    focusSemanal: "FOCUS SEMANAL",
+};
+
 
 export function VentasManTab({ data, isEditing, onInputChange, onImageChange }: VentasManTabProps) {
     const [activeMainTab, setActiveMainTab] = React.useState("analisisVentas");
@@ -212,7 +219,7 @@ export function VentasManTab({ data, isEditing, onInputChange, onImageChange }: 
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="outline" className="w-full md:w-auto">
-                            {activeMainTab === 'analisisVentas' ? 'ANÁLISIS DE VENTAS' : 'OPERACIONES'}
+                            {subTabLabels[activeMainTab]}
                             <ChevronDown className="ml-2 h-4 w-4" />
                         </Button>
                     </DropdownMenuTrigger>
@@ -220,6 +227,7 @@ export function VentasManTab({ data, isEditing, onInputChange, onImageChange }: 
                         <DropdownMenuRadioGroup value={activeMainTab} onValueChange={setActiveMainTab}>
                             <DropdownMenuRadioItem value="analisisVentas">ANÁLISIS DE VENTAS</DropdownMenuRadioItem>
                             <DropdownMenuRadioItem value="operaciones">OPERACIONES</DropdownMenuRadioItem>
+                            <DropdownMenuRadioItem value="focusSemanal">FOCUS SEMANAL</DropdownMenuRadioItem>
                         </DropdownMenuRadioGroup>
                     </DropdownMenuContent>
                 </DropdownMenu>
@@ -297,6 +305,14 @@ export function VentasManTab({ data, isEditing, onInputChange, onImageChange }: 
 
             <TabsContent value="operaciones">
                 <OperacionesSubTab data={data} isEditing={isEditing} onInputChange={onInputChange} />
+            </TabsContent>
+            
+            <TabsContent value="focusSemanal">
+              <FocusSemanalTab 
+                text={data.focusSemanal} 
+                isEditing={isEditing} 
+                onInputChange={onInputChange} 
+              />
             </TabsContent>
         </Tabs>
     );

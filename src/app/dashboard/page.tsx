@@ -14,7 +14,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DatosSemanalesTab } from "@/components/dashboard/datos-semanales-tab";
 import { AqneSemanalTab } from "@/components/dashboard/aqne-semanal-tab";
 import { AcumuladoTab } from "@/components/dashboard/acumulado-tab";
-import { FocusSemanalTab } from '@/components/dashboard/focus-semanal-tab';
 import { VentasManTab } from '@/components/dashboard/ventas-man-tab';
 import { Button } from '@/components/ui/button';
 import { Settings, LogOut, Loader2, ChevronDown, Pencil } from 'lucide-react';
@@ -40,15 +39,14 @@ import { OperacionesSubTab } from '@/components/dashboard/operaciones-sub-tab';
 
 
 type EditableList = 'comprador' | 'zonaComercial' | 'agrupacionComercial';
-type TabValue = "datosSemanales" | "aqneSemanal" | "acumulado" | "ventasMan" | "focusSemanal";
+type TabValue = "datosSemanales" | "aqneSemanal" | "acumulado" | "ventasMan";
 
 
-const tabLabels: Record<TabValue, string> = {
+const tabLabels: Record<string, string> = {
     datosSemanales: "GENERAL",
     aqneSemanal: "AQNE SEMANAL",
     acumulado: "ACUMULADO",
     ventasMan: "VENTAS MAN",
-    focusSemanal: "FOCUS SEMANAL"
 };
 
 const getPreviousWeekRange = () => {
@@ -94,7 +92,7 @@ export default function DashboardPage() {
   const [isListDialogOpen, setIsListDialogOpen] = useState(false);
   const [listToEdit, setListToEdit] = useState<EditableList | null>(null);
   
-  const [activeTab, setActiveTab] = useState<TabValue>("datosSemanales");
+  const [activeTab, setActiveTab] = useState<string>("datosSemanales");
 
 
   const { toast } = useToast();
@@ -448,7 +446,7 @@ export default function DashboardPage() {
               <DropdownMenuContent className="w-56 z-50">
                 <DropdownMenuLabel>Opciones</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuLabel className="font-normal text-muted-foreground px-2 py-1.5 text-xs">Editar Listas de Categorías</DropdownMenuLabel>
+                <DropdownMenuLabel className="font-normal text-muted-foreground px-2 py-1.5 text-xs">EDITAR LISTAS DE CATEGORÍAS</DropdownMenuLabel>
                   <DropdownMenuGroup>
                       <DropdownMenuItem onSelect={() => handleOpenListDialog('comprador')}>
                           <span>COMPRADOR</span>
@@ -491,9 +489,6 @@ export default function DashboardPage() {
               onInputChange={handleInputChange}
               onImageChange={handleImageChange}
             />
-          </TabsContent>
-          <TabsContent value="focusSemanal" className="mt-0">
-            <FocusSemanalTab text={data.focusSemanal} isEditing={isEditing} onInputChange={handleInputChange} />
           </TabsContent>
         </Tabs>
       </main>
