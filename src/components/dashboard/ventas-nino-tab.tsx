@@ -327,5 +327,3 @@ export function VentasNinoTab({ data, isEditing, onInputChange, onImageChange }:
         </Tabs>
     );
 }
-
-    

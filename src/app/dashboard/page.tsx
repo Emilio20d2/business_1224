@@ -36,7 +36,6 @@ import { useToast } from '@/hooks/use-toast';
 import { AuthContext } from '@/context/auth-context';
 import { getInitialDataForWeek, getInitialLists } from '@/lib/data';
 import { useRouter } from 'next/navigation';
-import { OperacionesSubTab } from '@/components/dashboard/operaciones-sub-tab';
 
 
 type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan' | 'compradorWoman' | 'zonaComercialWoman' | 'agrupacionComercialWoman' | 'compradorNino' | 'zonaComercialNino' | 'agrupacionComercialNino';
@@ -120,7 +119,7 @@ const synchronizeReportData = (reportData: WeeklyData, listData: WeeklyData['lis
 
         // Sync pesoComprador
         const pesoCompradorList = listData[listKeys.comprador] || [];
-        const currentPesoCompradorData = updatedData[ventasKey].pesoComprador || [];
+        const currentPesoCompradorData = updatedData[ventasKey]?.pesoComprador || [];
         if (pesoCompradorList.length !== currentPesoCompradorData.length || pesoCompradorList.some((item, i) => item !== currentPesoCompradorData[i]?.nombre)) {
              updatedData[ventasKey].pesoComprador = synchronizeTableData(pesoCompradorList, currentPesoCompradorData);
              hasChanged = true;
@@ -128,7 +127,7 @@ const synchronizeReportData = (reportData: WeeklyData, listData: WeeklyData['lis
 
         // Sync zonaComercial
         const zonaComercialList = listData[listKeys.zonaComercial] || [];
-        const currentZonaComercialData = updatedData[ventasKey].zonaComercial || [];
+        const currentZonaComercialData = updatedData[ventasKey]?.zonaComercial || [];
         if (zonaComercialList.length !== currentZonaComercialData.length || zonaComercialList.some((item, i) => item !== currentZonaComercialData[i]?.nombre)) {
              updatedData[ventasKey].zonaComercial = synchronizeTableData(zonaComercialList, currentZonaComercialData);
              hasChanged = true;
@@ -136,7 +135,7 @@ const synchronizeReportData = (reportData: WeeklyData, listData: WeeklyData['lis
         
         // Sync agrupacionComercial
         const agrupacionComercialList = listData[listKeys.agrupacionComercial] || [];
-        const currentAgrupacionComercialData = updatedData[ventasKey].agrupacionComercial || [];
+        const currentAgrupacionComercialData = updatedData[ventasKey]?.agrupacionComercial || [];
         if (agrupacionComercialList.length !== currentAgrupacionComercialData.length || agrupacionComercialList.some((item, i) => item !== currentAgrupacionComercialData[i]?.nombre)) {
              updatedData[ventasKey].agrupacionComercial = synchronizeTableData(agrupacionComercialList, currentAgrupacionComercialData);
              hasChanged = true;
@@ -224,8 +223,6 @@ export default function DashboardPage() {
   const weekLabel = `${previousWeek.start} - ${previousWeek.end}`;
 
   const handleInputChange = (path: string, value: string | number) => {
-    if (!data) return;
-
     setData(prevData => {
         if (!prevData) return null;
 
@@ -244,12 +241,6 @@ export default function DashboardPage() {
         
         const finalKey = keys[keys.length - 1];
         
-        // Handle name change from a Select component
-        if (finalKey === 'nombre') {
-            current[finalKey] = value;
-            return updatedData;
-        }
-
         const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
         current[finalKey] = isNaN(numericValue) ? value : numericValue;
         
@@ -313,8 +304,6 @@ export default function DashboardPage() {
   };
 
   const handleImageChange = (path: string, dataUrl: string) => {
-    if (!data) return;
-
     setData(prevData => {
         if (!prevData) return null;
 
@@ -330,7 +319,6 @@ export default function DashboardPage() {
         return updatedData;
     });
 
-    // Set editing to true so the user is prompted to save
     if (!isEditing) {
         setIsEditing(true);
     }
@@ -486,5 +474,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-    

@@ -326,5 +326,3 @@ export function VentasWomanTab({ data, isEditing, onInputChange, onImageChange }
         </Tabs>
     );
 }
-
-    
