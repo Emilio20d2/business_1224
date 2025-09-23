@@ -11,11 +11,11 @@ type KpiCardProps = {
 
 export function KpiCard({ title, icon, children, className }: KpiCardProps) {
   return (
-    <div className={cn("bg-card text-card-foreground rounded-xl p-4 flex flex-col gap-4 shadow", className)}>
-      <h3 className="flex items-center gap-3 text-base font-semibold leading-none tracking-tight text-card-foreground/80 -m-4 mb-0 border-b p-3">
+    <div className={cn("bg-card text-card-foreground rounded-xl p-3 flex flex-col gap-2 shadow", className)}>
+      <h3 className="flex items-center gap-3 text-base font-semibold leading-none tracking-tight text-card-foreground/80 -m-3 mb-0 border-b p-3">
         {icon} {title}
       </h3>
-      <div className="flex flex-col gap-4 h-full">
+      <div className="flex flex-col gap-2 h-full">
         {children}
       </div>
     </div>
@@ -128,7 +128,7 @@ export function DatoSimple({ label, value, isEditing, valueId, className, icon, 
     const renderValue = () => {
         if (isEditing && valueId && onInputChange) {
             return (
-                 <div className="flex items-center justify-center gap-1">
+                 <div className="flex items-center justify-center gap-1 w-full">
                     <Input 
                       type="number"
                       inputMode="decimal" 

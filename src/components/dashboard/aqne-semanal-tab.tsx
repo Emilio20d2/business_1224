@@ -81,7 +81,7 @@ const AqneSectionCard = ({ name, data, isEditing, onInputChange }: { name: Secti
                 </CardTitle>
             </CardHeader>
             <CardContent>
-                <div className="grid grid-cols-2 gap-2 my-4">
+                <div className="grid grid-cols-2 gap-2 my-2">
                     {isEditing ? (
                         <>
                             <div className="bg-background rounded-lg p-2 text-center">
