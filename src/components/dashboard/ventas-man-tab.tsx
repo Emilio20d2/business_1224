@@ -22,6 +22,9 @@ import { formatCurrency, formatPercentage } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { Button } from '../ui/button';
 import { ImagePlus, Loader2, Upload, Users, MapPin, ShoppingBasket, Percent, Euro, TrendingUp } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { OperacionesSubTab } from './operaciones-sub-tab';
+import { FocusSemanalTab } from './focus-semanal-tab';
 
 
 type VentasManTabProps = {
