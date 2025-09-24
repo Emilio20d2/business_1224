@@ -89,10 +89,8 @@ const generateWeeks = (): WeekOption[] => {
     return weeks;
 }
 
-const getPreviousWeekId = (): string => {
-  const generatedWeeks = generateWeeks();
-  return generatedWeeks.length > 0 ? generatedWeeks[0].value : `semana-${getISOWeekYear(new Date())}-${getISOWeek(new Date())}`;
-};
+const initialWeeks = generateWeeks();
+const initialDefaultWeek = initialWeeks.length > 0 ? initialWeeks[0].value : `semana-${getISOWeekYear(new Date())}-${getISOWeek(new Date())}`;
 
 
 const synchronizeTableData = (list: string[], oldTableData: VentasManItem[]): VentasManItem[] => {
@@ -133,7 +131,7 @@ function ManPageComponent() {
 
   const [weeks, setWeeks] = useState<WeekOption[]>([]);
   
-  const selectedWeek = searchParams.get('week') || getPreviousWeekId();
+  const selectedWeek = searchParams.get('week') || initialDefaultWeek;
   const activeTab = "man";
 
   const canEdit = user?.email === 'emiliogp@inditex.com';
@@ -239,7 +237,7 @@ function ManPageComponent() {
   }, [user, toast]);
 
     useEffect(() => {
-        setWeeks(generateWeeks());
+        setWeeks(initialWeeks);
     }, []);
 
   useEffect(() => {

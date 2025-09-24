@@ -53,7 +53,7 @@ const tabConfig: Record<string, { label: string; icon: React.FC<React.SVGProps<S
     datosSemanales: { label: "GENERAL", icon: LayoutDashboard },
     aqneSemanal: { label: "AQNE", icon: ShoppingBag },
     acumulado: { label: "ACUMULADO", icon: AreaChart },
-    man: { label: "MAN", icon: UserIcon, path: "/man" },
+    man: { label: "MAN", icon: UserIcon },
 };
 
 const listLabels: Record<EditableList, string> = {
@@ -94,11 +94,8 @@ const generateWeeks = (): WeekOption[] => {
     return weeks;
 }
 
-const getPreviousWeekId = (): string => {
-  const generatedWeeks = generateWeeks();
-  return generatedWeeks.length > 0 ? generatedWeeks[0].value : `semana-${getISOWeekYear(new Date())}-${getISOWeek(new Date())}`;
-};
-
+const initialWeeks = generateWeeks();
+const initialDefaultWeek = initialWeeks.length > 0 ? initialWeeks[0].value : `semana-${getISOWeekYear(new Date())}-${getISOWeek(new Date())}`;
 
 
 const synchronizeTableData = (list: string[], oldTableData: VentasManItem[]): VentasManItem[] => {
@@ -139,7 +136,7 @@ function DashboardPageComponent() {
 
   const [weeks, setWeeks] = useState<WeekOption[]>([]);
   
-  const selectedWeek = searchParams.get('week') || getPreviousWeekId();
+  const selectedWeek = searchParams.get('week') || initialDefaultWeek;
   const activeTab = (searchParams.get('tab') as TabValue) || 'datosSemanales';
 
   const canEdit = user?.email === 'emiliogp@inditex.com';
@@ -248,7 +245,7 @@ function DashboardPageComponent() {
   }, [user, toast]);
 
     useEffect(() => {
-        setWeeks(generateWeeks());
+        setWeeks(initialWeeks);
     }, []);
 
   useEffect(() => {
