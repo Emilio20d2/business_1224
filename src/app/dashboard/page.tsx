@@ -441,7 +441,7 @@ const handleImageChange = (path: string, file: File, onUploadComplete: (success:
           BUSSINES
         </h1>
         <div className="flex items-center gap-2">
-            <div className="hidden sm:flex items-center gap-2 rounded-lg bg-muted p-1">
+            <div className="hidden sm:flex items-center gap-2">
                 {(Object.keys(tabConfig) as TabValue[]).map(tab => (
                     <NavButton key={tab} tab={tab} activeTab={activeTab} onTabChange={setActiveTab} />
                 ))}
@@ -584,3 +584,5 @@ const handleImageChange = (path: string, file: File, onUploadComplete: (success:
     </div>
   );
 }
+
+    
