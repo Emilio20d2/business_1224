@@ -1,7 +1,7 @@
 "use client"
 import React, { useState, useContext, useEffect, useCallback, Suspense } from 'react';
 import type { WeeklyData, VentasManItem } from "@/lib/data";
-import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, updateDoc, collection, getDocs } from "firebase/firestore";
 import { db, storage } from '@/lib/firebase';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { 
@@ -28,8 +28,6 @@ import {
   DropdownMenuSubContent,
   DropdownMenuPortal
 } from "@/components/ui/dropdown-menu"
-import { getWeek, format, addWeeks, startOfISOWeek, getISOWeek, getISOWeekYear, subWeeks } from 'date-fns';
-import { es } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import { AuthContext } from '@/context/auth-context';
 import { getInitialDataForWeek, getInitialLists } from '@/lib/data';
@@ -37,7 +35,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { EditListDialog } from '@/components/dashboard/edit-list-dialog';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-
+import { formatWeekId } from '@/lib/format';
 
 type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan' | 'compradorWoman' | 'zonaComercialWoman' | 'agrupacionComercialWoman' | 'compradorNino' | 'zonaComercialNino' | 'agrupacionComercialNino';
 type WeekOption = { value: string; label: string };
@@ -60,39 +58,6 @@ const listLabels: Record<EditableList, string> = {
     compradorNino: 'Comprador NIÑO',
     zonaComercialNino: 'Zona Comercial NIÑO',
     agrupacionComercialNino: 'Agrupación Comercial NIÑO',
-};
-
-
-const getWeekId = (date: Date): string => {
-    const isoWeekYear = getISOWeekYear(date);
-    const isoWeek = getISOWeek(date);
-    return `semana-${isoWeekYear}-${isoWeek}`;
-};
-
-const generateWeeks = (): WeekOption[] => {
-    const weeks: WeekOption[] = [];
-    const today = new Date();
-    // Generate 52 weeks before and 52 weeks after today
-    const startDate = subWeeks(today, 52); 
-    
-    for (let i = 0; i < 104; i++) {
-        const weekDate = addWeeks(startDate, i);
-        const start = startOfISOWeek(weekDate);
-        const weekId = getWeekId(start);
-        
-        const end = addWeeks(start, 1);
-        const endDate = new Date(end.getTime() - 1);
-
-        const label = `${format(start, 'd MMM', { locale: es })} - ${format(endDate, 'd MMM, yyyy', { locale: es })}`;
-        
-        weeks.push({ value: weekId, label });
-    }
-    return weeks;
-}
-
-const getPreviousWeekId = () => {
-    const lastWeek = subWeeks(new Date(), 1);
-    return getWeekId(startOfISOWeek(lastWeek));
 };
 
 const synchronizeTableData = (list: string[], oldTableData: VentasManItem[]): VentasManItem[] => {
@@ -132,20 +97,21 @@ function ManPageComponent() {
   const [listToEdit, setListToEdit] = useState<{ listKey: EditableList, title: string } | null>(null);
 
   const [weeks, setWeeks] = useState<WeekOption[]>([]);
-  const [defaultWeek, setDefaultWeek] = useState<string>('');
+  const [weeksLoading, setWeeksLoading] = useState(true);
   
-  const selectedWeek = searchParams.get('week') || defaultWeek;
+  const selectedWeek = searchParams.get('week') || '';
   const activeTab = "man";
 
   const canEdit = user?.email === 'emiliogp@inditex.com';
   const { toast } = useToast();
   
-  const updateUrl = (newWeek: string) => {
+  const updateUrl = useCallback((newWeek: string) => {
       if (!newWeek) return;
       const params = new URLSearchParams(searchParams);
       params.set('week', newWeek);
       router.replace(`/man?${params.toString()}`);
-  }
+  }, [router, searchParams]);
+
 
   const handleWeekChange = (newWeek: string) => {
       updateUrl(newWeek);
@@ -157,6 +123,41 @@ function ManPageComponent() {
         router.push(`${config.path}?week=${selectedWeek}`);
     }
   };
+
+  useEffect(() => {
+    async function fetchAvailableWeeks() {
+        if (!user) return;
+        setWeeksLoading(true);
+        try {
+            const informesCollection = collection(db, "informes");
+            const querySnapshot = await getDocs(informesCollection);
+            const weekIds = querySnapshot.docs.map(doc => doc.id);
+            
+            weekIds.sort((a, b) => b.localeCompare(a));
+            
+            const weekOptions = weekIds.map(id => ({
+                value: id,
+                label: formatWeekId(id)
+            }));
+            
+            setWeeks(weekOptions);
+
+            if (!searchParams.has('week') && weekOptions.length > 0) {
+                 updateUrl(weekOptions[0].value);
+            }
+        } catch (error) {
+            console.error("Error fetching available weeks:", error);
+            toast({
+                variant: "destructive",
+                title: "Error al cargar semanas",
+                description: "No se pudieron obtener las semanas disponibles desde la base de datos.",
+            });
+        } finally {
+            setWeeksLoading(false);
+        }
+    }
+    fetchAvailableWeeks();
+  }, [user, searchParams, toast, updateUrl]);
 
 
  const fetchData = useCallback(async (weekId: string) => {
@@ -239,20 +240,6 @@ function ManPageComponent() {
         setDataLoading(false);
     }
   }, [user, toast]);
-
-    useEffect(() => {
-        // Run only on client
-        const generatedWeeks = generateWeeks();
-        const previousWeekId = getPreviousWeekId();
-        setWeeks(generatedWeeks);
-        setDefaultWeek(previousWeekId);
-
-        // If no week in URL, set it to default
-        if (!searchParams.has('week')) {
-            updateUrl(previousWeekId);
-        }
-    }, []); // Empty dependency array ensures this runs once on mount
-
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -385,7 +372,7 @@ const handleImageChange = (path: string, file: File, onUploadComplete: (success:
     });
 };
 
-  if (authLoading || (dataLoading && !data) || !selectedWeek) {
+  if (authLoading || (dataLoading && !data) || !selectedWeek || weeksLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -471,7 +458,7 @@ const handleImageChange = (path: string, file: File, onUploadComplete: (success:
             <div className="flex items-center gap-2">
               <Select value={selectedWeek} onValueChange={handleWeekChange}>
                 <SelectTrigger id="semana-select" className="w-[220px]">
-                  <SelectValue placeholder={weeks.length > 0 ? "Seleccionar semana" : "Cargando..."} />
+                  <SelectValue placeholder={weeksLoading ? "Cargando..." : "Seleccionar semana"} />
                 </SelectTrigger>
                 <SelectContent>
                   {weeks.map(week => (

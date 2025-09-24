@@ -17,3 +17,15 @@ export const formatGap = (value: number) => {
     const formattedValue = new Intl.NumberFormat('es-ES').format(value);
     return `${sign}${formattedValue}`;
 }
+
+export const formatWeekId = (weekId: string): string => {
+  if (!weekId.startsWith('semana-')) {
+    return weekId;
+  }
+  const parts = weekId.split('-');
+  if (parts.length !== 3) {
+    return weekId;
+  }
+  const [, year, week] = parts;
+  return `Semana ${week} - ${year}`;
+};
