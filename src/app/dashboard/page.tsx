@@ -51,7 +51,7 @@ const tabConfig: Record<TabValue, { label: string; icon: React.FC<React.SVGProps
     datosSemanales: { label: "GENERAL", icon: LayoutDashboard },
     aqneSemanal: { label: "AQNE", icon: ShoppingBag },
     acumulado: { label: "ACUMULADO", icon: AreaChart },
-    man: { label: UserIcon },
+    man: { label: "MAN", icon: UserIcon },
 };
 
 const listLabels: Record<EditableList, string> = {
