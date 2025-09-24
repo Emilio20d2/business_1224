@@ -72,16 +72,8 @@ const SectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionNa
     if (!data) return null;
     const config = sectionConfig[name];
 
-    const handleMetricChange = (field: string, value: string) => {
-        onInputChange(`datosPorSeccion.${name}.metricasPrincipales.${field}`, value);
-    };
-
     const handleDesgloseChange = (index: number, field: string, value: string) => {
         onInputChange(`datosPorSeccion.${name}.desglose.${index}.${field}`, value);
-    };
-    
-    const handlePesoChange = (value: string) => {
-        onInputChange(`datosPorSeccion.${name}.pesoPorc`, value);
     };
 
     return (
@@ -92,43 +84,21 @@ const SectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionNa
                         {config.icon}
                         {config.title}
                     </div>
-                     {isEditing ? (
-                        <div className="flex items-center gap-1">
-                            <Input type="number" inputMode="decimal" value={data.pesoPorc} onChange={(e) => handlePesoChange(e.target.value)} className="w-16 h-8 text-right" readOnly/>
-                            <span className="text-sm font-bold text-muted-foreground">%</span>
-                        </div>
-                    ) : (
-                        <span className={cn("text-sm font-bold text-white rounded-md px-2 py-1", config.color)}>
-                            {formatPercentage(data.pesoPorc)}
-                        </span>
-                    )}
+                    <span className={cn("text-sm font-bold text-white rounded-md px-2 py-1", config.color)}>
+                        {formatPercentage(data.pesoPorc)}
+                    </span>
                 </CardTitle>
             </CardHeader>
             <CardContent>
                 <div className="grid grid-cols-2 gap-2">
-                    {isEditing ? (
-                        <>
-                            <div className="bg-background rounded-lg p-2 text-center">
-                                <Input type="number" inputMode="decimal" defaultValue={data.metricasPrincipales.totalEuros} onChange={(e) => handleMetricChange('totalEuros', e.target.value)} className="font-bold text-lg w-full text-center" />
-                                <Input type="number" inputMode="decimal" defaultValue={data.metricasPrincipales.varPorcEuros} onChange={(e) => handleMetricChange('varPorcEuros', e.target.value)} className="text-xs font-bold w-full text-center mt-1" />
-                            </div>
-                            <div className="bg-background rounded-lg p-2 text-center">
-                                <Input type="number" inputMode="decimal" defaultValue={data.metricasPrincipales.totalUnidades} onChange={(e) => handleMetricChange('totalUnidades', e.target.value)} className="font-bold text-lg w-full text-center" />
-                                <Input type="number" inputMode="decimal" defaultValue={data.metricasPrincipales.varPorcUnidades} onChange={(e) => handleMetricChange('varPorcUnidades', e.target.value)} className="text-xs font-bold w-full text-center mt-1" />
-                            </div>
-                        </>
-                    ) : (
-                        <>
-                            <div className="bg-background rounded-lg p-2 text-center">
-                                <div className={cn("font-bold text-lg", data.metricasPrincipales.totalEuros < 0 && "text-red-600")}>{formatCurrency(data.metricasPrincipales.totalEuros)}</div>
-                                <TrendIndicator value={data.metricasPrincipales.varPorcEuros} />
-                            </div>
-                            <div className="bg-background rounded-lg p-2 text-center">
-                                <div className={cn("font-bold text-lg", data.metricasPrincipales.totalUnidades < 0 && "text-red-600")}>{formatNumber(data.metricasPrincipales.totalUnidades)}</div>
-                                <TrendIndicator value={data.metricasPrincipales.varPorcUnidades} />
-                            </div>
-                        </>
-                    )}
+                    <div className="bg-background rounded-lg p-2 text-center">
+                        <div className={cn("font-bold text-lg", data.metricasPrincipales.totalEuros < 0 && "text-red-600")}>{formatCurrency(data.metricasPrincipales.totalEuros)}</div>
+                        <TrendIndicator value={data.metricasPrincipales.varPorcEuros} />
+                    </div>
+                    <div className="bg-background rounded-lg p-2 text-center">
+                        <div className={cn("font-bold text-lg", data.metricasPrincipales.totalUnidades < 0 && "text-red-600")}>{formatNumber(data.metricasPrincipales.totalUnidades)}</div>
+                        <TrendIndicator value={data.metricasPrincipales.varPorcUnidades} />
+                    </div>
                 </div>
                 <Separator className="my-2" />
                 <div className="flex flex-col gap-2 mt-2 text-sm">
@@ -145,11 +115,7 @@ const SectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionNa
                                 )}
                             </div>
                             <div>
-                                {isEditing ? (
-                                    <Input type="number" inputMode="decimal" defaultValue={item.varPorc} onChange={(e) => handleDesgloseChange(index, 'varPorc', e.target.value)} className="text-xs font-bold w-16 text-right" />
-                                ) : (
-                                    <TrendIndicator value={item.varPorc} />
-                                )}
+                                <TrendIndicator value={item.varPorc} />
                             </div>
                         </div>
                     ))}
@@ -172,19 +138,13 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
           <DatoDoble 
             value={formatCurrency(ventas.totalEuros)} 
             variation={ventas.varPorcEuros} 
-            isEditing={isEditing}
-            valueId="ventas.totalEuros"
-            variationId="ventas.varPorcEuros"
-            onInputChange={onInputChange}
+            isEditing={false}
           />
           <DatoDoble 
             value={formatNumber(ventas.totalUnidades)}
             unit=" Unid."
             variation={ventas.varPorcUnidades} 
-            isEditing={isEditing}
-            valueId="ventas.totalUnidades"
-            variationId="ventas.varPorcUnidades"
-            onInputChange={onInputChange}
+            isEditing={false}
           />
         </KpiCard>
 
@@ -260,8 +220,8 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
           
           <KpiCard title="Operaciones" icon={<RefreshCw className="h-5 w-5 text-primary" />} className="md:col-span-2 h-full">
               <div className="grid grid-cols-2 gap-4 h-full">
-                  <DatoSimple label="Repo" value={isEditing ? operaciones.repoPorc : formatPercentage(operaciones.repoPorc)} isEditing={isEditing} valueId="operaciones.repoPorc" align="center" unit="%" icon={<RefreshCw className="h-5 w-5 text-primary"/>} />
-                  <DatoSimple label="Frescura" value={isEditing ? operaciones.frescuraPorc : formatPercentage(operaciones.frescuraPorc)} isEditing={isEditing} valueId="operaciones.frescuraPorc" align="center" unit="%" icon={<Sparkles className="h-5 w-5 text-primary"/>} />
+                  <DatoSimple label="Repo" value={isEditing ? operaciones.repoPorc : formatPercentage(operaciones.repoPorc)} isEditing={isEditing} valueId="operaciones.repoPorc" align="center" unit="%" icon={<RefreshCw className="h-5 w-5 text-primary"/>} onInputChange={onInputChange} />
+                  <DatoSimple label="Frescura" value={isEditing ? operaciones.frescuraPorc : formatPercentage(operaciones.frescuraPorc)} isEditing={isEditing} valueId="operaciones.frescuraPorc" align="center" unit="%" icon={<Sparkles className="h-5 w-5 text-primary"/>} onInputChange={onInputChange} />
               </div>
           </KpiCard>
 

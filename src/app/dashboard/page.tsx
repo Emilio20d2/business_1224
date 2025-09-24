@@ -154,7 +154,6 @@ export default function DashboardPage() {
         // 4. Synchronize tables in the report with the latest lists
         let needsSave = false;
         
-        // This is a simplified check, a more robust implementation would compare item by item.
         const currentManCompradorNames = reportData.ventasMan?.pesoComprador?.map(i => i.nombre).sort().join(',') || '';
         const listManCompradorNames = (listData.compradorMan || []).sort().join(',');
 
@@ -225,8 +224,6 @@ export default function DashboardPage() {
         
         for (let i = 0; i < keys.length - 1; i++) {
             if (current[keys[i]] === undefined) {
-                // If a path segment doesn't exist, create it.
-                // This is crucial for nested properties.
                 current[keys[i]] = {};
             }
             current = current[keys[i]];
@@ -238,6 +235,25 @@ export default function DashboardPage() {
         current[finalKey] = isNaN(numericValue) || value === "" ? value : numericValue;
         
         // --- Recalculation Logic ---
+        const [mainKey, sectionKey, subKey, index, field] = keys;
+        
+        // Recalculate Section Total from Desglose
+        if (mainKey === 'datosPorSeccion' && subKey === 'desglose') {
+            const section = updatedData.datosPorSeccion[sectionKey];
+            if (section && Array.isArray(section.desglose)) {
+                const newTotalEuros = section.desglose.reduce((sum: number, item: any) => sum + (item.totalEuros || 0), 0);
+                section.metricasPrincipales.totalEuros = newTotalEuros;
+
+                // Now, recalculate the main ventas total
+                const { man, woman, nino } = updatedData.datosPorSeccion;
+                updatedData.ventas.totalEuros = 
+                    (man?.metricasPrincipales.totalEuros || 0) +
+                    (woman?.metricasPrincipales.totalEuros || 0) +
+                    (nino?.metricasPrincipales.totalEuros || 0);
+            }
+        }
+
+
         if (path.startsWith('aqneSemanal.')) {
             const sections = updatedData.aqneSemanal;
             const totalVentasAqne = (sections.woman.metricasPrincipales.totalEuros || 0) +
@@ -256,9 +272,9 @@ export default function DashboardPage() {
         }
         
         if (keys[0] === 'ventasDiariasAQNE') {
-            const index = parseInt(keys[1], 10);
-            if (!isNaN(index) && updatedData.ventasDiariasAQNE[index]) {
-                const day = updatedData.ventasDiariasAQNE[index];
+            const ventaIndex = parseInt(keys[1], 10);
+            if (!isNaN(ventaIndex) && updatedData.ventasDiariasAQNE[ventaIndex]) {
+                const day = updatedData.ventasDiariasAQNE[ventaIndex];
                 day.total = (day.woman || 0) + (day.man || 0) + (day.nino || 0);
             }
         }
@@ -538,5 +554,3 @@ const handleImageChange = (path: string, file: File, onUploadComplete: (success:
     </div>
   );
 }
-
-    
