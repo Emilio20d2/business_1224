@@ -33,7 +33,7 @@ import {
   DropdownMenuSubContent,
   DropdownMenuPortal
 } from "@/components/ui/dropdown-menu"
-import { startOfWeek, endOfWeek, subWeeks, format } from 'date-fns';
+import { startOfWeek, endOfWeek, subWeeks, addWeeks, format, getWeek } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import { AuthContext } from '@/context/auth-context';
@@ -45,13 +45,14 @@ import { cn } from '@/lib/utils';
 
 type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan' | 'compradorWoman' | 'zonaComercialWoman' | 'agrupacionComercialWoman' | 'compradorNino' | 'zonaComercialNino' | 'agrupacionComercialNino';
 type TabValue = "datosSemanales" | "aqneSemanal" | "acumulado" | "man";
+type WeekOption = { value: string; label: string };
 
 
 const tabConfig: Record<string, { label: string; icon: React.FC<React.SVGProps<SVGSVGElement>>, path?: string }> = {
     datosSemanales: { label: "GENERAL", icon: LayoutDashboard },
     aqneSemanal: { label: "AQNE", icon: ShoppingBag },
     acumulado: { label: "ACUMULADO", icon: AreaChart },
-    man: { label: "MAN", icon: UserIcon },
+    man: { label: "MAN", icon: UserIcon, path: "/comprador" },
 };
 
 const listLabels: Record<EditableList, string> = {
@@ -66,16 +67,31 @@ const listLabels: Record<EditableList, string> = {
     agrupacionComercialNino: 'Agrupación Comercial NIÑO',
 };
 
-const getPreviousWeekRange = () => {
-    const today = new Date();
-    const lastWeek = subWeeks(today, 1);
-    const start = startOfWeek(lastWeek, { weekStartsOn: 1 }); // Lunes
-    const end = endOfWeek(lastWeek, { weekStartsOn: 1 }); // Domingo
-    return {
-      start: format(start, 'd MMM', { locale: es }),
-      end: format(end, 'd MMM, yyyy', { locale: es }),
-    };
-};
+const generateWeeks = (today: Date): WeekOption[] => {
+    const weeks: WeekOption[] = [];
+    const weekOptions = [-4, -3, -2, -1, 0, 1, 2, 3, 4]; // Past, current, and future weeks
+
+    weekOptions.forEach(offset => {
+        const date = addWeeks(today, offset);
+        const start = startOfWeek(date, { weekStartsOn: 1 });
+        const end = endOfWeek(date, { weekStartsOn: 1 });
+        const weekNumber = getWeek(date, { weekStartsOn: 1 });
+
+        const label = `${format(start, 'd MMM', { locale: es })} - ${format(end, 'd MMM, yyyy', { locale: es })}`;
+        const value = `semana-${weekNumber}`;
+
+        weeks.push({ value, label });
+    });
+
+    return weeks;
+}
+
+const getPreviousWeekId = () => {
+    const lastWeek = subWeeks(new Date(), 1);
+    const weekNumber = getWeek(lastWeek, { weekStartsOn: 1 });
+    return `semana-${weekNumber}`;
+}
+
 
 const synchronizeTableData = (list: string[], oldTableData: VentasManItem[]): VentasManItem[] => {
     const safeList = Array.isArray(list) ? list : [];
@@ -92,6 +108,7 @@ const synchronizeTableData = (list: string[], oldTableData: VentasManItem[]): Ve
             nombre: itemName,
             pesoPorc: 0,
             totalEuros: 0,
+            totalEurosSemanaAnterior: 0,
             varPorc: 0,
             imageUrl: "",
         };
@@ -140,16 +157,18 @@ export default function DashboardPage() {
   const [isListDialogOpen, setListDialogOpen] = useState(false);
   const [listToEdit, setListToEdit] = useState<{ listKey: EditableList, title: string } | null>(null);
 
+  const [weeks, setWeeks] = useState<WeekOption[]>([]);
+  const [selectedWeek, setSelectedWeek] = useState<string>(getPreviousWeekId());
+
 
   const { toast } = useToast();
   
- const fetchData = useCallback(async () => {
+ const fetchData = useCallback(async (weekId: string) => {
     if (!user) return;
     setDataLoading(true);
     setError(null);
     try {
-        const week = "semana-24";
-        const reportRef = doc(db, "informes", week);
+        const reportRef = doc(db, "informes", weekId);
         const listsRef = doc(db, "configuracion", "listas");
 
         // 1. Fetch lists first, it's the source of truth for structure
@@ -171,7 +190,7 @@ export default function DashboardPage() {
             reportData = reportSnap.data() as WeeklyData;
         } else {
             // If it doesn't exist, create a fresh one from scratch using the lists
-            reportData = getInitialDataForWeek(week, listData);
+            reportData = getInitialDataForWeek(weekId, listData);
             await setDoc(reportRef, reportData);
         }
 
@@ -225,17 +244,18 @@ export default function DashboardPage() {
     }
   }, [user, toast]);
 
+    useEffect(() => {
+        setWeeks(generateWeeks(new Date()));
+    }, []);
 
   useEffect(() => {
     if (!authLoading && !user) {
       router.push('/');
     } else if (!authLoading && user) {
-      fetchData();
+      fetchData(selectedWeek);
     }
-  }, [user, authLoading, router, fetchData]);
+  }, [user, authLoading, router, fetchData, selectedWeek]);
 
-  const previousWeek = getPreviousWeekRange();
-  const weekLabel = `${previousWeek.start} - ${previousWeek.end}`;
 
   const handleInputChange = (path: string, value: any) => {
     if (!isEditing) return;
@@ -343,7 +363,7 @@ export default function DashboardPage() {
   
   const handleCancel = () => {
     setIsEditing(false);
-    fetchData(); 
+    fetchData(selectedWeek); 
   };
   
   const handleOpenListDialog = (listKey: EditableList, title: string) => {
@@ -366,7 +386,7 @@ export default function DashboardPage() {
         setListDialogOpen(false);
         setListToEdit(null);
         // Fetch data again to reflect the list changes in the current view immediately
-        await fetchData();
+        await fetchData(selectedWeek);
 
     } catch (error: any) {
         console.error("Error saving list:", error);
@@ -428,7 +448,7 @@ const handleImageChange = (path: string, file: File, onUploadComplete: (success:
         <p className="text-lg font-semibold text-destructive">Error al Cargar Datos</p>
         <p className="text-muted-foreground">{error}</p>
         <p className="text-sm mt-2 text-muted-foreground">Asegúrate de que la base de datos Firestore está creada en tu proyecto y que las reglas de seguridad son correctas.</p>
-        <Button onClick={fetchData} className="mt-4">Reintentar</Button>
+        <Button onClick={() => fetchData(selectedWeek)} className="mt-4">Reintentar</Button>
       </div>
     );
   }
@@ -437,7 +457,7 @@ const handleImageChange = (path: string, file: File, onUploadComplete: (success:
      return (
       <div className="flex flex-col items-center justify-center min-h-screen">
         <p>No se encontraron datos para la semana.</p>
-        <Button onClick={fetchData} className="mt-4">Cargar datos</Button>
+        <Button onClick={() => fetchData(selectedWeek)} className="mt-4">Cargar datos</Button>
       </div>
     );
   }
@@ -476,12 +496,14 @@ const handleImageChange = (path: string, file: File, onUploadComplete: (success:
             </DropdownMenu>
 
           <div className="flex items-center gap-2">
-             <Select value="previous-week">
-              <SelectTrigger id="semana-select" className="w-[180px]">
-                <SelectValue />
+             <Select value={selectedWeek} onValueChange={setSelectedWeek}>
+              <SelectTrigger id="semana-select" className="w-[220px]">
+                <SelectValue placeholder="Seleccionar semana" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="previous-week">{weekLabel}</SelectItem>
+                {weeks.map(week => (
+                    <SelectItem key={week.value} value={week.value}>{week.label}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
