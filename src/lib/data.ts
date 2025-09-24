@@ -266,5 +266,3 @@ export function getInitialDataForWeek(week: string, lists: WeeklyData['listas'])
         }
     };
 }
-
-    

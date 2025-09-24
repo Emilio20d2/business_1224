@@ -112,6 +112,7 @@ type DatoSimpleProps = {
   align?: 'left' | 'center' | 'right';
   unit?: string;
   onInputChange?: (path: string, value: string) => void;
+  alwaysShowVariation?: boolean;
 };
 
 export function DatoSimple({ 
@@ -126,7 +127,8 @@ export function DatoSimple({
     icon, 
     align = 'left', 
     unit, 
-    onInputChange 
+    onInputChange,
+    alwaysShowVariation = false
 }: DatoSimpleProps) {
     const handleValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (onInputChange && valueId) {
@@ -181,7 +183,40 @@ export function DatoSimple({
                  </div>
             )
         }
-        return <strong className={cn("font-semibold text-lg w-full flex items-center justify-center gap-1", valueColor)}>{value} {variation !== undefined && !isEditing && <TrendIcon />}</strong>;
+        const showValue = value || (alwaysShowVariation && variation !== undefined) ? value : '';
+        return <strong className={cn("font-semibold text-lg w-full flex items-center justify-center gap-1", valueColor)}>{showValue} {variation !== undefined && !isEditing && <TrendIcon />}</strong>;
+    }
+
+    const renderVariation = () => {
+      if (variation === undefined) return null;
+
+      if (isEditing && variationId && onInputChange) {
+        return (
+          <div className="flex items-center justify-center gap-1 mt-1">
+              <Input 
+                  type="number" 
+                  inputMode="decimal" 
+                  defaultValue={variation} 
+                  className="w-16 h-7 text-xs" 
+                  id={variationId}
+                  onChange={handleVariationChange}
+              />
+              <span className="text-xs text-muted-foreground">%</span>
+          </div>
+        );
+      }
+      
+      if (!isEditing || alwaysShowVariation) {
+        const color = getTrendColor();
+        return (
+          <div className={cn("flex items-center justify-center gap-1 text-xs font-bold mt-1", color)}>
+            <TrendIcon />
+            <span>{variation.toLocaleString('es-ES')}%</span>
+          </div>
+        );
+      }
+      
+      return null;
     }
 
     const alignmentClasses = {
@@ -199,22 +234,9 @@ export function DatoSimple({
               </span>
                <div className="text-center flex-col justify-center">
                     {renderValue()}
-                    {isEditing && variationId && onInputChange && (
-                        <div className="flex items-center justify-center gap-1 mt-1">
-                             <Input 
-                                type="number" 
-                                inputMode="decimal" 
-                                defaultValue={variation} 
-                                className="w-16 h-7 text-xs" 
-                                id={variationId}
-                                onChange={handleVariationChange}
-                             />
-                             <span className="text-xs text-muted-foreground">%</span>
-                        </div>
-                    )}
+                    {renderVariation()}
                </div>
             </div>
         </div>
     );
 }
-

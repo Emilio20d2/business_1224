@@ -66,6 +66,11 @@ const SectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionNa
         onInputChange(`datosPorSeccion.${name}.desglose.${index}.${field}`, value);
     };
 
+    const handleMetricChange = (field: string, value: string) => {
+        onInputChange(`datosPorSeccion.${name}.metricasPrincipales.${field}`, value);
+    };
+
+
     return (
         <Card className="flex-1">
             <CardHeader className="pb-2">
@@ -87,10 +92,11 @@ const SectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionNa
                           value="" 
                           variation={data.metricasPrincipales.varPorcEuros} 
                           isEditing={isEditing} 
+                          alwaysShowVariation
                           align="center" 
                           unit="%"
                           variationId={`datosPorSeccion.${name}.metricasPrincipales.varPorcEuros`}
-                          onInputChange={onInputChange}
+                          onInputChange={handleMetricChange}
                         />
                     </div>
                     <div className="bg-background rounded-lg p-2 text-center">
@@ -98,18 +104,19 @@ const SectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionNa
                         <DatoSimple 
                           value="" 
                           variation={data.metricasPrincipales.varPorcUnidades} 
-                          isEditing={isEditing} 
+                          isEditing={isEditing}
+                          alwaysShowVariation 
                           align="center" 
                           unit="%"
                           variationId={`datosPorSeccion.${name}.metricasPrincipales.varPorcUnidades`}
-                          onInputChange={onInputChange}
+                          onInputChange={handleMetricChange}
                         />
                     </div>
                 </div>
                 <Separator className="my-2" />
                 <div className="flex flex-col gap-2 mt-2 text-sm">
                     {data.desglose.map((item, index) => (
-                         <div key={index} className="grid grid-cols-[1fr_auto_auto] justify-between items-center gap-2">
+                         <div key={index} className="grid grid-cols-[1fr_auto_auto_auto] justify-between items-center gap-2">
                             <div className="flex items-center gap-2">
                                 <div className="w-6 flex-shrink-0">
                                     {desgloseIconos[item.seccion] || <User className="h-4 w-4 text-muted-foreground" />}
@@ -118,9 +125,15 @@ const SectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionNa
                             </div>
                             
                             {isEditing ? (
-                                <Input type="number" inputMode="decimal" defaultValue={item.totalEuros} onChange={(e) => handleDesgloseChange(index, 'totalEuros', e.target.value)} className="font-bold w-24 text-right" placeholder="€" />
+                                <Input type="number" inputMode="decimal" defaultValue={item.totalEuros} onChange={(e) => handleDesgloseChange(index, 'totalEuros', e.target.value)} className="font-bold w-20 text-right" placeholder="€" />
                             ) : (
                                 <div className={cn("font-bold text-right", item.totalEuros < 0 && "text-red-600")}>{formatCurrency(item.totalEuros)}</div>
+                            )}
+
+                             {isEditing ? (
+                                <Input type="number" inputMode="decimal" step="0.1" defaultValue={item.varPorc} onChange={(e) => handleDesgloseChange(index, 'varPorc', e.target.value)} className="font-bold w-16 text-right" placeholder="%" />
+                            ) : (
+                                <div className={cn("text-right", item.varPorc < 0 ? "text-red-600" : "text-green-600")}>{formatPercentage(item.varPorc)}</div>
                             )}
 
                             {isEditing ? (
@@ -269,7 +282,7 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
 
           <KpiCard title="Caja" icon={<Receipt className="h-5 w-5 text-primary" />} className="md:col-span-4">
               <div className="grid grid-cols-3 items-center justify-center gap-4 h-full">
-                  <DatoSimple 
+                   <DatoSimple 
                     icon={<Clock className="h-5 w-5 text-primary"/>} 
                     label="Filas Caja" 
                     value={formatPercentage(operaciones.filasCajaPorc)} 
