@@ -1,9 +1,9 @@
 import type { WeeklyData } from "@/lib/data";
-import { formatCurrency, formatNumber, formatPercentage } from "@/lib/format";
+import { formatCurrency, formatNumber, formatPercentage, formatGap } from "@/lib/format";
 import { KpiCard, DatoDoble, DatoSimple } from "./kpi-card";
 import { 
   Euro, 
-  ChartLine,
+  ChartLine, 
   Receipt,
   Warehouse,
   ClipboardX,
@@ -31,11 +31,6 @@ type OperacionesSubTabProps = {
   onInputChange: (path: string, value: string | number) => void;
 };
 
-const formatGap = (value: number, unit: '€' | 'Unid.') => {
-    const sign = value > 0 ? '+' : '';
-    const formattedValue = new Intl.NumberFormat('es-ES').format(value);
-    return `${sign}${formattedValue}${unit}`;
-}
 
 const ModuloAlmacen = ({ title, children, className }: { title: string, children: React.ReactNode, className?: string }) => (
     <div className={cn("flex flex-col text-center gap-2", className)}>
@@ -101,7 +96,7 @@ export function OperacionesSubTab({ data, isEditing, onInputChange }: Operacione
              <div className="flex flex-row justify-center items-center gap-4">
                 <DatoSimple 
                     label={<Euro className="h-5 w-5 text-primary"/>}
-                    value={isEditing ? data.perdidas.gap.euros : formatGap(data.perdidas.gap.euros, '€')} 
+                    value={isEditing ? data.perdidas.gap.euros : formatGap(data.perdidas.gap.euros)} 
                     isEditing={isEditing}
                     valueId="perdidas.gap.euros"
                     align="center"
@@ -110,7 +105,7 @@ export function OperacionesSubTab({ data, isEditing, onInputChange }: Operacione
                 />
                 <DatoSimple 
                     label={<Package className="h-5 w-5 text-primary"/>}
-                    value={isEditing ? data.perdidas.gap.unidades : formatGap(data.perdidas.gap.unidades, 'Unid.')}
+                    value={isEditing ? data.perdidas.gap.unidades : formatGap(data.perdidas.gap.unidades)}
                     isEditing={isEditing}
                     valueId="perdidas.gap.unidades"
                     align="center"
@@ -124,7 +119,7 @@ export function OperacionesSubTab({ data, isEditing, onInputChange }: Operacione
             <div className="flex flex-row justify-center items-center gap-4">
                 <DatoSimple 
                     label={<Package className="h-5 w-5 text-primary"/>}
-                    value={isEditing ? data.perdidas.merma.unidades : `${formatNumber(data.perdidas.merma.unidades)} Unid.`}
+                    value={isEditing ? data.perdidas.merma.unidades : formatNumber(data.perdidas.merma.unidades)}
                     isEditing={isEditing}
                     valueId="perdidas.merma.unidades"
                     align="center"

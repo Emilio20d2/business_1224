@@ -11,3 +11,9 @@ export const formatPercentage = (value: number | null | undefined) => {
   if (value === null || value === undefined) return 'N/A';
   return `${value.toLocaleString('es-ES')}%`;
 };
+
+export const formatGap = (value: number) => {
+    const sign = value > 0 ? '+' : '';
+    const formattedValue = new Intl.NumberFormat('es-ES').format(value);
+    return `${sign}${formattedValue}`;
+}

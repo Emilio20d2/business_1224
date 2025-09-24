@@ -1,5 +1,5 @@
 import type { WeeklyData } from "@/lib/data";
-import { formatCurrency, formatNumber, formatPercentage } from "@/lib/format";
+import { formatCurrency, formatNumber, formatPercentage, formatGap } from "@/lib/format";
 import { KpiCard, DatoDoble, DatoSimple } from "./kpi-card";
 import { 
   Euro, 
@@ -36,12 +36,6 @@ type DatosSemanalesTabProps = {
   isEditing: boolean;
   onInputChange: (path: string, value: string | number) => void;
 };
-
-const formatGap = (value: number, unit: '€' | 'Unid.') => {
-    const sign = value > 0 ? '+' : '';
-    const formattedValue = new Intl.NumberFormat('es-ES').format(value);
-    return `${sign}${formattedValue}${unit}`;
-}
 
 
 type SectionName = keyof WeeklyData["datosPorSeccion"];
@@ -83,7 +77,7 @@ const SectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionNa
                  <div className="grid grid-cols-2 gap-2">
                     <div className="bg-background rounded-lg p-3 text-center flex flex-col justify-center items-center">
                         <div className={cn("font-bold text-lg", data.metricasPrincipales.totalEuros < 0 && "text-red-600")}>{formatCurrency(data.metricasPrincipales.totalEuros)}</div>
-                         <DatoSimple
+                        <DatoSimple
                             value=""
                             variation={data.metricasPrincipales.varPorcEuros}
                             isEditing={isEditing}
@@ -101,6 +95,7 @@ const SectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionNa
                             valueId={`datosPorSeccion.${name}.metricasPrincipales.totalUnidades`}
                             onInputChange={onInputChange}
                             align="center"
+                            unit="Unid."
                         />
                         <DatoSimple
                             value=""
@@ -210,7 +205,7 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
               <div className="flex flex-row justify-around items-center gap-4 h-full">
                   <DatoSimple 
                       label={<Euro className="h-5 w-5 text-primary"/>}
-                      value={isEditing ? perdidas.gap.euros : formatGap(perdidas.gap.euros, '€')} 
+                      value={isEditing ? perdidas.gap.euros : formatGap(perdidas.gap.euros)} 
                       isEditing={isEditing}
                       valueId="perdidas.gap.euros"
                       align="center"
@@ -219,7 +214,7 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
                   />
                   <DatoSimple 
                       label={<Package className="h-5 w-5 text-primary"/>}
-                      value={isEditing ? perdidas.gap.unidades : formatGap(perdidas.gap.unidades, 'Unid.')}
+                      value={isEditing ? perdidas.gap.unidades : formatGap(perdidas.gap.unidades)}
                       isEditing={isEditing}
                       valueId="perdidas.gap.unidades"
                       align="center"
@@ -233,7 +228,7 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
               <div className="flex flex-row justify-around items-center gap-4 h-full">
                   <DatoSimple 
                       label={<Package className="h-5 w-5 text-primary"/>}
-                      value={isEditing ? perdidas.merma.unidades : `${formatNumber(perdidas.merma.unidades)} Unid.`}
+                      value={isEditing ? perdidas.merma.unidades : formatNumber(perdidas.merma.unidades)}
                       isEditing={isEditing}
                       valueId="perdidas.merma.unidades"
                       align="center"
