@@ -22,7 +22,7 @@ import { formatCurrency, formatPercentage } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { Button } from '../ui/button';
 import { ImagePlus, Loader2, Upload, Users, MapPin, ShoppingBasket, Percent, Euro, TrendingUp } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { OperacionesSubTab } from './operaciones-sub-tab';
 import { FocusSemanalTab } from './focus-semanal-tab';
 
@@ -205,17 +205,30 @@ export function VentasManTab({ data, isEditing, onInputChange, onImageChange }: 
             // Parent handles state update, this is just to trigger
         });
     };
+    
+    const tabButtons = [
+        { value: 'comprador', label: 'COMPRADOR' },
+        { value: 'zonaYAgrupacion', label: 'ZONA Y AGRUPACIÓN' },
+        { value: 'operaciones', label: 'OPERACIONES' },
+        { value: 'focus', label: 'FOCUS' },
+    ];
 
     return (
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-             <TabsList className="mb-4 grid w-full grid-cols-4">
-                <TabsTrigger value="comprador">COMPRADOR</TabsTrigger>
-                <TabsTrigger value="zonaYAgrupacion">ZONA Y AGRUPACIÓN</TabsTrigger>
-                <TabsTrigger value="operaciones">OPERACIONES</TabsTrigger>
-                <TabsTrigger value="focus">FOCUS</TabsTrigger>
-            </TabsList>
+            <div className="mb-4 grid w-full grid-cols-2 md:grid-cols-4 gap-2">
+                {tabButtons.map(tab => (
+                    <Button
+                        key={tab.value}
+                        variant={activeTab === tab.value ? 'default' : 'outline'}
+                        onClick={() => setActiveTab(tab.value)}
+                        className="w-full"
+                    >
+                        {tab.label}
+                    </Button>
+                ))}
+            </div>
             
-            <TabsContent value="comprador">
+            <TabsContent value="comprador" className="mt-0">
                <div className="grid gap-4 items-start grid-cols-1 lg:grid-cols-2">
                    <DataTable
                         title="Comprador"
@@ -237,7 +250,7 @@ export function VentasManTab({ data, isEditing, onInputChange, onImageChange }: 
                </div>
             </TabsContent>
 
-            <TabsContent value="zonaYAgrupacion">
+            <TabsContent value="zonaYAgrupacion" className="mt-0">
                 <div className="grid gap-4 items-start grid-cols-1 md:grid-cols-2">
                     <DataTable
                         title="Zona Comprador"
@@ -260,11 +273,11 @@ export function VentasManTab({ data, isEditing, onInputChange, onImageChange }: 
                 </div>
             </TabsContent>
 
-            <TabsContent value="operaciones">
+            <TabsContent value="operaciones" className="mt-0">
                 <OperacionesSubTab data={data} isEditing={isEditing} onInputChange={onInputChange} />
             </TabsContent>
             
-            <TabsContent value="focus">
+            <TabsContent value="focus" className="mt-0">
               <FocusSemanalTab 
                 text={data.focusSemanal} 
                 isEditing={isEditing} 
