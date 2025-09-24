@@ -19,7 +19,7 @@ import {
   Clock,
   Percent,
   Sparkles,
-  Shirt,
+  Woman,
   Baby
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -41,7 +41,7 @@ type DatosSemanalesTabProps = {
 type SectionName = keyof WeeklyData["datosPorSeccion"];
 
 const sectionConfig = {
-    woman: { title: "WOMAN", icon: <Shirt className="h-5 w-5 text-primary" />, color: "bg-pink-500" },
+    woman: { title: "WOMAN", icon: <Woman className="h-5 w-5 text-primary" />, color: "bg-pink-500" },
     man: { title: "MAN", icon: <User className="h-5 w-5 text-primary" />, color: "bg-blue-500" },
     nino: { title: "NIÑO", icon: <Baby className="h-5 w-5 text-primary" />, color: "bg-primary" },
 };
@@ -75,7 +75,7 @@ const SectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionNa
             </CardHeader>
             <CardContent>
                  <div className="grid grid-cols-2 gap-2">
-                    <div className="bg-background rounded-lg p-3 text-center flex flex-col justify-center items-center">
+                    <div className="bg-background rounded-lg p-3 text-center flex flex-col justify-center items-center gap-1">
                         <div className={cn("font-bold text-lg", data.metricasPrincipales.totalEuros < 0 && "text-red-600")}>{formatCurrency(data.metricasPrincipales.totalEuros)}</div>
                         <DatoSimple
                             value=""
@@ -88,14 +88,13 @@ const SectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionNa
                             onInputChange={onInputChange}
                         />
                     </div>
-                     <div className="bg-background rounded-lg p-3 text-center flex flex-col justify-center items-center">
+                     <div className="bg-background rounded-lg p-3 text-center flex flex-col justify-center items-center gap-1">
                         <DatoSimple
                             value={data.metricasPrincipales.totalUnidades}
                             isEditing={isEditing}
                             valueId={`datosPorSeccion.${name}.metricasPrincipales.totalUnidades`}
                             onInputChange={onInputChange}
                             align="center"
-                            unit="Unid."
                         />
                         <DatoSimple
                             value=""
@@ -209,7 +208,6 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
                       isEditing={isEditing}
                       valueId="perdidas.gap.euros"
                       align="center"
-                      unit="€"
                       onInputChange={onInputChange}
                   />
                   <DatoSimple 
@@ -218,7 +216,6 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
                       isEditing={isEditing}
                       valueId="perdidas.gap.unidades"
                       align="center"
-                      unit="Unid."
                       onInputChange={onInputChange}
                   />
               </div>
@@ -232,7 +229,6 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
                       isEditing={isEditing}
                       valueId="perdidas.merma.unidades"
                       align="center"
-                      unit="Unid."
                       onInputChange={onInputChange}
                   />
                    <DatoSimple 

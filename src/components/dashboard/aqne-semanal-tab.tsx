@@ -4,7 +4,7 @@ import { formatCurrency, formatNumber, formatPercentage } from "@/lib/format";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { 
-  Shirt, 
+  Woman, 
   Footprints, 
   SprayCan,
   User,
@@ -34,13 +34,13 @@ type AqneSemanalTabProps = {
 
 
 const sectionConfig = {
-    woman: { title: "WOMAN", icon: <Shirt className="h-5 w-5 text-primary" />, color: "bg-pink-500" },
+    woman: { title: "WOMAN", icon: <Woman className="h-5 w-5 text-primary" />, color: "bg-pink-500" },
     man: { title: "MAN", icon: <User className="h-5 w-5 text-primary" />, color: "bg-blue-500" },
     nino: { title: "NIÑO", icon: <Baby className="h-5 w-5 text-primary" />, color: "bg-primary" }
 };
 
 const desgloseIconos: { [key: string]: React.ReactNode } = {
-    "Ropa": <Shirt className="h-4 w-4 text-primary" />,
+    "Ropa": <Woman className="h-4 w-4 text-primary" />,
     "Calzado": <Footprints className="h-4 w-4 text-primary" />,
     "Perfumería": <SprayCan className="h-4 w-4 text-primary" />
 };
@@ -93,23 +93,36 @@ const AqneSectionCard = ({ name, data, isEditing, onInputChange }: { name: Secti
                             </div>
                             
                             {isEditing ? (
-                                <Input type="number" inputMode="decimal" defaultValue={item.totalEuros} onChange={(e) => handleDesgloseChange(index, 'totalEuros', e.target.value)} className="font-bold w-20 text-right" placeholder="€" />
+                                <>
+                                    <Input type="number" inputMode="decimal" defaultValue={item.totalEuros} onChange={(e) => handleDesgloseChange(index, 'totalEuros', e.target.value)} className="font-bold w-20 text-right" placeholder="€" />
+                                    <div className="w-20 flex justify-end">
+                                      <DatoSimple 
+                                          value=""
+                                          variation={item.varPorc} 
+                                          isEditing={isEditing}
+                                          alwaysShowVariation 
+                                          align="right" 
+                                          unit="%"
+                                          variationId={`aqneSemanal.${name}.desglose.${index}.varPorc`}
+                                          onInputChange={onInputChange}
+                                      />
+                                    </div>
+                                </>
                             ) : (
-                                <div className={cn("font-bold text-right", item.totalEuros < 0 && "text-red-600")}>{formatCurrency(item.totalEuros)}</div>
+                                <>
+                                  <div className={cn("font-bold text-right", item.totalEuros < 0 && "text-red-600")}>{formatCurrency(item.totalEuros)}</div>
+                                  <div className="w-20 flex justify-end">
+                                      <DatoSimple 
+                                          value=""
+                                          variation={item.varPorc} 
+                                          isEditing={false}
+                                          alwaysShowVariation 
+                                          align="right" 
+                                          unit="%"
+                                      />
+                                  </div>
+                                </>
                             )}
-
-                             <div className="w-20 flex justify-end">
-                                <DatoSimple 
-                                    value=""
-                                    variation={item.varPorc} 
-                                    isEditing={isEditing}
-                                    alwaysShowVariation 
-                                    align="right" 
-                                    unit="%"
-                                    variationId={`aqneSemanal.${name}.desglose.${index}.varPorc`}
-                                    onInputChange={onInputChange}
-                                />
-                            </div>
                         </div>
                     ))}
                 </div>
@@ -181,5 +194,3 @@ export function AqneSemanalTab({ data, isEditing, onInputChange }: AqneSemanalTa
     </div>
   );
 }
-
-    
