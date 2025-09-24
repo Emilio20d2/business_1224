@@ -76,7 +76,7 @@ const DataTable = ({
         <Card>
             {title && (
                 <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
+                    <CardTitle className="flex items-center gap-2 text-primary">
                         {icon}
                         {title}
                     </CardTitle>
@@ -85,7 +85,7 @@ const DataTable = ({
             <Table>
                 <TableHeader>
                     <TableRow className="bg-muted/50 hover:bg-muted/50">
-                        <TableHead className='uppercase font-bold'>{title}</TableHead>
+                        <TableHead className='uppercase font-bold text-primary'>{title}</TableHead>
                         <TableHead className='text-right'><Percent className="h-4 w-4 text-primary inline-block" /></TableHead>
                         <TableHead className='text-right'><Euro className="h-4 w-4 text-primary inline-block" /></TableHead>
                         <TableHead className='text-right'><TrendingUp className="h-4 w-4 text-primary inline-block" /></TableHead>
@@ -187,14 +187,14 @@ const CompradorTab = ({ data, isEditing, onInputChange, onImageChange }: VentasM
                     <TableHeader className="sticky top-0 bg-card z-10">
                         <TableRow>
                              <TableHead className="uppercase font-bold">
-                                <div className="flex items-center gap-2">
-                                    <Users className="h-4 w-4 text-primary" />
+                                <div className="flex items-center gap-2 text-primary">
+                                    <Users className="h-4 w-4" />
                                     <span>COMPRADOR</span>
                                 </div>
                             </TableHead>
                             <TableHead className='text-right'><Percent className="h-4 w-4 text-primary inline-block" /></TableHead>
                             <TableHead className='text-right'><Euro className="h-4 w-4 text-primary inline-block" /></TableHead>
-                            <TableHead className='uppercase font-bold text-right'>SEMANA ANTERIOR</TableHead>
+                            <TableHead className='uppercase font-bold text-right text-primary'>S-1</TableHead>
                             <TableHead className='text-right'><TrendingUp className="h-4 w-4 text-primary inline-block" /></TableHead>
                         </TableRow>
                     </TableHeader>
@@ -309,7 +309,7 @@ export function VentasManTab({ data, isEditing, onInputChange, onImageChange }: 
                 <div className="grid gap-4 items-start grid-cols-1 md:grid-cols-2">
                     <DataTable
                         title="Zona Comprador"
-                        icon={<MapPin className="h-5 w-5 text-primary" />}
+                        icon={<MapPin className="h-5 w-5" />}
                         dataKey="ventasMan.zonaComercial"
                         data={ventasManData?.zonaComercial}
                         list={data.listas?.zonaComercialMan}
@@ -318,7 +318,7 @@ export function VentasManTab({ data, isEditing, onInputChange, onImageChange }: 
                     />
                     <DataTable
                         title="Agrupación Comercial"
-                        icon={<ShoppingBasket className="h-5 w-5 text-primary" />}
+                        icon={<ShoppingBasket className="h-5 w-5" />}
                         dataKey="ventasMan.agrupacionComercial"
                         data={ventasManData?.agrupacionComercial}
                         list={data.listas?.agrupacionComercialMan}
