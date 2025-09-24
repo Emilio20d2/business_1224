@@ -237,32 +237,32 @@ export default function DashboardPage() {
         // --- Recalculation Logic ---
         const [mainKey, sectionKey, subKey, index, field] = keys;
         
-        // Recalculate Section Total from Desglose
-        if (mainKey === 'datosPorSeccion' && subKey === 'desglose') {
-            const section = updatedData.datosPorSeccion[sectionKey];
-            if (section && Array.isArray(section.desglose)) {
-                const newTotalEuros = section.desglose.reduce((sum: number, item: any) => sum + (item.totalEuros || 0), 0);
-                section.metricasPrincipales.totalEuros = newTotalEuros;
+        if (mainKey === 'datosPorSeccion' || mainKey === 'aqneSemanal') {
+            const section = updatedData[mainKey][sectionKey];
 
-                const newTotalUnidades = section.desglose.reduce((sum: number, item: any) => sum + (item.totalUnidades || 0), 0);
-                section.metricasPrincipales.totalUnidades = newTotalUnidades;
-
-                // Now, recalculate the main ventas total
+            if (subKey === 'desglose') {
+                if (section && Array.isArray(section.desglose)) {
+                    const newTotalEuros = section.desglose.reduce((sum: number, item: any) => sum + (item.totalEuros || 0), 0);
+                    section.metricasPrincipales.totalEuros = newTotalEuros;
+                }
+            }
+            
+             // Recalculate ventas.totalEuros from datosPorSeccion totals
+            if (mainKey === 'datosPorSeccion') {
                 const { man, woman, nino } = updatedData.datosPorSeccion;
                 updatedData.ventas.totalEuros = 
                     (man?.metricasPrincipales.totalEuros || 0) +
                     (woman?.metricasPrincipales.totalEuros || 0) +
                     (nino?.metricasPrincipales.totalEuros || 0);
 
-                 updatedData.ventas.totalUnidades = 
+                updatedData.ventas.totalUnidades = 
                     (man?.metricasPrincipales.totalUnidades || 0) +
                     (woman?.metricasPrincipales.totalUnidades || 0) +
                     (nino?.metricasPrincipales.totalUnidades || 0);
             }
         }
-
-
-        if (path.startsWith('aqneSemanal.')) {
+        
+        if (mainKey === 'aqneSemanal') {
             const sections = updatedData.aqneSemanal;
             const totalVentasAqne = (sections.woman.metricasPrincipales.totalEuros || 0) +
                                     (sections.man.metricasPrincipales.totalEuros || 0) +
