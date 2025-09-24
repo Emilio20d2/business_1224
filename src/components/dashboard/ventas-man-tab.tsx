@@ -22,7 +22,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatCurrency, formatPercentage } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { Button, buttonVariants } from '../ui/button';
-import { ImagePlus, Loader2, Upload } from 'lucide-react';
+import { ImagePlus, Loader2, Upload, ArrowUp, ArrowDown } from 'lucide-react';
 import { OperacionesSubTab } from './operaciones-sub-tab';
 import { FocusSemanalTab } from './focus-semanal-tab';
 
@@ -166,13 +166,23 @@ const CompradorTab = ({ data, isEditing, onInputChange, onImageChange }: VentasM
         event.target.value = ''; // Reset file input
     };
 
+    const SemanaAnteriorIndicator = ({ current, previous }: { current: number, previous: number }) => {
+        if (current > previous) {
+            return <ArrowUp className="h-5 w-5 text-green-600" />;
+        }
+        if (current < previous) {
+            return <ArrowDown className="h-5 w-5 text-red-600" />;
+        }
+        return <span className="h-5 w-5 flex items-center justify-center">-</span>;
+    };
+
     return (
         <div className="grid gap-4 items-start grid-cols-1 lg:grid-cols-2">
             <Card className="h-full overflow-y-auto">
                 <Table>
                     <TableHeader className="sticky top-0 bg-card z-10">
                         <TableRow>
-                            {['COMPRADOR', 'PESO %', '€', '%'].map((header, i) => (
+                            {['COMPRADOR', 'PESO %', '€', 'SEMANA ANTERIOR', '%'].map((header, i) => (
                                 <TableHead key={i} className={cn('uppercase font-bold', i === 0 ? '' : 'text-right')}>{header}</TableHead>
                             ))}
                         </TableRow>
@@ -204,6 +214,15 @@ const CompradorTab = ({ data, isEditing, onInputChange, onImageChange }: VentasM
                                 </TableCell>
                                 <TableCell className="text-right">
                                     {isEditing ? <Input type="number" inputMode="decimal" className="w-24 ml-auto text-right" defaultValue={item.totalEuros} onChange={(e) => handleLocalInputChange(index, 'totalEuros', e.target.value)} /> : formatCurrency(item.totalEuros)}
+                                </TableCell>
+                                <TableCell className="text-right">
+                                    {isEditing ? (
+                                        <Input type="number" inputMode="decimal" className="w-24 ml-auto text-right" defaultValue={item.totalEurosSemanaAnterior} onChange={(e) => handleLocalInputChange(index, 'totalEurosSemanaAnterior', e.target.value)} />
+                                    ) : (
+                                        <div className="flex justify-end">
+                                          <SemanaAnteriorIndicator current={item.totalEuros} previous={item.totalEurosSemanaAnterior} />
+                                        </div>
+                                    )}
                                 </TableCell>
                                 <TableCell className="text-right">
                                     {isEditing ? <Input type="number" inputMode="decimal" className="w-20 ml-auto text-right" defaultValue={item.varPorc} onChange={(e) => handleLocalInputChange(index, 'varPorc', e.target.value)} /> : <TrendIndicator value={item.varPorc} />}
@@ -260,10 +279,10 @@ export function VentasManTab({ data, isEditing, onInputChange, onImageChange }: 
     return (
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
              <TabsList className="mb-4 gap-2 bg-transparent p-0 h-auto">
-                <TabsTrigger value="comprador" className={cn(buttonVariants({ variant: "outline" }), "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-primary")}>COMPRADOR</TabsTrigger>
-                <TabsTrigger value="zonaYAgrupacion" className={cn(buttonVariants({ variant: "outline" }), "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-primary")}>ZONA Y AGRUPACIÓN</TabsTrigger>
-                <TabsTrigger value="operaciones" className={cn(buttonVariants({ variant: "outline" }), "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-primary")}>OPERACIONES</TabsTrigger>
-                <TabsTrigger value="focus" className={cn(buttonVariants({ variant: "outline" }), "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-primary")}>FOCUS</TabsTrigger>
+                <TabsTrigger value="comprador" className={cn(buttonVariants({ variant: 'outline' }), "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-primary")}>COMPRADOR</TabsTrigger>
+                <TabsTrigger value="zonaYAgrupacion" className={cn(buttonVariants({ variant: 'outline' }), "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-primary")}>ZONA Y AGRUPACIÓN</TabsTrigger>
+                <TabsTrigger value="operaciones" className={cn(buttonVariants({ variant: 'outline' }), "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-primary")}>OPERACIONES</TabsTrigger>
+                <TabsTrigger value="focus" className={cn(buttonVariants({ variant: 'outline' }), "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-primary")}>FOCUS</TabsTrigger>
             </TabsList>
             
             <TabsContent value="comprador">
