@@ -22,7 +22,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatCurrency, formatPercentage } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { Button, buttonVariants } from '../ui/button';
-import { ImagePlus, Loader2, Upload, ArrowUp, ArrowDown } from 'lucide-react';
+import { ImagePlus, Loader2, Upload, ArrowUp, ArrowDown, Users, MapPin, ShoppingBasket } from 'lucide-react';
 import { OperacionesSubTab } from './operaciones-sub-tab';
 import { FocusSemanalTab } from './focus-semanal-tab';
 
@@ -47,6 +47,7 @@ const TrendIndicator = ({ value }: { value: number }) => {
 
 const DataTable = ({ 
     title,
+    icon,
     data, 
     list,
     headers, 
@@ -55,6 +56,7 @@ const DataTable = ({
     onInputChange,
 }: { 
     title?: string,
+    icon?: React.ReactNode,
     data: VentasManItem[] | undefined, 
     list: string[] | undefined,
     headers: string[], 
@@ -76,7 +78,10 @@ const DataTable = ({
         <Card>
             {title && (
                 <CardHeader>
-                    <CardTitle>{title}</CardTitle>
+                    <CardTitle className="flex items-center gap-2">
+                        {icon}
+                        {title}
+                    </CardTitle>
                 </CardHeader>
             )}
             <Table>
@@ -182,8 +187,14 @@ const CompradorTab = ({ data, isEditing, onInputChange, onImageChange }: VentasM
                 <Table>
                     <TableHeader className="sticky top-0 bg-card z-10">
                         <TableRow>
-                            {['COMPRADOR', 'PESO %', '€', 'SEMANA ANTERIOR', '%'].map((header, i) => (
-                                <TableHead key={i} className={cn('uppercase font-bold', i === 0 ? '' : 'text-right')}>{header}</TableHead>
+                             <TableHead className="uppercase font-bold">
+                                <div className="flex items-center gap-2">
+                                    <Users className="h-4 w-4 text-primary" />
+                                    <span>COMPRADOR</span>
+                                </div>
+                            </TableHead>
+                            {['PESO %', '€', 'SEMANA ANTERIOR', '%'].map((header, i) => (
+                                <TableHead key={i} className='uppercase font-bold text-right'>{header}</TableHead>
                             ))}
                         </TableRow>
                     </TableHeader>
@@ -298,6 +309,7 @@ export function VentasManTab({ data, isEditing, onInputChange, onImageChange }: 
                 <div className="grid gap-4 items-start grid-cols-1 md:grid-cols-2">
                     <DataTable
                         title="Zona Comprador"
+                        icon={<MapPin className="h-5 w-5 text-primary" />}
                         dataKey="ventasMan.zonaComercial"
                         headers={['ZONA COMPRADOR', 'PESO %', '€', '%']}
                         data={ventasManData?.zonaComercial}
@@ -307,6 +319,7 @@ export function VentasManTab({ data, isEditing, onInputChange, onImageChange }: 
                     />
                     <DataTable
                         title="Agrupación Comercial"
+                        icon={<ShoppingBasket className="h-5 w-5 text-primary" />}
                         dataKey="ventasMan.agrupacionComercial"
                         headers={['Agrupación Comercial', 'PESO %', '€', '%']}
                         data={ventasManData?.agrupacionComercial}
