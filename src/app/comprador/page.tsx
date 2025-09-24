@@ -1,7 +1,7 @@
 "use client";
-import React, { useState, useEffect, useCallback, useContext } from 'react';
-import { useRouter } from 'next/navigation';
-import { doc, getDoc, updateDoc, setDoc } from "firebase/firestore";
+import React, { useState, useEffect, useCallback, useContext, useMemo, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from '@/lib/firebase';
 import { AuthContext } from '@/context/auth-context';
@@ -15,12 +15,14 @@ import { Table, TableBody, TableCell, TableHeader, TableHead, TableRow } from "@
 import { Loader2, Pencil, Home, Briefcase, ImagePlus, Upload, Save } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatCurrency, formatPercentage } from "@/lib/format";
+import { getWeek, subWeeks } from 'date-fns';
 
-const WEEK_ID = "semana-24";
-const REPORT_REF = doc(db, "informes", WEEK_ID);
-const LISTS_REF = doc(db, "configuracion", "listas");
+const getPreviousWeekId = () => {
+    const lastWeek = subWeeks(new Date(), 1);
+    const weekNumber = getWeek(lastWeek, { weekStartsOn: 1 });
+    return `semana-${weekNumber}`;
+}
 
-// A simplified version for local state
 type CompradorData = {
     pesoComprador: VentasManItem[];
     compradorManList: string[];
@@ -84,10 +86,13 @@ const ImageImportCard = ({ selectedRow, isEditing, onImageChange, imageUrl }: { 
 };
 
 
-export default function CompradorPage() {
+function CompradorPageComponent() {
     const { user, loading: authLoading } = useContext(AuthContext);
     const router = useRouter();
+    const searchParams = useSearchParams();
     const { toast } = useToast();
+    
+    const weekId = useMemo(() => searchParams.get('week') || getPreviousWeekId(), [searchParams]);
 
     const [data, setData] = useState<CompradorData | null>(null);
     const [loading, setLoading] = useState(true);
@@ -95,8 +100,11 @@ export default function CompradorPage() {
     const [isSaving, setIsSaving] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState<number>(0);
     const [error, setError] = useState<string | null>(null);
-
+    
     const canEdit = user?.email === 'emiliogp@inditex.com';
+
+    const REPORT_REF = useMemo(() => doc(db, "informes", weekId), [weekId]);
+    const LISTS_REF = useMemo(() => doc(db, "configuracion", "listas"), []);
 
     const fetchData = useCallback(async () => {
         if (!user) return;
@@ -110,7 +118,7 @@ export default function CompradorPage() {
             }
 
             const reportData = reportSnap.data() as WeeklyData;
-            const listsData = listsSnap.data() as WeeklyData['listas'];
+            const listsData = listsSnap.data() as { compradorMan: string[] };
             
             setData({
                 pesoComprador: reportData.ventasMan?.pesoComprador || [],
@@ -123,7 +131,7 @@ export default function CompradorPage() {
         } finally {
             setLoading(false);
         }
-    }, [user, toast]);
+    }, [user, toast, REPORT_REF, LISTS_REF]);
 
     useEffect(() => {
         if (!authLoading && !user) {
@@ -144,12 +152,12 @@ export default function CompradorPage() {
     };
 
     const handleImageChange = (file: File, onComplete: (success: boolean) => void) => {
-        if (!data || selectedIndex === null) {
+        if (!data || selectedIndex === null || !canEdit) {
             onComplete(false);
             return;
         }
 
-        const storageRef = ref(storage, `informes/${WEEK_ID}/comprador/${file.name}-${Date.now()}`);
+        const storageRef = ref(storage, `informes/${weekId}/comprador/${file.name}-${Date.now()}`);
 
         uploadBytes(storageRef, file).then(snapshot => {
             getDownloadURL(snapshot.ref).then(downloadURL => {
@@ -165,7 +173,7 @@ export default function CompradorPage() {
     };
 
     const handleSave = async () => {
-        if (!data) return;
+        if (!data || !canEdit) return;
         setIsSaving(true);
         try {
             await updateDoc(REPORT_REF, { "ventasMan.pesoComprador": data.pesoComprador });
@@ -216,7 +224,7 @@ export default function CompradorPage() {
         );
     }
     
-    const selectedRow = selectedIndex !== null ? data.pesoComprador[selectedIndex] : null;
+    const selectedRow = selectedIndex !== null && data.pesoComprador && selectedIndex < data.pesoComprador.length ? data.pesoComprador[selectedIndex] : null;
     const imageUrl = selectedRow?.imageUrl || null;
 
     return (
@@ -302,5 +310,13 @@ export default function CompradorPage() {
                 </div>
             </main>
         </div>
+    );
+}
+
+export default function CompradorPage() {
+    return (
+        <Suspense fallback={<div className="flex h-screen w-full items-center justify-center"><Loader2 className="h-12 w-12 animate-spin text-primary" /></div>}>
+            <CompradorPageComponent />
+        </Suspense>
     );
 }

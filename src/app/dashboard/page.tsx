@@ -17,7 +17,7 @@ import { AqneSemanalTab } from "@/components/dashboard/aqne-semanal-tab";
 import { AcumuladoTab } from "@/components/dashboard/acumulado-tab";
 import { VentasManTab } from '@/components/dashboard/ventas-man-tab';
 import { Button } from '@/components/ui/button';
-import { Settings, LogOut, Loader2, ChevronDown, Pencil, Briefcase, List, LayoutDashboard, ShoppingBag, AreaChart, User as UserIcon } from 'lucide-react';
+import { Settings, LogOut, Loader2, ChevronDown, Briefcase, List, LayoutDashboard, ShoppingBag, AreaChart, User as UserIcon, Pencil } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -52,7 +52,7 @@ const tabConfig: Record<string, { label: string; icon: React.FC<React.SVGProps<S
     datosSemanales: { label: "GENERAL", icon: LayoutDashboard },
     aqneSemanal: { label: "AQNE", icon: ShoppingBag },
     acumulado: { label: "ACUMULADO", icon: AreaChart },
-    man: { label: "MAN", icon: UserIcon },
+    man: { label: "MAN", icon: UserIcon, path: "/comprador" },
 };
 
 const listLabels: Record<EditableList, string> = {
@@ -115,7 +115,7 @@ const synchronizeTableData = (list: string[], oldTableData: VentasManItem[]): Ve
     });
 };
 
-const NavButton = ({ tabKey, activeTab, onTabChange, router }: { tabKey: string; activeTab: string; onTabChange: (tab: string) => void; router: any }) => {
+const NavButton = ({ tabKey, activeTab, onTabChange, router, selectedWeek }: { tabKey: string; activeTab: string; onTabChange: (tab: string) => void; router: any, selectedWeek: string }) => {
     const config = tabConfig[tabKey];
     if (!config) return null;
     const { label, icon: Icon, path } = config;
@@ -123,7 +123,7 @@ const NavButton = ({ tabKey, activeTab, onTabChange, router }: { tabKey: string;
 
     const handleClick = () => {
         if (path) {
-            router.push(path);
+            router.push(`${path}?week=${selectedWeek}`);
         } else {
             onTabChange(tabKey);
         }
@@ -258,7 +258,7 @@ export default function DashboardPage() {
 
 
   const handleInputChange = (path: string, value: any) => {
-    if (!isEditing) return;
+    if (!canEdit) return;
     
     setData(prevData => {
         if (!prevData) return null;
@@ -293,21 +293,24 @@ export default function DashboardPage() {
                     section.metricasPrincipales.totalEuros = newTotalEuros;
                 }
             }
-            
-             // Recalculate ventas.totalEuros from datosPorSeccion totals
-            if (mainKey === 'datosPorSeccion') {
-                const { man, woman, nino } = updatedData.datosPorSeccion;
-                updatedData.ventas.totalEuros = 
-                    (man?.metricasPrincipales.totalEuros || 0) +
-                    (woman?.metricasPrincipales.totalEuros || 0) +
-                    (nino?.metricasPrincipales.totalEuros || 0);
-
-                updatedData.ventas.totalUnidades = 
-                    (man?.metricasPrincipales.totalUnidades || 0) +
-                    (woman?.metricasPrincipales.totalUnidades || 0) +
-                    (nino?.metricasPrincipales.totalUnidades || 0);
-            }
         }
+        
+        if (mainKey === 'datosPorSeccion') {
+            const { man, woman, nino } = updatedData.datosPorSeccion;
+            
+            // Recalculate ventas.totalUnidades from datosPorSeccion totals
+            const totalUnidades = (man?.metricasPrincipales.totalUnidades || 0) +
+                                (woman?.metricasPrincipales.totalUnidades || 0) +
+                                (nino?.metricasPrincipales.totalUnidades || 0);
+            updatedData.ventas.totalUnidades = totalUnidades;
+            
+            // Recalculate ventas.totalEuros from datosPorSeccion totals
+            const totalEuros = (man?.metricasPrincipales.totalEuros || 0) +
+                                (woman?.metricasPrincipales.totalEuros || 0) +
+                                (nino?.metricasPrincipales.totalEuros || 0);
+            updatedData.ventas.totalEuros = totalEuros;
+        }
+
         
         if (mainKey === 'aqneSemanal') {
             const sections = updatedData.aqneSemanal;
@@ -367,12 +370,13 @@ export default function DashboardPage() {
   };
   
   const handleOpenListDialog = (listKey: EditableList, title: string) => {
+      if(!canEdit) return;
       setListToEdit({ listKey, title });
       setListDialogOpen(true);
   };
   
  const handleSaveList = async (listKey: EditableList, newItems: string[]) => {
-    if (!listKey) return;
+    if (!listKey || !canEdit) return;
     setIsSaving(true);
     try {
         const listsRef = doc(db, "configuracion", "listas");
@@ -401,7 +405,7 @@ export default function DashboardPage() {
 };
 
 const handleImageChange = (path: string, file: File, onUploadComplete: (success: boolean, downloadURL?: string) => void) => {
-    if (!data) {
+    if (!data || !canEdit) {
         onUploadComplete(false);
         return;
     }
@@ -473,7 +477,7 @@ const handleImageChange = (path: string, file: File, onUploadComplete: (success:
         <div className="flex items-center gap-2">
             <div className="hidden sm:flex items-center gap-2">
                 {(Object.keys(tabConfig)).map(tabKey => (
-                    <NavButton key={tabKey} tabKey={tabKey} activeTab={activeTab} onTabChange={setActiveTab} router={router} />
+                    <NavButton key={tabKey} tabKey={tabKey} activeTab={activeTab} onTabChange={setActiveTab} router={router} selectedWeek={selectedWeek}/>
                 ))}
             </div>
              <DropdownMenu>
@@ -486,7 +490,7 @@ const handleImageChange = (path: string, file: File, onUploadComplete: (success:
                 <DropdownMenuContent align="end" className="w-56">
                     <DropdownMenuRadioGroup value={activeTab} onValueChange={(value) => setActiveTab(value as TabValue)}>
                         {Object.entries(tabConfig).map(([value, { label, icon: Icon, path }]) => (
-                             <DropdownMenuRadioItem key={value} value={value} className="capitalize" onSelect={() => path ? router.push(path) : setActiveTab(value)}>
+                             <DropdownMenuRadioItem key={value} value={value} className="capitalize" onSelect={() => path ? router.push(`${path}?week=${selectedWeek}`) : setActiveTab(value)}>
                                 <Icon className="mr-2 h-4 w-4" />
                                 {label}
                             </DropdownMenuRadioItem>
