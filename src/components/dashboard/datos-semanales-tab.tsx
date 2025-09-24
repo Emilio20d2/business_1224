@@ -83,11 +83,27 @@ const SectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionNa
                 <div className="grid grid-cols-2 gap-2">
                     <div className="bg-background rounded-lg p-2 text-center">
                         <div className={cn("font-bold text-lg", data.metricasPrincipales.totalEuros < 0 && "text-red-600")}>{formatCurrency(data.metricasPrincipales.totalEuros)}</div>
-                        <DatoSimple value="" variation={data.metricasPrincipales.varPorcEuros} isEditing={false} align="center" unit="%" />
+                        <DatoSimple 
+                          value="" 
+                          variation={data.metricasPrincipales.varPorcEuros} 
+                          isEditing={isEditing} 
+                          align="center" 
+                          unit="%"
+                          variationId={`datosPorSeccion.${name}.metricasPrincipales.varPorcEuros`}
+                          onInputChange={onInputChange}
+                        />
                     </div>
                     <div className="bg-background rounded-lg p-2 text-center">
                         <div className={cn("font-bold text-lg", data.metricasPrincipales.totalUnidades < 0 && "text-red-600")}>{formatNumber(data.metricasPrincipales.totalUnidades)}</div>
-                        <DatoSimple value="" variation={data.metricasPrincipales.varPorcUnidades} isEditing={false} align="center" unit="%" />
+                        <DatoSimple 
+                          value="" 
+                          variation={data.metricasPrincipales.varPorcUnidades} 
+                          isEditing={isEditing} 
+                          align="center" 
+                          unit="%"
+                          variationId={`datosPorSeccion.${name}.metricasPrincipales.varPorcUnidades`}
+                          onInputChange={onInputChange}
+                        />
                     </div>
                 </div>
                 <Separator className="my-2" />
@@ -102,15 +118,15 @@ const SectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionNa
                             </div>
                             
                             {isEditing ? (
-                                <Input type="number" inputMode="decimal" defaultValue={item.totalUnidades} onChange={(e) => handleDesgloseChange(index, 'totalUnidades', e.target.value)} className="font-bold w-20 text-right" placeholder="Unid."/>
-                            ) : (
-                                <div className="font-bold text-right">{formatNumber(item.totalUnidades)}</div>
-                            )}
-
-                            {isEditing ? (
                                 <Input type="number" inputMode="decimal" defaultValue={item.totalEuros} onChange={(e) => handleDesgloseChange(index, 'totalEuros', e.target.value)} className="font-bold w-24 text-right" placeholder="€" />
                             ) : (
                                 <div className={cn("font-bold text-right", item.totalEuros < 0 && "text-red-600")}>{formatCurrency(item.totalEuros)}</div>
+                            )}
+
+                            {isEditing ? (
+                                <Input type="number" inputMode="decimal" defaultValue={item.totalUnidades} onChange={(e) => handleDesgloseChange(index, 'totalUnidades', e.target.value)} className="font-bold w-20 text-right" placeholder="Unid."/>
+                            ) : (
+                                <div className="font-bold text-right">{formatNumber(item.totalUnidades)}</div>
                             )}
                         </div>
                     ))}
@@ -134,13 +150,17 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
             label="Importes"
             value={formatCurrency(ventas.totalEuros)} 
             variation={ventas.varPorcEuros} 
-            isEditing={false}
+            isEditing={isEditing}
+            variationId="ventas.varPorcEuros"
+            onInputChange={onInputChange}
           />
           <DatoDoble 
             label="Unidades"
             value={formatNumber(ventas.totalUnidades)}
             variation={ventas.varPorcUnidades} 
-            isEditing={false}
+            isEditing={isEditing}
+            variationId="ventas.varPorcUnidades"
+            onInputChange={onInputChange}
           />
         </KpiCard>
 
@@ -223,7 +243,8 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
                     label="Repo" 
                     value={isEditing ? operaciones.repoPorc : formatPercentage(operaciones.repoPorc)} 
                     variation={operaciones.varPorcRepo}
-                    isEditing={isEditing} valueId="operaciones.repoPorc" 
+                    isEditing={isEditing} 
+                    valueId="operaciones.repoPorc" 
                     variationId="operaciones.varPorcRepo"
                     align="center" 
                     unit="%" 
