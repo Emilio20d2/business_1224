@@ -143,17 +143,15 @@ const ImageImportCard = ({ selectedRow, isEditing, onImageChange, imageUrl }: { 
         if (file) {
             setIsUploading(true);
             onImageChange(file);
-            // We assume the parent will handle setting isUploading to false
-            // to avoid race conditions with state updates.
         }
         event.target.value = '';
     };
 
     React.useEffect(() => {
-        if (isUploading && imageUrl) {
+        if (imageUrl) {
              setIsUploading(false);
         }
-    }, [imageUrl, isUploading]);
+    }, [imageUrl]);
 
     return (
         <Card className="relative overflow-hidden p-0 gap-0 w-full aspect-[16/9]">
@@ -203,6 +201,7 @@ export function VentasManTab({ data, isEditing, onInputChange, onImageChange }: 
         const path = `ventasMan.pesoComprador.${selectedIndex}.imageUrl`;
         onImageChange(path, file, (success, downloadURL) => {
             // Parent handles state update, this is just to trigger
+            // The useEffect in the image card will handle the uploading state.
         });
     };
     
