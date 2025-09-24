@@ -18,12 +18,6 @@ export type WeeklyData = {
         compradorMan: string[];
         zonaComercialMan: string[];
         agrupacionComercialMan: string[];
-        compradorWoman: string[];
-        zonaComercialWoman: string[];
-        agrupacionComercialWoman: string[];
-        compradorNino: string[];
-        zonaComercialNino: string[];
-        agrupacionComercialNino: string[];
     };
     ventas: {
         totalEuros: number;
@@ -70,16 +64,6 @@ export type WeeklyData = {
         nino: SeccionData;
     };
     ventasMan: {
-        pesoComprador: VentasManItem[];
-        zonaComercial: VentasManItem[];
-        agrupacionComercial: VentasManItem[];
-    };
-    ventasWoman: {
-        pesoComprador: VentasManItem[];
-        zonaComercial: VentasManItem[];
-        agrupacionComercial: VentasManItem[];
-    };
-    ventasNino: {
         pesoComprador: VentasManItem[];
         zonaComercial: VentasManItem[];
         agrupacionComercial: VentasManItem[];
@@ -154,12 +138,6 @@ export function getInitialLists(): WeeklyData['listas'] {
         compradorMan: ["MAN", "GLOBAL", "CIRCULAR", "DNWR", "SPORT", "ACCES", "BASIC"],
         zonaComercialMan: ["MAN FORMAL", "GLB URBAN", "CIRCULAR"],
         agrupacionComercialMan: ["PANTALON", "SASTRERIA", "TEJANO", "CAMISA", "POLO", "ZAPATO", "BERMUDA", "TRICOT", "ACCESORIOS", "BAÑO"],
-        compradorWoman: ["WOMAN", "GLOBAL", "CIRCULAR", "DNWR", "SPORT", "ACCES"],
-        zonaComercialWoman: ["WOMAN FORMAL", "GLB URBAN", "CIRCULAR"],
-        agrupacionComercialWoman: ["PANTALON", "VESTIDO", "TEJANO", "CAMISA", "TOP", "ZAPATO"],
-        compradorNino: ["KIDS", "MINI", "NEW BORN"],
-        zonaComercialNino: ["KIDS", "MINI", "NEW BORN"],
-        agrupacionComercialNino: ["PANTALON", "VESTIDO", "TEJANO", "CAMISA"],
     };
 }
 
@@ -222,16 +200,6 @@ export function getInitialDataForWeek(week: string, lists: WeeklyData['listas'])
             pesoComprador: createVentasManItems(lists?.compradorMan),
             zonaComercial: createVentasManItems(lists?.zonaComercialMan),
             agrupacionComercial: createVentasManItems(lists?.agrupacionComercialMan)
-        },
-        ventasWoman: {
-            pesoComprador: createVentasManItems(lists?.compradorWoman),
-            zonaComercial: createVentasManItems(lists?.zonaComercialWoman),
-            agrupacionComercial: createVentasManItems(lists?.agrupacionComercialWoman)
-        },
-        ventasNino: {
-            pesoComprador: createVentasManItems(lists?.compradorNino),
-            zonaComercial: createVentasManItems(lists?.zonaComercialNino),
-            agrupacionComercial: createVentasManItems(lists?.agrupacionComercialNino)
         },
         aqneSemanal: {
             woman: {

@@ -16,8 +16,6 @@ import { DatosSemanalesTab } from "@/components/dashboard/datos-semanales-tab";
 import { AqneSemanalTab } from "@/components/dashboard/aqne-semanal-tab";
 import { AcumuladoTab } from "@/components/dashboard/acumulado-tab";
 import { VentasManTab } from '@/components/dashboard/ventas-man-tab';
-import { VentasWomanTab } from '@/components/dashboard/ventas-woman-tab';
-import { VentasNinoTab } from '@/components/dashboard/ventas-nino-tab';
 import { Button } from '@/components/ui/button';
 import { Settings, LogOut, Loader2, ChevronDown, Pencil, Briefcase, List } from 'lucide-react';
 import {
@@ -44,8 +42,8 @@ import { useRouter } from 'next/navigation';
 import { EditListDialog } from '@/components/dashboard/edit-list-dialog';
 
 
-type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan' | 'compradorWoman' | 'zonaComercialWoman' | 'agrupacionComercialWoman' | 'compradorNino' | 'zonaComercialNino' | 'agrupacionComercialNino';
-type TabValue = "datosSemanales" | "aqneSemanal" | "acumulado" | "man" | "woman" | "nino";
+type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan';
+type TabValue = "datosSemanales" | "aqneSemanal" | "acumulado" | "man";
 
 
 const tabLabels: Record<string, string> = {
@@ -53,20 +51,12 @@ const tabLabels: Record<string, string> = {
     aqneSemanal: "AQNE",
     acumulado: "ACUMULADO",
     man: "MAN",
-    woman: "WOMAN",
-    nino: "NIÑO",
 };
 
 const listLabels: Record<EditableList, string> = {
     compradorMan: 'Comprador MAN',
     zonaComercialMan: 'Zona Comercial MAN',
     agrupacionComercialMan: 'Agrupación Comercial MAN',
-    compradorWoman: 'Comprador WOMAN',
-    zonaComercialWoman: 'Zona Comercial WOMAN',
-    agrupacionComercialWoman: 'Agrupación Comercial WOMAN',
-    compradorNino: 'Comprador NIÑO',
-    zonaComercialNino: 'Zona Comercial NIÑO',
-    agrupacionComercialNino: 'Agrupación Comercial NIÑO',
 };
 
 const getPreviousWeekRange = () => {
@@ -132,7 +122,7 @@ export default function DashboardPage() {
         // 1. Fetch lists first, it's the source of truth for structure
         let listData: WeeklyData['listas'];
         const listsSnap = await getDoc(listsRef);
-        if (listsSnap.exists()) {
+        if (listsSnap.exists() && listsSnap.data()) {
             listData = listsSnap.data() as WeeklyData['listas'];
         } else {
             // If lists don't exist, create them with the full initial data
@@ -159,8 +149,6 @@ export default function DashboardPage() {
         let needsSave = false;
         const sections = [
             { ventasKey: 'ventasMan', listKeys: { comprador: 'compradorMan', zonaComercial: 'zonaComercialMan', agrupacionComercial: 'agrupacionComercialMan' } },
-            { ventasKey: 'ventasWoman', listKeys: { comprador: 'compradorWoman', zonaComercial: 'zonaComercialWoman', agrupacionComercial: 'agrupacionComercialWoman' } },
-            { ventasKey: 'ventasNino', listKeys: { comprador: 'compradorNino', zonaComercial: 'zonaComercialNino', agrupacionComercial: 'agrupacionComercialNino' } },
         ] as const;
 
         for (const section of sections) {
@@ -473,16 +461,6 @@ const handleImageChange = (path: string, file: File, onUploadComplete: (success:
                       <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorMan', 'Editar Lista: Comprador MAN')}>Comprador</DropdownMenuItem>
                       <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialMan', 'Editar Lista: Zona Comercial MAN')}>Zona Comercial</DropdownMenuItem>
                       <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercialMan', 'Editar Lista: Agrupación Comercial MAN')}>Agrupación Comercial</DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuLabel>WOMAN</DropdownMenuLabel>
-                      <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorWoman', 'Editar Lista: Comprador WOMAN')}>Comprador</DropdownMenuItem>
-                      <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialWoman', 'Editar Lista: Zona Comercial WOMAN')}>Zona Comercial</DropdownMenuItem>
-                      <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercialWoman', 'Editar Lista: Agrupación Comercial WOMAN')}>Agrupación Comercial</DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuLabel>NIÑO</DropdownMenuLabel>
-                       <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorNino', 'Editar Lista: Comprador NIÑO')}>Comprador</DropdownMenuItem>
-                      <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialNino', 'Editar Lista: Zona Comercial NIÑO')}>Zona Comercial</DropdownMenuItem>
-                      <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercialNino', 'Editar Lista: Agrupación Comercial NIÑO')}>Agrupación Comercial</DropdownMenuItem>
                     </DropdownMenuSubContent>
                   </DropdownMenuPortal>
                 </DropdownMenuSub>
@@ -522,22 +500,6 @@ const handleImageChange = (path: string, file: File, onUploadComplete: (success:
             <VentasManTab 
               data={data}
               isEditing={isEditing} 
-              onInputChange={handleInputChange}
-              onImageChange={handleImageChange}
-            />
-          </TabsContent>
-          <TabsContent value="woman" className="mt-0">
-            <VentasWomanTab 
-              data={data}
-              isEditing={isEditing} 
-              onInputChange={handleInputChange}
-              onImageChange={handleImageChange}
-            />
-          </TabsContent>
-          <TabsContent value="nino" className="mt-0">
-            <VentasNinoTab
-              data={data}
-              isEditing={isEditing}
               onInputChange={handleInputChange}
               onImageChange={handleImageChange}
             />
