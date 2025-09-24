@@ -47,11 +47,11 @@ type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMa
 type TabValue = "datosSemanales" | "aqneSemanal" | "acumulado" | "man";
 
 
-const tabConfig: Record<TabValue, { label: string; icon: React.FC<React.SVGProps<SVGSVGElement>> }> = {
+const tabConfig: Record<string, { label: string; icon: React.FC<React.SVGProps<SVGSVGElement>>, path?: string }> = {
     datosSemanales: { label: "GENERAL", icon: LayoutDashboard },
     aqneSemanal: { label: "AQNE", icon: ShoppingBag },
     acumulado: { label: "ACUMULADO", icon: AreaChart },
-    man: { label: "MAN", icon: UserIcon },
+    man: { label: "MAN", icon: UserIcon, path: "/comprador" },
 };
 
 const listLabels: Record<EditableList, string> = {
@@ -98,17 +98,25 @@ const synchronizeTableData = (list: string[], oldTableData: VentasManItem[]): Ve
     });
 };
 
-const NavButton = ({ tab, activeTab, onTabChange }: { tab: TabValue; activeTab: string; onTabChange: (tab: TabValue) => void; }) => {
-    const config = tabConfig[tab];
+const NavButton = ({ tabKey, activeTab, onTabChange, router }: { tabKey: string; activeTab: string; onTabChange: (tab: string) => void; router: any }) => {
+    const config = tabConfig[tabKey];
     if (!config) return null;
-    const { label, icon: Icon } = config;
-    const isActive = activeTab === tab;
+    const { label, icon: Icon, path } = config;
+    const isActive = activeTab === tabKey;
+
+    const handleClick = () => {
+        if (path) {
+            router.push(path);
+        } else {
+            onTabChange(tabKey);
+        }
+    };
 
     return (
         <Button
             variant={isActive ? "default" : "outline"}
             size="icon"
-            onClick={() => onTabChange(tab)}
+            onClick={handleClick}
             aria-label={label}
         >
             <Icon className={cn("h-4 w-4", !isActive && "text-primary")} />
@@ -127,7 +135,7 @@ export default function DashboardPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   
-  const [activeTab, setActiveTab] = useState<TabValue>("datosSemanales");
+  const [activeTab, setActiveTab] = useState<string>("datosSemanales");
 
   const [isListDialogOpen, setListDialogOpen] = useState(false);
   const [listToEdit, setListToEdit] = useState<{ listKey: EditableList, title: string } | null>(null);
@@ -446,8 +454,8 @@ const handleImageChange = (path: string, file: File, onUploadComplete: (success:
         </h1>
         <div className="flex items-center gap-2">
             <div className="hidden sm:flex items-center gap-2">
-                {(Object.keys(tabConfig) as TabValue[]).map(tab => (
-                    <NavButton key={tab} tab={tab} activeTab={activeTab} onTabChange={setActiveTab} />
+                {(Object.keys(tabConfig)).map(tabKey => (
+                    <NavButton key={tabKey} tabKey={tabKey} activeTab={activeTab} onTabChange={setActiveTab} router={router} />
                 ))}
             </div>
              <DropdownMenu>
@@ -459,8 +467,8 @@ const handleImageChange = (path: string, file: File, onUploadComplete: (success:
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
                     <DropdownMenuRadioGroup value={activeTab} onValueChange={(value) => setActiveTab(value as TabValue)}>
-                        {Object.entries(tabConfig).map(([value, { label, icon: Icon }]) => (
-                            <DropdownMenuRadioItem key={value} value={value} className="capitalize">
+                        {Object.entries(tabConfig).map(([value, { label, icon: Icon, path }]) => (
+                             <DropdownMenuRadioItem key={value} value={value} className="capitalize" onSelect={() => path ? router.push(path) : setActiveTab(value)}>
                                 <Icon className="mr-2 h-4 w-4" />
                                 {label}
                             </DropdownMenuRadioItem>
