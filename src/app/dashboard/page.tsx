@@ -75,14 +75,6 @@ const getWeekId = (date: Date): string => {
   return `semana-${isoWeekYear}-${isoWeek}`;
 };
 
-const getPreviousWeekId = (): string => {
-  const today = new Date();
-  const oneWeekAgo = subWeeks(today, 1);
-  const startOfLastWeek = startOfISOWeek(oneWeekAgo);
-  return getWeekId(startOfLastWeek);
-};
-
-
 const generateWeeks = (): WeekOption[] => {
     const weeks: WeekOption[] = [];
     const startDate = new Date('2025-09-15T12:00:00Z');
@@ -101,6 +93,12 @@ const generateWeeks = (): WeekOption[] => {
     }
     return weeks;
 }
+
+const getPreviousWeekId = (): string => {
+  const generatedWeeks = generateWeeks();
+  return generatedWeeks.length > 0 ? generatedWeeks[0].value : `semana-${getISOWeekYear(new Date())}-${getISOWeek(new Date())}`;
+};
+
 
 
 const synchronizeTableData = (list: string[], oldTableData: VentasManItem[]): VentasManItem[] => {

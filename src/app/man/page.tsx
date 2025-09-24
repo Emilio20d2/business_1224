@@ -69,11 +69,6 @@ const getWeekId = (date: Date) => {
     return `semana-${isoWeekYear}-${isoWeek}`;
 }
 
-const getPreviousWeekId = () => {
-    const lastWeek = startOfISOWeek(new Date());
-    const date = addWeeks(lastWeek, -1);
-    return getWeekId(date);
-};
 
 const generateWeeks = (): WeekOption[] => {
     const weeks: WeekOption[] = [];
@@ -93,6 +88,11 @@ const generateWeeks = (): WeekOption[] => {
     }
     return weeks;
 }
+
+const getPreviousWeekId = (): string => {
+  const generatedWeeks = generateWeeks();
+  return generatedWeeks.length > 0 ? generatedWeeks[0].value : `semana-${getISOWeekYear(new Date())}-${getISOWeek(new Date())}`;
+};
 
 
 const synchronizeTableData = (list: string[], oldTableData: VentasManItem[]): VentasManItem[] => {
