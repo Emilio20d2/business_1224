@@ -51,7 +51,7 @@ const tabConfig: Record<TabValue, { label: string; icon: React.FC<React.SVGProps
     datosSemanales: { label: "GENERAL", icon: LayoutDashboard },
     aqneSemanal: { label: "AQNE", icon: ShoppingBag },
     acumulado: { label: "ACUMULADO", icon: AreaChart },
-    man: { label: "MAN", icon: UserIcon },
+    man: { label: UserIcon },
 };
 
 const listLabels: Record<EditableList, string> = {
@@ -99,15 +99,19 @@ const synchronizeTableData = (list: string[], oldTableData: VentasManItem[]): Ve
 };
 
 const NavButton = ({ tab, activeTab, onTabChange }: { tab: TabValue; activeTab: string; onTabChange: (tab: TabValue) => void; }) => {
-    const { label, icon: Icon } = tabConfig[tab];
+    const config = tabConfig[tab];
+    if (!config) return null;
+    const { label, icon: Icon } = config;
+    const isActive = activeTab === tab;
+
     return (
         <Button
-            variant={activeTab === tab ? "default" : "outline"}
+            variant={isActive ? "default" : "outline"}
             size="icon"
             onClick={() => onTabChange(tab)}
             aria-label={label}
         >
-            <Icon className="h-4 w-4" />
+            <Icon className={cn("h-4 w-4", !isActive && "text-primary")} />
         </Button>
     );
 };
@@ -449,7 +453,7 @@ const handleImageChange = (path: string, file: File, onUploadComplete: (success:
              <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Button variant="outline" className="w-full sm:hidden">
-                        {tabConfig[activeTab].label}
+                        {(tabConfig[activeTab] as {label: string}).label}
                         <ChevronDown className="ml-2 h-4 w-4" />
                     </Button>
                 </DropdownMenuTrigger>
@@ -584,5 +588,3 @@ const handleImageChange = (path: string, file: File, onUploadComplete: (success:
     </div>
   );
 }
-
-    
