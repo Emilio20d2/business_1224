@@ -18,6 +18,12 @@ export type WeeklyData = {
         compradorMan: string[];
         zonaComercialMan: string[];
         agrupacionComercialMan: string[];
+        compradorWoman: string[];
+        zonaComercialWoman: string[];
+        agrupacionComercialWoman: string[];
+        compradorNino: string[];
+        zonaComercialNino: string[];
+        agrupacionComercialNino: string[];
     };
     ventas: {
         totalEuros: number;
@@ -139,6 +145,12 @@ export function getInitialLists(): WeeklyData['listas'] {
         compradorMan: ["MAN", "GLOBAL", "CIRCULAR", "DNWR", "SPORT", "ACCES", "BASIC"],
         zonaComercialMan: ["MAN FORMAL", "GLB URBAN", "CIRCULAR"],
         agrupacionComercialMan: ["PANTALON", "SASTRERIA", "TEJANO", "CAMISA", "POLO", "ZAPATO", "BERMUDA", "TRICOT", "ACCESORIOS", "BAÑO"],
+        compradorWoman: ["WOMAN", "GLOBAL", "CIRCULAR", "DNWR", "SPORT", "ACCES", "BASIC"],
+        zonaComercialWoman: ["WOMAN FORMAL", "GLB URBAN", "CIRCULAR"],
+        agrupacionComercialWoman: ["PANTALON", "SASTRERIA", "TEJANO", "CAMISA", "POLO", "ZAPATO", "BERMUDA", "TRICOT", "ACCESORIOS", "BAÑO"],
+        compradorNino: ["NIÑO", "GLOBAL", "CIRCULAR", "DNWR", "SPORT", "ACCES", "BASIC"],
+        zonaComercialNino: ["NIÑO FORMAL", "GLB URBAN", "CIRCULAR"],
+        agrupacionComercialNino: ["PANTALON", "SASTRERIA", "TEJANO", "CAMISA", "POLO", "ZAPATO", "BERMUDA", "TRICOT", "ACCESORIOS", "BAÑO"],
     };
 }
 
@@ -234,3 +246,5 @@ export function getInitialDataForWeek(week: string, lists: WeeklyData['listas'])
         }
     };
 }
+
+    

@@ -42,7 +42,7 @@ import { useRouter } from 'next/navigation';
 import { EditListDialog } from '@/components/dashboard/edit-list-dialog';
 
 
-type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan';
+type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan' | 'compradorWoman' | 'zonaComercialWoman' | 'agrupacionComercialWoman' | 'compradorNino' | 'zonaComercialNino' | 'agrupacionComercialNino';
 type TabValue = "datosSemanales" | "aqneSemanal" | "acumulado" | "man";
 
 
@@ -57,6 +57,12 @@ const listLabels: Record<EditableList, string> = {
     compradorMan: 'Comprador MAN',
     zonaComercialMan: 'Zona Comercial MAN',
     agrupacionComercialMan: 'Agrupación Comercial MAN',
+    compradorWoman: 'Comprador WOMAN',
+    zonaComercialWoman: 'Zona Comercial WOMAN',
+    agrupacionComercialWoman: 'Agrupación Comercial WOMAN',
+    compradorNino: 'Comprador NIÑO',
+    zonaComercialNino: 'Zona Comercial NIÑO',
+    agrupacionComercialNino: 'Agrupación Comercial NIÑO',
 };
 
 const getPreviousWeekRange = () => {
@@ -150,7 +156,7 @@ export default function DashboardPage() {
         
         // This is a simplified check, a more robust implementation would compare item by item.
         const currentManCompradorNames = reportData.ventasMan?.pesoComprador?.map(i => i.nombre).sort().join(',') || '';
-        const listManCompradorNames = listData.compradorMan.sort().join(',');
+        const listManCompradorNames = (listData.compradorMan || []).sort().join(',');
 
         if(currentManCompradorNames !== listManCompradorNames) {
             reportData.ventasMan.pesoComprador = synchronizeTableData(listData.compradorMan, reportData.ventasMan.pesoComprador);
@@ -158,7 +164,7 @@ export default function DashboardPage() {
         }
 
         const currentZonaComercialNames = reportData.ventasMan?.zonaComercial?.map(i => i.nombre).sort().join(',') || '';
-        const listZonaComercialNames = listData.zonaComercialMan.sort().join(',');
+        const listZonaComercialNames = (listData.zonaComercialMan || []).sort().join(',');
 
          if(currentZonaComercialNames !== listZonaComercialNames) {
             reportData.ventasMan.zonaComercial = synchronizeTableData(listData.zonaComercialMan, reportData.ventasMan.zonaComercial);
@@ -166,7 +172,7 @@ export default function DashboardPage() {
         }
         
         const currentAgrupacionComercialNames = reportData.ventasMan?.agrupacionComercial?.map(i => i.nombre).sort().join(',') || '';
-        const listAgrupacionComercialNames = listData.agrupacionComercialMan.sort().join(',');
+        const listAgrupacionComercialNames = (listData.agrupacionComercialMan || []).sort().join(',');
 
          if(currentAgrupacionComercialNames !== listAgrupacionComercialNames) {
             reportData.ventasMan.agrupacionComercial = synchronizeTableData(listData.agrupacionComercialMan, reportData.ventasMan.agrupacionComercial);
@@ -457,6 +463,16 @@ const handleImageChange = (path: string, file: File, onUploadComplete: (success:
                       <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorMan', 'Editar Lista: Comprador MAN')}>Comprador</DropdownMenuItem>
                       <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialMan', 'Editar Lista: Zona Comercial MAN')}>Zona Comercial</DropdownMenuItem>
                       <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercialMan', 'Editar Lista: Agrupación Comercial MAN')}>Agrupación Comercial</DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuLabel>WOMAN</DropdownMenuLabel>
+                      <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorWoman', 'Editar Lista: Comprador WOMAN')}>Comprador</DropdownMenuItem>
+                      <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialWoman', 'Editar Lista: Zona Comercial WOMAN')}>Zona Comercial</DropdownMenuItem>
+                      <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercialWoman', 'Editar Lista: Agrupación Comercial WOMAN')}>Agrupación Comercial</DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuLabel>NIÑO</DropdownMenuLabel>
+                      <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorNino', 'Editar Lista: Comprador NIÑO')}>Comprador</DropdownMenuItem>
+                      <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialNino', 'Editar Lista: Zona Comercial NIÑO')}>Zona Comercial</DropdownMenuItem>
+                      <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercialNino', 'Editar Lista: Agrupación Comercial NIÑO')}>Agrupación Comercial</DropdownMenuItem>
                     </DropdownMenuSubContent>
                   </DropdownMenuPortal>
                 </DropdownMenuSub>
@@ -522,3 +538,5 @@ const handleImageChange = (path: string, file: File, onUploadComplete: (success:
     </div>
   );
 }
+
+    
