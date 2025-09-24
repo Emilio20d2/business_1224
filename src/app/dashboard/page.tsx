@@ -51,7 +51,7 @@ const tabConfig: Record<string, { label: string; icon: React.FC<React.SVGProps<S
     datosSemanales: { label: "GENERAL", icon: LayoutDashboard },
     aqneSemanal: { label: "AQNE", icon: ShoppingBag },
     acumulado: { label: "ACUMULADO", icon: AreaChart },
-    man: { label: "MAN", icon: UserIcon, path: "/comprador" },
+    man: { label: "MAN", icon: UserIcon },
 };
 
 const listLabels: Record<EditableList, string> = {
@@ -380,7 +380,7 @@ export default function DashboardPage() {
     }
 };
 
-const handleImageChange = (path: string, file: File, onUploadComplete: (success: boolean) => void) => {
+const handleImageChange = (path: string, file: File, onUploadComplete: (success: boolean, downloadURL?: string) => void) => {
     if (!data) {
         onUploadComplete(false);
         return;
@@ -390,14 +390,12 @@ const handleImageChange = (path: string, file: File, onUploadComplete: (success:
 
     uploadBytes(storageRef, file).then(snapshot => {
         getDownloadURL(snapshot.ref).then(downloadURL => {
-            // Use the safe handleInputChange to update the state
             handleInputChange(path, downloadURL);
-            onUploadComplete(true);
+            onUploadComplete(true, downloadURL);
             toast({
                 title: "Imagen cargada",
                 description: "La imagen está lista. Haz clic en 'Guardar' para confirmar todos los cambios.",
             });
-            // Ensure editing mode is on
             if (!isEditing) {
                 setIsEditing(true);
             }
