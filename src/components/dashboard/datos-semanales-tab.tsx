@@ -66,11 +66,6 @@ const SectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionNa
         onInputChange(`datosPorSeccion.${name}.desglose.${index}.${field}`, value);
     };
 
-    const handleMetricChange = (field: string, value: string) => {
-        onInputChange(`datosPorSeccion.${name}.metricasPrincipales.${field}`, value);
-    };
-
-
     return (
         <Card className="flex-1">
             <CardHeader className="pb-2">
@@ -85,8 +80,8 @@ const SectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionNa
                 </CardTitle>
             </CardHeader>
             <CardContent>
-                <div className="grid grid-cols-2 gap-2">
-                    <div className="bg-background rounded-lg p-2 text-center">
+                 <div className="grid grid-cols-2 gap-2">
+                    <div className="bg-background rounded-lg p-3 text-center flex flex-col justify-center items-center">
                         <div className={cn("font-bold text-lg", data.metricasPrincipales.totalEuros < 0 && "text-red-600")}>{formatCurrency(data.metricasPrincipales.totalEuros)}</div>
                         <DatoSimple 
                           value="" 
@@ -99,28 +94,30 @@ const SectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionNa
                           onInputChange={onInputChange}
                         />
                     </div>
-                    <div className="bg-background rounded-lg p-2 text-center">
-                       {isEditing ? (
-                             <DatoSimple 
-                                value={data.metricasPrincipales.totalUnidades}
-                                isEditing={isEditing}
-                                valueId={`datosPorSeccion.${name}.metricasPrincipales.totalUnidades`}
-                                onInputChange={onInputChange}
-                                align="center"
+                    <div className="bg-background rounded-lg p-3 text-center flex flex-col justify-center items-center">
+                        <div className="flex items-center gap-2">
+                           {isEditing ? (
+                                <DatoSimple 
+                                    value={data.metricasPrincipales.totalUnidades}
+                                    isEditing={isEditing}
+                                    valueId={`datosPorSeccion.${name}.metricasPrincipales.totalUnidades`}
+                                    onInputChange={onInputChange}
+                                    align="center"
+                                />
+                            ) : (
+                                <div className={cn("font-bold text-lg", data.metricasPrincipales.totalUnidades < 0 && "text-red-600")}>{formatNumber(data.metricasPrincipales.totalUnidades)}</div>
+                            )}
+                            <DatoSimple 
+                              value="" 
+                              variation={data.metricasPrincipales.varPorcUnidades} 
+                              isEditing={isEditing}
+                              alwaysShowVariation 
+                              align="center" 
+                              unit="%"
+                              variationId={`datosPorSeccion.${name}.metricasPrincipales.varPorcUnidades`}
+                              onInputChange={onInputChange}
                             />
-                        ) : (
-                             <div className={cn("font-bold text-lg", data.metricasPrincipales.totalUnidades < 0 && "text-red-600")}>{formatNumber(data.metricasPrincipales.totalUnidades)}</div>
-                        )}
-                        <DatoSimple 
-                          value="" 
-                          variation={data.metricasPrincipales.varPorcUnidades} 
-                          isEditing={isEditing}
-                          alwaysShowVariation 
-                          align="center" 
-                          unit="%"
-                          variationId={`datosPorSeccion.${name}.metricasPrincipales.varPorcUnidades`}
-                          onInputChange={onInputChange}
-                        />
+                        </div>
                     </div>
                 </div>
                 <Separator className="my-2" />
@@ -146,7 +143,7 @@ const SectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionNa
                                 <DatoSimple 
                                     value=""
                                     variation={item.varPorc} 
-                                    isEditing={isEditing}
+                                    isEditing={false}
                                     alwaysShowVariation 
                                     align="center" 
                                     unit="%"
