@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useContext, useEffect, useCallback } from 'react';
+import React, { useState, useContext, useEffect, useCallback, Suspense } from 'react';
 import type { WeeklyData, VentasManItem } from "@/lib/data";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { db, storage } from '@/lib/firebase';
@@ -53,7 +53,7 @@ const tabConfig: Record<string, { label: string; icon: React.FC<React.SVGProps<S
     datosSemanales: { label: "GENERAL", icon: LayoutDashboard },
     aqneSemanal: { label: "AQNE", icon: ShoppingBag },
     acumulado: { label: "ACUMULADO", icon: AreaChart },
-    man: { label: "MAN", icon: UserIcon },
+    man: { label: "MAN", icon: UserIcon, path: "/man" },
 };
 
 const listLabels: Record<EditableList, string> = {
@@ -96,13 +96,10 @@ const generateWeeks = (): WeekOption[] => {
     return weeks;
 }
 
-const initialWeeks = generateWeeks();
 const getPreviousWeekId = () => {
     const lastWeek = subWeeks(new Date(), 1);
     return getWeekId(startOfISOWeek(lastWeek));
 };
-const initialDefaultWeek = getPreviousWeekId();
-
 
 const synchronizeTableData = (list: string[], oldTableData: VentasManItem[]): VentasManItem[] => {
     const safeList = Array.isArray(list) ? list : [];
@@ -141,14 +138,16 @@ function DashboardPageComponent() {
   const [listToEdit, setListToEdit] = useState<{ listKey: EditableList, title: string } | null>(null);
 
   const [weeks, setWeeks] = useState<WeekOption[]>([]);
+  const [defaultWeek, setDefaultWeek] = useState<string>('');
   
-  const selectedWeek = searchParams.get('week') || initialDefaultWeek;
+  const selectedWeek = searchParams.get('week') || defaultWeek;
   const activeTab = (searchParams.get('tab') as TabValue) || 'datosSemanales';
 
   const canEdit = user?.email === 'emiliogp@inditex.com';
   const { toast } = useToast();
   
   const updateUrl = (newWeek: string, newTab: string) => {
+      if (!newWeek) return; // Prevent updating URL with empty week
       const params = new URLSearchParams(searchParams);
       params.set('week', newWeek);
       params.set('tab', newTab);
@@ -170,7 +169,7 @@ function DashboardPageComponent() {
 
 
  const fetchData = useCallback(async (weekId: string) => {
-    if (!user) return;
+    if (!user || !weekId) return;
     setDataLoading(true);
     setError(null);
     try {
@@ -251,13 +250,23 @@ function DashboardPageComponent() {
   }, [user, toast]);
 
     useEffect(() => {
-        setWeeks(initialWeeks);
-    }, []);
+        // Run only on client
+        const generatedWeeks = generateWeeks();
+        const previousWeekId = getPreviousWeekId();
+        setWeeks(generatedWeeks);
+        setDefaultWeek(previousWeekId);
+
+        // If no week in URL, set it to default
+        if (!searchParams.has('week')) {
+            const currentTab = (searchParams.get('tab') as TabValue) || 'datosSemanales';
+            updateUrl(previousWeekId, currentTab);
+        }
+    }, []); // Empty dependency array ensures this runs once on mount
 
   useEffect(() => {
     if (!authLoading && !user) {
       router.push('/');
-    } else if (!authLoading && user) {
+    } else if (!authLoading && user && selectedWeek) {
       fetchData(selectedWeek);
     }
   }, [user, authLoading, router, fetchData, selectedWeek]);
@@ -442,7 +451,7 @@ function DashboardPageComponent() {
     }
 };
 
-  if (authLoading || dataLoading) {
+  if (authLoading || (dataLoading && !data) || !selectedWeek) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -528,7 +537,7 @@ function DashboardPageComponent() {
             <div className="flex items-center gap-2">
               <Select value={selectedWeek} onValueChange={handleWeekChange}>
                 <SelectTrigger id="semana-select" className="w-[220px]">
-                  <SelectValue placeholder="Seleccionar semana" />
+                   <SelectValue placeholder={weeks.length > 0 ? "Seleccionar semana" : "Cargando..."} />
                 </SelectTrigger>
                 <SelectContent>
                   {weeks.map(week => (
@@ -658,13 +667,13 @@ function DashboardPageComponent() {
 
 export default function DashboardPage() {
     return (
-        <React.Suspense fallback={
+        <Suspense fallback={
             <div className="flex flex-col items-center justify-center min-h-screen">
                 <Loader2 className="h-12 w-12 animate-spin text-primary" />
                 <p className="mt-4">Cargando dashboard...</p>
             </div>
         }>
             <DashboardPageComponent />
-        </React.Suspense>
+        </Suspense>
     );
 }

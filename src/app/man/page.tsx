@@ -90,13 +90,10 @@ const generateWeeks = (): WeekOption[] => {
     return weeks;
 }
 
-const initialWeeks = generateWeeks();
 const getPreviousWeekId = () => {
     const lastWeek = subWeeks(new Date(), 1);
     return getWeekId(startOfISOWeek(lastWeek));
 };
-const initialDefaultWeek = getPreviousWeekId();
-
 
 const synchronizeTableData = (list: string[], oldTableData: VentasManItem[]): VentasManItem[] => {
     const safeList = Array.isArray(list) ? list : [];
@@ -135,15 +132,17 @@ function ManPageComponent() {
   const [listToEdit, setListToEdit] = useState<{ listKey: EditableList, title: string } | null>(null);
 
   const [weeks, setWeeks] = useState<WeekOption[]>([]);
+  const [defaultWeek, setDefaultWeek] = useState<string>('');
   
-  const selectedWeek = searchParams.get('week') || initialDefaultWeek;
+  const selectedWeek = searchParams.get('week') || defaultWeek;
   const activeTab = "man";
 
   const canEdit = user?.email === 'emiliogp@inditex.com';
   const { toast } = useToast();
   
   const updateUrl = (newWeek: string) => {
-      const params = new URLSearchParams();
+      if (!newWeek) return;
+      const params = new URLSearchParams(searchParams);
       params.set('week', newWeek);
       router.replace(`/man?${params.toString()}`);
   }
@@ -161,7 +160,7 @@ function ManPageComponent() {
 
 
  const fetchData = useCallback(async (weekId: string) => {
-    if (!user) return;
+    if (!user || !weekId) return;
     setDataLoading(true);
     setError(null);
     try {
@@ -242,13 +241,23 @@ function ManPageComponent() {
   }, [user, toast]);
 
     useEffect(() => {
-        setWeeks(initialWeeks);
-    }, []);
+        // Run only on client
+        const generatedWeeks = generateWeeks();
+        const previousWeekId = getPreviousWeekId();
+        setWeeks(generatedWeeks);
+        setDefaultWeek(previousWeekId);
+
+        // If no week in URL, set it to default
+        if (!searchParams.has('week')) {
+            updateUrl(previousWeekId);
+        }
+    }, []); // Empty dependency array ensures this runs once on mount
+
 
   useEffect(() => {
     if (!authLoading && !user) {
       router.push('/');
-    } else if (!authLoading && user) {
+    } else if (!authLoading && user && selectedWeek) {
       fetchData(selectedWeek);
     }
   }, [user, authLoading, router, fetchData, selectedWeek]);
@@ -376,7 +385,7 @@ const handleImageChange = (path: string, file: File, onUploadComplete: (success:
     });
 };
 
-  if (authLoading || dataLoading) {
+  if (authLoading || (dataLoading && !data) || !selectedWeek) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -462,7 +471,7 @@ const handleImageChange = (path: string, file: File, onUploadComplete: (success:
             <div className="flex items-center gap-2">
               <Select value={selectedWeek} onValueChange={handleWeekChange}>
                 <SelectTrigger id="semana-select" className="w-[220px]">
-                  <SelectValue placeholder="Seleccionar semana" />
+                  <SelectValue placeholder={weeks.length > 0 ? "Seleccionar semana" : "Cargando..."} />
                 </SelectTrigger>
                 <SelectContent>
                   {weeks.map(week => (
