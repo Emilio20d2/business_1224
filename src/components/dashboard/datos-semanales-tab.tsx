@@ -37,9 +37,9 @@ type DatosSemanalesTabProps = {
 
 type SectionName = keyof WeeklyData["datosPorSeccion"];
 
-const WomanIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-primary"><path d="M12 5c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3"/><path d="M18.37 13.57a6.03 6.03 0 0 0-1.3-4.57l-2.07-2.07a1 1 0 0 0-1.41 0l-2.07 2.07a6.03 6.03 0 0 0-1.3 4.57"/><path d="M6 21a2 2 0 0 0 2-2v-4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v4a2 2 0 0 0 2 2"/></svg>;
-const ManIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-primary"><path d="M12 5c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3"/><path d="M7 14a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v7h-4v-4h-2v4H7v-7Z"/></svg>;
-const NinoIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-primary"><path d="M12 6.5c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3"/><path d="m5.6 21.5 1.5-6a2 2 0 0 1 2-1.5h5.8a2 2 0 0 1 2 1.5l1.5 6"/><path d="M12 14v-2.5"/><path d="M10 16c.5 1.33 1 2 2 2s1.5-.67 2-2"/></svg>;
+const WomanIcon = () => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-primary"><path d="M12 5c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3"/><path d="M18.37 13.57a6.03 6.03 0 0 0-1.3-4.57l-2.07-2.07a1 1 0 0 0-1.41 0l-2.07 2.07a6.03 6.03 0 0 0-1.3 4.57"/><path d="M6 21a2 2 0 0 0 2-2v-4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v4a2 2 0 0 0 2 2"/></svg>;
+const ManIcon = () => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-primary"><path d="M12 5c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3"/><path d="M7 14a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v7h-4v-4h-2v4H7v-7Z"/></svg>;
+const NinoIcon = () => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-primary"><path d="M12 6.5c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3"/><path d="m5.6 21.5 1.5-6a2 2 0 0 1 2-1.5h5.8a2 2 0 0 1 2 1.5l1.5 6"/><path d="M12 14v-2.5"/><path d="M10 16c.5 1.33 1 2 2 2s1.5-.67 2-2"/></svg>;
 const RopaIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 text-primary"><path d="m21.21 15.89-1.42-1.42a2 2 0 0 0-2.82 0L12 19.41l-5.96-5.96a2 2 0 0 0-2.82 0L1.79 15.89a2 2 0 0 0 0 2.82l1.42 1.42a2 2 0 0 0 2.82 0L12 14.2l5.96 5.96a2 2 0 0 0 2.82 0l1.42-1.42a2 2 0 0 0 0-2.82z"/><path d="M7.24 2.24 9 4l2.8-2.8L14 3l2.45-2.45L18.3 3 20 1.24 22 4l-1.8 1.8L22 7.64l-2.4-2.4-1.83 1.83L15.31 5l-2.46 2.46L10.4 5l-1.83 1.83-2.4-2.4L4.4 5.8 2.55 4l1.8-1.8L6 4l1.24-1.76z"/></svg>;
 
 
@@ -284,6 +284,9 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
                     align="center" 
                     unit="%"
                     trendDirection="down"
+                    valueId="operaciones.filasCajaPorc"
+                    variationId="operaciones.varPorcFilasCaja"
+                    onInputChange={onInputChange}
                    />
                   <DatoSimple 
                     icon={<ScanLine className="h-5 w-5 text-primary"/>} 
@@ -293,6 +296,9 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
                     isEditing={isEditing}
                     align="center" 
                     unit="%"
+                    valueId="operaciones.scoPorc"
+                    variationId="operaciones.varPorcSco"
+                    onInputChange={onInputChange}
                   />
                   <DatoSimple 
                     icon={<Inbox className="h-5 w-5 text-primary"/>} 
@@ -302,6 +308,9 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
                     isEditing={isEditing}
                     align="center" 
                     unit="%"
+                    valueId="operaciones.dropOffPorc"
+                    variationId="operaciones.varPorcDropOff"
+                    onInputChange={onInputChange}
                   />
               </div>
           </KpiCard>
@@ -312,6 +321,9 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
                 variation={operaciones.varPorcVentaIpod}
                 isEditing={isEditing}
                 align="center"
+                valueId="operaciones.ventaIpod"
+                variationId="operaciones.varPorcVentaIpod"
+                onInputChange={onInputChange}
               />
           </KpiCard>
 
@@ -322,6 +334,9 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
                 isEditing={isEditing}
                 align="center" 
                 unit="%"
+                valueId="operaciones.eTicketPorc"
+                variationId="operaciones.varPorcETicket"
+                onInputChange={onInputChange}
               />
           </KpiCard>
 
