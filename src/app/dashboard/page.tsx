@@ -103,11 +103,11 @@ const NavButton = ({ tab, activeTab, onTabChange }: { tab: TabValue; activeTab: 
     return (
         <Button
             variant={activeTab === tab ? "default" : "outline"}
-            className="flex-1"
+            size="icon"
             onClick={() => onTabChange(tab)}
+            aria-label={label}
         >
-            <Icon className="h-4 w-4 mr-2" />
-            {label}
+            <Icon className="h-4 w-4" />
         </Button>
     );
 };
