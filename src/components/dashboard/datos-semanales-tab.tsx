@@ -135,12 +135,14 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
       <div className="grid grid-cols-1 md:grid-cols-6 gap-2">
         {/* Ventas */}
         <KpiCard title="Ventas" icon={<Euro className="h-5 w-5 text-primary" />} className="md:col-span-3">
-          <DatoDoble 
+           <DatoDoble 
+            label="Importes"
             value={formatCurrency(ventas.totalEuros)} 
             variation={ventas.varPorcEuros} 
             isEditing={false}
           />
           <DatoDoble 
+            label="Unidades"
             value={formatNumber(ventas.totalUnidades)}
             unit=" Unid."
             variation={ventas.varPorcUnidades} 
@@ -220,7 +222,7 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
           
           <KpiCard title="Operaciones" icon={<RefreshCw className="h-5 w-5 text-primary" />} className="md:col-span-2 h-full">
               <div className="grid grid-cols-2 gap-4 h-full">
-                  <DatoSimple label="Repo" value={isEditing ? operaciones.repoPorc : formatPercentage(operaciones.repoPorc)} isEditing={isEditing} valueId="operaciones.repoPorc" align="center" unit="%" icon={<RefreshCw className="h-5 w-5 text-primary"/>} onInputChange={onInputChange} />
+                  <DatoSimple label="Repo" value={isEditing ? operaciones.repoPorc : formatPercentage(operaciones.repoPorc)} isEditing={isEditing} valueId="operaciones.repoPorc" align="center" unit="%" icon={<RefreshCw className="h-5 w-5 text-primary"/>} />
                   <DatoSimple label="Frescura" value={isEditing ? operaciones.frescuraPorc : formatPercentage(operaciones.frescuraPorc)} isEditing={isEditing} valueId="operaciones.frescuraPorc" align="center" unit="%" icon={<Sparkles className="h-5 w-5 text-primary"/>} onInputChange={onInputChange} />
               </div>
           </KpiCard>
