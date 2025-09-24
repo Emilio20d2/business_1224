@@ -440,13 +440,13 @@ const handleMigration = async () => {
     if (!canEdit) return;
     setIsMigrating(true);
     try {
-      const sourceRef = doc(db, "informes", "semana-24");
-      const destRef = doc(db, "informes", "semana-37");
+      const sourceRef = doc(db, "informes", "semana-37");
+      const destRef = doc(db, "informes", "semana-38");
 
       const sourceSnap = await getDoc(sourceRef);
 
       if (!sourceSnap.exists()) {
-        throw new Error("El informe de origen 'semana-24' no existe.");
+        throw new Error("El informe de origen 'semana-37' no existe.");
       }
 
       await setDoc(destRef, sourceSnap.data());
@@ -454,12 +454,12 @@ const handleMigration = async () => {
 
       toast({
         title: "¡Migración completada!",
-        description: "Datos de semana-24 movidos a semana-37 y el original ha sido eliminado.",
+        description: "Datos de semana-37 movidos a semana-38 y el original ha sido eliminado.",
       });
 
-      // Refresh data if user is on week 37
-      if (selectedWeek === 'semana-37') {
-          fetchData('semana-37');
+      // Refresh data if user is on week 38
+      if (selectedWeek === 'semana-38') {
+          fetchData('semana-38');
       }
     } catch (error: any) {
       toast({
@@ -566,7 +566,7 @@ const handleMigration = async () => {
                 )}
                  <Button variant="secondary" onClick={handleMigration} disabled={isMigrating} size="sm">
                     {isMigrating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <DatabaseZap className="mr-2 h-4 w-4" />}
-                    Migrar Datos (semana-24 a 37)
+                    Migrar Datos (semana-37 a 38)
                  </Button>
               </>
             )}
