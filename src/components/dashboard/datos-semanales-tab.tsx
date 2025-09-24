@@ -19,7 +19,6 @@ import {
   Clock,
   Percent,
   Sparkles,
-  Woman,
   Baby
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -41,7 +40,7 @@ type DatosSemanalesTabProps = {
 type SectionName = keyof WeeklyData["datosPorSeccion"];
 
 const sectionConfig = {
-    woman: { title: "WOMAN", icon: <Woman className="h-5 w-5 text-primary" />, color: "bg-pink-500" },
+    woman: { title: "WOMAN", icon: <User className="h-5 w-5 text-primary" />, color: "bg-pink-500" },
     man: { title: "MAN", icon: <User className="h-5 w-5 text-primary" />, color: "bg-blue-500" },
     nino: { title: "NIÑO", icon: <Baby className="h-5 w-5 text-primary" />, color: "bg-primary" },
 };
