@@ -32,18 +32,19 @@ export const formatWeekId = (weekId: string): string => {
   const [, year, week] = parts;
 
   try {
-    // We create a date on the first day of the year, then find the Monday of the target week.
+    // Using Jan 4th of the year is a safe way to get the correct year for ISO week dates.
     const firstDayOfYear = parse(`${year}-01-04`, 'yyyy-MM-dd', new Date());
-    const dateWithWeek = parse(`${week}`, 'w', firstDayOfYear);
+    const dateWithWeek = parse(`${week}`, 'w', firstDayOfYear, { locale: es });
     const start = startOfWeek(dateWithWeek, { weekStartsOn: 1, locale: es });
     const end = addDays(start, 6);
 
-    const startFormat = 'd MMM';
-    const endFormat = 'd MMM, yyyy';
+    const startFormat = format(start, 'd MMM', { locale: es });
+    const endFormat = format(end, 'd MMM, yyyy', { locale: es });
     
-    return `${format(start, startFormat, { locale: es })} - ${format(end, endFormat, { locale: es })}`;
+    return `${startFormat} - ${endFormat}`;
   } catch (e) {
     console.error("Error formatting weekId", e);
+    // Fallback to the old format in case of error
     return `Semana ${week} - ${year}`;
   }
 };
