@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useContext, useEffect, useCallback } from 'react';
+import React, { useState, useContext, useEffect, useCallback, Suspense } from 'react';
 import type { WeeklyData, VentasManItem } from "@/lib/data";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { db, storage } from '@/lib/firebase';
@@ -11,16 +11,12 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { DatosSemanalesTab } from "@/components/dashboard/datos-semanales-tab";
-import { AqneSemanalTab } from "@/components/dashboard/aqne-semanal-tab";
-import { AcumuladoTab } from "@/components/dashboard/acumulado-tab";
+import { VentasManTab } from '@/components/dashboard/ventas-man-tab';
 import { Button } from '@/components/ui/button';
 import { Settings, LogOut, Loader2, ChevronDown, Briefcase, List, LayoutDashboard, ShoppingBag, AreaChart, User as UserIcon, Pencil } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -44,14 +40,13 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 
 
 type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan' | 'compradorWoman' | 'zonaComercialWoman' | 'agrupacionComercialWoman' | 'compradorNino' | 'zonaComercialNino' | 'agrupacionComercialNino';
-type TabValue = "datosSemanales" | "aqneSemanal" | "acumulado";
 type WeekOption = { value: string; label: string };
 
 
 const tabConfig: Record<string, { label: string; icon: React.FC<React.SVGProps<SVGSVGElement>>, path?: string }> = {
-    datosSemanales: { label: "GENERAL", icon: LayoutDashboard },
-    aqneSemanal: { label: "AQNE", icon: ShoppingBag },
-    acumulado: { label: "ACUMULADO", icon: AreaChart },
+    datosSemanales: { label: "GENERAL", icon: LayoutDashboard, path: "/dashboard" },
+    aqneSemanal: { label: "AQNE", icon: ShoppingBag, path: "/dashboard" },
+    acumulado: { label: "ACUMULADO", icon: AreaChart, path: "/dashboard" },
     man: { label: "MAN", icon: UserIcon, path: "/man" },
 };
 
@@ -122,7 +117,7 @@ const synchronizeTableData = (list: string[], oldTableData: VentasManItem[]): Ve
     });
 };
 
-function DashboardPageComponent() {
+function ManPageComponent() {
   const { user, loading: authLoading, logout } = useContext(AuthContext);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -139,28 +134,25 @@ function DashboardPageComponent() {
   const [weeks, setWeeks] = useState<WeekOption[]>([]);
   
   const selectedWeek = searchParams.get('week') || getPreviousWeekId();
-  const activeTab = searchParams.get('tab') || 'datosSemanales';
+  const activeTab = "man";
 
   const canEdit = user?.email === 'emiliogp@inditex.com';
   const { toast } = useToast();
   
-  const updateUrl = (newWeek: string, newTab: string) => {
+  const updateUrl = (newWeek: string) => {
       const params = new URLSearchParams();
       params.set('week', newWeek);
-      params.set('tab', newTab);
-      router.replace(`/dashboard?${params.toString()}`);
+      router.replace(`/man?${params.toString()}`);
   }
 
   const handleWeekChange = (newWeek: string) => {
-      updateUrl(newWeek, activeTab);
+      updateUrl(newWeek);
   };
   
   const handleTabChange = (newTab: string) => {
     const config = tabConfig[newTab];
     if (config?.path) {
         router.push(`${config.path}?week=${selectedWeek}`);
-    } else {
-        updateUrl(selectedWeek, newTab);
     }
   };
 
@@ -283,62 +275,6 @@ function DashboardPageComponent() {
         const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
         current[finalKey] = isNaN(numericValue) || value === "" ? value : numericValue;
         
-        // --- Recalculation Logic ---
-        const [mainKey, sectionKey, subKey, index, field] = keys;
-        
-         if (mainKey === 'datosPorSeccion' || mainKey === 'aqneSemanal') {
-            const section = updatedData[mainKey][sectionKey];
-
-            if (subKey === 'desglose') {
-                if (section && Array.isArray(section.desglose)) {
-                    const newTotalEuros = section.desglose.reduce((sum: number, item: any) => sum + (item.totalEuros || 0), 0);
-                    section.metricasPrincipales.totalEuros = newTotalEuros;
-                }
-            }
-        }
-        
-        if (mainKey === 'datosPorSeccion') {
-            const { man, woman, nino } = updatedData.datosPorSeccion;
-            
-            // Recalculate ventas.totalUnidades from datosPorSeccion totals
-            const totalUnidades = (man?.metricasPrincipales.totalUnidades || 0) +
-                                (woman?.metricasPrincipales.totalUnidades || 0) +
-                                (nino?.metricasPrincipales.totalUnidades || 0);
-            updatedData.ventas.totalUnidades = totalUnidades;
-            
-            // Recalculate ventas.totalEuros from datosPorSeccion totals
-            const totalEuros = (man?.metricasPrincipales.totalEuros || 0) +
-                                (woman?.metricasPrincipales.totalEuros || 0) +
-                                (nino?.metricasPrincipales.totalEuros || 0);
-            updatedData.ventas.totalEuros = totalEuros;
-        }
-
-        
-        if (mainKey === 'aqneSemanal') {
-            const sections = updatedData.aqneSemanal;
-            const totalVentasAqne = (sections.woman.metricasPrincipales.totalEuros || 0) +
-                                    (sections.man.metricasPrincipales.totalEuros || 0) +
-                                    (sections.nino.metricasPrincipales.totalEuros || 0);
-
-            if (totalVentasAqne > 0) {
-                sections.woman.pesoPorc = parseFloat(((sections.woman.metricasPrincipales.totalEuros / totalVentasAqne) * 100).toFixed(2));
-                sections.man.pesoPorc = parseFloat(((sections.man.metricasPrincipales.totalEuros / totalVentasAqne) * 100).toFixed(2));
-                sections.nino.pesoPorc = parseFloat(((sections.nino.metricasPrincipales.totalEuros / totalVentasAqne) * 100).toFixed(2));
-            } else {
-                sections.woman.pesoPorc = 0;
-                sections.man.pesoPorc = 0;
-                sections.nino.pesoPorc = 0;
-            }
-        }
-        
-        if (keys[0] === 'ventasDiariasAQNE') {
-            const ventaIndex = parseInt(keys[1], 10);
-            if (!isNaN(ventaIndex) && updatedData.ventasDiariasAQNE[ventaIndex]) {
-                const day = updatedData.ventasDiariasAQNE[ventaIndex];
-                day.total = (day.woman || 0) + (day.man || 0) + (day.nino || 0);
-            }
-        }
-        
         return updatedData;
     });
 };
@@ -404,6 +340,37 @@ function DashboardPageComponent() {
     } finally {
         setIsSaving(false);
     }
+};
+
+const handleImageChange = (path: string, file: File, onUploadComplete: (success: boolean, downloadURL?: string) => void) => {
+    if (!data || !canEdit) {
+        onUploadComplete(false);
+        return;
+    }
+
+    const storageRef = ref(storage, `informes/${selectedWeek}/${file.name}-${Date.now()}`);
+
+    uploadBytes(storageRef, file).then(snapshot => {
+        getDownloadURL(snapshot.ref).then(downloadURL => {
+            handleInputChange(path, downloadURL);
+            onUploadComplete(true, downloadURL);
+            toast({
+                title: "Imagen cargada",
+                description: "La imagen está lista. Haz clic en 'Guardar' para confirmar todos los cambios.",
+            });
+            if (!isEditing) {
+                setIsEditing(true);
+            }
+        });
+    }).catch(error => {
+         console.error("Error uploading image: ", error);
+        toast({
+            variant: "destructive",
+            title: "Error al subir la imagen",
+            description: "No se pudo subir la imagen. Comprueba tu conexión y los permisos de Firebase Storage.",
+        });
+        onUploadComplete(false);
+    });
 };
 
   if (authLoading || dataLoading) {
@@ -569,25 +536,12 @@ function DashboardPageComponent() {
         </header>
         
         <main>
-          <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-            <TabsContent value="datosSemanales" className="mt-0">
-              <DatosSemanalesTab 
-                ventas={data.ventas}
-                rendimientoTienda={data.rendimientoTienda}
-                operaciones={data.operaciones}
-                perdidas={data.perdidas}
-                datosPorSeccion={data.datosPorSeccion}
-                isEditing={isEditing} 
-                onInputChange={handleInputChange} 
-              />
-            </TabsContent>
-            <TabsContent value="aqneSemanal" className="mt-0">
-              <AqneSemanalTab data={data} isEditing={isEditing} onInputChange={handleInputChange} />
-            </TabsContent>
-            <TabsContent value="acumulado" className="mt-0">
-              <AcumuladoTab data={data.acumulado} isEditing={isEditing} onInputChange={onInputChange} />
-            </TabsContent>
-          </Tabs>
+           <VentasManTab 
+              data={data}
+              isEditing={isEditing} 
+              onInputChange={handleInputChange}
+              onImageChange={handleImageChange}
+            />
         </main>
         
         {listToEdit && data.listas && (
@@ -612,15 +566,15 @@ function DashboardPageComponent() {
 }
 
 
-export default function DashboardPage() {
+export default function ManPage() {
     return (
-        <React.Suspense fallback={
+        <Suspense fallback={
             <div className="flex flex-col items-center justify-center min-h-screen">
                 <Loader2 className="h-12 w-12 animate-spin text-primary" />
-                <p className="mt-4">Cargando dashboard...</p>
+                <p className="mt-4">Cargando sección MAN...</p>
             </div>
         }>
-            <DashboardPageComponent />
-        </React.Suspense>
+            <ManPageComponent />
+        </Suspense>
     );
 }
