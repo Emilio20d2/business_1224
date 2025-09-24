@@ -1,7 +1,6 @@
 import React from 'react';
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
-import { ArrowDown, ArrowUp } from 'lucide-react';
 
 type KpiCardProps = {
   title: string;
@@ -31,7 +30,7 @@ type DatoDobleProps = {
   isEditing?: boolean;
   valueId?: string;
   variationId?: string;
-  onInputChange?: (path: string, value: string) => void;
+  onInputChange?: (path: string, value: string | number) => void;
 };
 
 export function DatoDoble({ label, value, variation, unit, isEditing, valueId, variationId, onInputChange }: DatoDobleProps) {
@@ -100,7 +99,7 @@ export function DatoDoble({ label, value, variation, unit, isEditing, valueId, v
 
 
 type DatoSimpleProps = {
-  label?: string;
+  label?: string | React.ReactNode;
   value: string | number | React.ReactNode;
   variation?: number;
   trendDirection?: 'up' | 'down'; // 'up' means green is good, 'down' means red is good
@@ -221,13 +220,17 @@ export function DatoSimple({
         right: "items-center justify-end text-right",
     }
 
+    const iconToShow = typeof label === 'string' ? icon : label;
+    const textLabel = typeof label === 'string' ? label : null;
+
+
     return (
         <div className={cn("flex w-full", alignmentClasses[align], className)}>
             <div className={cn("flex flex-col gap-1 w-full", `items-${align}`)}>
-              {label && 
+              {(textLabel || iconToShow) && 
                 <span className="flex items-center gap-2 text-muted-foreground justify-center text-sm font-normal">
-                    {icon}
-                    {label}
+                    {iconToShow}
+                    {textLabel}
                 </span>
               }
                <div className="text-center flex-col justify-center items-center flex gap-1">

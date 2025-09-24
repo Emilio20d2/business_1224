@@ -3,7 +3,7 @@ import { formatCurrency, formatNumber, formatPercentage } from "@/lib/format";
 import { KpiCard, DatoDoble, DatoSimple } from "./kpi-card";
 import { 
   Euro, 
-  ChartLine, 
+  ChartLine,
   Receipt,
   Warehouse,
   ClipboardX,
@@ -46,7 +46,7 @@ const ModuloAlmacen = ({ title, children, className }: { title: string, children
     </div>
 );
 
-const ModuloContenidoGrande = ({ icon, value, isEditing, id, onInputChange }: { icon: React.ReactNode, value: number, isEditing?: boolean, id?:string, onInputChange?: (path: string, value: string) => void; }) => (
+const ModuloContenidoGrande = ({ icon, value, isEditing, id, onInputChange }: { icon: React.ReactNode, value: number, isEditing?: boolean, id?:string, onInputChange?: (path: string, value: string | number) => void; }) => (
     <div className="flex flex-col items-center justify-center gap-2 p-4 rounded-lg bg-background h-full">
        <div className="text-primary">{icon}</div>
        {isEditing && id && onInputChange ? 
@@ -56,7 +56,7 @@ const ModuloContenidoGrande = ({ icon, value, isEditing, id, onInputChange }: { 
     </div>
 );
 
-const FilaModulo = ({ icon, label, value, isEditing, id, onInputChange, unit }: { icon: React.ReactNode, label: string, value: number, isEditing?: boolean, id?: string, onInputChange?: (path: string, value: string) => void; unit: string }) => (
+const FilaModulo = ({ icon, label, value, isEditing, id, onInputChange, unit }: { icon: React.ReactNode, label: string, value: number, isEditing?: boolean, id?: string, onInputChange?: (path: string, value: string | number) => void; unit: string }) => (
      <div className="flex items-center justify-between gap-4 text-md w-40">
         <div className="flex items-center gap-2 text-primary">
             {icon}
@@ -100,7 +100,7 @@ export function OperacionesSubTab({ data, isEditing, onInputChange }: Operacione
         <KpiCard title="GAP" icon={<ClipboardX className="h-5 w-5 text-primary" />}>
              <div className="flex flex-row justify-center items-center gap-4">
                 <DatoSimple 
-                    icon={<Euro className="h-5 w-5 text-primary"/>}
+                    label={<Euro className="h-5 w-5 text-primary"/>}
                     value={isEditing ? data.perdidas.gap.euros : formatGap(data.perdidas.gap.euros, '€')} 
                     isEditing={isEditing}
                     valueId="perdidas.gap.euros"
@@ -109,7 +109,7 @@ export function OperacionesSubTab({ data, isEditing, onInputChange }: Operacione
                     onInputChange={onInputChange}
                 />
                 <DatoSimple 
-                    icon={<Package className="h-5 w-5 text-primary"/>}
+                    label={<Package className="h-5 w-5 text-primary"/>}
                     value={isEditing ? data.perdidas.gap.unidades : formatGap(data.perdidas.gap.unidades, 'Unid.')}
                     isEditing={isEditing}
                     valueId="perdidas.gap.unidades"
@@ -123,7 +123,7 @@ export function OperacionesSubTab({ data, isEditing, onInputChange }: Operacione
         <KpiCard title="Merma" icon={<Trash2 className="h-5 w-5 text-primary" />}>
             <div className="flex flex-row justify-center items-center gap-4">
                 <DatoSimple 
-                    icon={<Package className="h-5 w-5 text-primary"/>}
+                    label={<Package className="h-5 w-5 text-primary"/>}
                     value={isEditing ? data.perdidas.merma.unidades : `${formatNumber(data.perdidas.merma.unidades)} Unid.`}
                     isEditing={isEditing}
                     valueId="perdidas.merma.unidades"
@@ -132,7 +132,7 @@ export function OperacionesSubTab({ data, isEditing, onInputChange }: Operacione
                     onInputChange={onInputChange}
                 />
                 <DatoSimple 
-                    icon={<Percent className="h-5 w-5 text-primary"/>}
+                    label={<Percent className="h-5 w-5 text-primary"/>}
                     value={isEditing ? data.perdidas.merma.porcentaje : formatPercentage(data.perdidas.merma.porcentaje)}
                     isEditing={isEditing}
                     valueId="perdidas.merma.porcentaje"

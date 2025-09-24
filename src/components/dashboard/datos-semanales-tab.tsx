@@ -94,23 +94,23 @@ const SectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionNa
                             onInputChange={onInputChange}
                         />
                     </div>
-                    <div className="bg-background rounded-lg p-3 text-center flex flex-col justify-center items-center">
-                         <DatoSimple 
+                     <div className="bg-background rounded-lg p-3 text-center flex flex-col justify-center items-center">
+                        <DatoSimple
                             value={data.metricasPrincipales.totalUnidades}
                             isEditing={isEditing}
                             valueId={`datosPorSeccion.${name}.metricasPrincipales.totalUnidades`}
                             onInputChange={onInputChange}
                             align="center"
                         />
-                        <DatoSimple 
-                          value="" 
-                          variation={data.metricasPrincipales.varPorcUnidades} 
-                          isEditing={isEditing}
-                          alwaysShowVariation 
-                          align="center" 
-                          unit="%"
-                          variationId={`datosPorSeccion.${name}.metricasPrincipales.varPorcUnidades`}
-                          onInputChange={onInputChange}
+                        <DatoSimple
+                            value=""
+                            variation={data.metricasPrincipales.varPorcUnidades}
+                            isEditing={isEditing}
+                            alwaysShowVariation
+                            align="center"
+                            unit="%"
+                            variationId={`datosPorSeccion.${name}.metricasPrincipales.varPorcUnidades`}
+                            onInputChange={onInputChange}
                         />
                     </div>
                 </div>
@@ -125,11 +125,13 @@ const SectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionNa
                                 <span>{item.seccion}</span>
                             </div>
                             
-                            {isEditing ? (
-                                <Input type="number" inputMode="decimal" defaultValue={item.totalEuros} onChange={(e) => handleDesgloseChange(index, 'totalEuros', e.target.value)} className="font-bold w-20 text-right" placeholder="€" />
-                            ) : (
-                                <div className={cn("font-bold text-right", item.totalEuros < 0 && "text-red-600")}>{formatCurrency(item.totalEuros)}</div>
-                            )}
+                            <div className="text-right">
+                                {isEditing ? (
+                                    <Input type="number" inputMode="decimal" defaultValue={item.totalEuros} onChange={(e) => handleDesgloseChange(index, 'totalEuros', e.target.value)} className="font-bold w-20 text-right" placeholder="€" />
+                                ) : (
+                                    <div className={cn("font-bold text-right", item.totalEuros < 0 && "text-red-600")}>{formatCurrency(item.totalEuros)}</div>
+                                )}
+                            </div>
 
                              <div className="w-20 flex justify-end">
                                 <DatoSimple 
@@ -207,7 +209,7 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
           <KpiCard title="GAP" icon={<ClipboardX className="h-5 w-5 text-primary" />} className="md:col-span-2">
               <div className="flex flex-row justify-around items-center gap-4 h-full">
                   <DatoSimple 
-                      icon={<Euro className="h-5 w-5 text-primary"/>}
+                      label={<Euro className="h-5 w-5 text-primary"/>}
                       value={isEditing ? perdidas.gap.euros : formatGap(perdidas.gap.euros, '€')} 
                       isEditing={isEditing}
                       valueId="perdidas.gap.euros"
@@ -216,7 +218,7 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
                       onInputChange={onInputChange}
                   />
                   <DatoSimple 
-                      icon={<Package className="h-5 w-5 text-primary"/>}
+                      label={<Package className="h-5 w-5 text-primary"/>}
                       value={isEditing ? perdidas.gap.unidades : formatGap(perdidas.gap.unidades, 'Unid.')}
                       isEditing={isEditing}
                       valueId="perdidas.gap.unidades"
@@ -230,7 +232,7 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
           <KpiCard title="Merma" icon={<Trash2 className="h-5 w-5 text-primary" />} className="md:col-span-2">
               <div className="flex flex-row justify-around items-center gap-4 h-full">
                   <DatoSimple 
-                      icon={<Package className="h-5 w-5 text-primary"/>}
+                      label={<Package className="h-5 w-5 text-primary"/>}
                       value={isEditing ? perdidas.merma.unidades : `${formatNumber(perdidas.merma.unidades)} Unid.`}
                       isEditing={isEditing}
                       valueId="perdidas.merma.unidades"
@@ -239,7 +241,7 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
                       onInputChange={onInputChange}
                   />
                    <DatoSimple 
-                      icon={<Percent className="h-5 w-5 text-primary"/>}
+                      label={<Percent className="h-5 w-5 text-primary"/>}
                       value={isEditing ? perdidas.merma.porcentaje : formatPercentage(perdidas.merma.porcentaje)}
                       variation={perdidas.merma.varPorcPorcentaje}
                       isEditing={isEditing}
