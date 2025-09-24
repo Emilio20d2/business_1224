@@ -156,7 +156,7 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
   if (!ventas || !rendimientoTienda || !operaciones || !perdidas || !datosPorSeccion) return <p>Cargando datos...</p>;
   
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       <div className="grid grid-cols-1 md:grid-cols-6 gap-2">
         {/* Ventas */}
         <KpiCard title="Ventas" icon={<Euro className="h-5 w-5 text-primary" />} className="md:col-span-3">
@@ -327,7 +327,7 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
 
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
         <SectionCard name="woman" data={datosPorSeccion.woman} isEditing={isEditing} onInputChange={onInputChange} />
         <SectionCard name="man" data={datosPorSeccion.man} isEditing={isEditing} onInputChange={onInputChange} />
         <SectionCard name="nino" data={datosPorSeccion.nino} isEditing={isEditing} onInputChange={onInputChange} />

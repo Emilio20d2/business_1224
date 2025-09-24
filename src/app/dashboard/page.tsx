@@ -237,7 +237,7 @@ export default function DashboardPage() {
         // --- Recalculation Logic ---
         const [mainKey, sectionKey, subKey, index, field] = keys;
         
-        if (mainKey === 'datosPorSeccion' || mainKey === 'aqneSemanal') {
+         if (mainKey === 'datosPorSeccion' || mainKey === 'aqneSemanal') {
             const section = updatedData[mainKey][sectionKey];
 
             if (subKey === 'desglose') {
@@ -419,16 +419,16 @@ const handleImageChange = (path: string, file: File, onUploadComplete: (success:
 
 
   return (
-    <div className="min-h-screen w-full p-4 sm:p-6 bg-background">
-      <header className="mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+    <div className="min-h-screen w-full p-2 sm:p-3 bg-background">
+      <header className="mb-4 flex flex-col sm:flex-row items-center justify-between gap-2">
         <h1 className="text-2xl sm:text-3xl font-bold text-foreground flex items-center gap-2">
           <Briefcase className="h-7 w-7" />
           BUSSINES
         </h1>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
            <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="w-[190px]">
+                  <Button variant="outline" className="w-[180px]">
                       {tabLabels[activeTab]}
                       <ChevronDown className="ml-2 h-4 w-4" />
                   </Button>
@@ -445,7 +445,7 @@ const handleImageChange = (path: string, file: File, onUploadComplete: (success:
           </DropdownMenu>
           <div className="flex items-center gap-2">
              <Select value="previous-week">
-              <SelectTrigger id="semana-select" className="w-[190px]">
+              <SelectTrigger id="semana-select" className="w-[180px]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

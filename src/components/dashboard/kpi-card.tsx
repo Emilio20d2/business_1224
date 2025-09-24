@@ -71,7 +71,7 @@ export function DatoDoble({ label, value, variation, unit, isEditing, valueId, v
              {unit && <span className="text-sm text-muted-foreground">{unit}</span>}
            </div>
         ) : (
-           <div className={cn("text-2xl font-bold", valueColor)}>{value}{unit}</div>
+           <div className={cn("text-xl font-bold", valueColor)}>{value}{unit}</div>
         )}
         {variation !== undefined && (
           isEditing && variationId ? (
