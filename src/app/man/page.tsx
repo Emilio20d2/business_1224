@@ -77,7 +77,7 @@ const getPreviousWeekId = () => {
 
 const generateWeeks = (): WeekOption[] => {
     const weeks: WeekOption[] = [];
-    const startDate = new Date('2024-01-01T12:00:00Z');
+    const startDate = new Date('2025-09-15T12:00:00Z');
     
     for (let i = 0; i < 104; i++) { // Generate 2 years of weeks
         const date = addWeeks(startDate, i);

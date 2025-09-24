@@ -32,7 +32,7 @@ import {
   DropdownMenuSubContent,
   DropdownMenuPortal
 } from "@/components/ui/dropdown-menu"
-import { getWeek, format, addWeeks, startOfISOWeek, getISOWeek, getISOWeekYear } from 'date-fns';
+import { addWeeks, format, getISOWeek, getISOWeekYear, startOfISOWeek, subWeeks } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import { AuthContext } from '@/context/auth-context';
@@ -41,10 +41,11 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { EditListDialog } from '@/components/dashboard/edit-list-dialog';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { VentasManTab } from '@/components/dashboard/ventas-man-tab';
 
 
 type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan' | 'compradorWoman' | 'zonaComercialWoman' | 'agrupacionComercialWoman' | 'compradorNino' | 'zonaComercialNino' | 'agrupacionComercialNino';
-type TabValue = "datosSemanales" | "aqneSemanal" | "acumulado";
+type TabValue = "datosSemanales" | "aqneSemanal" | "acumulado" | "man";
 type WeekOption = { value: string; label: string };
 
 
@@ -68,21 +69,23 @@ const listLabels: Record<EditableList, string> = {
 };
 
 
-const getWeekId = (date: Date) => {
-    const isoWeekYear = getISOWeekYear(date);
-    const isoWeek = getISOWeek(date);
-    return `semana-${isoWeekYear}-${isoWeek}`;
-}
-
-const getPreviousWeekId = () => {
-    const lastWeek = startOfISOWeek(new Date());
-    const date = addWeeks(lastWeek, -1);
-    return getWeekId(date);
+const getWeekId = (date: Date): string => {
+  const isoWeekYear = getISOWeekYear(date);
+  const isoWeek = getISOWeek(date);
+  return `semana-${isoWeekYear}-${isoWeek}`;
 };
+
+const getPreviousWeekId = (): string => {
+  const today = new Date();
+  const oneWeekAgo = subWeeks(today, 1);
+  const startOfLastWeek = startOfISOWeek(oneWeekAgo);
+  return getWeekId(startOfLastWeek);
+};
+
 
 const generateWeeks = (): WeekOption[] => {
     const weeks: WeekOption[] = [];
-    const startDate = new Date('2024-01-01T12:00:00Z');
+    const startDate = new Date('2025-09-15T12:00:00Z');
     
     for (let i = 0; i < 104; i++) { // Generate 2 years of weeks
         const date = addWeeks(startDate, i);
@@ -139,13 +142,13 @@ function DashboardPageComponent() {
   const [weeks, setWeeks] = useState<WeekOption[]>([]);
   
   const selectedWeek = searchParams.get('week') || getPreviousWeekId();
-  const activeTab = searchParams.get('tab') || 'datosSemanales';
+  const activeTab = (searchParams.get('tab') as TabValue) || 'datosSemanales';
 
   const canEdit = user?.email === 'emiliogp@inditex.com';
   const { toast } = useToast();
   
   const updateUrl = (newWeek: string, newTab: string) => {
-      const params = new URLSearchParams();
+      const params = new URLSearchParams(searchParams);
       params.set('week', newWeek);
       params.set('tab', newTab);
       router.replace(`/dashboard?${params.toString()}`);
@@ -342,6 +345,38 @@ function DashboardPageComponent() {
         return updatedData;
     });
 };
+
+ const handleImageChange = (path: string, file: File, onUploadComplete: (success: boolean, downloadURL?: string) => void) => {
+    if (!data || !canEdit) {
+        onUploadComplete(false);
+        return;
+    }
+
+    const storageRef = ref(storage, `informes/${selectedWeek}/${file.name}-${Date.now()}`);
+
+    uploadBytes(storageRef, file).then(snapshot => {
+        getDownloadURL(snapshot.ref).then(downloadURL => {
+            handleInputChange(path, downloadURL);
+            onUploadComplete(true, downloadURL);
+            toast({
+                title: "Imagen cargada",
+                description: "La imagen está lista. Haz clic en 'Guardar' para confirmar todos los cambios.",
+            });
+            if (!isEditing) {
+                setIsEditing(true);
+            }
+        });
+    }).catch(error => {
+         console.error("Error uploading image: ", error);
+        toast({
+            variant: "destructive",
+            title: "Error al subir la imagen",
+            description: "No se pudo subir la imagen. Comprueba tu conexión y los permisos de Firebase Storage.",
+        });
+        onUploadComplete(false);
+    });
+};
+
 
   const handleSave = async () => {
     if (!data) return;
@@ -569,8 +604,8 @@ function DashboardPageComponent() {
         </header>
         
         <main>
-          <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-            <TabsContent value="datosSemanales" className="mt-0">
+          <Tabs value={activeTab} onValueChange={(value) => updateUrl(selectedWeek, value)} className="w-full">
+             <TabsContent value="datosSemanales" className="mt-0">
               <DatosSemanalesTab 
                 ventas={data.ventas}
                 rendimientoTienda={data.rendimientoTienda}
@@ -585,7 +620,15 @@ function DashboardPageComponent() {
               <AqneSemanalTab data={data} isEditing={isEditing} onInputChange={handleInputChange} />
             </TabsContent>
             <TabsContent value="acumulado" className="mt-0">
-              <AcumuladoTab data={data.acumulado} isEditing={isEditing} onInputChange={onInputChange} />
+              <AcumuladoTab data={data.acumulado} isEditing={isEditing} onInputChange={handleInputChange} />
+            </TabsContent>
+            <TabsContent value="man" className="mt-0">
+              <VentasManTab
+                data={data}
+                isEditing={isEditing}
+                onInputChange={handleInputChange}
+                onImageChange={handleImageChange}
+              />
             </TabsContent>
           </Tabs>
         </main>
