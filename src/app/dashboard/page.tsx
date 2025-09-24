@@ -1,7 +1,7 @@
 "use client"
 import React, { useState, useContext, useEffect, useCallback } from 'react';
 import type { WeeklyData, VentasManItem } from "@/lib/data";
-import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { db, storage } from '@/lib/firebase';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { 
@@ -17,7 +17,7 @@ import { AqneSemanalTab } from "@/components/dashboard/aqne-semanal-tab";
 import { AcumuladoTab } from "@/components/dashboard/acumulado-tab";
 import { VentasManTab } from '@/components/dashboard/ventas-man-tab';
 import { Button } from '@/components/ui/button';
-import { Settings, LogOut, Loader2, ChevronDown, Briefcase, List, LayoutDashboard, ShoppingBag, AreaChart, User as UserIcon, Pencil } from 'lucide-react';
+import { Settings, LogOut, Loader2, ChevronDown, Briefcase, List, LayoutDashboard, ShoppingBag, AreaChart, User as UserIcon, Pencil, DatabaseZap } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -151,6 +151,7 @@ export default function DashboardPage() {
   const [error, setError] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isMigrating, setIsMigrating] = useState(false);
   
   const [activeTab, setActiveTab] = useState<string>("datosSemanales");
 
@@ -435,6 +436,42 @@ const handleImageChange = (path: string, file: File, onUploadComplete: (success:
     });
 };
 
+const handleMigration = async () => {
+    if (!canEdit) return;
+    setIsMigrating(true);
+    try {
+      const sourceRef = doc(db, "informes", "semana-24");
+      const destRef = doc(db, "informes", "semana-37");
+
+      const sourceSnap = await getDoc(sourceRef);
+
+      if (!sourceSnap.exists()) {
+        throw new Error("El informe de origen 'semana-24' no existe.");
+      }
+
+      await setDoc(destRef, sourceSnap.data());
+      await deleteDoc(sourceRef);
+
+      toast({
+        title: "¡Migración completada!",
+        description: "Datos de semana-24 movidos a semana-37 y el original ha sido eliminado.",
+      });
+
+      // Refresh data if user is on week 37
+      if (selectedWeek === 'semana-37') {
+          fetchData('semana-37');
+      }
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error en la migración",
+        description: error.message,
+      });
+    } finally {
+      setIsMigrating(false);
+    }
+  };
+
   if (authLoading || dataLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
@@ -477,7 +514,7 @@ const handleImageChange = (path: string, file: File, onUploadComplete: (success:
         <div className="flex items-center gap-2">
             <div className="hidden sm:flex items-center gap-2">
                 {(Object.keys(tabConfig)).map(tabKey => (
-                    <NavButton key={tabKey} tabKey={tabKey} activeTab={activeTab} onTabChange={setActiveTab} router={router} selectedWeek={selectedWeek}/>
+                    <NavButton key={tabKey} tabKey={tabKey} activeTab={activeTab} onTabChange={(tab) => tabConfig[tab].path ? router.push(`${tabConfig[tab].path}?week=${selectedWeek}`) : setActiveTab(tab)} router={router} selectedWeek={selectedWeek}/>
                 ))}
             </div>
              <DropdownMenu>
@@ -527,6 +564,10 @@ const handleImageChange = (path: string, file: File, onUploadComplete: (success:
                     <Pencil className="h-4 w-4 text-primary" />
                   </Button>
                 )}
+                 <Button variant="secondary" onClick={handleMigration} disabled={isMigrating} size="sm">
+                    {isMigrating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <DatabaseZap className="mr-2 h-4 w-4" />}
+                    Migrar Datos (semana-24 a 37)
+                 </Button>
               </>
             )}
             <DropdownMenu>
