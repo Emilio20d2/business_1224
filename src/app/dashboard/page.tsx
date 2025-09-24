@@ -1,7 +1,7 @@
 "use client"
 import React, { useState, useContext, useEffect, useCallback } from 'react';
 import type { WeeklyData, VentasManItem } from "@/lib/data";
-import { doc, getDoc, setDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { db, storage } from '@/lib/firebase';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { 
@@ -17,7 +17,7 @@ import { AqneSemanalTab } from "@/components/dashboard/aqne-semanal-tab";
 import { AcumuladoTab } from "@/components/dashboard/acumulado-tab";
 import { VentasManTab } from '@/components/dashboard/ventas-man-tab';
 import { Button } from '@/components/ui/button';
-import { Settings, LogOut, Loader2, ChevronDown, Briefcase, List, LayoutDashboard, ShoppingBag, AreaChart, User as UserIcon, Pencil, DatabaseZap } from 'lucide-react';
+import { Settings, LogOut, Loader2, ChevronDown, Briefcase, List, LayoutDashboard, ShoppingBag, AreaChart, User as UserIcon, Pencil } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,7 +33,7 @@ import {
   DropdownMenuSubContent,
   DropdownMenuPortal
 } from "@/components/ui/dropdown-menu"
-import { startOfWeek, endOfWeek, subWeeks, addWeeks, format, getWeek } from 'date-fns';
+import { startOfWeek, endOfWeek, addWeeks, format, getWeek } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import { AuthContext } from '@/context/auth-context';
@@ -67,12 +67,13 @@ const listLabels: Record<EditableList, string> = {
     agrupacionComercialNino: 'Agrupación Comercial NIÑO',
 };
 
-const generateWeeks = (today: Date): WeekOption[] => {
+const generateWeeks = (): WeekOption[] => {
     const weeks: WeekOption[] = [];
-    const weekOptions = [-4, -3, -2, -1, 0, 1, 2, 3, 4]; // Past, current, and future weeks
-
-    weekOptions.forEach(offset => {
-        const date = addWeeks(today, offset);
+    const startDate = new Date('2024-09-15T12:00:00Z'); // Week 38
+    
+    // Generate 12 weeks from the start date
+    for (let i = 0; i < 12; i++) {
+        const date = addWeeks(startDate, i);
         const start = startOfWeek(date, { weekStartsOn: 1 });
         const end = endOfWeek(date, { weekStartsOn: 1 });
         const weekNumber = getWeek(date, { weekStartsOn: 1 });
@@ -81,15 +82,13 @@ const generateWeeks = (today: Date): WeekOption[] => {
         const value = `semana-${weekNumber}`;
 
         weeks.push({ value, label });
-    });
+    }
 
     return weeks;
 }
 
-const getPreviousWeekId = () => {
-    const lastWeek = subWeeks(new Date(), 1);
-    const weekNumber = getWeek(lastWeek, { weekStartsOn: 1 });
-    return `semana-${weekNumber}`;
+const getDefaultWeekId = () => {
+    return 'semana-38';
 }
 
 
@@ -151,7 +150,6 @@ export default function DashboardPage() {
   const [error, setError] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [isMigrating, setIsMigrating] = useState(false);
   
   const [activeTab, setActiveTab] = useState<string>("datosSemanales");
 
@@ -159,7 +157,7 @@ export default function DashboardPage() {
   const [listToEdit, setListToEdit] = useState<{ listKey: EditableList, title: string } | null>(null);
 
   const [weeks, setWeeks] = useState<WeekOption[]>([]);
-  const [selectedWeek, setSelectedWeek] = useState<string>(getPreviousWeekId());
+  const [selectedWeek, setSelectedWeek] = useState<string>(getDefaultWeekId());
 
   const canEdit = user?.email === 'emiliogp@inditex.com';
   const { toast } = useToast();
@@ -246,7 +244,7 @@ export default function DashboardPage() {
   }, [user, toast]);
 
     useEffect(() => {
-        setWeeks(generateWeeks(new Date()));
+        setWeeks(generateWeeks());
     }, []);
 
   useEffect(() => {
@@ -436,42 +434,6 @@ const handleImageChange = (path: string, file: File, onUploadComplete: (success:
     });
 };
 
-const handleMigration = async () => {
-    if (!canEdit) return;
-    setIsMigrating(true);
-    try {
-      const sourceRef = doc(db, "informes", "semana-37");
-      const destRef = doc(db, "informes", "semana-38");
-
-      const sourceSnap = await getDoc(sourceRef);
-
-      if (!sourceSnap.exists()) {
-        throw new Error("El informe de origen 'semana-37' no existe.");
-      }
-
-      await setDoc(destRef, sourceSnap.data());
-      await deleteDoc(sourceRef);
-
-      toast({
-        title: "¡Migración completada!",
-        description: "Datos de semana-37 movidos a semana-38 y el original ha sido eliminado.",
-      });
-
-      // Refresh data if user is on week 38
-      if (selectedWeek === 'semana-38') {
-          fetchData('semana-38');
-      }
-    } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Error en la migración",
-        description: error.message,
-      });
-    } finally {
-      setIsMigrating(false);
-    }
-  };
-
   if (authLoading || dataLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
@@ -564,10 +526,6 @@ const handleMigration = async () => {
                     <Pencil className="h-4 w-4 text-primary" />
                   </Button>
                 )}
-                 <Button variant="secondary" onClick={handleMigration} disabled={isMigrating} size="sm">
-                    {isMigrating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <DatabaseZap className="mr-2 h-4 w-4" />}
-                    Migrar Datos (semana-37 a 38)
-                 </Button>
               </>
             )}
             <DropdownMenu>
