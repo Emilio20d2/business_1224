@@ -30,9 +30,9 @@ type AqneSemanalTabProps = {
 };
 
 
-const WomanIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-primary"><path d="M12 5c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3"/><path d="M18.37 13.57a6.03 6.03 0 0 0-1.3-4.57l-2.07-2.07a1 1 0 0 0-1.41 0l-2.07 2.07a6.03 6.03 0 0 0-1.3 4.57"/><path d="M6 21a2 2 0 0 0 2-2v-4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v4a2 2 0 0 0 2 2"/></svg>;
-const ManIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-primary"><path d="M12 5c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3"/><path d="M7 14a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v7h-4v-4h-2v4H7v-7Z"/></svg>;
-const NinoIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-primary"><path d="M12 6.5c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3"/><path d="m5.6 21.5 1.5-6a2 2 0 0 1 2-1.5h5.8a2 2 0 0 1 2 1.5l1.5 6"/><path d="M12 14v-2.5"/><path d="M10 16c.5 1.33 1 2 2 2s1.5-.67 2-2"/></svg>;
+const WomanIcon = () => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-primary"><path d="M12 5c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3"/><path d="M18.37 13.57a6.03 6.03 0 0 0-1.3-4.57l-2.07-2.07a1 1 0 0 0-1.41 0l-2.07 2.07a6.03 6.03 0 0 0-1.3 4.57"/><path d="M6 21a2 2 0 0 0 2-2v-4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v4a2 2 0 0 0 2 2"/></svg>;
+const ManIcon = () => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-primary"><path d="M12 5c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3"/><path d="M7 14a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v7h-4v-4h-2v4H7v-7Z"/></svg>;
+const NinoIcon = () => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-primary"><path d="M12 6.5c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3"/><path d="m5.6 21.5 1.5-6a2 2 0 0 1 2-1.5h5.8a2 2 0 0 1 2 1.5l1.5 6"/><path d="M12 14v-2.5"/><path d="M10 16c.5 1.33 1 2 2 2s1.5-.67 2-2"/></svg>;
 const RopaIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 text-primary"><path d="m21.21 15.89-1.42-1.42a2 2 0 0 0-2.82 0L12 19.41l-5.96-5.96a2 2 0 0 0-2.82 0L1.79 15.89a2 2 0 0 0 0 2.82l1.42 1.42a2 2 0 0 0 2.82 0L12 14.2l5.96 5.96a2 2 0 0 0 2.82 0l1.42-1.42a2 2 0 0 0 0-2.82z"/><path d="M7.24 2.24 9 4l2.8-2.8L14 3l2.45-2.45L18.3 3 20 1.24 22 4l-1.8 1.8L22 7.64l-2.4-2.4-1.83 1.83L15.31 5l-2.46 2.46L10.4 5l-1.83 1.83-2.4-2.4L4.4 5.8 2.55 4l1.8-1.8L6 4l1.24-1.76z"/></svg>;
 
 
@@ -70,7 +70,7 @@ const AqneSectionCard = ({ name, data, isEditing, onInputChange }: { name: Secti
                 </CardTitle>
             </CardHeader>
             <CardContent>
-                <div className="grid grid-cols-2 gap-1">
+                <div className="grid grid-cols-2 gap-1 text-right">
                     <div className="bg-background rounded-lg p-3 text-center flex flex-col justify-center items-center">
                         <div className={cn("font-bold text-lg", data.metricasPrincipales.totalEuros < 0 && "text-red-600")}>{formatCurrency(data.metricasPrincipales.totalEuros)}</div>
                     </div>
@@ -87,7 +87,7 @@ const AqneSectionCard = ({ name, data, isEditing, onInputChange }: { name: Secti
                 <Separator className="my-1" />
                 <div className="flex flex-col gap-1 mt-1 text-sm">
                     {data.desglose.map((item, index) => (
-                         <div key={index} className="grid grid-cols-[1fr_auto_auto] justify-between items-center gap-2">
+                         <div key={index} className="grid grid-cols-2 justify-between items-center gap-2">
                             <div className="flex items-center gap-2 text-left">
                                 <div className="w-6 flex-shrink-0">
                                     {desgloseIconos[item.seccion] || <RopaIcon />}
@@ -97,22 +97,10 @@ const AqneSectionCard = ({ name, data, isEditing, onInputChange }: { name: Secti
                             
                             <div className="text-right">
                                 {isEditing ? (
-                                    <Input type="number" inputMode="decimal" defaultValue={item.totalEuros} onChange={(e) => handleDesgloseChange(index, 'totalEuros', e.target.value)} className="font-bold w-20 text-right" placeholder="€" />
+                                    <Input type="number" inputMode="decimal" defaultValue={item.totalEuros} onChange={(e) => handleDesgloseChange(index, 'totalEuros', e.target.value)} className="font-bold w-20 text-right ml-auto" placeholder="€" />
                                 ) : (
                                     <div className={cn("font-bold text-right", item.totalEuros < 0 && "text-red-600")}>{formatCurrency(item.totalEuros)}</div>
                                 )}
-                            </div>
-                            <div className="w-20 flex justify-end">
-                              <DatoSimple 
-                                  value=""
-                                  variation={item.varPorc} 
-                                  isEditing={isEditing}
-                                  alwaysShowVariation 
-                                  align="right" 
-                                  unit="%"
-                                  variationId={`aqneSemanal.${name}.desglose.${index}.varPorc`}
-                                  onInputChange={onInputChange}
-                              />
                             </div>
                         </div>
                     ))}
@@ -138,9 +126,7 @@ export function AqneSemanalTab({ data, isEditing, onInputChange }: AqneSemanalTa
         <AqneSectionCard name="nino" data={aqneData.nino} isEditing={isEditing} onInputChange={onInputChange} />
       </div>
 
-      <Separator />
-
-      <div className="grid grid-cols-1 gap-6">
+      <div className="grid grid-cols-1 gap-6 pt-2">
         <Card>
             <CardHeader>
                 <CardTitle className="uppercase font-bold">Ventas Diarias AQNE</CardTitle>
