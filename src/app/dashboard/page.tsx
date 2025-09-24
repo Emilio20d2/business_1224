@@ -52,7 +52,7 @@ const tabConfig: Record<string, { label: string; icon: React.FC<React.SVGProps<S
     datosSemanales: { label: "GENERAL", icon: LayoutDashboard },
     aqneSemanal: { label: "AQNE", icon: ShoppingBag },
     acumulado: { label: "ACUMULADO", icon: AreaChart },
-    man: { label: "MAN", icon: UserIcon, path: "/comprador" },
+    man: { label: "MAN", icon: UserIcon },
 };
 
 const listLabels: Record<EditableList, string> = {
@@ -160,7 +160,7 @@ export default function DashboardPage() {
   const [weeks, setWeeks] = useState<WeekOption[]>([]);
   const [selectedWeek, setSelectedWeek] = useState<string>(getPreviousWeekId());
 
-
+  const canEdit = user?.email === 'emiliogp@inditex.com';
   const { toast } = useToast();
   
  const fetchData = useCallback(async (weekId: string) => {
@@ -508,18 +508,22 @@ const handleImageChange = (path: string, file: File, onUploadComplete: (success:
             </Select>
           </div>
            <div className="flex items-center gap-2">
-            {isEditing ? (
+             {canEdit && (
               <>
-                <Button onClick={handleSave} disabled={isSaving}>
-                  {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Guardar
-                </Button>
-                <Button variant="outline" onClick={handleCancel} disabled={isSaving}>Cancelar</Button>
+                {isEditing ? (
+                  <>
+                    <Button onClick={handleSave} disabled={isSaving}>
+                      {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      Guardar
+                    </Button>
+                    <Button variant="outline" onClick={handleCancel} disabled={isSaving}>Cancelar</Button>
+                  </>
+                ) : (
+                  <Button onClick={() => setIsEditing(true)} variant="outline" size="icon">
+                    <Pencil className="h-4 w-4 text-primary" />
+                  </Button>
+                )}
               </>
-            ) : (
-              <Button onClick={() => setIsEditing(true)} variant="outline" size="icon">
-                <Pencil className="h-4 w-4 text-primary" />
-              </Button>
             )}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

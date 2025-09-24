@@ -96,6 +96,7 @@ export default function CompradorPage() {
     const [selectedIndex, setSelectedIndex] = useState<number>(0);
     const [error, setError] = useState<string | null>(null);
 
+    const canEdit = user?.email === 'emiliogp@inditex.com';
 
     const fetchData = useCallback(async () => {
         if (!user) return;
@@ -230,22 +231,24 @@ export default function CompradorPage() {
                         Comprador MAN
                     </h1>
                 </div>
-                <div className="flex items-center gap-2">
-                    {isEditing ? (
-                        <>
-                            <Button onClick={handleSave} disabled={isSaving}>
-                                {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-                                Guardar
+                {canEdit && (
+                    <div className="flex items-center gap-2">
+                        {isEditing ? (
+                            <>
+                                <Button onClick={handleSave} disabled={isSaving}>
+                                    {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+                                    Guardar
+                                </Button>
+                                <Button variant="outline" onClick={handleCancel} disabled={isSaving}>Cancelar</Button>
+                            </>
+                        ) : (
+                            <Button onClick={() => setIsEditing(true)} variant="outline">
+                                <Pencil className="mr-2 h-4 w-4" />
+                                Editar
                             </Button>
-                            <Button variant="outline" onClick={handleCancel} disabled={isSaving}>Cancelar</Button>
-                        </>
-                    ) : (
-                        <Button onClick={() => setIsEditing(true)} variant="outline">
-                            <Pencil className="mr-2 h-4 w-4" />
-                            Editar
-                        </Button>
-                    )}
-                </div>
+                        )}
+                    </div>
+                )}
             </header>
 
             <main className="flex-1 grid gap-4 items-start grid-cols-1 lg:grid-cols-2">
