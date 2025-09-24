@@ -83,29 +83,25 @@ const SectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionNa
                  <div className="grid grid-cols-2 gap-2">
                     <div className="bg-background rounded-lg p-3 text-center flex flex-col justify-center items-center">
                         <div className={cn("font-bold text-lg", data.metricasPrincipales.totalEuros < 0 && "text-red-600")}>{formatCurrency(data.metricasPrincipales.totalEuros)}</div>
-                        <DatoSimple 
-                          value="" 
-                          variation={data.metricasPrincipales.varPorcEuros} 
-                          isEditing={isEditing} 
-                          alwaysShowVariation
-                          align="center" 
-                          unit="%"
-                          variationId={`datosPorSeccion.${name}.metricasPrincipales.varPorcEuros`}
-                          onInputChange={onInputChange}
+                         <DatoSimple
+                            value=""
+                            variation={data.metricasPrincipales.varPorcEuros}
+                            isEditing={isEditing}
+                            alwaysShowVariation
+                            align="center"
+                            unit="%"
+                            variationId={`datosPorSeccion.${name}.metricasPrincipales.varPorcEuros`}
+                            onInputChange={onInputChange}
                         />
                     </div>
                     <div className="bg-background rounded-lg p-3 text-center flex flex-col justify-center items-center">
-                        {isEditing ? (
-                            <DatoSimple 
-                                value={data.metricasPrincipales.totalUnidades}
-                                isEditing={isEditing}
-                                valueId={`datosPorSeccion.${name}.metricasPrincipales.totalUnidades`}
-                                onInputChange={onInputChange}
-                                align="center"
-                            />
-                        ) : (
-                            <div className={cn("font-bold text-lg", data.metricasPrincipales.totalUnidades < 0 && "text-red-600")}>{formatNumber(data.metricasPrincipales.totalUnidades)}</div>
-                        )}
+                         <DatoSimple 
+                            value={data.metricasPrincipales.totalUnidades}
+                            isEditing={isEditing}
+                            valueId={`datosPorSeccion.${name}.metricasPrincipales.totalUnidades`}
+                            onInputChange={onInputChange}
+                            align="center"
+                        />
                         <DatoSimple 
                           value="" 
                           variation={data.metricasPrincipales.varPorcUnidades} 
@@ -122,7 +118,7 @@ const SectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionNa
                 <div className="flex flex-col gap-2 mt-2 text-sm">
                     {data.desglose.map((item, index) => (
                          <div key={index} className="grid grid-cols-[1fr_auto_auto] justify-between items-center gap-2">
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 text-left">
                                 <div className="w-6 flex-shrink-0">
                                     {desgloseIconos[item.seccion] || <User className="h-4 w-4 text-muted-foreground" />}
                                 </div>
@@ -135,27 +131,18 @@ const SectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionNa
                                 <div className={cn("font-bold text-right", item.totalEuros < 0 && "text-red-600")}>{formatCurrency(item.totalEuros)}</div>
                             )}
 
-                             {isEditing ? (
+                             <div className="w-20 flex justify-end">
                                 <DatoSimple 
                                     value=""
                                     variation={item.varPorc} 
                                     isEditing={isEditing}
                                     alwaysShowVariation 
-                                    align="center" 
+                                    align="right" 
                                     unit="%"
                                     variationId={`datosPorSeccion.${name}.desglose.${index}.varPorc`}
                                     onInputChange={onInputChange}
                                 />
-                            ) : (
-                                <DatoSimple 
-                                    value=""
-                                    variation={item.varPorc} 
-                                    isEditing={false}
-                                    alwaysShowVariation 
-                                    align="center" 
-                                    unit="%"
-                                />
-                            )}
+                            </div>
                         </div>
                     ))}
                 </div>
@@ -187,6 +174,7 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
             value={formatNumber(ventas.totalUnidades)}
             variation={ventas.varPorcUnidades} 
             isEditing={isEditing}
+            valueId="ventas.totalUnidades"
             variationId="ventas.varPorcUnidades"
             onInputChange={onInputChange}
           />
@@ -269,27 +257,21 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
               <div className="grid grid-cols-2 gap-4 h-full">
                    <DatoSimple 
                     label="Repo" 
-                    value={isEditing ? operaciones.repoPorc : formatPercentage(operaciones.repoPorc)} 
+                    value={formatPercentage(operaciones.repoPorc)} 
                     variation={operaciones.varPorcRepo}
-                    isEditing={isEditing} 
-                    valueId="operaciones.repoPorc" 
-                    variationId="operaciones.varPorcRepo"
+                    isEditing={isEditing}
                     align="center" 
                     unit="%" 
                     icon={<RefreshCw className="h-5 w-5 text-primary"/>} 
-                    onInputChange={onInputChange}
                     trendDirection="down"
                   />
                   <DatoSimple 
                     label="Frescura" 
-                    value={isEditing ? operaciones.frescuraPorc : formatPercentage(operaciones.frescuraPorc)} 
+                    value={formatPercentage(operaciones.frescuraPorc)} 
                     variation={operaciones.varPorcFrescura}
-                    isEditing={isEditing} 
-                    valueId="operaciones.frescuraPorc" 
-                    variationId="operaciones.varPorcFrescura"
+                    isEditing={isEditing}
                     align="center" unit="%" 
                     icon={<Sparkles className="h-5 w-5 text-primary"/>} 
-                    onInputChange={onInputChange} 
                   />
               </div>
           </KpiCard>
@@ -300,65 +282,50 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
                    <DatoSimple 
                     icon={<Clock className="h-5 w-5 text-primary"/>} 
                     label="Filas Caja" 
-                    value={isEditing ? operaciones.filasCajaPorc : formatPercentage(operaciones.filasCajaPorc)}
+                    value={formatPercentage(operaciones.filasCajaPorc)}
                     variation={operaciones.varPorcFilasCaja}
                     isEditing={isEditing}
-                    valueId="operaciones.filasCajaPorc"
-                    variationId="operaciones.varPorcFilasCaja"
                     align="center" 
                     unit="%"
                     trendDirection="down"
-                    onInputChange={onInputChange}
                    />
                   <DatoSimple 
                     icon={<ScanLine className="h-5 w-5 text-primary"/>} 
                     label="ACO" 
-                    value={isEditing ? operaciones.scoPorc : formatPercentage(operaciones.scoPorc)}
+                    value={formatPercentage(operaciones.scoPorc)}
                     variation={operaciones.varPorcSco}
                     isEditing={isEditing}
-                    valueId="operaciones.scoPorc"
-                    variationId="operaciones.varPorcSco" 
                     align="center" 
                     unit="%"
-                    onInputChange={onInputChange}
                   />
                   <DatoSimple 
                     icon={<Inbox className="h-5 w-5 text-primary"/>} 
                     label="DropOff" 
-                    value={isEditing ? operaciones.dropOffPorc : formatPercentage(operaciones.dropOffPorc)} 
+                    value={formatPercentage(operaciones.dropOffPorc)} 
                     variation={operaciones.varPorcDropOff}
                     isEditing={isEditing}
-                    valueId="operaciones.dropOffPorc"
-                    variationId="operaciones.varPorcDropOff"
                     align="center" 
                     unit="%"
-                    onInputChange={onInputChange} 
                   />
               </div>
           </KpiCard>
           
            <KpiCard title="V. Ipod" icon={<Smartphone className="h-5 w-5 text-primary" />} className="md:col-span-1">
               <DatoSimple 
-                value={isEditing ? operaciones.ventaIpod : formatNumber(operaciones.ventaIpod)} 
+                value={formatNumber(operaciones.ventaIpod)} 
                 variation={operaciones.varPorcVentaIpod}
                 isEditing={isEditing}
-                valueId="operaciones.ventaIpod"
-                variationId="operaciones.varPorcVentaIpod"
                 align="center"
-                onInputChange={onInputChange}
               />
           </KpiCard>
 
           <KpiCard title="E-Ticket" icon={<Ticket className="h-5 w-5 text-primary" />} className="md:col-span-1">
               <DatoSimple 
-                value={isEditing ? operaciones.eTicketPorc : formatPercentage(operaciones.eTicketPorc)} 
+                value={formatPercentage(operaciones.eTicketPorc)} 
                 variation={operaciones.varPorcETicket}
                 isEditing={isEditing}
-                valueId="operaciones.eTicketPorc"
-                variationId="operaciones.varPorcETicket"
                 align="center" 
                 unit="%"
-                onInputChange={onInputChange} 
               />
           </KpiCard>
 

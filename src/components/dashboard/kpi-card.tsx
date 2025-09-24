@@ -64,7 +64,7 @@ export function DatoDoble({ label, value, variation, unit, isEditing, valueId, v
              <Input 
                type="number" 
                inputMode="decimal" 
-               defaultValue={rawValue} 
+               defaultValue={rawValue || ''}
                className="w-24 h-8" 
                id={valueId}
                onChange={handleValueChange}
@@ -111,7 +111,7 @@ type DatoSimpleProps = {
   icon?: React.ReactNode;
   align?: 'left' | 'center' | 'right';
   unit?: string;
-  onInputChange?: (path: string, value: string) => void;
+  onInputChange?: (path: string, value: string | number) => void;
   alwaysShowVariation?: boolean;
 };
 
@@ -162,13 +162,14 @@ export function DatoSimple({
     
     const renderValue = () => {
         if (isEditing && valueId && onInputChange) {
+            const numericValue = typeof rawValue === 'number' && !isNaN(rawValue) ? rawValue : '';
             return (
                  <div className="flex items-center justify-center gap-1 w-full">
                     <Input 
                       type="number"
                       inputMode="decimal" 
                       step="any" 
-                      defaultValue={typeof rawValue === 'number' ? rawValue : ''} 
+                      defaultValue={numericValue} 
                       className="w-24 h-8 self-center text-center" 
                       id={valueId}
                       onChange={handleValueChange}
@@ -178,6 +179,8 @@ export function DatoSimple({
             )
         }
         const showValue = value || (alwaysShowVariation && variation !== undefined) ? value : '';
+        if (showValue === '') return null;
+        
         return <strong className={cn("font-semibold text-lg w-full flex items-center justify-center gap-1", valueColor)}>{showValue}</strong>;
     }
 
@@ -213,18 +216,20 @@ export function DatoSimple({
     }
 
     const alignmentClasses = {
-        left: "justify-between",
+        left: "items-center justify-start text-left",
         center: "flex-col items-center justify-center text-center gap-1 h-full",
-        right: "justify-end",
+        right: "items-center justify-end text-right",
     }
 
     return (
-        <div className={cn("flex items-center text-md w-full", alignmentClasses[align], className)}>
-            <div className={cn("flex flex-col gap-1 w-full items-center")}>
-              <span className="flex items-center gap-2 text-muted-foreground justify-center text-sm font-normal">
-                {icon}
-                {label && label}
-              </span>
+        <div className={cn("flex w-full", alignmentClasses[align], className)}>
+            <div className={cn("flex flex-col gap-1 w-full", `items-${align}`)}>
+              {label && 
+                <span className="flex items-center gap-2 text-muted-foreground justify-center text-sm font-normal">
+                    {icon}
+                    {label}
+                </span>
+              }
                <div className="text-center flex-col justify-center items-center flex gap-1">
                     {renderValue()}
                     {renderVariation()}
