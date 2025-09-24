@@ -151,21 +151,15 @@ export function DatoSimple({
     const getTrendColor = () => {
         if (variation === undefined) return '';
         const isPositive = variation >= 0;
-        if (trendDirection === 'up') {
-            return isPositive ? 'text-green-600' : 'text-red-600';
-        } else { // trendDirection is 'down'
-            return isPositive ? 'text-red-600' : 'text-green-600';
+        let colorClass = isPositive ? 'text-green-600 bg-green-100 dark:text-green-200 dark:bg-green-900/50' : 'text-red-600 bg-red-100 dark:text-red-200 dark:bg-red-900/50';
+
+        if (trendDirection === 'down') {
+           colorClass = isPositive ? 'text-red-600 bg-red-100 dark:text-red-200 dark:bg-red-900/50' : 'text-green-600 bg-green-100 dark:text-green-200 dark:bg-green-900/50';
         }
+        
+        return colorClass;
     };
     
-    const TrendIcon = () => {
-        if (variation === undefined || variation === 0) return null;
-        const color = getTrendColor();
-        return variation > 0 
-            ? <ArrowUp className={cn("h-3 w-3", color)} /> 
-            : <ArrowDown className={cn("h-3 w-3", color)} />;
-    };
-
     const renderValue = () => {
         if (isEditing && valueId && onInputChange) {
             return (
@@ -184,7 +178,7 @@ export function DatoSimple({
             )
         }
         const showValue = value || (alwaysShowVariation && variation !== undefined) ? value : '';
-        return <strong className={cn("font-semibold text-lg w-full flex items-center justify-center gap-1", valueColor)}>{showValue} {variation !== undefined && !isEditing && <TrendIcon />}</strong>;
+        return <strong className={cn("font-semibold text-lg w-full flex items-center justify-center gap-1", valueColor)}>{showValue}</strong>;
     }
 
     const renderVariation = () => {
@@ -207,11 +201,10 @@ export function DatoSimple({
       }
       
       if (!isEditing || alwaysShowVariation) {
-        const color = getTrendColor();
+        const colorClass = getTrendColor();
         return (
-          <div className={cn("flex items-center justify-center gap-1 text-xs font-bold mt-1", color)}>
-            <TrendIcon />
-            <span>{variation.toLocaleString('es-ES')}%</span>
+          <div className={cn("rounded-md px-2 py-1 text-sm font-bold", colorClass)}>
+            {variation >= 0 ? '+' : ''}{variation.toLocaleString('es-ES')}%
           </div>
         );
       }
@@ -227,12 +220,12 @@ export function DatoSimple({
 
     return (
         <div className={cn("flex items-center text-md w-full", alignmentClasses[align], className)}>
-            <div className={cn("flex flex-col gap-1 w-full")}>
+            <div className={cn("flex flex-col gap-1 w-full items-center")}>
               <span className="flex items-center gap-2 text-muted-foreground justify-center text-sm font-normal">
                 {icon}
                 {label && label}
               </span>
-               <div className="text-center flex-col justify-center">
+               <div className="text-center flex-col justify-center items-center flex gap-1">
                     {renderValue()}
                     {renderVariation()}
                </div>
