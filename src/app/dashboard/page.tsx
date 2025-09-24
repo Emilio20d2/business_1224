@@ -357,8 +357,17 @@ function DashboardPageComponent() {
 
     uploadBytes(storageRef, file).then(snapshot => {
         getDownloadURL(snapshot.ref).then(downloadURL => {
-            const path = `imagenesComprador.${compradorName}`;
-            handleInputChange(path, downloadURL);
+            setData(prevData => {
+              if (!prevData) return null;
+              const updatedData = {
+                ...prevData,
+                imagenesComprador: {
+                  ...prevData.imagenesComprador,
+                  [compradorName]: downloadURL
+                }
+              };
+              return updatedData;
+            });
             onUploadComplete(true);
             toast({
                 title: "Imagen cargada",
