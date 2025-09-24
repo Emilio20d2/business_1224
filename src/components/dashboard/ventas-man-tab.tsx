@@ -21,7 +21,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatCurrency, formatPercentage } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import { Button } from '../ui/button';
+import { Button, buttonVariants } from '../ui/button';
 import { ImagePlus, Loader2, Upload } from 'lucide-react';
 import { OperacionesSubTab } from './operaciones-sub-tab';
 import { FocusSemanalTab } from './focus-semanal-tab';
@@ -258,11 +258,11 @@ export function VentasManTab({ data, isEditing, onInputChange, onImageChange }: 
 
     return (
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="mb-4">
-                <TabsTrigger value="comprador">COMPRADOR</TabsTrigger>
-                <TabsTrigger value="zonaYAgrupacion">ZONA Y AGRUPACIÓN</TabsTrigger>
-                <TabsTrigger value="operaciones">OPERACIONES</TabsTrigger>
-                <TabsTrigger value="focus">FOCUS</TabsTrigger>
+             <TabsList className="mb-4 gap-2 bg-transparent p-0 h-auto">
+                <TabsTrigger value="comprador" className={cn(buttonVariants({ variant: activeTab === 'comprador' ? 'default' : 'outline' }))}>COMPRADOR</TabsTrigger>
+                <TabsTrigger value="zonaYAgrupacion" className={cn(buttonVariants({ variant: activeTab === 'zonaYAgrupacion' ? 'default' : 'outline' }))}>ZONA Y AGRUPACIÓN</TabsTrigger>
+                <TabsTrigger value="operaciones" className={cn(buttonVariants({ variant: activeTab === 'operaciones' ? 'default' : 'outline' }))}>OPERACIONES</TabsTrigger>
+                <TabsTrigger value="focus" className={cn(buttonVariants({ variant: activeTab === 'focus' ? 'default' : 'outline' }))}>FOCUS</TabsTrigger>
             </TabsList>
             
             <TabsContent value="comprador">
