@@ -44,16 +44,6 @@ const formatGap = (value: number, unit: '€' | 'Unid.') => {
 }
 
 
-const TrendIndicator = ({ value }: { value: number }) => {
-  const trendColor = value >= 0 ? 'text-green-600' : 'text-red-600';
-  const sign = value >= 0 ? '+' : '';
-  return (
-    <span className={cn("text-xs font-bold", trendColor)}>
-      {sign}{value.toLocaleString('es-ES')}%
-    </span>
-  );
-};
-
 type SectionName = keyof WeeklyData["datosPorSeccion"];
 
 const sectionConfig = {
@@ -84,7 +74,7 @@ const SectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionNa
                         {config.icon}
                         {config.title}
                     </div>
-                    <span className={cn("text-sm font-bold text-white rounded-md px-2 py-1", config.color)}>
+                     <span className={cn("text-sm font-bold text-white rounded-md px-2 py-1", config.color)}>
                         {formatPercentage(data.pesoPorc)}
                     </span>
                 </CardTitle>
@@ -93,34 +83,35 @@ const SectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionNa
                 <div className="grid grid-cols-2 gap-2">
                     <div className="bg-background rounded-lg p-2 text-center">
                         <div className={cn("font-bold text-lg", data.metricasPrincipales.totalEuros < 0 && "text-red-600")}>{formatCurrency(data.metricasPrincipales.totalEuros)}</div>
-                        <TrendIndicator value={data.metricasPrincipales.varPorcEuros} />
+                        <DatoSimple value="" variation={data.metricasPrincipales.varPorcEuros} isEditing={false} align="center" unit="%" />
                     </div>
                     <div className="bg-background rounded-lg p-2 text-center">
                         <div className={cn("font-bold text-lg", data.metricasPrincipales.totalUnidades < 0 && "text-red-600")}>{formatNumber(data.metricasPrincipales.totalUnidades)}</div>
-                        <TrendIndicator value={data.metricasPrincipales.varPorcUnidades} />
+                        <DatoSimple value="" variation={data.metricasPrincipales.varPorcUnidades} isEditing={false} align="center" unit="%" />
                     </div>
                 </div>
                 <Separator className="my-2" />
                 <div className="flex flex-col gap-2 mt-2 text-sm">
                     {data.desglose.map((item, index) => (
-                         <div key={index} className="flex justify-between items-center">
+                         <div key={index} className="grid grid-cols-[1fr_auto_auto] justify-between items-center gap-2">
                             <div className="flex items-center gap-2">
                                 <div className="w-6 flex-shrink-0">
                                     {desgloseIconos[item.seccion] || <User className="h-4 w-4 text-muted-foreground" />}
                                 </div>
-                                {isEditing ? (
-                                    <Input type="number" inputMode="decimal" defaultValue={item.totalEuros} onChange={(e) => handleDesgloseChange(index, 'totalEuros', e.target.value)} className="font-bold w-24" />
-                                ) : (
-                                    <div className={cn("font-bold", item.totalEuros < 0 && "text-red-600")}>{formatCurrency(item.totalEuros)}</div>
-                                )}
+                                <span>{item.seccion}</span>
                             </div>
-                            <div>
-                                 {isEditing ? (
-                                    <Input type="number" inputMode="decimal" defaultValue={item.varPorc} className="font-bold w-20 text-right" />
-                                ) : (
-                                    <TrendIndicator value={item.varPorc} />
-                                )}
-                            </div>
+                            
+                            {isEditing ? (
+                                <Input type="number" inputMode="decimal" defaultValue={item.totalUnidades} onChange={(e) => handleDesgloseChange(index, 'totalUnidades', e.target.value)} className="font-bold w-20 text-right" placeholder="Unid."/>
+                            ) : (
+                                <div className="font-bold text-right">{formatNumber(item.totalUnidades)}</div>
+                            )}
+
+                            {isEditing ? (
+                                <Input type="number" inputMode="decimal" defaultValue={item.totalEuros} onChange={(e) => handleDesgloseChange(index, 'totalEuros', e.target.value)} className="font-bold w-24 text-right" placeholder="€" />
+                            ) : (
+                                <div className={cn("font-bold text-right", item.totalEuros < 0 && "text-red-600")}>{formatCurrency(item.totalEuros)}</div>
+                            )}
                         </div>
                     ))}
                 </div>
@@ -318,4 +309,3 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
     </div>
   );
 }
-

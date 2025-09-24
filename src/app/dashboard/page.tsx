@@ -244,12 +244,20 @@ export default function DashboardPage() {
                 const newTotalEuros = section.desglose.reduce((sum: number, item: any) => sum + (item.totalEuros || 0), 0);
                 section.metricasPrincipales.totalEuros = newTotalEuros;
 
+                const newTotalUnidades = section.desglose.reduce((sum: number, item: any) => sum + (item.totalUnidades || 0), 0);
+                section.metricasPrincipales.totalUnidades = newTotalUnidades;
+
                 // Now, recalculate the main ventas total
                 const { man, woman, nino } = updatedData.datosPorSeccion;
                 updatedData.ventas.totalEuros = 
                     (man?.metricasPrincipales.totalEuros || 0) +
                     (woman?.metricasPrincipales.totalEuros || 0) +
                     (nino?.metricasPrincipales.totalEuros || 0);
+
+                 updatedData.ventas.totalUnidades = 
+                    (man?.metricasPrincipales.totalUnidades || 0) +
+                    (woman?.metricasPrincipales.totalUnidades || 0) +
+                    (nino?.metricasPrincipales.totalUnidades || 0);
             }
         }
 
@@ -522,7 +530,7 @@ const handleImageChange = (path: string, file: File, onUploadComplete: (success:
              <AqneSemanalTab data={data} isEditing={isEditing} onInputChange={handleInputChange} />
           </TabsContent>
            <TabsContent value="acumulado" className="mt-0">
-             <AcumuladoTab data={data.acumulado} isEditing={isEditing} onInputChange={handleInputChange} />
+             <AcumuladoTab data={data.acumulado} isEditing={isEditing} onInputChange={onInputChange} />
           </TabsContent>
            <TabsContent value="man" className="mt-0">
             <VentasManTab 

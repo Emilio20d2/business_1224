@@ -116,6 +116,7 @@ type SeccionData = {
         seccion: string;
         totalEuros: number;
         varPorc: number;
+        totalUnidades: number;
     }[];
 };
 
@@ -179,9 +180,9 @@ export function getInitialDataForWeek(week: string, lists: WeeklyData['listas'])
         pesoPorc: 0,
         metricasPrincipales: { totalEuros: 0, varPorcEuros: 0, totalUnidades: 0, varPorcUnidades: 0 },
         desglose: [
-            { seccion: "Ropa", totalEuros: 0, varPorc: 0 },
-            { seccion: "Calzado", totalEuros: 0, varPorc: 0 },
-            { seccion: "Perfumería", totalEuros: 0, varPorc: 0 }
+            { seccion: "Ropa", totalEuros: 0, varPorc: 0, totalUnidades: 0 },
+            { seccion: "Calzado", totalEuros: 0, varPorc: 0, totalUnidades: 0 },
+            { seccion: "Perfumería", totalEuros: 0, varPorc: 0, totalUnidades: 0 }
         ]
     });
     
