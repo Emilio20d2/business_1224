@@ -144,7 +144,6 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
           <DatoDoble 
             label="Unidades"
             value={formatNumber(ventas.totalUnidades)}
-            unit=" Unid."
             variation={ventas.varPorcUnidades} 
             isEditing={false}
           />
@@ -230,18 +229,18 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
 
           <KpiCard title="Caja" icon={<Receipt className="h-5 w-5 text-primary" />} className="md:col-span-4">
               <div className="grid grid-cols-3 items-center justify-center gap-4 h-full">
-                  <DatoSimple icon={<Clock className="h-5 w-5 text-primary"/>} label="Filas Caja" value={isEditing ? operaciones.filasCajaPorc : formatPercentage(operaciones.filasCajaPorc)} isEditing={isEditing} valueId="operaciones.filasCajaPorc" align="center" unit="%" />
-                  <DatoSimple icon={<ScanLine className="h-5 w-5 text-primary"/>} label="ACO" value={isEditing ? operaciones.scoPorc : formatPercentage(operaciones.scoPorc)} isEditing={isEditing} valueId="operaciones.scoPorc" align="center" unit="%" />
-                  <DatoSimple icon={<Inbox className="h-5 w-5 text-primary"/>} label="DropOff" value={isEditing ? operaciones.dropOffPorc : formatPercentage(operaciones.dropOffPorc)} isEditing={isEditing} valueId="operaciones.dropOffPorc" align="center" unit="%" />
+                  <DatoSimple icon={<Clock className="h-5 w-5 text-primary"/>} label="Filas Caja" value={formatPercentage(operaciones.filasCajaPorc)} isEditing={false} valueId="operaciones.filasCajaPorc" align="center" unit="%" />
+                  <DatoSimple icon={<ScanLine className="h-5 w-5 text-primary"/>} label="ACO" value={formatPercentage(operaciones.scoPorc)} isEditing={false} valueId="operaciones.scoPorc" align="center" unit="%" />
+                  <DatoSimple icon={<Inbox className="h-5 w-5 text-primary"/>} label="DropOff" value={formatPercentage(operaciones.dropOffPorc)} isEditing={false} valueId="operaciones.dropOffPorc" align="center" unit="%" />
               </div>
           </KpiCard>
           
           <KpiCard title="V. Ipod" icon={<Smartphone className="h-5 w-5 text-primary" />} className="md:col-span-1">
-              <DatoSimple value={isEditing ? operaciones.ventaIpod : formatNumber(operaciones.ventaIpod)} isEditing={isEditing} valueId="operaciones.ventaIpod" align="center" />
+              <DatoSimple value={formatNumber(operaciones.ventaIpod)} isEditing={false} valueId="operaciones.ventaIpod" align="center" />
           </KpiCard>
 
           <KpiCard title="E-Ticket" icon={<Ticket className="h-5 w-5 text-primary" />} className="md:col-span-1">
-              <DatoSimple value={isEditing ? operaciones.eTicketPorc : formatPercentage(operaciones.eTicketPorc)} isEditing={isEditing} valueId="operaciones.eTicketPorc" align="center" unit="%" />
+              <DatoSimple value={formatPercentage(operaciones.eTicketPorc)} isEditing={false} valueId="operaciones.eTicketPorc" align="center" unit="%" />
           </KpiCard>
 
         </div>
