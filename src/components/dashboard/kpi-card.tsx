@@ -1,6 +1,7 @@
 import React from 'react';
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
+import { ArrowDown, ArrowUp } from 'lucide-react';
 
 type KpiCardProps = {
   title: string;
@@ -101,8 +102,11 @@ export function DatoDoble({ label, value, variation, unit, isEditing, valueId, v
 type DatoSimpleProps = {
   label?: string;
   value: string | number | React.ReactNode;
+  variation?: number;
+  trendDirection?: 'up' | 'down'; // 'up' means green is good, 'down' means red is good
   isEditing?: boolean;
   valueId?: string;
+  variationId?: string;
   className?: string;
   icon?: React.ReactNode;
   align?: 'left' | 'center' | 'right';
@@ -110,10 +114,28 @@ type DatoSimpleProps = {
   onInputChange?: (path: string, value: string) => void;
 };
 
-export function DatoSimple({ label, value, isEditing, valueId, className, icon, align = 'left', unit, onInputChange }: DatoSimpleProps) {
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+export function DatoSimple({ 
+    label, 
+    value, 
+    variation,
+    trendDirection = 'up',
+    isEditing, 
+    valueId, 
+    variationId,
+    className, 
+    icon, 
+    align = 'left', 
+    unit, 
+    onInputChange 
+}: DatoSimpleProps) {
+    const handleValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (onInputChange && valueId) {
             onInputChange(valueId, e.target.value);
+        }
+    };
+    const handleVariationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (onInputChange && variationId) {
+            onInputChange(variationId, e.target.value);
         }
     };
     
@@ -124,6 +146,23 @@ export function DatoSimple({ label, value, isEditing, valueId, className, icon, 
     const valueColor = typeof rawValue === 'number' && rawValue < 0 ? 'text-red-600' : 
                        (typeof value === 'string' && value.includes('-')) ? 'text-red-600' : '';
 
+    const getTrendColor = () => {
+        if (variation === undefined) return '';
+        const isPositive = variation >= 0;
+        if (trendDirection === 'up') {
+            return isPositive ? 'text-green-600' : 'text-red-600';
+        } else { // trendDirection is 'down'
+            return isPositive ? 'text-red-600' : 'text-green-600';
+        }
+    };
+    
+    const TrendIcon = () => {
+        if (variation === undefined || variation === 0) return null;
+        const color = getTrendColor();
+        return variation > 0 
+            ? <ArrowUp className={cn("h-3 w-3", color)} /> 
+            : <ArrowDown className={cn("h-3 w-3", color)} />;
+    };
 
     const renderValue = () => {
         if (isEditing && valueId && onInputChange) {
@@ -136,13 +175,13 @@ export function DatoSimple({ label, value, isEditing, valueId, className, icon, 
                       defaultValue={typeof rawValue === 'number' ? rawValue : ''} 
                       className="w-24 h-8 self-center text-center" 
                       id={valueId}
-                      onChange={handleChange}
+                      onChange={handleValueChange}
                     />
                     {unit && <span className="text-sm text-muted-foreground">{unit}</span>}
                  </div>
             )
         }
-        return <strong className={cn("font-semibold text-lg w-full", valueColor)}>{value}</strong>;
+        return <strong className={cn("font-semibold text-lg w-full flex items-center justify-center gap-1", valueColor)}>{value} {variation !== undefined && !isEditing && <TrendIcon />}</strong>;
     }
 
     const alignmentClasses = {
@@ -158,8 +197,24 @@ export function DatoSimple({ label, value, isEditing, valueId, className, icon, 
                 {icon}
                 {label && label}
               </span>
-              <div className="text-center flex justify-center">{renderValue()}</div>
+               <div className="text-center flex-col justify-center">
+                    {renderValue()}
+                    {isEditing && variationId && onInputChange && (
+                        <div className="flex items-center justify-center gap-1 mt-1">
+                             <Input 
+                                type="number" 
+                                inputMode="decimal" 
+                                defaultValue={variation} 
+                                className="w-16 h-7 text-xs" 
+                                id={variationId}
+                                onChange={handleVariationChange}
+                             />
+                             <span className="text-xs text-muted-foreground">%</span>
+                        </div>
+                    )}
+               </div>
             </div>
         </div>
     );
 }
+

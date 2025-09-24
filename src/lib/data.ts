@@ -39,12 +39,19 @@ export type WeeklyData = {
     };
     operaciones: {
         filasCajaPorc: number;
+        varPorcFilasCaja: number;
         scoPorc: number;
+        varPorcSco: number;
         dropOffPorc: number;
+        varPorcDropOff: number;
         ventaIpod: number;
+        varPorcVentaIpod: number;
         eTicketPorc: number;
+        varPorcETicket: number;
         repoPorc: number;
+        varPorcRepo: number;
         frescuraPorc: number;
+        varPorcFrescura: number;
     };
     logistica: {
         entradasSemanales: number;
@@ -58,6 +65,7 @@ export type WeeklyData = {
         merma: {
             unidades: number;
             porcentaje: number;
+            varPorcPorcentaje: number;
         };
     };
     almacenes: {
@@ -193,9 +201,20 @@ export function getInitialDataForWeek(week: string, lists: WeeklyData['listas'])
         listas: lists,
         ventas: { totalEuros: 0, varPorcEuros: 0, totalUnidades: 0, varPorcUnidades: 0 },
         rendimientoTienda: { trafico: 0, varPorcTrafico: 0, conversion: 0, varPorcConversion: 0 },
-        operaciones: { filasCajaPorc: 0, scoPorc: 0, dropOffPorc: 0, ventaIpod: 0, eTicketPorc: 0, repoPorc: 0, frescuraPorc: 0 },
+        operaciones: { 
+            filasCajaPorc: 0, varPorcFilasCaja: 0,
+            scoPorc: 0, varPorcSco: 0,
+            dropOffPorc: 0, varPorcDropOff: 0,
+            ventaIpod: 0, varPorcVentaIpod: 0,
+            eTicketPorc: 0, varPorcETicket: 0,
+            repoPorc: 0, varPorcRepo: 0,
+            frescuraPorc: 0, varPorcFrescura: 0
+        },
         logistica: { entradasSemanales: 0, salidasSemanales: 0 },
-        perdidas: { gap: { euros: 0, unidades: 0 }, merma: { unidades: 0, porcentaje: 0 } },
+        perdidas: { 
+            gap: { euros: 0, unidades: 0 }, 
+            merma: { unidades: 0, porcentaje: 0, varPorcPorcentaje: 0 } 
+        },
         almacenes: {
             ropa: { ocupacionPorc: 0, devolucionUnidades: 0, entradas: 0, salidas: 0 },
             calzado: { ocupacionPorc: 0, devolucionUnidades: 0, entradas: 0, salidas: 0 },
