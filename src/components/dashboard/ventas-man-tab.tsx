@@ -22,7 +22,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatCurrency, formatPercentage } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { Button, buttonVariants } from '../ui/button';
-import { ImagePlus, Loader2, Upload, ArrowUp, ArrowDown, Users, MapPin, ShoppingBasket } from 'lucide-react';
+import { ImagePlus, Loader2, Upload, ArrowUp, ArrowDown, Users, MapPin, ShoppingBasket, Percent, Euro, TrendingUp } from 'lucide-react';
 import { OperacionesSubTab } from './operaciones-sub-tab';
 import { FocusSemanalTab } from './focus-semanal-tab';
 
@@ -50,7 +50,6 @@ const DataTable = ({
     icon,
     data, 
     list,
-    headers, 
     isEditing, 
     dataKey, 
     onInputChange,
@@ -59,7 +58,6 @@ const DataTable = ({
     icon?: React.ReactNode,
     data: VentasManItem[] | undefined, 
     list: string[] | undefined,
-    headers: string[], 
     isEditing: boolean, 
     dataKey: string, 
     onInputChange: VentasManTabProps['onInputChange'],
@@ -87,9 +85,10 @@ const DataTable = ({
             <Table>
                 <TableHeader>
                     <TableRow className="bg-muted/50 hover:bg-muted/50">
-                        {headers.map((header, i) => (
-                            <TableHead key={i} className={cn('uppercase font-bold', i === 0 ? '' : 'text-right')}>{header}</TableHead>
-                        ))}
+                        <TableHead className='uppercase font-bold'>{title}</TableHead>
+                        <TableHead className='text-right'><Percent className="h-4 w-4 text-primary inline-block" /></TableHead>
+                        <TableHead className='text-right'><Euro className="h-4 w-4 text-primary inline-block" /></TableHead>
+                        <TableHead className='text-right'><TrendingUp className="h-4 w-4 text-primary inline-block" /></TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -193,9 +192,10 @@ const CompradorTab = ({ data, isEditing, onInputChange, onImageChange }: VentasM
                                     <span>COMPRADOR</span>
                                 </div>
                             </TableHead>
-                            {['PESO %', '€', 'SEMANA ANTERIOR', '%'].map((header, i) => (
-                                <TableHead key={i} className='uppercase font-bold text-right'>{header}</TableHead>
-                            ))}
+                            <TableHead className='text-right'><Percent className="h-4 w-4 text-primary inline-block" /></TableHead>
+                            <TableHead className='text-right'><Euro className="h-4 w-4 text-primary inline-block" /></TableHead>
+                            <TableHead className='uppercase font-bold text-right'>SEMANA ANTERIOR</TableHead>
+                            <TableHead className='text-right'><TrendingUp className="h-4 w-4 text-primary inline-block" /></TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -311,7 +311,6 @@ export function VentasManTab({ data, isEditing, onInputChange, onImageChange }: 
                         title="Zona Comprador"
                         icon={<MapPin className="h-5 w-5 text-primary" />}
                         dataKey="ventasMan.zonaComercial"
-                        headers={['ZONA COMPRADOR', 'PESO %', '€', '%']}
                         data={ventasManData?.zonaComercial}
                         list={data.listas?.zonaComercialMan}
                         isEditing={isEditing}
@@ -321,7 +320,6 @@ export function VentasManTab({ data, isEditing, onInputChange, onImageChange }: 
                         title="Agrupación Comercial"
                         icon={<ShoppingBasket className="h-5 w-5 text-primary" />}
                         dataKey="ventasMan.agrupacionComercial"
-                        headers={['Agrupación Comercial', 'PESO %', '€', '%']}
                         data={ventasManData?.agrupacionComercial}
                         list={data.listas?.agrupacionComercialMan}
                         isEditing={isEditing}
