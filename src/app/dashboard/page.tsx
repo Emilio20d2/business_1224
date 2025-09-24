@@ -147,34 +147,30 @@ export default function DashboardPage() {
 
         // 4. Synchronize tables in the report with the latest lists
         let needsSave = false;
-        const sections = [
-            { ventasKey: 'ventasMan', listKeys: { comprador: 'compradorMan', zonaComercial: 'zonaComercialMan', agrupacionComercial: 'agrupacionComercialMan' } },
-        ] as const;
+        
+        // This is a simplified check, a more robust implementation would compare item by item.
+        const currentManCompradorNames = reportData.ventasMan?.pesoComprador?.map(i => i.nombre).sort().join(',') || '';
+        const listManCompradorNames = listData.compradorMan.sort().join(',');
 
-        for (const section of sections) {
-            const { ventasKey, listKeys } = section;
+        if(currentManCompradorNames !== listManCompradorNames) {
+            reportData.ventasMan.pesoComprador = synchronizeTableData(listData.compradorMan, reportData.ventasMan.pesoComprador);
+            needsSave = true;
+        }
 
-            // Ensure the section object exists
-            if (!reportData[ventasKey]) {
-                reportData[ventasKey] = getInitialDataForWeek('temp', listData)[ventasKey];
-                needsSave = true;
-            }
+        const currentZonaComercialNames = reportData.ventasMan?.zonaComercial?.map(i => i.nombre).sort().join(',') || '';
+        const listZonaComercialNames = listData.zonaComercialMan.sort().join(',');
 
-            const syncAndCheck = (tableKey: keyof WeeklyData[typeof ventasKey], listKey: keyof typeof listKeys) => {
-                const currentList = listData[listKeys[listKey]] || [];
-                // Ensure tableData is an array before processing
-                const currentTable = Array.isArray(reportData[ventasKey][tableKey]) ? reportData[ventasKey][tableKey] : [];
-                const syncedTable = synchronizeTableData(currentList, currentTable);
+         if(currentZonaComercialNames !== listZonaComercialNames) {
+            reportData.ventasMan.zonaComercial = synchronizeTableData(listData.zonaComercialMan, reportData.ventasMan.zonaComercial);
+            needsSave = true;
+        }
+        
+        const currentAgrupacionComercialNames = reportData.ventasMan?.agrupacionComercial?.map(i => i.nombre).sort().join(',') || '';
+        const listAgrupacionComercialNames = listData.agrupacionComercialMan.sort().join(',');
 
-                if (JSON.stringify(syncedTable) !== JSON.stringify(reportData[ventasKey][tableKey])) {
-                    (reportData[ventasKey][tableKey] as any) = syncedTable;
-                    needsSave = true;
-                }
-            };
-            
-            syncAndCheck('pesoComprador', 'comprador');
-            syncAndCheck('zonaComercial', 'zonaComercial');
-            syncAndCheck('agrupacionComercial', 'agrupacionComercial');
+         if(currentAgrupacionComercialNames !== listAgrupacionComercialNames) {
+            reportData.ventasMan.agrupacionComercial = synchronizeTableData(listData.agrupacionComercialMan, reportData.ventasMan.agrupacionComercial);
+            needsSave = true;
         }
 
         if (needsSave) {

@@ -61,6 +61,8 @@ export type WeeklyData = {
     };
     datosPorSeccion: {
         man: SeccionData;
+        woman: SeccionData;
+        nino: SeccionData;
     };
     ventasMan: {
         pesoComprador: VentasManItem[];
@@ -69,6 +71,8 @@ export type WeeklyData = {
     };
     aqneSemanal: {
         man: SeccionAqneData;
+        woman: SeccionAqneData;
+        nino: SeccionAqneData;
     };
     ventasDiariasAQNE: VentaDiaria[];
     focusSemanal: string;
@@ -151,6 +155,27 @@ export function getInitialDataForWeek(week: string, lists: WeeklyData['listas'])
         }));
     }
     
+    const createSeccionData = (): SeccionData => ({
+        pesoPorc: 0,
+        metricasPrincipales: { totalEuros: 0, varPorcEuros: 0, totalUnidades: 0, varPorcUnidades: 0 },
+        desglose: [
+            { seccion: "Ropa", totalEuros: 0, varPorc: 0 },
+            { seccion: "Calzado", totalEuros: 0, varPorc: 0 },
+            { seccion: "Perfumería", totalEuros: 0, varPorc: 0 }
+        ]
+    });
+    
+     const createSeccionAqneData = (): SeccionAqneData => ({
+        pesoPorc: 0,
+        metricasPrincipales: { totalEuros: 0, totalUnidades: 0 },
+        desglose: [
+            { seccion: "Ropa", totalEuros: 0 },
+            { seccion: "Calzado", totalEuros: 0 },
+            { seccion: "Perfumería", totalEuros: 0 }
+        ]
+    });
+
+
     return {
         periodo: week.toUpperCase().replace('-', ' '),
         listas: lists,
@@ -165,15 +190,9 @@ export function getInitialDataForWeek(week: string, lists: WeeklyData['listas'])
             perfumeria: { ocupacionPorc: 0, devolucionUnidades: null, entradas: 0, salidas: 0 }
         },
         datosPorSeccion: {
-            man: {
-                pesoPorc: 0,
-                metricasPrincipales: { totalEuros: 0, varPorcEuros: 0, totalUnidades: 0, varPorcUnidades: 0 },
-                desglose: [
-                    { seccion: "Ropa", totalEuros: 0, varPorc: 0 },
-                    { seccion: "Calzado", totalEuros: 0, varPorc: 0 },
-                    { seccion: "Perfumería", totalEuros: 0, varPorc: 0 }
-                ]
-            }
+            man: createSeccionData(),
+            woman: createSeccionData(),
+            nino: createSeccionData()
         },
         ventasMan: {
             pesoComprador: createVentasManItems(lists?.compradorMan),
@@ -181,15 +200,9 @@ export function getInitialDataForWeek(week: string, lists: WeeklyData['listas'])
             agrupacionComercial: createVentasManItems(lists?.agrupacionComercialMan)
         },
         aqneSemanal: {
-            man: {
-                pesoPorc: 0,
-                metricasPrincipales: { totalEuros: 0, totalUnidades: 0 },
-                desglose: [
-                    { seccion: "Ropa", totalEuros: 0 },
-                    { seccion: "Calzado", totalEuros: 0 },
-                    { seccion: "Perfumería", totalEuros: 0 }
-                ]
-            }
+            man: createSeccionAqneData(),
+            woman: createSeccionAqneData(),
+            nino: createSeccionAqneData()
         },
         ventasDiariasAQNE: [
             { dia: "LUNES", total: 0, woman: 0, man: 0, nino: 0 },
