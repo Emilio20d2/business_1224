@@ -17,7 +17,7 @@ import { AqneSemanalTab } from "@/components/dashboard/aqne-semanal-tab";
 import { AcumuladoTab } from "@/components/dashboard/acumulado-tab";
 import { VentasManTab } from '@/components/dashboard/ventas-man-tab';
 import { Button } from '@/components/ui/button';
-import { Settings, LogOut, Loader2, ChevronDown, Pencil, Briefcase, List } from 'lucide-react';
+import { Settings, LogOut, Loader2, ChevronDown, Pencil, Briefcase, List, LayoutDashboard, ShoppingBag, AreaChart, User as UserIcon } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -40,17 +40,18 @@ import { AuthContext } from '@/context/auth-context';
 import { getInitialDataForWeek, getInitialLists } from '@/lib/data';
 import { useRouter } from 'next/navigation';
 import { EditListDialog } from '@/components/dashboard/edit-list-dialog';
+import { cn } from '@/lib/utils';
 
 
 type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan' | 'compradorWoman' | 'zonaComercialWoman' | 'agrupacionComercialWoman' | 'compradorNino' | 'zonaComercialNino' | 'agrupacionComercialNino';
 type TabValue = "datosSemanales" | "aqneSemanal" | "acumulado" | "man";
 
 
-const tabLabels: Record<string, string> = {
-    datosSemanales: "GENERAL",
-    aqneSemanal: "AQNE",
-    acumulado: "ACUMULADO",
-    man: "MAN",
+const tabConfig: Record<TabValue, { label: string; icon: React.FC<React.SVGProps<SVGSVGElement>> }> = {
+    datosSemanales: { label: "GENERAL", icon: LayoutDashboard },
+    aqneSemanal: { label: "AQNE", icon: ShoppingBag },
+    acumulado: { label: "ACUMULADO", icon: AreaChart },
+    man: { label: "MAN", icon: UserIcon },
 };
 
 const listLabels: Record<EditableList, string> = {
@@ -97,6 +98,20 @@ const synchronizeTableData = (list: string[], oldTableData: VentasManItem[]): Ve
     });
 };
 
+const NavButton = ({ tab, activeTab, onTabChange }: { tab: TabValue; activeTab: string; onTabChange: (tab: TabValue) => void; }) => {
+    const { label, icon: Icon } = tabConfig[tab];
+    return (
+        <Button
+            variant={activeTab === tab ? "default" : "outline"}
+            className="flex-1"
+            onClick={() => onTabChange(tab)}
+        >
+            <Icon className="h-4 w-4 mr-2" />
+            {label}
+        </Button>
+    );
+};
+
 
 export default function DashboardPage() {
   const { user, loading: authLoading, logout } = useContext(AuthContext);
@@ -108,7 +123,7 @@ export default function DashboardPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   
-  const [activeTab, setActiveTab] = useState<string>("datosSemanales");
+  const [activeTab, setActiveTab] = useState<TabValue>("datosSemanales");
 
   const [isListDialogOpen, setListDialogOpen] = useState(false);
   const [listToEdit, setListToEdit] = useState<{ listKey: EditableList, title: string } | null>(null);
@@ -426,23 +441,30 @@ const handleImageChange = (path: string, file: File, onUploadComplete: (success:
           BUSSINES
         </h1>
         <div className="flex items-center gap-2">
-           <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="w-[180px]">
-                      {tabLabels[activeTab]}
-                      <ChevronDown className="ml-2 h-4 w-4" />
-                  </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start">
-                  <DropdownMenuRadioGroup value={activeTab} onValueChange={(value) => setActiveTab(value as TabValue)}>
-                      {Object.entries(tabLabels).map(([value, label]) => (
-                          <DropdownMenuRadioItem key={value} value={value}>
-                              {label}
-                          </DropdownMenuRadioItem>
-                      ))}
-                  </DropdownMenuRadioGroup>
-              </DropdownMenuContent>
-          </DropdownMenu>
+            <div className="hidden sm:flex items-center gap-2 rounded-lg bg-muted p-1">
+                {(Object.keys(tabConfig) as TabValue[]).map(tab => (
+                    <NavButton key={tab} tab={tab} activeTab={activeTab} onTabChange={setActiveTab} />
+                ))}
+            </div>
+             <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="outline" className="w-full sm:hidden">
+                        {tabConfig[activeTab].label}
+                        <ChevronDown className="ml-2 h-4 w-4" />
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuRadioGroup value={activeTab} onValueChange={(value) => setActiveTab(value as TabValue)}>
+                        {Object.entries(tabConfig).map(([value, { label, icon: Icon }]) => (
+                            <DropdownMenuRadioItem key={value} value={value} className="capitalize">
+                                <Icon className="mr-2 h-4 w-4" />
+                                {label}
+                            </DropdownMenuRadioItem>
+                        ))}
+                    </DropdownMenuRadioGroup>
+                </DropdownMenuContent>
+            </DropdownMenu>
+
           <div className="flex items-center gap-2">
              <Select value="previous-week">
               <SelectTrigger id="semana-select" className="w-[180px]">
@@ -530,7 +552,7 @@ const handleImageChange = (path: string, file: File, onUploadComplete: (success:
              <AqneSemanalTab data={data} isEditing={isEditing} onInputChange={handleInputChange} />
           </TabsContent>
            <TabsContent value="acumulado" className="mt-0">
-             <AcumuladoTab data={data.acumulado} isEditing={isEditing} onInputChange={handleInputChange} />
+             <AcumuladoTab data={data.acumulado} isEditing={isEditing} onInputChange={onInputChange} />
           </TabsContent>
            <TabsContent value="man" className="mt-0">
             <VentasManTab 
@@ -562,5 +584,3 @@ const handleImageChange = (path: string, file: File, onUploadComplete: (success:
     </div>
   );
 }
-
-    
