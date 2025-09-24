@@ -14,12 +14,11 @@ import {
   Inbox,
   Package,
   User,
-  Baby,
-  Shirt,
   Footprints,
   SprayCan,
   Clock,
-  Percent
+  Percent,
+  Sparkles
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
@@ -60,7 +59,7 @@ const sectionConfig = {
 };
 
 const desgloseIconos: { [key: string]: React.ReactNode } = {
-    "Ropa": <Shirt className="h-4 w-4 text-primary" />,
+    "Ropa": <User className="h-4 w-4 text-primary" />,
     "Calzado": <Footprints className="h-4 w-4 text-primary" />,
     "Perfumería": <SprayCan className="h-4 w-4 text-primary" />
 };
@@ -133,7 +132,7 @@ const SectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionNa
                          <div key={index} className="flex justify-between items-center">
                             <div className="flex items-center gap-2">
                                 <div className="w-6 flex-shrink-0">
-                                    {desgloseIconos[item.seccion] || <Shirt className="h-4 w-4 text-muted-foreground" />}
+                                    {desgloseIconos[item.seccion] || <User className="h-4 w-4 text-muted-foreground" />}
                                 </div>
                                 {isEditing ? (
                                     <Input type="number" inputMode="decimal" defaultValue={item.totalEuros} onChange={(e) => handleDesgloseChange(index, 'totalEuros', e.target.value)} className="font-bold w-24" />
@@ -255,13 +254,13 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
               </div>
           </KpiCard>
           
-          <KpiCard title="V. Ipod" icon={<Smartphone className="h-5 w-5 text-primary" />} className="md:col-span-1">
-              <DatoSimple value={isEditing ? operaciones.ventaIpod : formatNumber(operaciones.ventaIpod)} isEditing={isEditing} valueId="operaciones.ventaIpod" align="center" onInputChange={onInputChange}/>
+          <KpiCard title="Operaciones" icon={<RefreshCw className="h-5 w-5 text-primary" />} className="md:col-span-2 h-full">
+              <div className="grid grid-cols-2 gap-4 h-full">
+                  <DatoSimple label="Repo" value={isEditing ? operaciones.repoPorc : formatPercentage(operaciones.repoPorc)} isEditing={isEditing} valueId="operaciones.repoPorc" align="center" onInputChange={onInputChange} unit="%" icon={<RefreshCw className="h-5 w-5 text-primary"/>} />
+                  <DatoSimple label="Frescura" value={isEditing ? operaciones.frescuraPorc : formatPercentage(operaciones.frescuraPorc)} isEditing={isEditing} valueId="operaciones.frescuraPorc" align="center" onInputChange={onInputChange} unit="%" icon={<Sparkles className="h-5 w-5 text-primary"/>} />
+              </div>
           </KpiCard>
 
-          <KpiCard title="E-Ticket" icon={<Ticket className="h-5 w-5 text-primary" />} className="md:col-span-1">
-              <DatoSimple value={isEditing ? operaciones.eTicketPorc : formatPercentage(operaciones.eTicketPorc)} isEditing={isEditing} valueId="operaciones.eTicketPorc" align="center" onInputChange={onInputChange} unit="%" />
-          </KpiCard>
 
           <KpiCard title="Caja" icon={<Receipt className="h-5 w-5 text-primary" />} className="md:col-span-4">
               <div className="grid grid-cols-3 items-center justify-center gap-4 h-full">
@@ -271,11 +270,14 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
               </div>
           </KpiCard>
           
-          <KpiCard title="Operaciones" icon={<RefreshCw className="h-5 w-5 text-primary" />} className="md:col-span-2 h-full">
-              <div className="grid grid-cols-1 gap-4 h-full">
-                  <DatoSimple label="Repo" value={isEditing ? operaciones.repoPorc : formatPercentage(operaciones.repoPorc)} isEditing={isEditing} valueId="operaciones.repoPorc" align="center" onInputChange={onInputChange} unit="%" />
-              </div>
+          <KpiCard title="V. Ipod" icon={<Smartphone className="h-5 w-5 text-primary" />} className="md:col-span-1">
+              <DatoSimple value={isEditing ? operaciones.ventaIpod : formatNumber(operaciones.ventaIpod)} isEditing={isEditing} valueId="operaciones.ventaIpod" align="center" onInputChange={onInputChange}/>
           </KpiCard>
+
+          <KpiCard title="E-Ticket" icon={<Ticket className="h-5 w-5 text-primary" />} className="md:col-span-1">
+              <DatoSimple value={isEditing ? operaciones.eTicketPorc : formatPercentage(operaciones.eTicketPorc)} isEditing={isEditing} valueId="operaciones.eTicketPorc" align="center" onInputChange={onInputChange} unit="%" />
+          </KpiCard>
+
         </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
