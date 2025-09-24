@@ -77,7 +77,6 @@ const synchronizeTableData = (list: string[], oldTableData: VentasManItem[]): Ve
             totalEuros: 0,
             totalEurosSemanaAnterior: 0,
             varPorc: 0,
-            imageUrl: "",
         };
     });
 };
@@ -189,6 +188,10 @@ function ManPageComponent() {
             // If it doesn't exist, create a fresh one from scratch using the lists
             reportData = getInitialDataForWeek(weekId, listData);
             await setDoc(reportRef, reportData);
+        }
+        
+        if (!reportData.imagenesComprador) {
+          reportData.imagenesComprador = {};
         }
 
         // 3. ALWAYS ensure the report data uses the LATEST lists
@@ -341,8 +344,8 @@ function ManPageComponent() {
     }
 };
 
-const handleImageChange = (path: string, file: File, onUploadComplete: (success: boolean, downloadURL?: string) => void) => {
-    if (!data || !canEdit) {
+const handleImageChange = (compradorName: string, file: File, onUploadComplete: (success: boolean) => void) => {
+    if (!data || !canEdit || !compradorName) {
         onUploadComplete(false);
         return;
     }
@@ -351,8 +354,9 @@ const handleImageChange = (path: string, file: File, onUploadComplete: (success:
 
     uploadBytes(storageRef, file).then(snapshot => {
         getDownloadURL(snapshot.ref).then(downloadURL => {
+            const path = `imagenesComprador.${compradorName}`;
             handleInputChange(path, downloadURL);
-            onUploadComplete(true, downloadURL);
+            onUploadComplete(true);
             toast({
                 title: "Imagen cargada",
                 description: "La imagen está lista. Haz clic en 'Guardar' para confirmar todos los cambios.",

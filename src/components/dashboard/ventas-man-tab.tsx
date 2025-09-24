@@ -31,7 +31,7 @@ type VentasManTabProps = {
   data: WeeklyData;
   isEditing: boolean;
   onInputChange: (path: string, value: any) => void;
-  onImageChange: (path: string, file: File, onUploadComplete: (success: boolean, downloadURL?: string) => void) => void;
+  onImageChange: (compradorName: string, file: File, onUploadComplete: (success: boolean) => void) => void;
 };
 
 
@@ -148,9 +148,7 @@ const ImageImportCard = ({ selectedRow, isEditing, onImageChange, imageUrl }: { 
     };
 
     React.useEffect(() => {
-        if (imageUrl) {
-             setIsUploading(false);
-        }
+       setIsUploading(false);
     }, [imageUrl]);
 
     return (
@@ -193,13 +191,14 @@ export function VentasManTab({ data, isEditing, onInputChange, onImageChange }: 
     
     if (!data || !data.ventasMan || !data.listas) return <p>Cargando datos de Ventas Man...</p>;
 
-    const { ventasMan, listas } = data;
+    const { ventasMan, listas, imagenesComprador } = data;
     const selectedRow = ventasMan.pesoComprador?.[selectedIndex];
-    const imageUrl = selectedRow?.imageUrl || null;
+    const imageUrl = selectedRow ? imagenesComprador?.[selectedRow.nombre] || null : null;
+
 
     const handleImageChange = (file: File) => {
-        const path = `ventasMan.pesoComprador.${selectedIndex}.imageUrl`;
-        onImageChange(path, file, (success, downloadURL) => {
+        if (!selectedRow) return;
+        onImageChange(selectedRow.nombre, file, (success) => {
             // Parent handles state update, this is just to trigger
             // The useEffect in the image card will handle the uploading state.
         });

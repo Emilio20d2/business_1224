@@ -94,6 +94,9 @@ export type WeeklyData = {
         mensual: AcumuladoPeriodo;
         anual: AcumuladoPeriodo;
     };
+    imagenesComprador: {
+        [key: string]: string;
+    };
 };
 
 
@@ -138,7 +141,6 @@ export type VentasManItem = {
     totalEuros: number;
     totalEurosSemanaAnterior: number;
     varPorc: number;
-    imageUrl?: string;
 };
 
 type VentaDiaria = {
@@ -173,8 +175,7 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
             pesoPorc: 0,
             totalEuros: 0,
             totalEurosSemanaAnterior: 0,
-            varPorc: 0,
-            imageUrl: "",
+            varPorc: 0
         }));
     }
     
@@ -265,6 +266,7 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
                     { nombre: "Niño", totalEuros: 0, varPorc: 0, pesoPorc: 0 }
                 ]
             }
-        }
+        },
+        imagenesComprador: {}
     };
 }
