@@ -256,21 +256,14 @@ export function VentasManTab({ data, isEditing, onInputChange, onImageChange }: 
 
     const ventasManData = data.ventasMan;
     
-    const getButtonClass = (tabName: string) => {
-        const isActive = activeTab === tabName;
-        return cn(
-            buttonVariants({ variant: isActive ? 'default' : 'outline' }),
-            !isActive && 'text-primary'
-        );
-    };
 
     return (
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
              <TabsList className="mb-4 gap-2 bg-transparent p-0 h-auto">
-                <TabsTrigger value="comprador" className={getButtonClass('comprador')}>COMPRADOR</TabsTrigger>
-                <TabsTrigger value="zonaYAgrupacion" className={getButtonClass('zonaYAgrupacion')}>ZONA Y AGRUPACIÓN</TabsTrigger>
-                <TabsTrigger value="operaciones" className={getButtonClass('operaciones')}>OPERACIONES</TabsTrigger>
-                <TabsTrigger value="focus" className={getButtonClass('focus')}>FOCUS</TabsTrigger>
+                <TabsTrigger value="comprador" className={cn(buttonVariants({ variant: "outline" }), "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-primary")}>COMPRADOR</TabsTrigger>
+                <TabsTrigger value="zonaYAgrupacion" className={cn(buttonVariants({ variant: "outline" }), "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-primary")}>ZONA Y AGRUPACIÓN</TabsTrigger>
+                <TabsTrigger value="operaciones" className={cn(buttonVariants({ variant: "outline" }), "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-primary")}>OPERACIONES</TabsTrigger>
+                <TabsTrigger value="focus" className={cn(buttonVariants({ variant: "outline" }), "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-primary")}>FOCUS</TabsTrigger>
             </TabsList>
             
             <TabsContent value="comprador">
