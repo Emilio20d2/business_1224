@@ -70,7 +70,7 @@ const AqneSectionCard = ({ name, data, isEditing, onInputChange }: { name: Secti
                 </CardTitle>
             </CardHeader>
             <CardContent>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-1">
                     <div className="bg-background rounded-lg p-3 text-center flex flex-col justify-center items-center">
                         <div className={cn("font-bold text-lg", data.metricasPrincipales.totalEuros < 0 && "text-red-600")}>{formatCurrency(data.metricasPrincipales.totalEuros)}</div>
                     </div>
@@ -84,8 +84,8 @@ const AqneSectionCard = ({ name, data, isEditing, onInputChange }: { name: Secti
                         />
                     </div>
                 </div>
-                <Separator className="my-2" />
-                <div className="flex flex-col gap-2 mt-2 text-sm">
+                <Separator className="my-1" />
+                <div className="flex flex-col gap-1 mt-1 text-sm">
                     {data.desglose.map((item, index) => (
                          <div key={index} className="grid grid-cols-[1fr_auto_auto] justify-between items-center gap-2">
                             <div className="flex items-center gap-2 text-left">
@@ -131,8 +131,8 @@ export function AqneSemanalTab({ data, isEditing, onInputChange }: AqneSemanalTa
   const aqneData = data.aqneSemanal;
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div className="space-y-2">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
         <AqneSectionCard name="woman" data={aqneData.woman} isEditing={isEditing} onInputChange={onInputChange} />
         <AqneSectionCard name="man" data={aqneData.man} isEditing={isEditing} onInputChange={onInputChange} />
         <AqneSectionCard name="nino" data={aqneData.nino} isEditing={isEditing} onInputChange={onInputChange} />
