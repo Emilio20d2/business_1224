@@ -39,35 +39,40 @@ export const formatWeekId = (weekId: string): string => {
 
   try {
     const firstDayOfYear = new Date(year, 0, 1);
-    let daysToFirstMonday = (8 - getDay(firstDayOfYear) + 7) % 7;
-    // Si el 1 de enero es lunes (getDay devuelve 1), daysToFirstMonday será 0, lo cual es correcto
-    // Si no es lunes, se ajusta para encontrar el primer lunes.
-    if(getDay(firstDayOfYear) === 0){ // Sunday
-        daysToFirstMonday=1;
-    } else if (getDay(firstDayOfYear) > 1){ // Not Monday
-        daysToFirstMonday = 8 - getDay(firstDayOfYear)
-    }
+    // El getDay() de JS devuelve 0 para domingo, 1 para lunes, etc.
+    // Necesitamos encontrar el primer lunes.
+    const dayOfWeek = getDay(firstDayOfYear); // 0=Sun, 1=Mon, ..., 6=Sat
+    const daysToAdd = dayOfWeek === 1 ? 0 : (8 - dayOfWeek) % 7;
+    const firstMonday = addDays(firstDayOfYear, daysToAdd);
 
-    const firstMondayOfYear = addDays(firstDayOfYear, daysToFirstMonday);
+    // Si la primera semana del año es la semana 1, entonces para la semana 'N'
+    // necesitamos añadir 'N-1' semanas. Sin embargo, los weekId pueden no
+    // empezar en 1 si el año anterior tuvo 53 semanas.
+    // Una aproximación segura es sumar (N-1) semanas al primer lunes.
+    // Esto puede tener un desfase de una semana en algunos años bisiestos.
+    // La lógica de `parse` era mejor, pero fallaba.
+    // Vamos a intentarlo de otra manera.
     
-    // The first week of the year is the one containing the first Thursday.
-    // A simpler approach for ISO week is to calculate from a known date.
-    // Let's use a simpler logic for now: start from the first monday.
-    const weekStartDate = addDays(firstMondayOfYear, (weekNumber - 2) * 7);
+    // Basado en el estándar ISO 8601, la semana 1 es la que contiene el primer jueves.
+    // O la que contiene el 4 de enero.
+    const simpleDate = new Date(year, 0, 4); // Enero es 0. 4 de Enero.
+    const dayOfYear = Math.floor((simpleDate.getTime() - new Date(year, 0, 1).getTime()) / (1000 * 60 * 60 * 24));
+    const dayOfWeekForJan4 = getDay(simpleDate);
+    const dayShift = dayOfWeekForJan4 === 0 ? 6 : dayOfWeekForJan4 - 1; // Lunes = 0
+    
+    const weekStartDayOfYear = 1 + (weekNumber - 1) * 7 - dayShift;
 
-    // Let's try another approach based on date-fns `parse`
-    const parsedDate = parse(`${year}-W${weekStr}`, 'YYYY-y', new Date(), { locale: es });
-    const startDate = parsedDate; // date-fns parse with "w" will point to the start of the week.
-
+    const startDate = addDays(new Date(year, 0, 1), weekStartDayOfYear - 1);
     const endDate = addDays(startDate, 6);
 
     const startFormat = format(startDate, 'd MMM', { locale: es });
     const endFormat = format(endDate, 'd MMM, yyyy', { locale: es });
     
     return `${startFormat} - ${endFormat}`;
+
   } catch (e) {
     console.error("Error formatting weekId", e);
-    // Fallback to the old format in case of error
+    // Fallback al formato antiguo en caso de error
     return `Semana ${weekStr} - ${yearStr}`;
   }
 };
