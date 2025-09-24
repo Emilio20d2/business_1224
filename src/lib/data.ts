@@ -152,9 +152,9 @@ type VentaDiaria = {
 // This function now provides only the lists for initial setup.
 export function getInitialLists(): WeeklyData['listas'] {
     return {
-        compradorMan: ["MAN", "GLOBAL", "CIRCULAR", "DNWR", "SPORT", "ACCES", "BASIC"],
-        zonaComercialMan: ["MAN FORMAL", "GLB URBAN", "CIRCULAR"],
-        agrupacionComercialMan: ["PANTALON", "SASTRERIA", "TEJANO", "CAMISA", "POLO", "ZAPATO", "BERMUDA", "TRICOT", "ACCESORIOS", "BAÑO"],
+        compradorMan: ["Comprador A", "Comprador B", "Comprador C"],
+        zonaComercialMan: ["Zona 1", "Zona 2", "Zona 3"],
+        agrupacionComercialMan: ["Grupo Alpha", "Grupo Beta", "Grupo Gamma"],
         compradorWoman: ["WOMAN", "GLOBAL", "CIRCULAR", "DNWR", "SPORT", "ACCES", "BASIC"],
         zonaComercialWoman: ["WOMAN FORMAL", "GLB URBAN", "CIRCULAR"],
         agrupacionComercialWoman: ["PANTALON", "SASTRERIA", "TEJANO", "CAMISA", "POLO", "ZAPATO", "BERMUDA", "TRICOT", "ACCESORIOS", "BAÑO"],
