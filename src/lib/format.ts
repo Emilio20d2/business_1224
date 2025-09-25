@@ -1,5 +1,5 @@
 
-import { format, addDays, parse, startOfWeek, isValid } from 'date-fns';
+import { format, addDays, parse, isValid } from 'date-fns';
 import { es } from 'date-fns/locale';
 
 export const formatCurrency = (amount: number) => {
@@ -29,10 +29,10 @@ export const formatWeekIdToDateRange = (weekId: string): string => {
   const datePart = weekId.substring(7);
   
   try {
-    // We use a reference date of 0 to ensure parse works correctly with 'd-M-yy'
     const startDate = parse(datePart, 'd-M-yy', new Date());
     
     if (!isValid(startDate)) {
+        console.error("Invalid date parsed from weekId:", weekId);
         return weekId; // Fallback if date is invalid
     }
 
