@@ -1,4 +1,4 @@
-import { format, addDays, getISOWeek, getYear, startOfISOWeek, parse } from 'date-fns';
+import { format, addDays, getISOWeek, getYear, startOfISOWeek, parse, addWeeks } from 'date-fns';
 import { es } from 'date-fns/locale';
 
 export const formatCurrency = (amount: number) => {
@@ -33,31 +33,28 @@ export const getCurrentWeekId = (): string => {
 
 export const formatWeekIdToDateRange = (weekId: string): string => {
   if (!weekId || typeof weekId !== 'string' || !weekId.includes('-')) {
-    return `Semana: ${weekId}`;
-  }
-  
-  const parts = weekId.split('-');
-  const year = parseInt(parts[0], 10);
-  const weekNumber = parseInt(parts[1], 10);
-
-  if (!isNaN(year) && !isNaN(weekNumber)) {
-    try {
-      // Create a date for the first day of the year, then add weeks. This is more robust.
-      const firstDayOfYear = new Date(year, 0, 1);
-      const daysOffset = (weekNumber - 1) * 7;
-      
-      // Get a date within the target week
-      const dateInWeek = addDays(firstDayOfYear, daysOffset);
-      
-      // Get the start of the ISO week (Monday)
-      const startDate = startOfISOWeek(dateInWeek);
-      
-      return `Semana ${format(startDate, 'dd MMM', { locale: es })}`;
-    } catch (e) {
-      console.error("Error parsing ISO weekId:", weekId, e);
-      return `Semana: ${weekId}`; // Fallback
-    }
+    // Return a sensible fallback if weekId is not in the expected format
+    return "Selecciona una fecha";
   }
 
-  return `Semana: ${weekId}`;
+  const [yearStr, weekStr] = weekId.split('-');
+  const year = parseInt(yearStr, 10);
+  const weekNumber = parseInt(weekStr, 10);
+
+  if (isNaN(year) || isNaN(weekNumber)) {
+    return "Selecciona una fecha";
+  }
+
+  try {
+    // Create a date that is guaranteed to be in the target year.
+    // Then set the ISO week. This is more robust than calculating from Jan 1st.
+    const dateForYear = new Date(year, 0, 4); // A date in the first week of the year
+    const targetDate = addWeeks(startOfISOWeek(dateForYear), weekNumber - 1);
+    
+    // Now we have the Monday of the target week
+    return format(targetDate, 'dd MMM', { locale: es });
+  } catch (e) {
+    console.error("Error parsing ISO weekId:", weekId, e);
+    return `${weekId}`; // Fallback for safety
+  }
 };
