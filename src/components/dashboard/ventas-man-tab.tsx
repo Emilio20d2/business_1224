@@ -93,10 +93,7 @@ const DataTable = ({
                         <TableHead className='text-right'><Percent className="h-4 w-4 text-primary inline-block" /></TableHead>
                         <TableHead className='text-right'><Euro className="h-4 w-4 text-primary inline-block" /></TableHead>
                         <TableHead className='text-right'><TrendingUp className="h-4 w-4 text-primary inline-block" /></TableHead>
-                        <TableHead className='text-right font-bold text-primary flex items-center justify-end gap-1'>
-                            <span>Var%</span>
-                            <Percent className="h-4 w-4 inline-block" />
-                        </TableHead>
+                        <TableHead className='text-right'><Percent className="h-4 w-4 text-primary inline-block" /></TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
