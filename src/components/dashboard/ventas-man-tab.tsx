@@ -21,7 +21,7 @@ import { Card } from "@/components/ui/card";
 import { formatCurrency, formatPercentage } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { Button } from '../ui/button';
-import { ImagePlus, Loader2, Upload, Users, MapPin, ShoppingBasket, Percent, Euro, TrendingUp } from 'lucide-react';
+import { ImagePlus, Loader2, Upload, Users, MapPin, ShoppingBasket, Percent, Euro, TrendingUp, ArrowUp, ArrowDown } from 'lucide-react';
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { OperacionesSubTab } from './operaciones-sub-tab';
 import { FocusSemanalTab } from './focus-semanal-tab';
@@ -36,11 +36,14 @@ type VentasManTabProps = {
 
 
 const TrendIndicator = ({ value }: { value: number }) => {
-  const trendColor = value >= 0 ? 'text-green-600' : 'text-red-600';
-  const sign = value >= 0 ? '+' : '';
+  const isPositive = value >= 0;
+  const trendColor = isPositive ? 'text-green-600' : 'text-red-600';
+  const Icon = isPositive ? ArrowUp : ArrowDown;
+  
   return (
-    <span className={cn("text-sm font-bold", trendColor)}>
-      {sign}{value.toLocaleString('es-ES')}%
+    <span className={cn("text-sm font-bold flex items-center justify-end gap-1", trendColor)}>
+      <Icon className="h-4 w-4" />
+      <span>{value.toLocaleString('es-ES')}%</span>
     </span>
   );
 };
