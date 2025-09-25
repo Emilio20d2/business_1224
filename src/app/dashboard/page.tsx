@@ -136,9 +136,8 @@ function DashboardPageComponent() {
     async function fetchAvailableWeeks() {
         if (!user) return;
         setWeeksLoading(true);
-        try {
-            const informesCollection = collection(db, "informes");
-            const querySnapshot = await getDocs(informesCollection);
+        const informesCollection = collection(db, "informes");
+        getDocs(informesCollection).then(querySnapshot => {
             const weekIds = querySnapshot.docs.map(doc => doc.id);
             
             // Sort weeks, assuming "semana-YYYY-WW" format
@@ -154,19 +153,14 @@ function DashboardPageComponent() {
             if (!searchParams.has('week') && weekOptions.length > 0) {
                  updateUrl(weekOptions[0].value, activeTab);
             }
-        } catch (error) {
-            console.error("Error fetching available weeks:", error);
-            toast({
-                variant: "destructive",
-                title: "Error al cargar semanas",
-                description: "No se pudieron obtener las semanas disponibles desde la base de datos.",
-            });
-        } finally {
+        }).catch(error => {
+            setError(`Error al cargar las semanas: ${error.message}`);
+        }).finally(() => {
             setWeeksLoading(false);
-        }
+        });
     }
     fetchAvailableWeeks();
-  }, [user, searchParams, toast, updateUrl, activeTab]);
+  }, [user, searchParams, updateUrl, activeTab]);
 
 
  const fetchData = useCallback(async (weekId: string) => {
@@ -177,71 +171,71 @@ function DashboardPageComponent() {
     const reportRef = doc(db, "informes", weekId);
     const listsRef = doc(db, "configuracion", "listas");
 
-    try {
-        const listsSnap = await getDoc(listsRef);
-        let listData: WeeklyData['listas'];
-
-        if (listsSnap.exists()) {
-            listData = listsSnap.data() as WeeklyData['listas'];
-        } else {
-            listData = getInitialLists();
-            await setDoc(listsRef, listData);
-        }
-
-        const reportSnap = await getDoc(reportRef);
-        let reportData: WeeklyData;
-
-        if (reportSnap.exists()) {
-            reportData = reportSnap.data() as WeeklyData;
-        } else {
-            reportData = getInitialDataForWeek(weekId, listData);
-            await setDoc(reportRef, reportData);
-        }
-
-        if (!reportData.imagenesComprador) {
-          reportData.imagenesComprador = {};
-        }
-
-        reportData.listas = listData;
-
-        let needsSave = false;
-        
-        const syncAndCheck = (reportTable: VentasManItem[] | undefined, list: string[] | undefined): [VentasManItem[], boolean] => {
-            const currentNames = reportTable?.map(i => i.nombre).sort().join(',') || '';
-            const listNames = (list || []).sort().join(',');
-            if (currentNames !== listNames) {
-                return [synchronizeTableData(list || [], reportTable || []), true];
-            }
-            return [reportTable || [], false];
-        };
-
-        let changed;
-        [reportData.ventasMan.pesoComprador, changed] = syncAndCheck(reportData.ventasMan.pesoComprador, listData.compradorMan);
-        if (changed) needsSave = true;
-        
-        [reportData.ventasMan.zonaComercial, changed] = syncAndCheck(reportData.ventasMan.zonaComercial, listData.zonaComercialMan);
-        if (changed) needsSave = true;
-        
-        [reportData.ventasMan.agrupacionComercial, changed] = syncAndCheck(reportData.ventasMan.agrupacionComercial, listData.agrupacionComercialMan);
-        if (changed) needsSave = true;
-
-        if (needsSave) {
-            await setDoc(reportRef, reportData, { merge: true });
-        }
-        
-        setData(reportData);
-    } catch (err: any) {
-        console.error("Error fetching data:", err);
+    const listsSnap = await getDoc(listsRef).catch(err => {
         setError(`Error al conectar con la base de datos: ${err.message}.`);
-        toast({
-            variant: "destructive",
-            title: "Error de Conexión",
-            description: `No se pudo conectar a la base de datos: ${err.message}`,
-        });
-    } finally {
         setDataLoading(false);
+        return null;
+    });
+    if (!listsSnap) return;
+
+    let listData: WeeklyData['listas'];
+
+    if (listsSnap.exists()) {
+        listData = listsSnap.data() as WeeklyData['listas'];
+    } else {
+        listData = getInitialLists();
+        await setDoc(listsRef, listData);
     }
-  }, [user, toast]);
+
+    const reportSnap = await getDoc(reportRef).catch(err => {
+        setError(`Error al conectar con la base de datos: ${err.message}.`);
+        setDataLoading(false);
+        return null;
+    });
+    if (!reportSnap) return;
+
+    let reportData: WeeklyData;
+    if (reportSnap.exists()) {
+        reportData = reportSnap.data() as WeeklyData;
+    } else {
+        reportData = getInitialDataForWeek(weekId, listData);
+        await setDoc(reportRef, reportData);
+    }
+
+    if (!reportData.imagenesComprador) {
+      reportData.imagenesComprador = {};
+    }
+
+    reportData.listas = listData;
+
+    let needsSave = false;
+    
+    const syncAndCheck = (reportTable: VentasManItem[] | undefined, list: string[] | undefined): [VentasManItem[], boolean] => {
+        const currentNames = reportTable?.map(i => i.nombre).sort().join(',') || '';
+        const listNames = (list || []).sort().join(',');
+        if (currentNames !== listNames) {
+            return [synchronizeTableData(list || [], reportTable || []), true];
+        }
+        return [reportTable || [], false];
+    };
+
+    let changed;
+    [reportData.ventasMan.pesoComprador, changed] = syncAndCheck(reportData.ventasMan.pesoComprador, listData.compradorMan);
+    if (changed) needsSave = true;
+    
+    [reportData.ventasMan.zonaComercial, changed] = syncAndCheck(reportData.ventasMan.zonaComercial, listData.zonaComercialMan);
+    if (changed) needsSave = true;
+    
+    [reportData.ventasMan.agrupacionComercial, changed] = syncAndCheck(reportData.ventasMan.agrupacionComercial, listData.agrupacionComercialMan);
+    if (changed) needsSave = true;
+
+    if (needsSave) {
+        await setDoc(reportRef, reportData, { merge: true });
+    }
+    
+    setData(reportData);
+    setDataLoading(false);
+  }, [user]);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -377,12 +371,7 @@ function DashboardPageComponent() {
             }
         });
     }).catch(error => {
-         console.error("Error uploading image: ", error);
-        toast({
-            variant: "destructive",
-            title: "Error al subir la imagen",
-            description: "No se pudo subir la imagen. Comprueba tu conexión y los permisos de Firebase Storage.",
-        });
+        setError(`Error al subir imagen: ${error.message}`);
         onUploadComplete(false);
     });
 };
@@ -403,12 +392,7 @@ function DashboardPageComponent() {
             setIsEditing(false);
         })
         .catch(async (error: any) => {
-            console.error("Error saving document: ", error);
-            toast({
-                variant: "destructive",
-                title: "Error al guardar",
-                description: `No se pudieron guardar los cambios. ${error.message}`,
-            });
+             setError(`Error al guardar: ${error.message}`);
         })
         .finally(() => {
             setIsSaving(false);
@@ -442,12 +426,7 @@ function DashboardPageComponent() {
             return fetchData(selectedWeek);
         })
         .catch(async (error: any) => {
-            console.error("Error saving list:", error);
-            toast({
-                variant: "destructive",
-                title: "Error al guardar la lista",
-                description: `No se pudo guardar la lista. ${error.message}`,
-            });
+            setError(`Error al guardar la lista: ${error.message}`);
         })
         .finally(() => {
             setIsSaving(false);
