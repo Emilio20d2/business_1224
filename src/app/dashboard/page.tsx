@@ -563,7 +563,7 @@ function DashboardPageComponent() {
 
             <div className="flex items-center gap-2">
               <Select value={selectedWeek} onValueChange={handleWeekChange}>
-                <SelectTrigger id="semana-select" className="w-[150px]">
+                <SelectTrigger id="semana-select" className="w-auto min-w-[150px]">
                    <SelectValue placeholder={weeksLoading ? "Cargando..." : "Seleccionar"} />
                 </SelectTrigger>
                 <SelectContent>
@@ -572,7 +572,6 @@ function DashboardPageComponent() {
                   ))}
                 </SelectContent>
               </Select>
-              {selectedWeek && <span className="hidden sm:block text-sm text-muted-foreground font-medium">{formatWeekIdToDateRange(selectedWeek)}</span>}
             </div>
              <div className="flex items-center gap-2">
               {canEdit && (
