@@ -46,14 +46,22 @@ export const formatWeekId = (weekId: string): string => {
   }
 
   try {
-    const firstDayOfYear = new Date(year, 0, 4);
-    let firstDayOfWeekOne = startOfWeek(firstDayOfYear, { weekStartsOn: 1 });
-    // Handle case where week 1 starts in the previous year
-    if (getYear(firstDayOfWeekOne) < year) {
-        firstDayOfWeekOne = addDays(firstDayOfWeekOne, 7);
-    }
+    // Start with the first day of the year.
+    const firstDayOfYear = new Date(year, 0, 1);
+    // Find the day of the week (0 for Sunday, 1 for Monday, etc.).
+    const firstDayOfWeek = getDay(firstDayOfYear) === 0 ? 7 : getDay(firstDayOfYear);
+    // Calculate the date of the first Monday of the year.
+    const firstMonday = addDays(firstDayOfYear, (8 - firstDayOfWeek) % 7);
     
-    const targetDate = addDays(firstDayOfWeekOne, (weekNumber - 1) * 7);
+    let targetDate;
+    if (weekNumber === 1) {
+        // For week 1, the start is the first Monday of the year if it falls within the first few days.
+        // `date-fns` logic for week 1 is complex, so we can use `startOfWeek`.
+        targetDate = startOfWeek(new Date(year, 0, 4), { weekStartsOn: 1, locale: es });
+    } else {
+        // For other weeks, add the number of weeks to the first Monday.
+        targetDate = addDays(firstMonday, (weekNumber - 2) * 7);
+    }
     
     const startDate = startOfWeek(targetDate, { weekStartsOn: 1, locale: es });
     const endDate = addDays(startDate, 6);
