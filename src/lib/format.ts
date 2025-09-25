@@ -1,4 +1,4 @@
-import { format, addDays, getDay, add, sub, startOfWeek } from 'date-fns';
+import { format, addDays, getDay, add, sub, startOfWeek, getWeek } from 'date-fns';
 import { es } from 'date-fns/locale';
 
 export const formatCurrency = (amount: number) => {
@@ -21,6 +21,14 @@ export const formatGap = (value: number) => {
     return `${sign}${formattedValue}`;
 }
 
+export const getCurrentWeekId = (): string => {
+    const now = new Date('2025-09-15');
+    const year = now.getFullYear();
+    const weekNumber = getWeek(now, { weekStartsOn: 1, locale: es });
+    return `semana-${year}-${weekNumber}`;
+}
+
+
 export const formatWeekId = (weekId: string): string => {
   if (!weekId.startsWith('semana-')) {
     return weekId;
@@ -38,14 +46,16 @@ export const formatWeekId = (weekId: string): string => {
   }
 
   try {
-    // Start with Jan 1st of the given year
-    const firstDayOfYear = new Date(year, 0, 1);
-    // Add (weekNumber - 1) * 7 days
-    const dateWithWeekOffset = addDays(firstDayOfYear, (weekNumber - 1) * 7);
-    // Get the Monday of that week
-    const startDate = startOfWeek(dateWithWeekOffset, { weekStartsOn: 1, locale: es });
+    // Start with Jan 4th of the given year, which is always in week 1
+    const firstDayOfYear = new Date(year, 0, 4);
+    const firstDayOfWeekOne = startOfWeek(firstDayOfYear, { weekStartsOn: 1, locale: es });
+    
+    // Add weeks
+    const targetDate = addDays(firstDayOfWeekOne, (weekNumber - 1) * 7);
+    
+    const startDate = startOfWeek(targetDate, { weekStartsOn: 1, locale: es });
     const endDate = addDays(startDate, 6);
-
+    
     const startFormat = format(startDate, 'd MMM', { locale: es });
     const endFormat = format(endDate, 'd MMM, yyyy', { locale: es });
     
