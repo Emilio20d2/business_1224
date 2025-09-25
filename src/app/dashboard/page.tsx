@@ -4,7 +4,7 @@ import type { WeeklyData, VentasManItem } from "@/lib/data";
 import { doc, getDoc, setDoc, updateDoc, collection, getDocs } from "firebase/firestore";
 import { db, storage } from '@/lib/firebase';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { Calendar as CalendarIcon, Settings, LogOut, Loader2, ChevronDown, Briefcase, List, LayoutDashboard, ShoppingBag, AreaChart, User as UserIcon, Pencil, Download, Plus } from 'lucide-react';
+import { Calendar as CalendarIcon, Settings, LogOut, Loader2, ChevronDown, Briefcase, List, LayoutDashboard, ShoppingBag, AreaChart, User as UserIcon, Pencil, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -36,7 +36,8 @@ import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { VentasManTab } from '@/components/dashboard/ventas-man-tab';
 import { formatWeekIdToDateRange, getCurrentWeekId, getWeekIdFromDate } from '@/lib/format';
-import { format, parseISO } from 'date-fns';
+import { format, parse } from 'date-fns';
+import semanaExportada from '@/../semana-exportada.json';
 
 
 type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan' | 'compradorWoman' | 'zonaComercialWoman' | 'agrupacionComercialWoman' | 'compradorNino' | 'zonaComercialNino' | 'agrupacionComercialNino';
@@ -142,6 +143,17 @@ function DashboardPageComponent() {
 
  const fetchData = useCallback(async (weekId: string) => {
     if (!user || !weekId) return;
+    
+    if(weekId === '2025-38') {
+        const reportRef = doc(db, "informes", weekId);
+        const reportSnap = await getDoc(reportRef);
+        if (reportSnap.exists()) {
+            setData(reportSnap.data() as WeeklyData);
+            setDataLoading(false);
+            return;
+        }
+    }
+
     setDataLoading(true);
     setError(null);
 
@@ -339,11 +351,9 @@ const handleImageChange = (compradorName: string, file: File, onUploadComplete: 
         return;
     }
 
-    // Create a local URL for instant preview
     const previewUrl = URL.createObjectURL(file);
     onUploadComplete(true, previewUrl);
 
-    // Start upload in the background
     const storageRef = ref(storage, `informes/${selectedWeek}/${file.name}-${Date.now()}`);
 
     uploadBytes(storageRef, file)
@@ -368,8 +378,6 @@ const handleImageChange = (compradorName: string, file: File, onUploadComplete: 
         })
         .catch(error => {
             setError(`Error al subir imagen: ${error.message}`);
-            // The preview will still be shown, but the final save will fail if the URL is not updated.
-            // This is a design choice to keep the UI responsive.
         });
 };
 
@@ -384,10 +392,6 @@ const handleImageChange = (compradorName: string, file: File, onUploadComplete: 
     // Clean up local blob URLs before saving
     Object.keys(dataToSave.imagenesComprador).forEach(key => {
         if (dataToSave.imagenesComprador[key].startsWith('blob:')) {
-           // This indicates an upload might have failed or is in progress.
-           // Decide if we save without it, or alert the user.
-           // For now, we'll prevent saving a blob url.
-           // A more robust solution might track upload status.
            delete dataToSave.imagenesComprador[key];
         }
     });
@@ -399,7 +403,6 @@ const handleImageChange = (compradorName: string, file: File, onUploadComplete: 
                 description: "Los cambios se han guardado en la base de datos.",
             });
             setIsEditing(false);
-            // Optionally, re-fetch data to ensure consistency and clean up blob URLs from state
             fetchData(selectedWeek);
         })
         .catch(async (error: any) => {
@@ -444,38 +447,33 @@ const handleImageChange = (compradorName: string, file: File, onUploadComplete: 
         });
 };
 
- const handleExportJson = () => {
-    if (!data) {
-        toast({
-            variant: "destructive",
-            title: "Sin datos para exportar",
-            description: "No hay datos cargados para la semana seleccionada.",
+const handleImportSpecificWeek = async () => {
+    if (!canEdit) return;
+    const weekIdToImport = '2025-38';
+    
+    setIsSaving(true);
+    toast({ title: "Importando datos...", description: `Guardando datos para la semana ${weekIdToImport}.` });
+
+    const docRef = doc(db, "informes", weekIdToImport);
+    const dataToImport = semanaExportada as WeeklyData;
+    
+    setDoc(docRef, dataToImport, { merge: true })
+        .then(() => {
+            toast({
+                title: "¡Importación completada!",
+                description: `Los datos para la semana ${weekIdToImport} se han guardado en la base de datos.`,
+            });
+            if (selectedWeek === weekIdToImport) {
+                fetchData(weekIdToImport);
+            }
+        })
+        .catch(async (error: any) => {
+             setError(`Error al importar: ${error.message}`);
+             toast({ variant: "destructive", title: "Error al importar", description: "No se pudieron guardar los datos." });
+        })
+        .finally(() => {
+            setIsSaving(false);
         });
-        return;
-    }
-    try {
-        const jsonString = JSON.stringify(data, null, 2);
-        const blob = new Blob([jsonString], { type: "application/json" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "semana-exportada.json";
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        toast({
-            title: "Exportación exitosa",
-            description: "Los datos de la semana se han descargado como JSON.",
-        });
-    } catch (error) {
-        console.error("Error exporting JSON:", error);
-        toast({
-            variant: "destructive",
-            title: "Error al exportar",
-            description: "No se pudieron exportar los datos.",
-        });
-    }
 };
 
 
@@ -613,6 +611,7 @@ const handleImageChange = (compradorName: string, file: File, onUploadComplete: 
                   <DropdownMenuLabel>Opciones</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   {canEdit && (
+                    <>
                     <DropdownMenuSub>
                       <DropdownMenuSubTrigger>
                         <List className="mr-2 h-4 w-4 text-primary" />
@@ -637,11 +636,12 @@ const handleImageChange = (compradorName: string, file: File, onUploadComplete: 
                         </DropdownMenuSubContent>
                       </DropdownMenuPortal>
                     </DropdownMenuSub>
+                    <DropdownMenuItem onSelect={handleImportSpecificWeek}>
+                        <Upload className="mr-2 h-4 w-4 text-primary" />
+                        <span>Importar Semana 24</span>
+                    </DropdownMenuItem>
+                    </>
                   )}
-                   <DropdownMenuItem onSelect={handleExportJson}>
-                        <Download className="mr-2 h-4 w-4 text-primary" />
-                        <span>Exportar JSON</span>
-                   </DropdownMenuItem>
                   {canEdit && <DropdownMenuSeparator />}
                   <DropdownMenuItem onSelect={() => {
                     logout();
@@ -674,7 +674,7 @@ const handleImageChange = (compradorName: string, file: File, onUploadComplete: 
                 <AqneSemanalTab data={data} isEditing={isEditing} onInputChange={handleInputChange} />
               </TabsContent>
               <TabsContent value="acumulado" className="mt-0">
-                <AcumuladoTab data={data.acumulado} isEditing={isEditing} onInputChange={handleInputChange} />
+                <AcumuladoTab data={data.acumulado} isEditing={isEditing} onInputChange={onInputChange} />
               </TabsContent>
               <TabsContent value="man" className="mt-0">
                 <VentasManTab
