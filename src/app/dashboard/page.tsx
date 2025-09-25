@@ -1,3 +1,4 @@
+
 "use client"
 import React, { useState, useContext, useEffect, useCallback, Suspense } from 'react';
 import type { WeeklyData, VentasManItem } from "@/lib/data";
@@ -104,6 +105,7 @@ function DashboardPageComponent() {
 
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [isCalendarOpen, setCalendarOpen] = useState(false);
+  const [importCompleted, setImportCompleted] = useState(false);
 
 
   const canEdit = user?.email === 'emiliogp@inditex.com';
@@ -146,23 +148,25 @@ function DashboardPageComponent() {
  const fetchData = useCallback(async (weekId: string) => {
     if (!user || !weekId) return;
     
-    if(weekId === '2025-38') {
-        setData(semanaExportada as WeeklyData);
-        setDataLoading(false);
-        return;
-    }
-
     setDataLoading(true);
     setError(null);
 
     try {
         const reportRef = doc(db, "informes", weekId);
         const listsRef = doc(db, "configuracion", "listas");
+        const importStatusRef = doc(db, "configuracion", "importStatus");
 
-        const [reportSnap, listsSnap] = await Promise.all([
+        const [reportSnap, listsSnap, importStatusSnap] = await Promise.all([
             getDoc(reportRef),
-            getDoc(listsRef)
+            getDoc(listsRef),
+            getDoc(importStatusRef)
         ]);
+
+        if (importStatusSnap.exists()) {
+            setImportCompleted(importStatusSnap.data().semana24Imported === true);
+        } else {
+            setImportCompleted(false);
+        }
 
         let listData: WeeklyData['listas'];
         if (listsSnap.exists()) {
@@ -470,25 +474,28 @@ const handleImportSpecificWeek = async () => {
     toast({ title: "Importando datos...", description: `Guardando datos para la semana ${weekIdToImport}.` });
 
     const docRef = doc(db, "informes", weekIdToImport);
+    const importStatusRef = doc(db, "configuracion", "importStatus");
     const dataToImport = semanaExportada as WeeklyData;
     
-    setDoc(docRef, dataToImport, { merge: true })
-        .then(() => {
-            toast({
-                title: "¡Importación completada!",
-                description: `Los datos para la semana ${weekIdToImport} se han guardado en la base de datos.`,
-            });
-            if (selectedWeek === weekIdToImport) {
-                fetchData(weekIdToImport);
-            }
-        })
-        .catch(async (error: any) => {
-             setError(`Error al importar: ${error.message}`);
-             toast({ variant: "destructive", title: "Error al importar", description: "No se pudieron guardar los datos." });
-        })
-        .finally(() => {
-            setIsSaving(false);
+    try {
+        await setDoc(docRef, dataToImport, { merge: true });
+        await setDoc(importStatusRef, { semana24Imported: true }, { merge: true });
+        
+        toast({
+            title: "¡Importación completada!",
+            description: `Los datos para la semana ${weekIdToImport} se han guardado en la base de datos.`,
         });
+        
+        setImportCompleted(true);
+        if (selectedWeek === weekIdToImport) {
+            fetchData(weekIdToImport);
+        }
+    } catch (error: any) {
+         setError(`Error al importar: ${error.message}`);
+         toast({ variant: "destructive", title: "Error al importar", description: "No se pudieron guardar los datos." });
+    } finally {
+        setIsSaving(false);
+    }
 };
 
 
@@ -638,10 +645,12 @@ const handleImportSpecificWeek = async () => {
                         </DropdownMenuSubContent>
                       </DropdownMenuPortal>
                     </DropdownMenuSub>
-                    <DropdownMenuItem onSelect={handleImportSpecificWeek}>
-                        <Upload className="mr-2 h-4 w-4 text-primary" />
-                        <span>Importar Semana 24</span>
-                    </DropdownMenuItem>
+                    {canEdit && !importCompleted && (
+                        <DropdownMenuItem onSelect={handleImportSpecificWeek}>
+                            <Upload className="mr-2 h-4 w-4 text-primary" />
+                            <span>Importar Semana 24</span>
+                        </DropdownMenuItem>
+                    )}
                     </>
                   )}
                   {canEdit && <DropdownMenuSeparator />}
