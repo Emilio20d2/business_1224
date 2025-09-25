@@ -93,7 +93,10 @@ const DataTable = ({
                         <TableHead className='text-right'><Percent className="h-4 w-4 text-primary inline-block" /></TableHead>
                         <TableHead className='text-right'><Euro className="h-4 w-4 text-primary inline-block" /></TableHead>
                         <TableHead className='text-right'><TrendingUp className="h-4 w-4 text-primary inline-block" /></TableHead>
-                        <TableHead className='text-right font-bold text-primary'>Var% S-1</TableHead>
+                        <TableHead className='text-right font-bold text-primary flex items-center justify-end gap-1'>
+                            <span>Var%</span>
+                            <Percent className="h-4 w-4 inline-block" />
+                        </TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -129,7 +132,7 @@ const DataTable = ({
                                 {isEditing ? <Input type="number" inputMode="decimal" className="w-24 ml-auto text-right" defaultValue={item.totalEuros} onChange={(e) => handleChange(index, 'totalEuros', e.target.value)} /> : formatCurrency(item.totalEuros)}
                             </TableCell>
                             <TableCell className="text-right font-medium">
-                                <TrendIndicator value={item.varPorc} />
+                                 <TrendIndicator value={item.varPorc} />
                             </TableCell>
                             <TableCell className="text-right">
                                 {isEditing ? <Input type="number" inputMode="decimal" className="w-20 ml-auto text-right" defaultValue={item.varPorc} onChange={(e) => handleChange(index, 'varPorc', e.target.value)} /> : formatPercentage(item.varPorc)}
