@@ -33,7 +33,6 @@ export const getCurrentWeekId = (): string => {
 
 export const formatWeekIdToDateRange = (weekId: string): string => {
   if (!weekId || typeof weekId !== 'string' || !weekId.includes('-')) {
-    // Return a sensible fallback if weekId is not in the expected format
     return "Selecciona una fecha";
   }
 
@@ -42,19 +41,16 @@ export const formatWeekIdToDateRange = (weekId: string): string => {
   const weekNumber = parseInt(weekStr, 10);
 
   if (isNaN(year) || isNaN(weekNumber)) {
-    return "Selecciona una fecha";
+    return `${weekId}`;
   }
 
   try {
-    // Create a date that is guaranteed to be in the target year.
-    // Then set the ISO week. This is more robust than calculating from Jan 1st.
-    const dateForYear = new Date(year, 0, 4); // A date in the first week of the year
-    const targetDate = addWeeks(startOfISOWeek(dateForYear), weekNumber - 1);
+    const firstDayOfYear = new Date(year, 0, 4);
+    const dateWithWeek = addWeeks(startOfISOWeek(firstDayOfYear), weekNumber - 1);
     
-    // Now we have the Monday of the target week
-    return format(targetDate, 'dd MMM', { locale: es });
+    return format(dateWithWeek, 'dd MMM', { locale: es });
   } catch (e) {
     console.error("Error parsing ISO weekId:", weekId, e);
-    return `${weekId}`; // Fallback for safety
+    return `${weekId}`;
   }
 };

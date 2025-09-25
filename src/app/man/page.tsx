@@ -137,13 +137,9 @@ function ManPageComponent() {
     if (!user || !weekId) return;
 
     if(weekId === '2025-38') {
-        const reportRef = doc(db, "informes", weekId);
-        const reportSnap = await getDoc(reportRef);
-        if (reportSnap.exists()) {
-            setData(reportSnap.data() as WeeklyData);
-            setDataLoading(false);
-            return;
-        }
+        setData(semanaExportada as WeeklyData);
+        setDataLoading(false);
+        return;
     }
 
     setDataLoading(true);
@@ -491,12 +487,12 @@ const handleImportSpecificWeek = async () => {
                         <Button
                             variant={"outline"}
                             className={cn(
-                                "w-[180px] justify-start text-left font-normal",
+                                "w-auto justify-start text-left font-normal",
                                 !selectedDate && "text-muted-foreground"
                             )}
                         >
                             <CalendarIcon className="mr-2 h-4 w-4" />
-                            {selectedWeek ? formatWeekIdToDateRange(selectedWeek) : <span>Selecciona una fecha</span>}
+                            {selectedWeek ? `Semana: ${formatWeekIdToDateRange(selectedWeek)}` : <span>Selecciona una fecha</span>}
                         </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">

@@ -145,13 +145,9 @@ function DashboardPageComponent() {
     if (!user || !weekId) return;
     
     if(weekId === '2025-38') {
-        const reportRef = doc(db, "informes", weekId);
-        const reportSnap = await getDoc(reportRef);
-        if (reportSnap.exists()) {
-            setData(reportSnap.data() as WeeklyData);
-            setDataLoading(false);
-            return;
-        }
+        setData(semanaExportada as WeeklyData);
+        setDataLoading(false);
+        return;
     }
 
     setDataLoading(true);
@@ -370,7 +366,7 @@ const handleImageChange = (compradorName: string, file: File, onUploadComplete: 
             });
             toast({
                 title: "Imagen subida",
-                description: "La imagen se ha subido correctamente y está lista para guardar.",
+                description: "La imagen se ha subido y está lista para guardar.",
             });
             if (!isEditing) {
                 setIsEditing(true);
@@ -380,7 +376,6 @@ const handleImageChange = (compradorName: string, file: File, onUploadComplete: 
             setError(`Error al subir imagen: ${error.message}`);
         });
 };
-
 
 
   const handleSave = async () => {
@@ -563,12 +558,12 @@ const handleImportSpecificWeek = async () => {
                         <Button
                             variant={"outline"}
                             className={cn(
-                                "w-[180px] justify-start text-left font-normal",
+                                "w-auto justify-start text-left font-normal",
                                 !selectedDate && "text-muted-foreground"
                             )}
                         >
                             <CalendarIcon className="mr-2 h-4 w-4" />
-                            {selectedWeek ? formatWeekIdToDateRange(selectedWeek) : <span>Selecciona una fecha</span>}
+                            {selectedWeek ? `Semana: ${formatWeekIdToDateRange(selectedWeek)}` : <span>Selecciona una fecha</span>}
                         </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
@@ -671,7 +666,7 @@ const handleImportSpecificWeek = async () => {
                 />
               </TabsContent>
               <TabsContent value="aqneSemanal" className="mt-0">
-                <AqneSemanalTab data={data} isEditing={isEditing} onInputChange={handleInputChange} />
+                <AqneSemanalTab data={data} isEditing={isEditing} onInputChange={onInputChange} />
               </TabsContent>
               <TabsContent value="acumulado" className="mt-0">
                 <AcumuladoTab data={data.acumulado} isEditing={isEditing} onInputChange={handleInputChange} />
