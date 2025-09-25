@@ -22,7 +22,7 @@ export const formatGap = (value: number) => {
 }
 
 export const getCurrentWeekId = (): string => {
-    const today = new Date('2025-09-15T12:00:00'); 
+    const today = new Date();
     const year = getYear(today);
     const weekNumber = getISOWeek(today);
     return `${year}-${weekNumber}`;
@@ -39,6 +39,16 @@ export const formatWeekIdToDateRange = (weekId: string): string => {
       try {
         const tempDate = new Date(year, 0, 1 + (weekNumber - 1) * 7);
         const startDate = startOfISOWeek(tempDate);
+        
+        // Ensure we're in the correct year if the week belongs to the previous/next one
+        if (getISOWeek(startDate) !== weekNumber) {
+            if (weekNumber === 1 && startDate.getMonth() === 11) {
+                 startDate.setFullYear(year);
+            } else if (weekNumber > 50 && startDate.getMonth() === 0) {
+                 startDate.setFullYear(year - 1);
+            }
+        }
+        
         const endDate = addDays(startDate, 6);
         
         const startFormat = format(startDate, 'dd MMM', { locale: es });
