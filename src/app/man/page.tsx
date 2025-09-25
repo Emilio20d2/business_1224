@@ -301,7 +301,8 @@ function ManPageComponent() {
     setIsSaving(true);
     try {
       const docRef = doc(db, "informes", selectedWeek);
-      await setDoc(docRef, data, { merge: true });
+      const dataToSave = JSON.parse(JSON.stringify(data));
+      await setDoc(docRef, dataToSave, { merge: true });
       toast({
         title: "¡Guardado!",
         description: "Los cambios se han guardado en la base de datos.",
@@ -371,13 +372,11 @@ const handleImageChange = (compradorName: string, file: File, onUploadComplete: 
         getDownloadURL(snapshot.ref).then(downloadURL => {
              setData(prevData => {
               if (!prevData) return null;
-              const updatedData = {
-                ...prevData,
-                imagenesComprador: {
-                  ...prevData.imagenesComprador,
-                  [compradorName]: downloadURL
-                }
-              };
+              const updatedData = JSON.parse(JSON.stringify(prevData));
+              if (!updatedData.imagenesComprador) {
+                  updatedData.imagenesComprador = {};
+              }
+              updatedData.imagenesComprador[compradorName] = downloadURL;
               return updatedData;
             });
             onUploadComplete(true);
