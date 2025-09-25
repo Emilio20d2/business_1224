@@ -35,7 +35,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { EditListDialog } from '@/components/dashboard/edit-list-dialog';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { formatWeekIdToDateRange, getCurrentWeekId } from '@/lib/format';
+import { formatWeekIdToDateRange } from '@/lib/format';
 
 type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan' | 'compradorWoman' | 'zonaComercialWoman' | 'agrupacionComercialWoman' | 'compradorNino' | 'zonaComercialNino' | 'agrupacionComercialNino';
 type WeekOption = { value: string; label: string };
@@ -127,8 +127,9 @@ function ManPageComponent() {
     async function fetchAvailableWeeks() {
         if (!user) return;
         setWeeksLoading(true);
-        const informesCollection = collection(db, "informes");
-        getDocs(informesCollection).then(querySnapshot => {
+        try {
+            const informesCollection = collection(db, "informes");
+            const querySnapshot = await getDocs(informesCollection);
             const weekIds = querySnapshot.docs.map(doc => doc.id);
             
             weekIds.sort((a, b) => b.localeCompare(a));
@@ -140,18 +141,14 @@ function ManPageComponent() {
             
             setWeeks(weekOptions);
             
-            if (!searchParams.has('week')) {
-                 if (weekOptions.length > 0) {
-                     updateUrl(weekOptions[0].value);
-                 } else {
-                     updateUrl(getCurrentWeekId());
-                 }
+            if (!searchParams.has('week') && weekOptions.length > 0) {
+                updateUrl(weekOptions[0].value);
             }
-        }).catch(error => {
+        } catch(error: any) {
             setError(`Error al cargar las semanas: ${error.message}`);
-        }).finally(() => {
+        } finally {
             setWeeksLoading(false);
-        });
+        }
     }
     fetchAvailableWeeks();
   }, [user, searchParams, toast, updateUrl]);
@@ -161,33 +158,29 @@ function ManPageComponent() {
     if (!user || !weekId) return;
     setDataLoading(true);
     setError(null);
-    const reportRef = doc(db, "informes", weekId);
-    const listsRef = doc(db, "configuracion", "listas");
+    try {
+        const reportRef = doc(db, "informes", weekId);
+        const listsRef = doc(db, "configuracion", "listas");
 
-    const listsSnap = await getDoc(listsRef).catch(err => {
-        setError(`Error al conectar con la base de datos: ${err.message}.`);
-        setDataLoading(false);
-        return null;
-    });
-    if (!listsSnap) return;
+        const [reportSnap, listsSnap] = await Promise.all([
+            getDoc(reportRef),
+            getDoc(listsRef)
+        ]);
 
-    let listData: WeeklyData['listas'];
-    if (listsSnap.exists()) {
-        listData = listsSnap.data() as WeeklyData['listas'];
-    } else {
-        listData = getInitialLists();
-        await setDoc(listsRef, listData);
-    }
-
-    getDoc(reportRef).then(async (reportSnap) => {
-        let reportData: WeeklyData;
-
-        if (reportSnap.exists()) {
-            reportData = reportSnap.data() as WeeklyData;
-        } else {
-            reportData = getInitialDataForWeek(weekId, listData);
-            await setDoc(reportRef, reportData);
+        if (!reportSnap.exists()) {
+            throw new Error(`No se encontró ningún informe para la semana "${weekId}". Por favor, cree el documento en Firebase.`);
         }
+        
+        let listData: WeeklyData['listas'];
+        if (listsSnap.exists()) {
+            listData = listsSnap.data() as WeeklyData['listas'];
+        } else {
+            console.log("No 'listas' document found, creating one.");
+            listData = getInitialLists();
+            await setDoc(listsRef, listData);
+        }
+        
+        let reportData = reportSnap.data() as WeeklyData;
 
         if (!reportData.imagenesComprador) {
           reportData.imagenesComprador = {};
@@ -221,11 +214,12 @@ function ManPageComponent() {
         }
         
         setData(reportData);
-    }).catch(err => {
+    } catch(err: any) {
         setError(`Error al cargar el informe: ${err.message}.`);
-    }).finally(() => {
+        setData(null);
+    } finally {
         setDataLoading(false);
-    });
+    }
   }, [user]);
 
   useEffect(() => {
@@ -233,8 +227,11 @@ function ManPageComponent() {
       router.push('/');
     } else if (!authLoading && user && selectedWeek) {
       fetchData(selectedWeek);
+    } else if (!authLoading && user && !selectedWeek && !weeksLoading && weeks.length === 0) {
+      setDataLoading(false);
+      setError("No hay informes disponibles. Cree el primer informe en la base de datos para comenzar.");
     }
-  }, [user, authLoading, router, fetchData, selectedWeek]);
+  }, [user, authLoading, router, fetchData, selectedWeek, weeks, weeksLoading]);
 
 
   const handleInputChange = (path: string, value: any) => {
@@ -404,7 +401,7 @@ const handleImageChange = (compradorName: string, file: File, onUploadComplete: 
     }
 };
 
-  if (authLoading || (dataLoading && !data) || !selectedWeek || weeksLoading) {
+  if (authLoading || (!selectedWeek && weeksLoading) || (dataLoading && !error)) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -420,30 +417,19 @@ const handleImageChange = (compradorName: string, file: File, onUploadComplete: 
       <div className="flex flex-col items-center justify-center min-h-screen gap-4 text-center p-4">
         <p className="text-lg font-semibold text-destructive">Error al Cargar Datos</p>
         <p className="text-muted-foreground">{error}</p>
-        <p className="text-sm mt-2 text-muted-foreground">Asegúrate de que la base de datos Firestore está creada en tu proyecto y que las reglas de seguridad son correctas.</p>
-        <Button onClick={() => fetchData(selectedWeek)} className="mt-4">Reintentar</Button>
+        <Button onClick={() => fetchData(selectedWeek)} className="mt-4" disabled={!selectedWeek}>Reintentar Carga</Button>
       </div>
     );
   }
 
-   if (!data && !dataLoading && weeks.length === 0) {
+  if (!selectedWeek && weeks.length === 0 && !weeksLoading) {
      return (
         <div className="flex flex-col items-center justify-center min-h-screen">
-            <p>No se encontraron informes. ¿Quieres crear uno para la semana actual?</p>
-            <Button onClick={() => fetchData(getCurrentWeekId())} className="mt-4">Crear y cargar semana actual</Button>
+            <p>No se encontraron informes en la base de datos.</p>
+            <p className="text-sm text-muted-foreground">Crea tu primer informe manualmente en Firebase para empezar.</p>
         </div>
      );
   }
-  
-  if (!data) {
-     return (
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <p>No se encontraron datos para la semana.</p>
-        <Button onClick={() => fetchData(selectedWeek)} className="mt-4">Cargar datos</Button>
-      </div>
-    );
-  }
-
 
   return (
     <TooltipProvider>
@@ -513,14 +499,14 @@ const handleImageChange = (compradorName: string, file: File, onUploadComplete: 
                 <>
                   {isEditing ? (
                     <>
-                      <Button onClick={handleSave} disabled={isSaving}>
+                      <Button onClick={handleSave} disabled={isSaving || !data}>
                         {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         Guardar
                       </Button>
-                      <Button variant="outline" onClick={handleCancel} disabled={isSaving}>Cancelar</Button>
+                      <Button variant="outline" onClick={handleCancel} disabled={isSaving || !data}>Cancelar</Button>
                     </>
                   ) : (
-                    <Button onClick={() => setIsEditing(true)} variant="outline" size="icon">
+                    <Button onClick={() => setIsEditing(true)} variant="outline" size="icon" disabled={!data}>
                       <Pencil className="h-4 w-4 text-primary" />
                     </Button>
                   )}
@@ -580,15 +566,21 @@ const handleImageChange = (compradorName: string, file: File, onUploadComplete: 
         </header>
         
         <main>
-           <VentasManTab 
-              data={data}
-              isEditing={isEditing} 
-              onInputChange={handleInputChange}
-              onImageChange={handleImageChange}
-            />
+           {data ? (
+                <VentasManTab 
+                  data={data}
+                  isEditing={isEditing} 
+                  onInputChange={handleInputChange}
+                  onImageChange={handleImageChange}
+                />
+            ) : (
+             <div className="flex flex-col items-center justify-center min-h-[60vh]">
+                <p>Selecciona una semana para ver los datos.</p>
+            </div>
+            )}
         </main>
         
-        {listToEdit && data.listas && (
+        {listToEdit && data?.listas && (
           <EditListDialog
             isOpen={isListDialogOpen}
             onClose={() => {
@@ -622,3 +614,5 @@ export default function ManPage() {
         </Suspense>
     );
 }
+
+    

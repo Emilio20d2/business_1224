@@ -22,12 +22,6 @@ export const formatGap = (value: number) => {
     return `${sign}${formattedValue}`;
 }
 
-export const getCurrentWeekId = (): string => {
-    const now = new Date('2025-09-15T12:00:00Z');
-    const monday = startOfWeek(now, { weekStartsOn: 1 });
-    return `semana-${format(monday, 'd-M-yy')}`;
-}
-
 export const formatWeekIdToDateRange = (weekId: string): string => {
   if (!weekId.startsWith('semana-')) {
     return weekId;
@@ -38,7 +32,8 @@ export const formatWeekIdToDateRange = (weekId: string): string => {
     const startDate = parse(datePart, 'd-M-yy', new Date());
     
     if (!isValid(startDate)) {
-        throw new Error('Invalid date parsed from weekId');
+        // Fallback for potentially malformed IDs, though this should be rare now.
+        return weekId;
     }
 
     const endDate = addDays(startDate, 6);
@@ -52,3 +47,5 @@ export const formatWeekIdToDateRange = (weekId: string): string => {
     return weekId; // Fallback
   }
 };
+
+    
