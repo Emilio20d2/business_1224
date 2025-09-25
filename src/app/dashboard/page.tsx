@@ -36,7 +36,7 @@ import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { VentasManTab } from '@/components/dashboard/ventas-man-tab';
 import { formatWeekIdToDateRange, getCurrentWeekId, getWeekIdFromDate } from '@/lib/format';
-import { format, parse, startOfISOWeek, addWeeks } from 'date-fns';
+import { format, parse, startOfISOWeek, addWeeks, subWeeks } from 'date-fns';
 import { es } from 'date-fns/locale';
 import semanaExportada from '@/../semana-exportada.json';
 
@@ -136,8 +136,9 @@ function DashboardPageComponent() {
   
   useEffect(() => {
     if (!searchParams.has('week') && user) {
-        const currentWeekId = getCurrentWeekId();
-        updateUrl(currentWeekId, activeTab);
+        const previousWeekDate = subWeeks(new Date(), 1);
+        const previousWeekId = getWeekIdFromDate(previousWeekDate);
+        updateUrl(previousWeekId, activeTab);
     }
   }, [user, searchParams, updateUrl, activeTab]);
 
@@ -564,7 +565,12 @@ const handleImportSpecificWeek = async () => {
                             )}
                         >
                             <CalendarIcon className="mr-2 h-4 w-4" />
-                            {selectedWeek ? `Semana: ${formatWeekIdToDateRange(selectedWeek)}` : <span>Selecciona una fecha</span>}
+                            <span>Semana: </span>
+                            {selectedWeek ? (
+                                <span className="ml-1 font-semibold">{formatWeekIdToDateRange(selectedWeek)}</span>
+                            ) : (
+                                <span>Selecciona</span>
+                            )}
                         </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">

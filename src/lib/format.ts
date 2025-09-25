@@ -1,4 +1,4 @@
-import { format, addDays, getISOWeek, getYear, startOfISOWeek, parse, addWeeks } from 'date-fns';
+import { format, addDays, getISOWeek, getYear, startOfISOWeek, parse, addWeeks, subWeeks } from 'date-fns';
 import { es } from 'date-fns/locale';
 
 export const formatCurrency = (amount: number) => {
@@ -33,7 +33,7 @@ export const getCurrentWeekId = (): string => {
 
 export const formatWeekIdToDateRange = (weekId: string): string => {
   if (!weekId || typeof weekId !== 'string' || !weekId.includes('-')) {
-    return "Selecciona una fecha";
+    return "Selecciona";
   }
 
   try {
@@ -45,8 +45,11 @@ export const formatWeekIdToDateRange = (weekId: string): string => {
       return weekId;
     }
     
-    const date = new Date(year, 0, 1 + (week - 1) * 7);
-    const monday = startOfISOWeek(date);
+    // Create a date on the first day of the year, then add weeks
+    const firstDayOfYear = new Date(year, 0, 1);
+    const firstDayOfIsoWeek = startOfISOWeek(firstDayOfYear);
+    const targetWeek = addWeeks(firstDayOfIsoWeek, week - 1);
+    const monday = startOfISOWeek(targetWeek);
     
     return format(monday, 'dd MMM', { locale: es });
   } catch (e) {

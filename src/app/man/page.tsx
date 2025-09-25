@@ -31,7 +31,7 @@ import { EditListDialog } from '@/components/dashboard/edit-list-dialog';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { formatWeekIdToDateRange, getCurrentWeekId, getWeekIdFromDate } from '@/lib/format';
-import { format } from 'date-fns';
+import { format, subWeeks } from 'date-fns';
 import semanaExportada from '@/../semana-exportada.json';
 
 
@@ -127,8 +127,9 @@ function ManPageComponent() {
 
   useEffect(() => {
     if (!searchParams.has('week') && user) {
-        const currentWeekId = getCurrentWeekId();
-        updateUrl(currentWeekId);
+        const previousWeekDate = subWeeks(new Date(), 1);
+        const previousWeekId = getWeekIdFromDate(previousWeekDate);
+        updateUrl(previousWeekId);
     }
   }, [user, searchParams, updateUrl]);
 
@@ -474,7 +475,12 @@ const handleImportSpecificWeek = async () => {
                             )}
                         >
                             <CalendarIcon className="mr-2 h-4 w-4" />
-                            {selectedWeek ? `Semana: ${formatWeekIdToDateRange(selectedWeek)}` : <span>Selecciona una fecha</span>}
+                             <span>Semana: </span>
+                             {selectedWeek ? (
+                                <span className="ml-1 font-semibold">{formatWeekIdToDateRange(selectedWeek)}</span>
+                            ) : (
+                                <span>Selecciona</span>
+                            )}
                         </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
