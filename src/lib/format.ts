@@ -1,4 +1,4 @@
-import { format, addDays, getDay, add, sub, startOfWeek, getWeek } from 'date-fns';
+import { format, addDays, getDay, add, sub, startOfWeek, getWeek, getYear } from 'date-fns';
 import { es } from 'date-fns/locale';
 
 export const formatCurrency = (amount: number) => {
@@ -46,19 +46,37 @@ export const formatWeekId = (weekId: string): string => {
   }
 
   try {
-    // Start with Jan 4th of the given year, which is always in week 1
     const firstDayOfYear = new Date(year, 0, 4);
-    const firstDayOfWeekOne = startOfWeek(firstDayOfYear, { weekStartsOn: 1, locale: es });
+    let firstDayOfWeekOne = startOfWeek(firstDayOfYear, { weekStartsOn: 1 });
+    // Handle case where week 1 starts in the previous year
+    if (getYear(firstDayOfWeekOne) < year) {
+        firstDayOfWeekOne = addDays(firstDayOfWeekOne, 7);
+    }
     
-    // Add weeks
     const targetDate = addDays(firstDayOfWeekOne, (weekNumber - 1) * 7);
     
     const startDate = startOfWeek(targetDate, { weekStartsOn: 1, locale: es });
     const endDate = addDays(startDate, 6);
-    
-    const startFormat = format(startDate, 'd MMM', { locale: es });
-    const endFormat = format(endDate, 'd MMM, yyyy', { locale: es });
-    
+
+    const startMonth = startDate.getMonth();
+    const endMonth = endDate.getMonth();
+    const startYear = startDate.getFullYear();
+    const endYear = endDate.getFullYear();
+
+    let startFormat: string;
+    let endFormat: string;
+
+    if (startYear !== endYear) {
+      startFormat = format(startDate, 'd MMM, yyyy', { locale: es });
+      endFormat = format(endDate, 'd MMM, yyyy', { locale: es });
+    } else if (startMonth !== endMonth) {
+      startFormat = format(startDate, 'd MMM', { locale: es });
+      endFormat = format(endDate, 'd MMM, yyyy', { locale: es });
+    } else {
+      startFormat = format(startDate, 'd', { locale: es });
+      endFormat = format(endDate, 'd MMM, yyyy', { locale: es });
+    }
+
     return `${startFormat} - ${endFormat}`;
 
   } catch (e) {
