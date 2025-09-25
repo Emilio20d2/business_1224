@@ -35,7 +35,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { EditListDialog } from '@/components/dashboard/edit-list-dialog';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { formatWeekId } from '@/lib/format';
+import { formatWeekIdToDateRange, getCurrentWeekId } from '@/lib/format';
 
 type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan' | 'compradorWoman' | 'zonaComercialWoman' | 'agrupacionComercialWoman' | 'compradorNino' | 'zonaComercialNino' | 'agrupacionComercialNino';
 type WeekOption = { value: string; label: string };
@@ -135,14 +135,19 @@ function ManPageComponent() {
             
             const weekOptions = weekIds.map(id => ({
                 value: id,
-                label: formatWeekId(id)
+                label: formatWeekIdToDateRange(id)
             }));
             
             setWeeks(weekOptions);
-
-            if (!searchParams.has('week') && weekOptions.length > 0) {
+            
+            let currentWeek = searchParams.get('week');
+            if (!currentWeek && weekOptions.length > 0) {
                  updateUrl(weekOptions[0].value);
+            } else if (!currentWeek && weekOptions.length === 0) {
+                const newWeekId = getCurrentWeekId();
+                updateUrl(newWeekId);
             }
+
         }).catch(error => {
             setError(`Error al cargar las semanas: ${error.message}`);
         }).finally(() => {
@@ -175,55 +180,53 @@ function ManPageComponent() {
         await setDoc(listsRef, listData);
     }
 
-    const reportSnap = await getDoc(reportRef).catch(err => {
-        setError(`Error al conectar con la base de datos: ${err.message}.`);
-        setDataLoading(false);
-        return null;
-    });
-    if (!reportSnap) return;
+    getDoc(reportRef).then(async (reportSnap) => {
+        let reportData: WeeklyData;
 
-    let reportData: WeeklyData;
-
-    if (reportSnap.exists()) {
-        reportData = reportSnap.data() as WeeklyData;
-    } else {
-        reportData = getInitialDataForWeek(weekId, listData);
-        await setDoc(reportRef, reportData);
-    }
-
-    if (!reportData.imagenesComprador) {
-      reportData.imagenesComprador = {};
-    }
-
-    reportData.listas = listData;
-
-    let needsSave = false;
-    
-    const syncAndCheck = (reportTable: VentasManItem[] | undefined, list: string[] | undefined): [VentasManItem[], boolean] => {
-        const currentNames = reportTable?.map(i => i.nombre).sort().join(',') || '';
-        const listNames = (list || []).sort().join(',');
-        if (currentNames !== listNames) {
-            return [synchronizeTableData(list || [], reportTable || []), true];
+        if (reportSnap.exists()) {
+            reportData = reportSnap.data() as WeeklyData;
+        } else {
+            reportData = getInitialDataForWeek(weekId, listData);
+            await setDoc(reportRef, reportData);
         }
-        return [reportTable || [], false];
-    };
 
-    let changed;
-    [reportData.ventasMan.pesoComprador, changed] = syncAndCheck(reportData.ventasMan.pesoComprador, listData.compradorMan);
-    if (changed) needsSave = true;
-    
-    [reportData.ventasMan.zonaComercial, changed] = syncAndCheck(reportData.ventasMan.zonaComercial, listData.zonaComercialMan);
-    if (changed) needsSave = true;
-    
-    [reportData.ventasMan.agrupacionComercial, changed] = syncAndCheck(reportData.ventasMan.agrupacionComercial, listData.agrupacionComercialMan);
-    if (changed) needsSave = true;
+        if (!reportData.imagenesComprador) {
+          reportData.imagenesComprador = {};
+        }
 
-    if (needsSave) {
-        await setDoc(reportRef, reportData, { merge: true });
-    }
-    
-    setData(reportData);
-    setDataLoading(false);
+        reportData.listas = listData;
+
+        let needsSave = false;
+        
+        const syncAndCheck = (reportTable: VentasManItem[] | undefined, list: string[] | undefined): [VentasManItem[], boolean] => {
+            const currentNames = reportTable?.map(i => i.nombre).sort().join(',') || '';
+            const listNames = (list || []).sort().join(',');
+            if (currentNames !== listNames) {
+                return [synchronizeTableData(list || [], reportTable || []), true];
+            }
+            return [reportTable || [], false];
+        };
+
+        let changed;
+        [reportData.ventasMan.pesoComprador, changed] = syncAndCheck(reportData.ventasMan.pesoComprador, listData.compradorMan);
+        if (changed) needsSave = true;
+        
+        [reportData.ventasMan.zonaComercial, changed] = syncAndCheck(reportData.ventasMan.zonaComercial, listData.zonaComercialMan);
+        if (changed) needsSave = true;
+        
+        [reportData.ventasMan.agrupacionComercial, changed] = syncAndCheck(reportData.ventasMan.agrupacionComercial, listData.agrupacionComercialMan);
+        if (changed) needsSave = true;
+
+        if (needsSave) {
+            await setDoc(reportRef, reportData, { merge: true });
+        }
+        
+        setData(reportData);
+    }).catch(err => {
+        setError(`Error al cargar el informe: ${err.message}.`);
+    }).finally(() => {
+        setDataLoading(false);
+    });
   }, [user]);
 
   useEffect(() => {
@@ -424,6 +427,15 @@ const handleImageChange = (compradorName: string, file: File, onUploadComplete: 
     );
   }
 
+   if (!data && !dataLoading && weeks.length === 0) {
+     return (
+        <div className="flex flex-col items-center justify-center min-h-screen">
+            <p>No se encontraron informes. ¿Quieres crear uno para la semana actual?</p>
+            <Button onClick={() => fetchData(getCurrentWeekId())} className="mt-4">Crear y cargar semana actual</Button>
+        </div>
+     );
+  }
+  
   if (!data) {
      return (
       <div className="flex flex-col items-center justify-center min-h-screen">

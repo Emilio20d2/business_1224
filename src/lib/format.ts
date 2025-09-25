@@ -1,4 +1,4 @@
-import { format, addDays, getDay, startOfWeek, getWeek, getYear, parse } from 'date-fns';
+import { format, addDays, getWeek, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
 
 export const formatCurrency = (amount: number) => {
@@ -22,14 +22,14 @@ export const formatGap = (value: number) => {
 }
 
 export const getCurrentWeekId = (): string => {
-    const now = new Date('2025-09-15');
-    const year = now.getFullYear();
-    const weekNumber = getWeek(now, { weekStartsOn: 1, locale: es });
+    const now = new Date('2025-09-15T12:00:00Z'); // Use a specific time in UTC
+    const year = now.getUTCFullYear();
+    // Use ISO week calculation which is more standard
+    const weekNumber = getWeek(now, { weekStartsOn: 1, firstWeekContainsDate: 4 });
     return `semana-${year}-${weekNumber}`;
 }
 
-
-export const formatWeekId = (weekId: string): string => {
+export const formatWeekIdToDateRange = (weekId: string): string => {
   if (!weekId.startsWith('semana-')) {
     return weekId;
   }
@@ -38,44 +38,34 @@ export const formatWeekId = (weekId: string): string => {
     return weekId;
   }
   const [, yearStr, weekStr] = parts;
-  
+
   try {
-    const year = parseInt(yearStr);
-    const week = parseInt(weekStr);
+    const year = parseInt(yearStr, 10);
+    const week = parseInt(weekStr, 10);
 
-    // Use parse to get a date from the year and week number.
-    // 'I' is the ISO week number. Using 'II' with weekStartsOn: 1 for `es` locale.
-    const startDate = parse(`${year}-W${week}-1`, 'Y-Ww-i', new Date(), {
-      locale: es,
-      weekStartsOn: 1,
-    });
-    
-    const endDate = addDays(startDate, 6);
-
-    const startMonth = startDate.getMonth();
-    const endMonth = endDate.getMonth();
-    const startYear = startDate.getFullYear();
-    const endYear = endDate.getFullYear();
-    
-    let startFormat: string;
-    let endFormat: string;
-
-    if (startYear !== endYear) {
-      startFormat = format(startDate, 'd MMM, yyyy', { locale: es });
-      endFormat = format(endDate, 'd MMM, yyyy', { locale: es });
-    } else if (startMonth !== endMonth) {
-      startFormat = format(startDate, 'd MMM', { locale: es });
-      endFormat = format(endDate, 'd MMM, yyyy', { locale: es });
-    } else {
-      startFormat = format(startDate, 'd', { locale: es });
-      endFormat = format(endDate, 'd MMM, yyyy', { locale: es });
+    if (isNaN(year) || isNaN(week)) {
+      return weekId;
     }
 
-    return `${startFormat} - ${endFormat}`;
+    // Create a date for the first day of the year
+    const firstDayOfYear = new Date(Date.UTC(year, 0, 1));
+    // Calculate the number of days to get to the specified week
+    const days = (week - 1) * 7;
+    // The start of the week is `days` days after the first day of the year, adjusted for the day of the week.
+    // We parse the ISO string to avoid timezone issues.
+    const date = new Date(firstDayOfYear.getTime() + days * 24 * 60 * 60 * 1000);
+    
+    // date-fns' `parse` is the most reliable way. 'Y-Ww-i' = Year-Week-DayOfWeek
+    // '1' is for Monday.
+    const startDate = parseISO(`${year}-W${String(week).padStart(2, '0')}-1`);
+    const endDate = addDays(startDate, 6);
+    
+    const startFormat = format(startDate, 'dd MMM', { locale: es });
+    const endFormat = format(endDate, 'dd MMM, yyyy', { locale: es });
 
+    return `${startFormat} - ${endFormat}`;
   } catch (e) {
-    console.error("Error formatting weekId", e);
-    // Fallback in case of error
-    return `Semana ${weekStr}, ${yearStr}`;
+    console.error("Error formatting weekId to date range:", e);
+    return weekId; // Fallback
   }
 };
