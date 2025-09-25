@@ -59,5 +59,3 @@ export const formatWeekIdToDateRange = (weekId: string): string => {
     return weekId; // Fallback
   }
 };
-
-    
