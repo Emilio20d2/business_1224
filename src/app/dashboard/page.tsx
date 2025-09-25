@@ -346,12 +346,9 @@ const handleImageChange = (compradorName: string, file: File, onUploadComplete: 
         onUploadComplete(false, '');
         return;
     }
-
     const previewUrl = URL.createObjectURL(file);
     onUploadComplete(true, previewUrl);
-
     const storageRef = ref(storage, `informes/${selectedWeek}/${file.name}-${Date.now()}`);
-
     uploadBytes(storageRef, file)
         .then(snapshot => getDownloadURL(snapshot.ref))
         .then(downloadURL => {
@@ -666,7 +663,7 @@ const handleImportSpecificWeek = async () => {
                 />
               </TabsContent>
               <TabsContent value="aqneSemanal" className="mt-0">
-                <AqneSemanalTab data={data} isEditing={isEditing} onInputChange={onInputChange} />
+                <AqneSemanalTab data={data} isEditing={isEditing} onInputChange={handleInputChange} />
               </TabsContent>
               <TabsContent value="acumulado" className="mt-0">
                 <AcumuladoTab data={data.acumulado} isEditing={isEditing} onInputChange={handleInputChange} />
