@@ -342,6 +342,21 @@ function DashboardPageComponent() {
                 day.total = (day.woman || 0) + (day.man || 0) + (day.nino || 0);
             }
         }
+
+        if (keys[0] === 'ventasMan') {
+            const tableKey = keys[1] as keyof WeeklyData['ventasMan'];
+            const itemIndex = parseInt(keys[2], 10);
+            const fieldKey = keys[3] as keyof VentasManItem;
+
+            if (
+                !isNaN(itemIndex) &&
+                updatedData.ventasMan &&
+                Array.isArray(updatedData.ventasMan[tableKey]) &&
+                updatedData.ventasMan[tableKey][itemIndex]
+            ) {
+                 (updatedData.ventasMan[tableKey] as VentasManItem[])[itemIndex][fieldKey] = value;
+            }
+        }
         
         return updatedData;
     });

@@ -276,6 +276,21 @@ function ManPageComponent() {
         
         const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
         current[finalKey] = isNaN(numericValue) || value === "" ? value : numericValue;
+
+        if (keys[0] === 'ventasMan') {
+            const tableKey = keys[1] as keyof WeeklyData['ventasMan'];
+            const itemIndex = parseInt(keys[2], 10);
+            const fieldKey = keys[3] as keyof VentasManItem;
+
+            if (
+                !isNaN(itemIndex) &&
+                updatedData.ventasMan &&
+                Array.isArray(updatedData.ventasMan[tableKey]) &&
+                updatedData.ventasMan[tableKey][itemIndex]
+            ) {
+                 (updatedData.ventasMan[tableKey] as VentasManItem[])[itemIndex][fieldKey] = value;
+            }
+        }
         
         return updatedData;
     });
