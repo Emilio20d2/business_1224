@@ -31,7 +31,7 @@ type VentasManTabProps = {
   data: WeeklyData;
   isEditing: boolean;
   onInputChange: (path: string, value: any) => void;
-  onImageChange: (compradorName: string, file: File, onUploadComplete: (success: boolean) => void) => void;
+  onImageChange: (compradorName: string, file: File, onUploadComplete: (success: boolean, previewUrl: string) => void) => void;
 };
 
 
@@ -145,19 +145,36 @@ const DataTable = ({
     );
 };
 
-const ImageImportCard = ({ selectedRow, isEditing, onImageChange, imageUrl }: { selectedRow: VentasManItem | null, isEditing: boolean, onImageChange: (file: File, onUploadComplete: (success: boolean) => void) => void, imageUrl: string | null }) => {
+const ImageImportCard = ({ selectedRow, isEditing, onImageChange, initialImageUrl }: { selectedRow: VentasManItem | null, isEditing: boolean, onImageChange: (file: File, onUploadComplete: (success: boolean, previewUrl: string) => void) => void, initialImageUrl: string | null }) => {
     const [isUploading, setIsUploading] = React.useState(false);
+    const [preview, setPreview] = React.useState<string | null>(null);
+
+    // Effect to update preview when initialImageUrl changes (e.g. on row click or data fetch)
+    React.useEffect(() => {
+        setPreview(initialImageUrl);
+        // Revoke previous blob URL if it exists to prevent memory leaks
+        return () => {
+            if (preview && preview.startsWith('blob:')) {
+                URL.revokeObjectURL(preview);
+            }
+        };
+    }, [initialImageUrl]);
 
     const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (file && selectedRow) {
             setIsUploading(true);
-            onImageChange(file, (success) => {
+            onImageChange(file, (success, previewUrl) => {
+                if (success) {
+                    setPreview(previewUrl);
+                }
                 setIsUploading(false);
             });
         }
-        event.target.value = '';
+        event.target.value = ''; // Reset file input
     };
+
+    const imageUrl = preview || initialImageUrl;
 
     return (
         <Card className="relative overflow-hidden p-0 gap-0 w-full aspect-[16/9]">
@@ -203,9 +220,9 @@ export function VentasManTab({ data, isEditing, onInputChange, onImageChange }: 
     const selectedRow = ventasMan.pesoComprador?.[selectedIndex];
     const imageUrl = selectedRow ? imagenesComprador?.[selectedRow.nombre] || null : null;
 
-    const handleImageChangeWrapper = (file: File, onUploadComplete: (success: boolean) => void) => {
+    const handleImageChangeWrapper = (file: File, onUploadComplete: (success: boolean, previewUrl: string) => void) => {
         if (!selectedRow) {
-            onUploadComplete(false);
+            onUploadComplete(false, '');
             return;
         }
         onImageChange(selectedRow.nombre, file, onUploadComplete);
@@ -250,7 +267,7 @@ export function VentasManTab({ data, isEditing, onInputChange, onImageChange }: 
                         selectedRow={selectedRow}
                         isEditing={isEditing}
                         onImageChange={handleImageChangeWrapper}
-                        imageUrl={imageUrl}
+                        initialImageUrl={imageUrl}
                     />
                </div>
             </TabsContent>

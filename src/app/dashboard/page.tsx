@@ -333,39 +333,46 @@ function DashboardPageComponent() {
     });
 };
 
- const handleImageChange = (compradorName: string, file: File, onUploadComplete: (success: boolean) => void) => {
+const handleImageChange = (compradorName: string, file: File, onUploadComplete: (success: boolean, previewUrl: string) => void) => {
     if (!data || !canEdit || !compradorName) {
-        onUploadComplete(false);
+        onUploadComplete(false, '');
         return;
     }
 
+    // Create a local URL for instant preview
+    const previewUrl = URL.createObjectURL(file);
+    onUploadComplete(true, previewUrl);
+
+    // Start upload in the background
     const storageRef = ref(storage, `informes/${selectedWeek}/${file.name}-${Date.now()}`);
 
-    uploadBytes(storageRef, file).then(snapshot => {
-        getDownloadURL(snapshot.ref).then(downloadURL => {
+    uploadBytes(storageRef, file)
+        .then(snapshot => getDownloadURL(snapshot.ref))
+        .then(downloadURL => {
             setData(prevData => {
-              if (!prevData) return null;
-              const updatedData = JSON.parse(JSON.stringify(prevData));
-              if (!updatedData.imagenesComprador) {
-                updatedData.imagenesComprador = {};
-              }
-              updatedData.imagenesComprador[compradorName] = downloadURL;
-              return updatedData;
+                if (!prevData) return null;
+                const updatedData = JSON.parse(JSON.stringify(prevData));
+                if (!updatedData.imagenesComprador) {
+                    updatedData.imagenesComprador = {};
+                }
+                updatedData.imagenesComprador[compradorName] = downloadURL;
+                return updatedData;
             });
-            onUploadComplete(true);
             toast({
-                title: "Imagen cargada",
-                description: "La imagen está lista. Haz clic en 'Guardar' para confirmar todos los cambios.",
+                title: "Imagen subida",
+                description: "La imagen se ha subido correctamente y está lista para guardar.",
             });
             if (!isEditing) {
                 setIsEditing(true);
             }
+        })
+        .catch(error => {
+            setError(`Error al subir imagen: ${error.message}`);
+            // The preview will still be shown, but the final save will fail if the URL is not updated.
+            // This is a design choice to keep the UI responsive.
         });
-    }).catch(error => {
-        setError(`Error al subir imagen: ${error.message}`);
-        onUploadComplete(false);
-    });
 };
+
 
 
   const handleSave = async () => {
@@ -374,6 +381,17 @@ function DashboardPageComponent() {
     const docRef = doc(db, "informes", selectedWeek);
     const dataToSave = JSON.parse(JSON.stringify(data));
     
+    // Clean up local blob URLs before saving
+    Object.keys(dataToSave.imagenesComprador).forEach(key => {
+        if (dataToSave.imagenesComprador[key].startsWith('blob:')) {
+           // This indicates an upload might have failed or is in progress.
+           // Decide if we save without it, or alert the user.
+           // For now, we'll prevent saving a blob url.
+           // A more robust solution might track upload status.
+           delete dataToSave.imagenesComprador[key];
+        }
+    });
+
     setDoc(docRef, dataToSave, { merge: true })
         .then(() => {
             toast({
@@ -381,6 +399,8 @@ function DashboardPageComponent() {
                 description: "Los cambios se han guardado en la base de datos.",
             });
             setIsEditing(false);
+            // Optionally, re-fetch data to ensure consistency and clean up blob URLs from state
+            fetchData(selectedWeek);
         })
         .catch(async (error: any) => {
              setError(`Error al guardar: ${error.message}`);

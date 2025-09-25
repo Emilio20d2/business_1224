@@ -283,6 +283,7 @@ function ManPageComponent() {
                 description: "Los cambios se han guardado en la base de datos.",
             });
             setIsEditing(false);
+            fetchData(selectedWeek);
         })
         .catch(async (error: any) => {
             setError(`Error al guardar: ${error.message}`);
@@ -326,38 +327,40 @@ function ManPageComponent() {
         });
 };
 
-const handleImageChange = (compradorName: string, file: File, onUploadComplete: (success: boolean) => void) => {
+const handleImageChange = (compradorName: string, file: File, onUploadComplete: (success: boolean, previewUrl: string) => void) => {
     if (!data || !canEdit || !compradorName) {
-        onUploadComplete(false);
+        onUploadComplete(false, '');
         return;
     }
 
+    const previewUrl = URL.createObjectURL(file);
+    onUploadComplete(true, previewUrl);
+
     const storageRef = ref(storage, `informes/${selectedWeek}/${file.name}-${Date.now()}`);
 
-    uploadBytes(storageRef, file).then(snapshot => {
-        getDownloadURL(snapshot.ref).then(downloadURL => {
-             setData(prevData => {
-              if (!prevData) return null;
-              const updatedData = JSON.parse(JSON.stringify(prevData));
-              if (!updatedData.imagenesComprador) {
-                  updatedData.imagenesComprador = {};
-              }
-              updatedData.imagenesComprador[compradorName] = downloadURL;
-              return updatedData;
+    uploadBytes(storageRef, file)
+        .then(snapshot => getDownloadURL(snapshot.ref))
+        .then(downloadURL => {
+            setData(prevData => {
+                if (!prevData) return null;
+                const updatedData = JSON.parse(JSON.stringify(prevData));
+                if (!updatedData.imagenesComprador) {
+                    updatedData.imagenesComprador = {};
+                }
+                updatedData.imagenesComprador[compradorName] = downloadURL;
+                return updatedData;
             });
-            onUploadComplete(true);
             toast({
-                title: "Imagen cargada",
-                description: "La imagen está lista. Haz clic en 'Guardar' para confirmar todos los cambios.",
+                title: "Imagen subida",
+                description: "La imagen se ha subido y está lista para guardar.",
             });
             if (!isEditing) {
                 setIsEditing(true);
             }
+        })
+        .catch(error => {
+            setError(`Error al subir imagen: ${error.message}`);
         });
-    }).catch(error => {
-        setError(`Error al subir imagen: ${error.message}`);
-        onUploadComplete(false);
-    });
 };
 
  const handleExportJson = () => {
