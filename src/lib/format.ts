@@ -1,4 +1,4 @@
-import { format, addDays, parse, isValid, startOfWeek, getYear } from 'date-fns';
+import { format, addDays, parseISO, isValid, getWeek, getYear, startOfISOWeek } from 'date-fns';
 import { es } from 'date-fns/locale';
 
 export const formatCurrency = (amount: number) => {
@@ -22,9 +22,11 @@ export const formatGap = (value: number) => {
 }
 
 export const getCurrentWeekId = (): string => {
-    const today = new Date('2025-09-15T12:00:00'); // Using a fixed date for consistency
-    const monday = startOfWeek(today, { weekStartsOn: 1 });
-    return `semana-${format(monday, 'd-M-yy')}`;
+    // Using a fixed date for consistency, based on ISO week 38 for 2025
+    const today = new Date('2025-09-15T12:00:00'); 
+    const year = getYear(today);
+    const weekNumber = getWeek(today, { weekStartsOn: 1, firstWeekContainsDate: 4 });
+    return `semana-${year}-${weekNumber}`;
 }
 
 export const formatWeekIdToDateRange = (weekId: string): string => {
@@ -33,44 +35,32 @@ export const formatWeekIdToDateRange = (weekId: string): string => {
   }
   
   const parts = weekId.substring(7).split('-');
-  let startDate: Date;
+  
+  // Handles ISO week format: semana-YYYY-WW
+  if (parts.length === 2) {
+    const year = parseInt(parts[0], 10);
+    const weekNumber = parseInt(parts[1], 10);
 
-  try {
-    if (parts.length === 2) { // Formato AÑO-WW, ej: "2025-38"
-      const year = parseInt(parts[0], 10);
-      const weekNumber = parseInt(parts[1], 10);
-      if (isNaN(year) || isNaN(weekNumber)) throw new Error("Invalid year or week number");
+    if (isNaN(year) || isNaN(weekNumber)) return weekId;
+
+    try {
+      // Create a date on that year, then find the start of that ISO week.
+      const tempDate = new Date(year, 0, 1 + (weekNumber - 1) * 7);
+      const startDate = startOfISOWeek(tempDate);
       
-      // Crea una fecha en ese año y luego encuentra el inicio de la semana ISO
-      const janFirst = new Date(year, 0, 1);
-      const firstMonday = startOfWeek(janFirst, { weekStartsOn: 1 });
-      startDate = addDays(firstMonday, (weekNumber - 1) * 7);
+      if (!isValid(startDate)) return weekId;
 
-      // Ajuste por si el 1 de enero no es lunes
-      if (getYear(startDate) > year || (weekNumber === 1 && getYear(startDate) < year)) {
-         startDate = addDays(startDate, 7);
-      }
+      const endDate = addDays(startDate, 6);
+      
+      const startFormat = format(startDate, 'dd MMM', { locale: es });
+      const endFormat = format(endDate, 'dd MMM, yyyy', { locale: es });
 
-
-    } else if (parts.length === 3) { // Formato D-M-YY, ej: "15-9-25"
-      startDate = parse(weekId.substring(7), 'd-M-yy', new Date());
-    } else {
-      return weekId; // Formato no reconocido
+      return `${startFormat} - ${endFormat}`;
+    } catch (e) {
+      console.error("Error parsing ISO weekId:", weekId, e);
+      return weekId; // Fallback
     }
-
-    if (!isValid(startDate)) {
-      console.error("Invalid date parsed from weekId:", weekId);
-      return weekId;
-    }
-
-    const endDate = addDays(startDate, 6);
-    
-    const startFormat = format(startDate, 'dd MMM', { locale: es });
-    const endFormat = format(endDate, 'dd MMM, yyyy', { locale: es });
-
-    return `${startFormat} - ${endFormat}`;
-  } catch (e) {
-    console.error("Error parsing weekId to date range:", e, weekId);
-    return weekId; // Fallback
   }
+
+  return weekId; // Fallback for any other format
 };
