@@ -179,7 +179,9 @@ function DashboardPageComponent() {
         }
 
         let reportData: WeeklyData;
-        if (!reportSnap.exists()) {
+        if (weekId === '2025-38' && !reportSnap.exists()) {
+            reportData = semanaExportada as WeeklyData;
+        } else if (!reportSnap.exists()) {
              if (canEdit) {
                 toast({
                     title: "Creando nueva semana",
@@ -242,7 +244,8 @@ function DashboardPageComponent() {
     } else if (!authLoading && user && !selectedWeek) {
        setDataLoading(false);
         if(canEdit) {
-            const newWeekId = getCurrentWeekId();
+            const previousWeekDate = subWeeks(new Date(), 1);
+            const newWeekId = getWeekIdFromDate(previousWeekDate);
             updateUrl(newWeekId, activeTab);
         } else {
             setError("No hay informes disponibles. Contacta al administrador.");

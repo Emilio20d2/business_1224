@@ -123,7 +123,11 @@ function ManPageComponent() {
   const handleTabChange = (newTab: string) => {
     const config = tabConfig[newTab];
     if (config?.path) {
-        router.push(`${config.path}?week=${selectedWeek}&tab=${newTab}`);
+        if(config.path === '/dashboard') {
+            router.push(`${config.path}?week=${selectedWeek}&tab=${newTab}`);
+        } else {
+            router.push(`${config.path}?week=${selectedWeek}`);
+        }
     }
   };
 
@@ -169,7 +173,9 @@ function ManPageComponent() {
         }
 
         let reportData: WeeklyData;
-        if (!reportSnap.exists()) {
+        if (weekId === '2025-38' && !reportSnap.exists()) {
+            reportData = semanaExportada as WeeklyData;
+        } else if (!reportSnap.exists()) {
              if (canEdit) {
                 toast({
                     title: "Creando nueva semana",
@@ -232,7 +238,8 @@ function ManPageComponent() {
     } else if (!authLoading && user && !selectedWeek) {
       setDataLoading(false);
         if(canEdit) {
-            const newWeekId = getCurrentWeekId();
+            const previousWeekDate = subWeeks(new Date(), 1);
+            const newWeekId = getWeekIdFromDate(previousWeekDate);
             updateUrl(newWeekId);
         } else {
             setError("No hay informes disponibles. Contacta al administrador.");
