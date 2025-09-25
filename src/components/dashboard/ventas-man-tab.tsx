@@ -92,8 +92,8 @@ const DataTable = ({
                         </TableHead>
                         <TableHead className='text-right'><Percent className="h-4 w-4 text-primary inline-block" /></TableHead>
                         <TableHead className='text-right'><Euro className="h-4 w-4 text-primary inline-block" /></TableHead>
-                        <TableHead className='text-right font-bold text-primary'>S-1</TableHead>
                         <TableHead className='text-right'><TrendingUp className="h-4 w-4 text-primary inline-block" /></TableHead>
+                        <TableHead className='text-right font-bold text-primary'>Var% S-1</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -216,7 +216,7 @@ export function VentasManTab({ data, isEditing, onInputChange, onImageChange }: 
 
     const { ventasMan, listas, imagenesComprador } = data;
     const selectedRow = ventasMan.pesoComprador?.[selectedIndex];
-    const imageUrl = selectedRow ? imagenesComprador?.[selectedRow.nombre] || null : null;
+    const imageUrl = selectedRow ? (imagenesComprador?.[selectedRow.nombre] || selectedRow.imageUrl) : null;
 
     const handleImageChangeWrapper = (file: File, onUploadComplete: (success: boolean, previewUrl: string) => void) => {
         if (!selectedRow) {
