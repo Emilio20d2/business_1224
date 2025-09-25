@@ -35,30 +35,25 @@ export const formatWeekIdToDateRange = (weekId: string): string => {
   if (!weekId || typeof weekId !== 'string' || !weekId.includes('-')) {
     return `Semana: ${weekId}`;
   }
-
-  const parts = weekId.split('-');
   
-  if (parts.length === 2) {
-    const year = parseInt(parts[0], 10);
-    const weekNumber = parseInt(parts[1], 10);
+  const parts = weekId.split('-');
+  const year = parseInt(parts[0], 10);
+  const weekNumber = parseInt(parts[1], 10);
 
-    if (!isNaN(year) && !isNaN(weekNumber)) {
-      try {
-        const firstDayOfYear = new Date(year, 0, 1);
-        const daysOffset = (weekNumber - 1) * 7;
-        const tempDate = addDays(firstDayOfYear, daysOffset);
-        
-        const startDate = startOfISOWeek(tempDate);
-        const endDate = addDays(startDate, 6);
-        
-        const startFormat = format(startDate, 'dd MMM', { locale: es });
-        const endFormat = format(endDate, 'dd MMM, yyyy', { locale: es });
-
-        return `${startFormat} - ${endFormat}`;
-      } catch (e) {
-        console.error("Error parsing ISO weekId:", weekId, e);
-        return `Semana: ${weekId}`;
-      }
+  if (!isNaN(year) && !isNaN(weekNumber)) {
+    try {
+      // Create a date for the first day of the year
+      const firstDayOfYear = new Date(year, 0, 1);
+      // Calculate the number of days to offset from the start of the year.
+      // We add 1 because ISO weeks can start in the previous year.
+      const daysOffset = (weekNumber - 1) * 7 + 1;
+      const tempDate = addDays(firstDayOfYear, daysOffset);
+      const startDate = startOfISOWeek(tempDate);
+      
+      return `Semana ${format(startDate, 'dd MMM', { locale: es })}`;
+    } catch (e) {
+      console.error("Error parsing ISO weekId:", weekId, e);
+      return `Semana: ${weekId}`; // Fallback
     }
   }
 
