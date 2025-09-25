@@ -40,7 +40,7 @@ import { EditListDialog } from '@/components/dashboard/edit-list-dialog';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { VentasManTab } from '@/components/dashboard/ventas-man-tab';
-import { formatWeekIdToDateRange } from '@/lib/format';
+import { formatWeekIdToDateRange, getCurrentWeekId } from '@/lib/format';
 
 
 type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan' | 'compradorWoman' | 'zonaComercialWoman' | 'agrupacionComercialWoman' | 'compradorNino' | 'zonaComercialNino' | 'agrupacionComercialNino';
@@ -145,7 +145,7 @@ function DashboardPageComponent() {
             
             const weekOptions = weekIds.map(id => ({
                 value: id,
-                label: formatWeekIdToDateRange(id)
+                label: id
             }));
             
             setWeeks(weekOptions);
@@ -233,7 +233,7 @@ function DashboardPageComponent() {
         }
         
         setData(reportData);
-    } catch (err: any) {
+    } catch (err: any) => {
         setError(`Error al cargar el informe: ${err.message}.`);
         setData(null);
     } finally {
@@ -249,7 +249,7 @@ function DashboardPageComponent() {
     } else if (!authLoading && user && !selectedWeek && !weeksLoading && weeks.length === 0) {
        setDataLoading(false);
         if(canEdit) {
-            const newWeekId = `semana-15-9-25`;
+            const newWeekId = getCurrentWeekId();
             updateUrl(newWeekId, activeTab);
         } else {
             setError("No hay informes disponibles. Contacta al administrador.");
@@ -563,8 +563,8 @@ function DashboardPageComponent() {
 
             <div className="flex items-center gap-2">
               <Select value={selectedWeek} onValueChange={handleWeekChange}>
-                <SelectTrigger id="semana-select" className="w-[220px]">
-                   <SelectValue placeholder={weeksLoading ? "Cargando..." : "Seleccionar semana"} />
+                <SelectTrigger id="semana-select" className="w-[150px]">
+                   <SelectValue placeholder={weeksLoading ? "Cargando..." : "Seleccionar"} />
                 </SelectTrigger>
                 <SelectContent>
                   {weeks.map(week => (
@@ -572,6 +572,7 @@ function DashboardPageComponent() {
                   ))}
                 </SelectContent>
               </Select>
+              {selectedWeek && <span className="hidden sm:block text-sm text-muted-foreground font-medium">{formatWeekIdToDateRange(selectedWeek)}</span>}
             </div>
              <div className="flex items-center gap-2">
               {canEdit && (

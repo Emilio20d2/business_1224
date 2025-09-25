@@ -35,7 +35,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { EditListDialog } from '@/components/dashboard/edit-list-dialog';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { formatWeekIdToDateRange } from '@/lib/format';
+import { formatWeekIdToDateRange, getCurrentWeekId } from '@/lib/format';
 
 type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan' | 'compradorWoman' | 'zonaComercialWoman' | 'agrupacionComercialWoman' | 'compradorNino' | 'zonaComercialNino' | 'agrupacionComercialNino';
 type WeekOption = { value: string; label: string };
@@ -119,7 +119,7 @@ function ManPageComponent() {
   const handleTabChange = (newTab: string) => {
     const config = tabConfig[newTab];
     if (config?.path) {
-        router.push(`${config.path}?week=${selectedWeek}`);
+        router.push(`${config.path}?week=${selectedWeek}&tab=${newTab}`);
     }
   };
 
@@ -136,7 +136,7 @@ function ManPageComponent() {
             
             const weekOptions = weekIds.map(id => ({
                 value: id,
-                label: formatWeekIdToDateRange(id)
+                label: id
             }));
             
             setWeeks(weekOptions);
@@ -239,7 +239,7 @@ function ManPageComponent() {
     } else if (!authLoading && user && !selectedWeek && !weeksLoading && weeks.length === 0) {
       setDataLoading(false);
         if(canEdit) {
-            const newWeekId = `semana-15-9-25`;
+            const newWeekId = getCurrentWeekId();
             updateUrl(newWeekId);
         } else {
             setError("No hay informes disponibles. Contacta al administrador.");
@@ -498,8 +498,8 @@ const handleImageChange = (compradorName: string, file: File, onUploadComplete: 
 
             <div className="flex items-center gap-2">
               <Select value={selectedWeek} onValueChange={handleWeekChange}>
-                <SelectTrigger id="semana-select" className="w-[220px]">
-                  <SelectValue placeholder={weeksLoading ? "Cargando..." : "Seleccionar semana"} />
+                <SelectTrigger id="semana-select" className="w-[150px]">
+                  <SelectValue placeholder={weeksLoading ? "Cargando..." : "Seleccionar"} />
                 </SelectTrigger>
                 <SelectContent>
                   {weeks.map(week => (
@@ -507,6 +507,7 @@ const handleImageChange = (compradorName: string, file: File, onUploadComplete: 
                   ))}
                 </SelectContent>
               </Select>
+               {selectedWeek && <span className="hidden sm:block text-sm text-muted-foreground font-medium">{formatWeekIdToDateRange(selectedWeek)}</span>}
             </div>
              <div className="flex items-center gap-2">
               {canEdit && (

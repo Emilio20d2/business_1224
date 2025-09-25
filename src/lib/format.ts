@@ -1,5 +1,4 @@
-
-import { format, addDays, parse, isValid } from 'date-fns';
+import { format, addDays, parse, isValid, startOfWeek } from 'date-fns';
 import { es } from 'date-fns/locale';
 
 export const formatCurrency = (amount: number) => {
@@ -22,16 +21,22 @@ export const formatGap = (value: number) => {
     return `${sign}${formattedValue}`;
 }
 
+export const getCurrentWeekId = (): string => {
+    const today = new Date('2025-09-15T12:00:00'); // Using a fixed date for consistency
+    const monday = startOfWeek(today, { weekStartsOn: 1 });
+    return `semana-${format(monday, 'd-M-yy')}`;
+}
+
 export const formatWeekIdToDateRange = (weekId: string): string => {
-  if (!weekId.startsWith('semana-')) {
+  if (!weekId.startsWith('semana-') || !weekId.includes('-')) {
     return weekId;
   }
+  
   const datePart = weekId.substring(7);
   
   // Check if the date part is in the expected d-M-yy format
   const parts = datePart.split('-');
   if (parts.length !== 3) {
-    console.warn(`Unsupported weekId format: ${weekId}. Displaying as is.`);
     return weekId;
   }
 
@@ -54,3 +59,5 @@ export const formatWeekIdToDateRange = (weekId: string): string => {
     return weekId; // Fallback
   }
 };
+
+    
