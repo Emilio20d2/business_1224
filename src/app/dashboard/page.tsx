@@ -173,77 +173,66 @@ function DashboardPageComponent() {
     if (!user || !weekId) return;
     setDataLoading(true);
     setError(null);
-    try {
-        const reportRef = doc(db, "informes", weekId);
-        const listsRef = doc(db, "configuracion", "listas");
 
-        // 1. Fetch lists first, it's the source of truth for structure
-        let listData: WeeklyData['listas'];
+    const reportRef = doc(db, "informes", weekId);
+    const listsRef = doc(db, "configuracion", "listas");
+
+    try {
         const listsSnap = await getDoc(listsRef);
-        if (listsSnap.exists() && listsSnap.data()) {
+        let listData: WeeklyData['listas'];
+
+        if (listsSnap.exists()) {
             listData = listsSnap.data() as WeeklyData['listas'];
         } else {
-            // If lists don't exist, create them with the full initial data
             listData = getInitialLists();
             await setDoc(listsRef, listData);
         }
 
-        // 2. Fetch the weekly report
-        let reportData: WeeklyData;
         const reportSnap = await getDoc(reportRef);
+        let reportData: WeeklyData;
 
         if (reportSnap.exists()) {
             reportData = reportSnap.data() as WeeklyData;
         } else {
-            // If it doesn't exist, create a fresh one from scratch using the lists
             reportData = getInitialDataForWeek(weekId, listData);
             await setDoc(reportRef, reportData);
         }
-        
+
         if (!reportData.imagenesComprador) {
           reportData.imagenesComprador = {};
         }
 
-        // 3. ALWAYS ensure the report data uses the LATEST lists
         reportData.listas = listData;
 
-        // 4. Synchronize tables in the report with the latest lists
         let needsSave = false;
         
-        const currentManCompradorNames = reportData.ventasMan?.pesoComprador?.map(i => i.nombre).sort().join(',') || '';
-        const listManCompradorNames = (listData.compradorMan || []).sort().join(',');
+        const syncAndCheck = (reportTable: VentasManItem[] | undefined, list: string[] | undefined): [VentasManItem[], boolean] => {
+            const currentNames = reportTable?.map(i => i.nombre).sort().join(',') || '';
+            const listNames = (list || []).sort().join(',');
+            if (currentNames !== listNames) {
+                return [synchronizeTableData(list || [], reportTable || []), true];
+            }
+            return [reportTable || [], false];
+        };
 
-        if(currentManCompradorNames !== listManCompradorNames) {
-            reportData.ventasMan.pesoComprador = synchronizeTableData(listData.compradorMan, reportData.ventasMan.pesoComprador);
-            needsSave = true;
-        }
-
-        const currentZonaComercialNames = reportData.ventasMan?.zonaComercial?.map(i => i.nombre).sort().join(',') || '';
-        const listZonaComercialNames = (listData.zonaComercialMan || []).sort().join(',');
-
-         if(currentZonaComercialNames !== listZonaComercialNames) {
-            reportData.ventasMan.zonaComercial = synchronizeTableData(listData.zonaComercialMan, reportData.ventasMan.zonaComercial);
-            needsSave = true;
-        }
+        let changed;
+        [reportData.ventasMan.pesoComprador, changed] = syncAndCheck(reportData.ventasMan.pesoComprador, listData.compradorMan);
+        if (changed) needsSave = true;
         
-        const currentAgrupacionComercialNames = reportData.ventasMan?.agrupacionComercial?.map(i => i.nombre).sort().join(',') || '';
-        const listAgrupacionComercialNames = (listData.agrupacionComercialMan || []).sort().join(',');
-
-         if(currentAgrupacionComercialNames !== listAgrupacionComercialNames) {
-            reportData.ventasMan.agrupacionComercial = synchronizeTableData(listData.agrupacionComercialMan, reportData.ventasMan.agrupacionComercial);
-            needsSave = true;
-        }
+        [reportData.ventasMan.zonaComercial, changed] = syncAndCheck(reportData.ventasMan.zonaComercial, listData.zonaComercialMan);
+        if (changed) needsSave = true;
+        
+        [reportData.ventasMan.agrupacionComercial, changed] = syncAndCheck(reportData.ventasMan.agrupacionComercial, listData.agrupacionComercialMan);
+        if (changed) needsSave = true;
 
         if (needsSave) {
             await setDoc(reportRef, reportData, { merge: true });
         }
         
-        // 5. Set final, correct data to state
         setData(reportData);
-
     } catch (err: any) {
-        console.error("Error fetching or setting Firestore document:", err);
-        setError(`Error al conectar con la base de datos: ${err.message}. Verifica las reglas de seguridad de Firestore y la conexión a internet.`);
+        console.error("Error fetching data:", err);
+        setError(`Error al conectar con la base de datos: ${err.message}.`);
         toast({
             variant: "destructive",
             title: "Error de Conexión",
@@ -269,7 +258,6 @@ function DashboardPageComponent() {
     setData(prevData => {
         if (!prevData) return null;
 
-        // Create a deep copy to prevent state mutation issues
         const updatedData = JSON.parse(JSON.stringify(prevData));
         
         let current: any = updatedData;
@@ -287,7 +275,6 @@ function DashboardPageComponent() {
         const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
         current[finalKey] = isNaN(numericValue) || value === "" ? value : numericValue;
         
-        // --- Recalculation Logic ---
         const [mainKey, sectionKey, subKey, index, field] = keys;
         
          if (mainKey === 'datosPorSeccion' || mainKey === 'aqneSemanal') {
@@ -304,13 +291,11 @@ function DashboardPageComponent() {
         if (mainKey === 'datosPorSeccion') {
             const { man, woman, nino } = updatedData.datosPorSeccion;
             
-            // Recalculate ventas.totalUnidades from datosPorSeccion totals
             const totalUnidades = (man?.metricasPrincipales.totalUnidades || 0) +
                                 (woman?.metricasPrincipales.totalUnidades || 0) +
                                 (nino?.metricasPrincipales.totalUnidades || 0);
             updatedData.ventas.totalUnidades = totalUnidades;
             
-            // Recalculate ventas.totalEuros from datosPorSeccion totals
             const totalEuros = (man?.metricasPrincipales.totalEuros || 0) +
                                 (woman?.metricasPrincipales.totalEuros || 0) +
                                 (nino?.metricasPrincipales.totalEuros || 0);
@@ -345,6 +330,7 @@ function DashboardPageComponent() {
 
         if (keys[0] === 'ventasMan') {
             const tableKey = keys[1] as keyof WeeklyData['ventasMan'];
+            if (!updatedData.ventasMan[tableKey]) updatedData.ventasMan[tableKey] = [];
             const itemIndex = parseInt(keys[2], 10);
             const fieldKey = keys[3] as keyof VentasManItem;
 
@@ -405,25 +391,28 @@ function DashboardPageComponent() {
   const handleSave = async () => {
     if (!data) return;
     setIsSaving(true);
-    try {
-      const docRef = doc(db, "informes", selectedWeek);
-      const dataToSave = JSON.parse(JSON.stringify(data));
-      await setDoc(docRef, dataToSave, { merge: true });
-      toast({
-        title: "¡Guardado!",
-        description: "Los cambios se han guardado en la base de datos.",
-      });
-      setIsEditing(false);
-    } catch (error: any) {
-      console.error("Error saving document: ", error);
-      toast({
-        variant: "destructive",
-        title: "Error al guardar",
-        description: `No se pudieron guardar los cambios. ${error.message}`,
-      });
-    } finally {
-      setIsSaving(false);
-    }
+    const docRef = doc(db, "informes", selectedWeek);
+    const dataToSave = JSON.parse(JSON.stringify(data));
+    
+    setDoc(docRef, dataToSave, { merge: true })
+        .then(() => {
+            toast({
+                title: "¡Guardado!",
+                description: "Los cambios se han guardado en la base de datos.",
+            });
+            setIsEditing(false);
+        })
+        .catch(async (error: any) => {
+            console.error("Error saving document: ", error);
+            toast({
+                variant: "destructive",
+                title: "Error al guardar",
+                description: `No se pudieron guardar los cambios. ${error.message}`,
+            });
+        })
+        .finally(() => {
+            setIsSaving(false);
+        });
   };
   
   const handleCancel = () => {
@@ -440,30 +429,29 @@ function DashboardPageComponent() {
  const handleSaveList = async (listKey: EditableList, newItems: string[]) => {
     if (!listKey || !canEdit) return;
     setIsSaving(true);
-    try {
-        const listsRef = doc(db, "configuracion", "listas");
-        await updateDoc(listsRef, { [listKey]: newItems });
+    const listsRef = doc(db, "configuracion", "listas");
 
-        toast({
-            title: "Lista actualizada",
-            description: `La lista "${listLabels[listKey]}" se ha guardado.`,
+    updateDoc(listsRef, { [listKey]: newItems })
+        .then(() => {
+            toast({
+                title: "Lista actualizada",
+                description: `La lista "${listLabels[listKey]}" se ha guardado.`,
+            });
+            setListDialogOpen(false);
+            setListToEdit(null);
+            return fetchData(selectedWeek);
+        })
+        .catch(async (error: any) => {
+            console.error("Error saving list:", error);
+            toast({
+                variant: "destructive",
+                title: "Error al guardar la lista",
+                description: `No se pudo guardar la lista. ${error.message}`,
+            });
+        })
+        .finally(() => {
+            setIsSaving(false);
         });
-        
-        setListDialogOpen(false);
-        setListToEdit(null);
-        // Fetch data again to reflect the list changes in the current view immediately
-        await fetchData(selectedWeek);
-
-    } catch (error: any) {
-        console.error("Error saving list:", error);
-        toast({
-            variant: "destructive",
-            title: "Error al guardar la lista",
-            description: `No se pudo guardar la lista. ${error.message}`,
-        });
-    } finally {
-        setIsSaving(false);
-    }
 };
 
  const handleExportJson = () => {
