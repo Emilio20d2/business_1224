@@ -28,6 +28,13 @@ export const formatWeekIdToDateRange = (weekId: string): string => {
   }
   const datePart = weekId.substring(7);
   
+  // Check if the date part is in the expected d-M-yy format
+  const parts = datePart.split('-');
+  if (parts.length !== 3) {
+    console.warn(`Unsupported weekId format: ${weekId}. Displaying as is.`);
+    return weekId;
+  }
+
   try {
     const startDate = parse(datePart, 'd-M-yy', new Date());
     
