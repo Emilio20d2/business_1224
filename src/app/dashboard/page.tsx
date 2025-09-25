@@ -412,11 +412,15 @@ const handleImageChange = (compradorName: string, file: File, onUploadComplete: 
     const dataToSave = JSON.parse(JSON.stringify(data));
     
     // Clean up local blob URLs before saving
-    Object.keys(dataToSave.imagenesComprador).forEach(key => {
-        if (dataToSave.imagenesComprador[key].startsWith('blob:')) {
-           delete dataToSave.imagenesComprador[key];
-        }
-    });
+    if (dataToSave.imagenesComprador) {
+        Object.keys(dataToSave.imagenesComprador).forEach(key => {
+            if (dataToSave.imagenesComprador[key].startsWith('blob:')) {
+               // This was a preview, don't save it if the real URL isn't there
+               // Or find the real URL from a temporary mapping if you have one
+               delete dataToSave.imagenesComprador[key];
+            }
+        });
+    }
 
     setDoc(docRef, dataToSave, { merge: true })
         .then(() => {

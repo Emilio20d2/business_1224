@@ -297,6 +297,17 @@ function ManPageComponent() {
     const docRef = doc(db, "informes", selectedWeek);
     const dataToSave = JSON.parse(JSON.stringify(data));
     
+    // Clean up local blob URLs before saving
+    if (dataToSave.imagenesComprador) {
+        Object.keys(dataToSave.imagenesComprador).forEach(key => {
+            if (dataToSave.imagenesComprador[key].startsWith('blob:')) {
+               // This was a preview, don't save it if the real URL isn't there
+               // Or find the real URL from a temporary mapping if you have one
+               delete dataToSave.imagenesComprador[key];
+            }
+        });
+    }
+    
     setDoc(docRef, dataToSave, { merge: true })
         .then(() => {
             toast({
@@ -355,6 +366,17 @@ const handleImageChange = (compradorName: string, file: File, onUploadComplete: 
     }
 
     const previewUrl = URL.createObjectURL(file);
+    // Immediately update UI with local blob URL
+    setData(prevData => {
+        if (!prevData) return null;
+        const updatedData = JSON.parse(JSON.stringify(prevData));
+        if (!updatedData.imagenesComprador) {
+            updatedData.imagenesComprador = {};
+        }
+        updatedData.imagenesComprador[compradorName] = previewUrl;
+        return updatedData;
+    });
+
     onUploadComplete(true, previewUrl);
 
     const storageRef = ref(storage, `informes/${selectedWeek}/${file.name}-${Date.now()}`);
