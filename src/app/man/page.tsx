@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/select";
 import { VentasManTab } from '@/components/dashboard/ventas-man-tab';
 import { Button } from '@/components/ui/button';
-import { Settings, LogOut, Loader2, ChevronDown, Briefcase, List, LayoutDashboard, ShoppingBag, AreaChart, User as UserIcon, Pencil, Download } from 'lucide-react';
+import { Settings, LogOut, Loader2, ChevronDown, Briefcase, List, LayoutDashboard, ShoppingBag, AreaChart, User as UserIcon, Pencil, Download, Plus } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -140,14 +140,13 @@ function ManPageComponent() {
             
             setWeeks(weekOptions);
             
-            let currentWeek = searchParams.get('week');
-            if (!currentWeek && weekOptions.length > 0) {
-                 updateUrl(weekOptions[0].value);
-            } else if (!currentWeek && weekOptions.length === 0) {
-                const newWeekId = getCurrentWeekId();
-                updateUrl(newWeekId);
+            if (!searchParams.has('week')) {
+                 if (weekOptions.length > 0) {
+                     updateUrl(weekOptions[0].value);
+                 } else {
+                     updateUrl(getCurrentWeekId());
+                 }
             }
-
         }).catch(error => {
             setError(`Error al cargar las semanas: ${error.message}`);
         }).finally(() => {

@@ -16,7 +16,7 @@ import { DatosSemanalesTab } from "@/components/dashboard/datos-semanales-tab";
 import { AqneSemanalTab } from "@/components/dashboard/aqne-semanal-tab";
 import { AcumuladoTab } from "@/components/dashboard/acumulado-tab";
 import { Button } from '@/components/ui/button';
-import { Settings, LogOut, Loader2, ChevronDown, Briefcase, List, LayoutDashboard, ShoppingBag, AreaChart, User as UserIcon, Pencil, Download } from 'lucide-react';
+import { Settings, LogOut, Loader2, ChevronDown, Briefcase, List, LayoutDashboard, ShoppingBag, AreaChart, User as UserIcon, Pencil, Download, Plus } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -40,7 +40,7 @@ import { EditListDialog } from '@/components/dashboard/edit-list-dialog';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { VentasManTab } from '@/components/dashboard/ventas-man-tab';
-import { formatWeekIdToDateRange } from '@/lib/format';
+import { formatWeekIdToDateRange, getCurrentWeekId } from '@/lib/format';
 
 
 type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan' | 'compradorWoman' | 'zonaComercialWoman' | 'agrupacionComercialWoman' | 'compradorNino' | 'zonaComercialNino' | 'agrupacionComercialNino';
@@ -149,8 +149,12 @@ function DashboardPageComponent() {
             
             setWeeks(weekOptions);
 
-            if (!searchParams.has('week') && weekOptions.length > 0) {
-                 updateUrl(weekOptions[0].value, activeTab);
+            if (!searchParams.has('week')) {
+                 if (weekOptions.length > 0) {
+                     updateUrl(weekOptions[0].value, activeTab);
+                 } else {
+                     updateUrl(getCurrentWeekId(), activeTab);
+                 }
             }
         }).catch(error => {
             setError(`Error al cargar las semanas: ${error.message}`);

@@ -1,4 +1,4 @@
-import { format, addDays, getWeek, parseISO } from 'date-fns';
+import { format, addDays, getWeek, parse, startOfWeek } from 'date-fns';
 import { es } from 'date-fns/locale';
 
 export const formatCurrency = (amount: number) => {
@@ -22,42 +22,19 @@ export const formatGap = (value: number) => {
 }
 
 export const getCurrentWeekId = (): string => {
-    const now = new Date('2025-09-15T12:00:00Z'); // Use a specific time in UTC
-    const year = now.getUTCFullYear();
-    // Use ISO week calculation which is more standard
-    const weekNumber = getWeek(now, { weekStartsOn: 1, firstWeekContainsDate: 4 });
-    return `semana-${year}-${weekNumber}`;
+    const now = new Date('2025-09-15T12:00:00Z');
+    const monday = startOfWeek(now, { weekStartsOn: 1 });
+    return `semana-${format(monday, 'd-M-yy')}`;
 }
 
 export const formatWeekIdToDateRange = (weekId: string): string => {
   if (!weekId.startsWith('semana-')) {
     return weekId;
   }
-  const parts = weekId.split('-');
-  if (parts.length !== 3) {
-    return weekId;
-  }
-  const [, yearStr, weekStr] = parts;
-
+  const datePart = weekId.substring(7); // remove "semana-"
+  
   try {
-    const year = parseInt(yearStr, 10);
-    const week = parseInt(weekStr, 10);
-
-    if (isNaN(year) || isNaN(week)) {
-      return weekId;
-    }
-
-    // Create a date for the first day of the year
-    const firstDayOfYear = new Date(Date.UTC(year, 0, 1));
-    // Calculate the number of days to get to the specified week
-    const days = (week - 1) * 7;
-    // The start of the week is `days` days after the first day of the year, adjusted for the day of the week.
-    // We parse the ISO string to avoid timezone issues.
-    const date = new Date(firstDayOfYear.getTime() + days * 24 * 60 * 60 * 1000);
-    
-    // date-fns' `parse` is the most reliable way. 'Y-Ww-i' = Year-Week-DayOfWeek
-    // '1' is for Monday.
-    const startDate = parseISO(`${year}-W${String(week).padStart(2, '0')}-1`);
+    const startDate = parse(datePart, 'd-M-yy', new Date());
     const endDate = addDays(startDate, 6);
     
     const startFormat = format(startDate, 'dd MMM', { locale: es });
@@ -65,7 +42,7 @@ export const formatWeekIdToDateRange = (weekId: string): string => {
 
     return `${startFormat} - ${endFormat}`;
   } catch (e) {
-    console.error("Error formatting weekId to date range:", e);
+    console.error("Error parsing weekId to date range:", e);
     return weekId; // Fallback
   }
 };
