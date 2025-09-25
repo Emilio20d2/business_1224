@@ -36,21 +36,21 @@ export const formatWeekIdToDateRange = (weekId: string): string => {
     return "Selecciona una fecha";
   }
 
-  const [yearStr, weekStr] = weekId.split('-');
-  const year = parseInt(yearStr, 10);
-  const weekNumber = parseInt(weekStr, 10);
-
-  if (isNaN(year) || isNaN(weekNumber)) {
-    return `${weekId}`;
-  }
-
   try {
-    const firstDayOfYear = new Date(year, 0, 4);
-    const dateWithWeek = addWeeks(startOfISOWeek(firstDayOfYear), weekNumber - 1);
+    const [yearStr, weekStr] = weekId.split('-');
+    const year = parseInt(yearStr, 10);
+    const week = parseInt(weekStr, 10);
+
+    if (isNaN(year) || isNaN(week)) {
+      return weekId;
+    }
     
-    return format(dateWithWeek, 'dd MMM', { locale: es });
+    const date = new Date(year, 0, 1 + (week - 1) * 7);
+    const monday = startOfISOWeek(date);
+    
+    return format(monday, 'dd MMM', { locale: es });
   } catch (e) {
-    console.error("Error parsing ISO weekId:", weekId, e);
-    return `${weekId}`;
+    console.error(`Error parsing weekId "${weekId}":`, e);
+    return weekId;
   }
 };

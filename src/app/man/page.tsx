@@ -439,7 +439,7 @@ const handleImportSpecificWeek = async () => {
             BUSSINES
           </h1>
           <div className="flex items-center gap-2">
-              <div className="hidden sm:flex items-center gap-2">
+              <div className="flex items-center gap-2">
                  {(Object.keys(tabConfig)).map(tabKey => {
                     const config = tabConfig[tabKey];
                     const isActive = activeTab === tabKey;
@@ -462,24 +462,6 @@ const handleImportSpecificWeek = async () => {
                     );
                 })}
               </div>
-             <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="w-[150px] justify-between sm:hidden">
-                        <span>{(tabConfig[activeTab] as {label: string}).label}</span>
-                        <ChevronDown className="ml-2 h-4 w-4" />
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                    <DropdownMenuRadioGroup value={activeTab} onValueChange={(value) => handleTabChange(value)}>
-                        {Object.entries(tabConfig).map(([value, { label, icon: Icon }]) => (
-                             <DropdownMenuRadioItem key={value} value={value} className="capitalize">
-                                <Icon className="mr-2 h-4 w-4" />
-                                {label}
-                            </DropdownMenuRadioItem>
-                        ))}
-                    </DropdownMenuRadioGroup>
-                </DropdownMenuContent>
-            </DropdownMenu>
 
             <div className="flex items-center gap-2">
                 <Popover open={isCalendarOpen} onOpenChange={setCalendarOpen}>

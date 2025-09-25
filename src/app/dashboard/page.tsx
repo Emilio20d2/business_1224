@@ -36,7 +36,8 @@ import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { VentasManTab } from '@/components/dashboard/ventas-man-tab';
 import { formatWeekIdToDateRange, getCurrentWeekId, getWeekIdFromDate } from '@/lib/format';
-import { format, parse } from 'date-fns';
+import { format, parse, startOfISOWeek, addWeeks } from 'date-fns';
+import { es } from 'date-fns/locale';
 import semanaExportada from '@/../semana-exportada.json';
 
 
@@ -347,17 +348,29 @@ const handleImageChange = (compradorName: string, file: File, onUploadComplete: 
         return;
     }
     const previewUrl = URL.createObjectURL(file);
+    
+    // Immediately update UI with local blob URL
+    setData(prevData => {
+        if (!prevData) return null;
+        const updatedData = JSON.parse(JSON.stringify(prevData));
+        if (!updatedData.imagenesComprador) {
+            updatedData.imagenesComprador = {};
+        }
+        updatedData.imagenesComprador[compradorName] = previewUrl;
+        return updatedData;
+    });
+    
     onUploadComplete(true, previewUrl);
+
+    // Upload to Firebase in the background
     const storageRef = ref(storage, `informes/${selectedWeek}/${file.name}-${Date.now()}`);
     uploadBytes(storageRef, file)
         .then(snapshot => getDownloadURL(snapshot.ref))
         .then(downloadURL => {
+            // Once uploaded, update the state with the permanent URL
             setData(prevData => {
                 if (!prevData) return null;
                 const updatedData = JSON.parse(JSON.stringify(prevData));
-                if (!updatedData.imagenesComprador) {
-                    updatedData.imagenesComprador = {};
-                }
                 updatedData.imagenesComprador[compradorName] = downloadURL;
                 return updatedData;
             });
@@ -365,12 +378,21 @@ const handleImageChange = (compradorName: string, file: File, onUploadComplete: 
                 title: "Imagen subida",
                 description: "La imagen se ha subido y está lista para guardar.",
             });
-            if (!isEditing) {
+             if (!isEditing) {
                 setIsEditing(true);
             }
         })
         .catch(error => {
             setError(`Error al subir imagen: ${error.message}`);
+            // Optionally, revert the preview if upload fails
+            setData(prevData => {
+                if (!prevData) return null;
+                const updatedData = JSON.parse(JSON.stringify(prevData));
+                // You might want to store the original URL to revert to it
+                delete updatedData.imagenesComprador[compradorName];
+                return updatedData;
+            });
+            onUploadComplete(false, '');
         });
 };
 
@@ -507,7 +529,7 @@ const handleImportSpecificWeek = async () => {
             BUSSINES
           </h1>
           <div className="flex items-center gap-2">
-              <div className="hidden sm:flex items-center gap-2">
+              <div className="flex items-center gap-2">
                  {(Object.keys(tabConfig)).map(tabKey => {
                     const config = tabConfig[tabKey];
                     const isActive = activeTab === tabKey;
@@ -530,24 +552,6 @@ const handleImportSpecificWeek = async () => {
                     );
                 })}
               </div>
-             <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="w-[150px] justify-between sm:hidden">
-                        <span>{(tabConfig[activeTab] as {label: string}).label}</span>
-                        <ChevronDown className="ml-2 h-4 w-4" />
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                    <DropdownMenuRadioGroup value={activeTab} onValueChange={(value) => handleTabChange(value)}>
-                        {Object.entries(tabConfig).map(([value, { label, icon: Icon }]) => (
-                             <DropdownMenuRadioItem key={value} value={value} className="capitalize">
-                                <Icon className="mr-2 h-4 w-4" />
-                                {label}
-                            </DropdownMenuRadioItem>
-                        ))}
-                    </DropdownMenuRadioGroup>
-                </DropdownMenuContent>
-            </DropdownMenu>
 
             <div className="flex items-center gap-2">
                 <Popover open={isCalendarOpen} onOpenChange={setCalendarOpen}>
