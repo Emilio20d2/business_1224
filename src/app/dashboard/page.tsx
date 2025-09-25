@@ -145,7 +145,7 @@ function DashboardPageComponent() {
             
             const weekOptions = weekIds.map(id => ({
                 value: id,
-                label: id
+                label: formatWeekIdToDateRange(id)
             }));
             
             setWeeks(weekOptions);
@@ -233,7 +233,7 @@ function DashboardPageComponent() {
         }
         
         setData(reportData);
-    } catch (err: any) => {
+    } catch (err: any) {
         setError(`Error al cargar el informe: ${err.message}.`);
         setData(null);
     } finally {
@@ -505,7 +505,7 @@ function DashboardPageComponent() {
      return (
         <div className="flex flex-col items-center justify-center min-h-screen">
             <p>No se encontraron informes en la base de datos.</p>
-            <p className="text-sm text-muted-foreground">Selecciona una semana para crear tu primer informe.</p>
+            {canEdit && <p className="text-sm text-muted-foreground">La primera semana se creará automáticamente.</p>}
         </div>
      );
   }

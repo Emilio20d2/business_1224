@@ -136,7 +136,7 @@ function ManPageComponent() {
             
             const weekOptions = weekIds.map(id => ({
                 value: id,
-                label: id
+                label: formatWeekIdToDateRange(id)
             }));
             
             setWeeks(weekOptions);
@@ -440,7 +440,7 @@ const handleImageChange = (compradorName: string, file: File, onUploadComplete: 
      return (
         <div className="flex flex-col items-center justify-center min-h-screen">
             <p>No se encontraron informes en la base de datos.</p>
-            <p className="text-sm text-muted-foreground">Selecciona una semana para crear tu primer informe.</p>
+            {canEdit && <p className="text-sm text-muted-foreground">La primera semana se creará automáticamente.</p>}
         </div>
      );
   }
