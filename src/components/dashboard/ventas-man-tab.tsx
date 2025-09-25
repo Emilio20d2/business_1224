@@ -149,10 +149,8 @@ const ImageImportCard = ({ selectedRow, isEditing, onImageChange, initialImageUr
     const [isUploading, setIsUploading] = React.useState(false);
     const [preview, setPreview] = React.useState<string | null>(null);
 
-    // Effect to update preview when initialImageUrl changes (e.g. on row click or data fetch)
     React.useEffect(() => {
         setPreview(initialImageUrl);
-        // Revoke previous blob URL if it exists to prevent memory leaks
         return () => {
             if (preview && preview.startsWith('blob:')) {
                 URL.revokeObjectURL(preview);
@@ -171,10 +169,10 @@ const ImageImportCard = ({ selectedRow, isEditing, onImageChange, initialImageUr
                 setIsUploading(false);
             });
         }
-        event.target.value = ''; // Reset file input
+        event.target.value = '';
     };
 
-    const imageUrl = preview || initialImageUrl;
+    const imageUrl = preview;
 
     return (
         <Card className="relative overflow-hidden p-0 gap-0 w-full aspect-[16/9]">
