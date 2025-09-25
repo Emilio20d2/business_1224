@@ -29,11 +29,11 @@ export const formatWeekIdToDateRange = (weekId: string): string => {
   const datePart = weekId.substring(7);
   
   try {
+    // We use a reference date of 0 to ensure parse works correctly with 'd-M-yy'
     const startDate = parse(datePart, 'd-M-yy', new Date());
     
     if (!isValid(startDate)) {
-        // Fallback for potentially malformed IDs, though this should be rare now.
-        return weekId;
+        return weekId; // Fallback if date is invalid
     }
 
     const endDate = addDays(startDate, 6);
@@ -47,5 +47,3 @@ export const formatWeekIdToDateRange = (weekId: string): string => {
     return weekId; // Fallback
   }
 };
-
-    

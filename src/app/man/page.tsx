@@ -166,21 +166,30 @@ function ManPageComponent() {
             getDoc(reportRef),
             getDoc(listsRef)
         ]);
-
-        if (!reportSnap.exists()) {
-            throw new Error(`No se encontró ningún informe para la semana "${weekId}". Por favor, cree el documento en Firebase.`);
-        }
         
         let listData: WeeklyData['listas'];
         if (listsSnap.exists()) {
             listData = listsSnap.data() as WeeklyData['listas'];
         } else {
-            console.log("No 'listas' document found, creating one.");
             listData = getInitialLists();
             await setDoc(listsRef, listData);
         }
-        
-        let reportData = reportSnap.data() as WeeklyData;
+
+        let reportData: WeeklyData;
+        if (!reportSnap.exists()) {
+             if (canEdit) {
+                toast({
+                    title: "Creando nueva semana",
+                    description: `El informe para "${weekId}" no existía y se ha creado uno nuevo.`,
+                });
+                reportData = getInitialDataForWeek(weekId, listData);
+                await setDoc(reportRef, reportData);
+            } else {
+                throw new Error(`No se encontró ningún informe para la semana "${weekId}".`);
+            }
+        } else {
+            reportData = reportSnap.data() as WeeklyData;
+        }
 
         if (!reportData.imagenesComprador) {
           reportData.imagenesComprador = {};
@@ -220,7 +229,7 @@ function ManPageComponent() {
     } finally {
         setDataLoading(false);
     }
-  }, [user]);
+  }, [user, canEdit, toast]);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -229,9 +238,14 @@ function ManPageComponent() {
       fetchData(selectedWeek);
     } else if (!authLoading && user && !selectedWeek && !weeksLoading && weeks.length === 0) {
       setDataLoading(false);
-      setError("No hay informes disponibles. Cree el primer informe en la base de datos para comenzar.");
+        if(canEdit) {
+            const newWeekId = `semana-15-9-25`;
+            updateUrl(newWeekId);
+        } else {
+            setError("No hay informes disponibles. Contacta al administrador.");
+        }
     }
-  }, [user, authLoading, router, fetchData, selectedWeek, weeks, weeksLoading]);
+  }, [user, authLoading, router, fetchData, selectedWeek, weeks, weeksLoading, canEdit, updateUrl]);
 
 
   const handleInputChange = (path: string, value: any) => {
@@ -426,7 +440,7 @@ const handleImageChange = (compradorName: string, file: File, onUploadComplete: 
      return (
         <div className="flex flex-col items-center justify-center min-h-screen">
             <p>No se encontraron informes en la base de datos.</p>
-            <p className="text-sm text-muted-foreground">Crea tu primer informe manualmente en Firebase para empezar.</p>
+            <p className="text-sm text-muted-foreground">Selecciona una semana para crear tu primer informe.</p>
         </div>
      );
   }
