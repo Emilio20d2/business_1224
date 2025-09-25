@@ -1,5 +1,5 @@
 
-import { format, addDays, getWeek, parse, startOfWeek, isValid } from 'date-fns';
+import { format, addDays, parse, startOfWeek, isValid } from 'date-fns';
 import { es } from 'date-fns/locale';
 
 export const formatCurrency = (amount: number) => {
@@ -25,17 +25,17 @@ export const formatGap = (value: number) => {
 export const getCurrentWeekId = (): string => {
     const now = new Date('2025-09-15T12:00:00Z');
     const monday = startOfWeek(now, { weekStartsOn: 1 });
-    return `semana-${format(monday, 'dd-MM-yyyy')}`;
+    return `semana-${format(monday, 'd-M-yy')}`;
 }
 
 export const formatWeekIdToDateRange = (weekId: string): string => {
   if (!weekId.startsWith('semana-')) {
     return weekId;
   }
-  const datePart = weekId.substring(7); // remove "semana-"
+  const datePart = weekId.substring(7);
   
   try {
-    const startDate = parse(datePart, 'dd-MM-yyyy', new Date());
+    const startDate = parse(datePart, 'd-M-yy', new Date());
     
     if (!isValid(startDate)) {
         throw new Error('Invalid date parsed from weekId');
