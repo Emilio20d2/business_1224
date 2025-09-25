@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/select";
 import { VentasManTab } from '@/components/dashboard/ventas-man-tab';
 import { Button } from '@/components/ui/button';
-import { Settings, LogOut, Loader2, ChevronDown, Briefcase, List, LayoutDashboard, ShoppingBag, AreaChart, User as UserIcon, Pencil } from 'lucide-react';
+import { Settings, LogOut, Loader2, ChevronDown, Briefcase, List, LayoutDashboard, ShoppingBag, AreaChart, User as UserIcon, Pencil, Download } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -399,6 +399,40 @@ const handleImageChange = (compradorName: string, file: File, onUploadComplete: 
     });
 };
 
+ const handleExportJson = () => {
+    if (!data) {
+        toast({
+            variant: "destructive",
+            title: "Sin datos para exportar",
+            description: "No hay datos cargados para la semana seleccionada.",
+        });
+        return;
+    }
+    try {
+        const jsonString = JSON.stringify(data, null, 2);
+        const blob = new Blob([jsonString], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "semana-exportada.json";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        toast({
+            title: "Exportación exitosa",
+            description: "Los datos de la semana se han descargado como JSON.",
+        });
+    } catch (error) {
+        console.error("Error exporting JSON:", error);
+        toast({
+            variant: "destructive",
+            title: "Error al exportar",
+            description: "No se pudieron exportar los datos.",
+        });
+    }
+};
+
   if (authLoading || (dataLoading && !data) || !selectedWeek || weeksLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
@@ -547,6 +581,10 @@ const handleImageChange = (compradorName: string, file: File, onUploadComplete: 
                       </DropdownMenuPortal>
                     </DropdownMenuSub>
                   )}
+                   <DropdownMenuItem onSelect={handleExportJson}>
+                        <Download className="mr-2 h-4 w-4 text-primary" />
+                        <span>Exportar JSON</span>
+                   </DropdownMenuItem>
                   {canEdit && <DropdownMenuSeparator />}
                   <DropdownMenuItem onSelect={() => {
                     logout();
