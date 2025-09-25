@@ -21,14 +21,21 @@ export const formatGap = (value: number) => {
     return `${sign}${formattedValue}`;
 }
 
-export const getCurrentWeekId = (): string => {
-    const today = new Date();
-    const year = getYear(today);
-    const weekNumber = getISOWeek(today);
+export const getWeekIdFromDate = (date: Date): string => {
+    const year = getYear(date);
+    const weekNumber = getISOWeek(date);
     return `${year}-${weekNumber}`;
 }
 
+export const getCurrentWeekId = (): string => {
+    return getWeekIdFromDate(new Date());
+}
+
 export const formatWeekIdToDateRange = (weekId: string): string => {
+  if (!weekId || typeof weekId !== 'string' || !weekId.includes('-')) {
+    return `Semana: ${weekId}`;
+  }
+
   const parts = weekId.split('-');
   
   if (parts.length === 2) {
@@ -37,18 +44,11 @@ export const formatWeekIdToDateRange = (weekId: string): string => {
 
     if (!isNaN(year) && !isNaN(weekNumber)) {
       try {
-        const tempDate = new Date(year, 0, 1 + (weekNumber - 1) * 7);
+        const firstDayOfYear = new Date(year, 0, 1);
+        const daysOffset = (weekNumber - 1) * 7;
+        const tempDate = addDays(firstDayOfYear, daysOffset);
+        
         const startDate = startOfISOWeek(tempDate);
-        
-        // Ensure we're in the correct year if the week belongs to the previous/next one
-        if (getISOWeek(startDate) !== weekNumber) {
-            if (weekNumber === 1 && startDate.getMonth() === 11) {
-                 startDate.setFullYear(year);
-            } else if (weekNumber > 50 && startDate.getMonth() === 0) {
-                 startDate.setFullYear(year - 1);
-            }
-        }
-        
         const endDate = addDays(startDate, 6);
         
         const startFormat = format(startDate, 'dd MMM', { locale: es });
@@ -57,10 +57,10 @@ export const formatWeekIdToDateRange = (weekId: string): string => {
         return `${startFormat} - ${endFormat}`;
       } catch (e) {
         console.error("Error parsing ISO weekId:", weekId, e);
-        return weekId;
+        return `Semana: ${weekId}`;
       }
     }
   }
 
-  return weekId;
+  return `Semana: ${weekId}`;
 };

@@ -4,19 +4,13 @@ import type { WeeklyData, VentasManItem } from "@/lib/data";
 import { doc, getDoc, setDoc, updateDoc, collection, getDocs } from "firebase/firestore";
 import { db, storage } from '@/lib/firebase';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/components/ui/select";
-import { VentasManTab } from '@/components/dashboard/ventas-man-tab';
+import { Calendar as CalendarIcon, Settings, LogOut, Loader2, ChevronDown, Briefcase, List, LayoutDashboard, ShoppingBag, AreaChart, User as UserIcon, Pencil, Download, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Settings, LogOut, Loader2, ChevronDown, Briefcase, List, LayoutDashboard, ShoppingBag, AreaChart, User as UserIcon, Pencil, Download, Plus } from 'lucide-react';
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { VentasManTab } from '@/components/dashboard/ventas-man-tab';
 import {
   DropdownMenu,
-  DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -35,10 +29,10 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { EditListDialog } from '@/components/dashboard/edit-list-dialog';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { formatWeekIdToDateRange, getCurrentWeekId } from '@/lib/format';
+import { formatWeekIdToDateRange, getCurrentWeekId, getWeekIdFromDate } from '@/lib/format';
+import { format } from 'date-fns';
 
 type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan' | 'compradorWoman' | 'zonaComercialWoman' | 'agrupacionComercialWoman' | 'compradorNino' | 'zonaComercialNino' | 'agrupacionComercialNino';
-type WeekOption = { value: string; label: string };
 
 
 const tabConfig: Record<string, { label: string; icon: React.FC<React.SVGProps<SVGSVGElement>>, path?: string }> = {
@@ -95,11 +89,12 @@ function ManPageComponent() {
   const [isListDialogOpen, setListDialogOpen] = useState(false);
   const [listToEdit, setListToEdit] = useState<{ listKey: EditableList, title: string } | null>(null);
 
-  const [weeks, setWeeks] = useState<WeekOption[]>([]);
-  const [weeksLoading, setWeeksLoading] = useState(true);
-  
   const selectedWeek = searchParams.get('week') || '';
   const activeTab = "man";
+  
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
+  const [isCalendarOpen, setCalendarOpen] = useState(false);
+
 
   const canEdit = user?.email === 'emiliogp@inditex.com';
   const { toast } = useToast();
@@ -112,8 +107,12 @@ function ManPageComponent() {
   }, [router, searchParams]);
 
 
-  const handleWeekChange = (newWeek: string) => {
-      updateUrl(newWeek);
+  const handleDateSelect = (date: Date | undefined) => {
+    if (!date) return;
+    setSelectedDate(date);
+    const newWeekId = getWeekIdFromDate(date);
+    updateUrl(newWeekId);
+    setCalendarOpen(false);
   };
   
   const handleTabChange = (newTab: string) => {
@@ -124,34 +123,11 @@ function ManPageComponent() {
   };
 
   useEffect(() => {
-    async function fetchAvailableWeeks() {
-        if (!user) return;
-        setWeeksLoading(true);
-        try {
-            const informesCollection = collection(db, "informes");
-            const querySnapshot = await getDocs(informesCollection);
-            const weekIds = querySnapshot.docs.map(doc => doc.id);
-            
-            weekIds.sort((a, b) => b.localeCompare(a));
-            
-            const weekOptions = weekIds.map(id => ({
-                value: id,
-                label: formatWeekIdToDateRange(id)
-            }));
-            
-            setWeeks(weekOptions);
-            
-            if (!searchParams.has('week') && weekOptions.length > 0) {
-                updateUrl(weekOptions[0].value);
-            }
-        } catch(error: any) {
-            setError(`Error al cargar las semanas: ${error.message}`);
-        } finally {
-            setWeeksLoading(false);
-        }
+    if (!searchParams.has('week') && user) {
+        const currentWeekId = getCurrentWeekId();
+        updateUrl(currentWeekId);
     }
-    fetchAvailableWeeks();
-  }, [user, searchParams, toast, updateUrl]);
+  }, [user, searchParams, updateUrl]);
 
 
  const fetchData = useCallback(async (weekId: string) => {
@@ -172,7 +148,9 @@ function ManPageComponent() {
             listData = listsSnap.data() as WeeklyData['listas'];
         } else {
             listData = getInitialLists();
-            await setDoc(listsRef, listData);
+            if (canEdit) {
+              await setDoc(listsRef, listData);
+            }
         }
 
         let reportData: WeeklyData;
@@ -218,7 +196,7 @@ function ManPageComponent() {
         [reportData.ventasMan.agrupacionComercial, changed] = syncAndCheck(reportData.ventasMan.agrupacionComercial, listData.agrupacionComercialMan);
         if (changed) needsSave = true;
 
-        if (needsSave) {
+        if (needsSave && canEdit) {
             await setDoc(reportRef, reportData, { merge: true });
         }
         
@@ -236,7 +214,7 @@ function ManPageComponent() {
       router.push('/');
     } else if (!authLoading && user && selectedWeek) {
       fetchData(selectedWeek);
-    } else if (!authLoading && user && !selectedWeek && !weeksLoading && weeks.length === 0) {
+    } else if (!authLoading && user && !selectedWeek) {
       setDataLoading(false);
         if(canEdit) {
             const newWeekId = getCurrentWeekId();
@@ -245,7 +223,7 @@ function ManPageComponent() {
             setError("No hay informes disponibles. Contacta al administrador.");
         }
     }
-  }, [user, authLoading, router, fetchData, selectedWeek, weeks, weeksLoading, canEdit, updateUrl]);
+  }, [user, authLoading, router, fetchData, selectedWeek, canEdit, updateUrl]);
 
 
   const handleInputChange = (path: string, value: any) => {
@@ -415,7 +393,7 @@ const handleImageChange = (compradorName: string, file: File, onUploadComplete: 
     }
 };
 
-  if (authLoading || (!selectedWeek && weeksLoading) || (dataLoading && !error)) {
+  if (authLoading || (dataLoading && !error)) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -436,11 +414,10 @@ const handleImageChange = (compradorName: string, file: File, onUploadComplete: 
     );
   }
 
-  if (!selectedWeek && weeks.length === 0 && !weeksLoading) {
+  if (!user) {
      return (
         <div className="flex flex-col items-center justify-center min-h-screen">
-            <p>No se encontraron informes en la base de datos.</p>
-            {canEdit && <p className="text-sm text-muted-foreground">La primera semana se creará automáticamente.</p>}
+            <p>Redirigiendo a la página de inicio de sesión...</p>
         </div>
      );
   }
@@ -497,16 +474,30 @@ const handleImageChange = (compradorName: string, file: File, onUploadComplete: 
             </DropdownMenu>
 
             <div className="flex items-center gap-2">
-              <Select value={selectedWeek} onValueChange={handleWeekChange}>
-                <SelectTrigger id="semana-select" className="w-[150px]">
-                  <SelectValue placeholder={weeksLoading ? "Cargando..." : "Seleccionar"} />
-                </SelectTrigger>
-                <SelectContent>
-                  {weeks.map(week => (
-                      <SelectItem key={week.value} value={week.value}>{week.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                <Popover open={isCalendarOpen} onOpenChange={setCalendarOpen}>
+                    <PopoverTrigger asChild>
+                        <Button
+                            variant={"outline"}
+                            className={cn(
+                                "w-[240px] justify-start text-left font-normal",
+                                !selectedDate && "text-muted-foreground"
+                            )}
+                        >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {selectedWeek ? formatWeekIdToDateRange(selectedWeek) : <span>Selecciona una fecha</span>}
+                        </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                            mode="single"
+                            selected={selectedDate}
+                            onSelect={handleDateSelect}
+                            initialFocus
+                            weekStartsOn={1}
+                            showOutsideDays
+                        />
+                    </PopoverContent>
+                </Popover>
             </div>
              <div className="flex items-center gap-2">
               {canEdit && (
@@ -628,5 +619,3 @@ export default function ManPage() {
         </Suspense>
     );
 }
-
-    
