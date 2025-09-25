@@ -42,13 +42,15 @@ export const formatWeekIdToDateRange = (weekId: string): string => {
 
   if (!isNaN(year) && !isNaN(weekNumber)) {
     try {
-      // Create a date for the first day of the year
+      // Create a date for the first day of the year, then add weeks. This is more robust.
       const firstDayOfYear = new Date(year, 0, 1);
-      // Calculate the number of days to offset from the start of the year.
-      // We add 1 because ISO weeks can start in the previous year.
-      const daysOffset = (weekNumber - 1) * 7 + 1;
-      const tempDate = addDays(firstDayOfYear, daysOffset);
-      const startDate = startOfISOWeek(tempDate);
+      const daysOffset = (weekNumber - 1) * 7;
+      
+      // Get a date within the target week
+      const dateInWeek = addDays(firstDayOfYear, daysOffset);
+      
+      // Get the start of the ISO week (Monday)
+      const startDate = startOfISOWeek(dateInWeek);
       
       return `Semana ${format(startDate, 'dd MMM', { locale: es })}`;
     } catch (e) {
