@@ -135,21 +135,19 @@ const DataTable = ({
     );
 };
 
-const ImageImportCard = ({ selectedRow, isEditing, onImageChange, imageUrl }: { selectedRow: VentasManItem | null, isEditing: boolean, onImageChange: (file: File) => void, imageUrl: string | null }) => {
+const ImageImportCard = ({ selectedRow, isEditing, onImageChange, imageUrl }: { selectedRow: VentasManItem | null, isEditing: boolean, onImageChange: (file: File, onUploadComplete: (success: boolean) => void) => void, imageUrl: string | null }) => {
     const [isUploading, setIsUploading] = React.useState(false);
 
     const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
-        if (file) {
+        if (file && selectedRow) {
             setIsUploading(true);
-            onImageChange(file);
+            onImageChange(file, (success) => {
+                setIsUploading(false);
+            });
         }
         event.target.value = '';
     };
-
-    React.useEffect(() => {
-       setIsUploading(false);
-    }, [imageUrl]);
 
     return (
         <Card className="relative overflow-hidden p-0 gap-0 w-full aspect-[16/9]">
@@ -195,13 +193,12 @@ export function VentasManTab({ data, isEditing, onInputChange, onImageChange }: 
     const selectedRow = ventasMan.pesoComprador?.[selectedIndex];
     const imageUrl = selectedRow ? imagenesComprador?.[selectedRow.nombre] || null : null;
 
-
-    const handleImageChange = (file: File) => {
-        if (!selectedRow) return;
-        onImageChange(selectedRow.nombre, file, (success) => {
-            // Parent handles state update, this is just to trigger
-            // The useEffect in the image card will handle the uploading state.
-        });
+    const handleImageChangeWrapper = (file: File, onUploadComplete: (success: boolean) => void) => {
+        if (!selectedRow) {
+            onUploadComplete(false);
+            return;
+        }
+        onImageChange(selectedRow.nombre, file, onUploadComplete);
     };
     
     const tabButtons = [
@@ -242,7 +239,7 @@ export function VentasManTab({ data, isEditing, onInputChange, onImageChange }: 
                     <ImageImportCard 
                         selectedRow={selectedRow}
                         isEditing={isEditing}
-                        onImageChange={handleImageChange}
+                        onImageChange={handleImageChangeWrapper}
                         imageUrl={imageUrl}
                     />
                </div>
