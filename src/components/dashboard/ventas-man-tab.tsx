@@ -129,10 +129,7 @@ const DataTable = ({
                                 {isEditing ? <Input type="number" inputMode="decimal" className="w-24 ml-auto text-right" defaultValue={item.totalEuros} onChange={(e) => handleChange(index, 'totalEuros', e.target.value)} /> : formatCurrency(item.totalEuros)}
                             </TableCell>
                             <TableCell className="text-right font-medium">
-                                {isEditing 
-                                  ? <Input type="number" inputMode="decimal" className="w-24 ml-auto text-right" defaultValue={item.totalEurosSemanaAnterior} onChange={(e) => handleChange(index, 'totalEurosSemanaAnterior', e.target.value)} /> 
-                                  : <TrendIndicator value={item.varPorc} />
-                                }
+                                <TrendIndicator value={item.varPorc} />
                             </TableCell>
                             <TableCell className="text-right">
                                 {isEditing ? <Input type="number" inputMode="decimal" className="w-20 ml-auto text-right" defaultValue={item.varPorc} onChange={(e) => handleChange(index, 'varPorc', e.target.value)} /> : formatPercentage(item.varPorc)}
