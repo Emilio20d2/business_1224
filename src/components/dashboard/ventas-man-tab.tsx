@@ -36,6 +36,7 @@ type VentasManTabProps = {
 
 
 const TrendIndicator = ({ value }: { value: number }) => {
+  if (isNaN(value)) return null;
   const isPositive = value >= 0;
   const trendColor = isPositive ? 'text-green-600' : 'text-red-600';
   const Icon = isPositive ? ArrowUp : ArrowDown;
@@ -43,7 +44,6 @@ const TrendIndicator = ({ value }: { value: number }) => {
   return (
     <span className={cn("text-sm font-bold flex items-center justify-end gap-1", trendColor)}>
       <Icon className="h-4 w-4" />
-      <span>{value.toLocaleString('es-ES')}%</span>
     </span>
   );
 };
@@ -92,7 +92,7 @@ const DataTable = ({
                         </TableHead>
                         <TableHead className='text-right'><Percent className="h-4 w-4 text-primary inline-block" /></TableHead>
                         <TableHead className='text-right'><Euro className="h-4 w-4 text-primary inline-block" /></TableHead>
-                        <TableHead className='text-right font-bold text-primary'>S-1 €</TableHead>
+                        <TableHead className='text-right font-bold text-primary'>S-1</TableHead>
                         <TableHead className='text-right'><TrendingUp className="h-4 w-4 text-primary inline-block" /></TableHead>
                     </TableRow>
                 </TableHeader>
@@ -129,10 +129,13 @@ const DataTable = ({
                                 {isEditing ? <Input type="number" inputMode="decimal" className="w-24 ml-auto text-right" defaultValue={item.totalEuros} onChange={(e) => handleChange(index, 'totalEuros', e.target.value)} /> : formatCurrency(item.totalEuros)}
                             </TableCell>
                             <TableCell className="text-right font-medium">
-                                {isEditing ? <Input type="number" inputMode="decimal" className="w-24 ml-auto text-right" defaultValue={item.totalEurosSemanaAnterior} onChange={(e) => handleChange(index, 'totalEurosSemanaAnterior', e.target.value)} /> : formatCurrency(item.totalEurosSemanaAnterior)}
+                                {isEditing 
+                                  ? <Input type="number" inputMode="decimal" className="w-24 ml-auto text-right" defaultValue={item.totalEurosSemanaAnterior} onChange={(e) => handleChange(index, 'totalEurosSemanaAnterior', e.target.value)} /> 
+                                  : <TrendIndicator value={item.varPorc} />
+                                }
                             </TableCell>
                             <TableCell className="text-right">
-                                {isEditing ? <Input type="number" inputMode="decimal" className="w-20 ml-auto text-right" defaultValue={item.varPorc} onChange={(e) => handleChange(index, 'varPorc', e.target.value)} /> : <TrendIndicator value={item.varPorc} />}
+                                {isEditing ? <Input type="number" inputMode="decimal" className="w-20 ml-auto text-right" defaultValue={item.varPorc} onChange={(e) => handleChange(index, 'varPorc', e.target.value)} /> : formatPercentage(item.varPorc)}
                             </TableCell>
                         </TableRow>
                     ))}
