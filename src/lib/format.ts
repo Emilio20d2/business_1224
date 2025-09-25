@@ -1,4 +1,4 @@
-import { format, addDays, getDay, add, sub, startOfWeek, getWeek, getYear } from 'date-fns';
+import { format, addDays, getDay, startOfWeek, getWeek, getYear, parse } from 'date-fns';
 import { es } from 'date-fns/locale';
 
 export const formatCurrency = (amount: number) => {
@@ -38,29 +38,18 @@ export const formatWeekId = (weekId: string): string => {
     return weekId;
   }
   const [, yearStr, weekStr] = parts;
-  const year = parseInt(yearStr, 10);
-  const weekNumber = parseInt(weekStr, 10);
-
-  if (isNaN(year) || isNaN(weekNumber)) {
-    return weekId;
-  }
-
+  
   try {
-    // Create a date for the first day of the given year.
-    const firstDayOfYear = new Date(year, 0, 1);
-    // Get the day of the week (0=Sun, 1=Mon, ...). `getDay()` in date-fns returns 0 for Sunday.
-    const dayOfWeek = getDay(firstDayOfYear);
-    // Calculate the number of days to get to the first Monday.
-    // If Jan 1 is Monday (1), daysToAdd = 0. If it's Tuesday (2), daysToAdd = -1. If it's Sunday(0), daysToAdd = 1.
-    // We want to find the date of the Monday of the first week.
-    // The ISO week starts on a Monday. getWeek's locale `es` also starts on Monday.
-    const firstMonday = startOfWeek(firstDayOfYear, { weekStartsOn: 1 });
+    const year = parseInt(yearStr);
+    const week = parseInt(weekStr);
 
-    // Add weeks to the first Monday of the year
-    const targetWeek = add(firstMonday, { weeks: weekNumber -1 });
+    // Use parse to get a date from the year and week number.
+    // 'I' is the ISO week number. Using 'II' with weekStartsOn: 1 for `es` locale.
+    const startDate = parse(`${year}-W${week}-1`, 'Y-Ww-i', new Date(), {
+      locale: es,
+      weekStartsOn: 1,
+    });
     
-    // Get the start of the week for the calculated date
-    const startDate = startOfWeek(targetWeek, { weekStartsOn: 1 });
     const endDate = addDays(startDate, 6);
 
     const startMonth = startDate.getMonth();
@@ -68,13 +57,6 @@ export const formatWeekId = (weekId: string): string => {
     const startYear = startDate.getFullYear();
     const endYear = endDate.getFullYear();
     
-    // A final check to ensure we are in the right year, as week calculation can be tricky at year boundaries
-    if (getYear(startDate) < year && weekNumber > 50) {
-        // This means week 1 of the 'year' actually started in the previous year.
-    } else if (getYear(startDate) > year) {
-        // This case can happen for week 52/53 of the previous year.
-    }
-
     let startFormat: string;
     let endFormat: string;
 
