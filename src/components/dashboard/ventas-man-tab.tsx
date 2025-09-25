@@ -246,7 +246,7 @@ export function VentasManTab({ data, isEditing, onInputChange, onImageChange }: 
             </div>
             
             <TabsContent value="comprador" className="mt-0">
-               <div className="grid gap-4 items-start grid-cols-1 lg:grid-cols-2">
+               <div className="grid gap-4 items-start grid-cols-1">
                    <DataTable
                         title="Comprador"
                         icon={<Users className="h-5 w-5" />}
