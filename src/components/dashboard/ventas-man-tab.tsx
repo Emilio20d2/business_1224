@@ -21,7 +21,7 @@ import { Card } from "@/components/ui/card";
 import { formatCurrency, formatPercentage } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { Button } from '../ui/button';
-import { ImagePlus, Loader2, Upload, Users, MapPin, ShoppingBasket, Percent, Euro, TrendingUp, ArrowUp, ArrowDown } from 'lucide-react';
+import { Image as ImageIcon, ImagePlus, Loader2, Upload, Users, MapPin, ShoppingBasket, Percent, Euro, TrendingUp, ArrowUp, ArrowDown } from 'lucide-react';
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { OperacionesSubTab } from './operaciones-sub-tab';
 import { FocusSemanalTab } from './focus-semanal-tab';
@@ -57,7 +57,9 @@ const DataTable = ({
     dataKey, 
     onInputChange,
     onRowClick,
-    selectedIndex
+    selectedIndex,
+    imagenesComprador,
+    showImageColumn
 }: { 
     title: string,
     icon: React.ReactNode,
@@ -67,7 +69,9 @@ const DataTable = ({
     dataKey: string, 
     onInputChange: VentasManTabProps['onInputChange'],
     onRowClick?: (index: number) => void,
-    selectedIndex?: number
+    selectedIndex?: number,
+    imagenesComprador?: { [key: string]: string },
+    showImageColumn?: boolean
 }) => {
     if (!data || !Array.isArray(data)) {
         return <p className="text-center text-muted-foreground mt-8">No hay datos disponibles.</p>;
@@ -90,6 +94,7 @@ const DataTable = ({
                                 <span>{title}</span>
                             </div>
                         </TableHead>
+                        {showImageColumn && <TableHead className='text-right'><ImageIcon className="h-4 w-4 text-primary inline-block" /></TableHead>}
                         <TableHead className='text-right'><Percent className="h-4 w-4 text-primary inline-block" /></TableHead>
                         <TableHead className='text-right'><Euro className="h-4 w-4 text-primary inline-block" /></TableHead>
                         <TableHead className='text-right'><TrendingUp className="h-4 w-4 text-primary inline-block" /></TableHead>
@@ -97,45 +102,59 @@ const DataTable = ({
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {data.map((item, index) => (
-                        <TableRow 
-                            key={item.nombre + index}
-                            onClick={() => onRowClick?.(index)}
-                            className={cn(onRowClick && 'cursor-pointer', selectedIndex === index && 'bg-muted/50')}
-                        >
-                            <TableCell>
-                                {isEditing ? (
-                                    <Select
-                                        value={item.nombre}
-                                        onValueChange={(value) => handleChange(index, 'nombre', value)}
-                                    >
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Seleccionar" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {optionList.map(option => (
-                                                <SelectItem key={option} value={option}>{option}</SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                ) : (
-                                    item.nombre
+                    {data.map((item, index) => {
+                        const imageUrl = (imagenesComprador && imagenesComprador[item.nombre]) || item.imageUrl;
+                        return (
+                            <TableRow 
+                                key={item.nombre + index}
+                                onClick={() => onRowClick?.(index)}
+                                className={cn(onRowClick && 'cursor-pointer', selectedIndex === index && 'bg-muted/50')}
+                            >
+                                <TableCell>
+                                    {isEditing ? (
+                                        <Select
+                                            value={item.nombre}
+                                            onValueChange={(value) => handleChange(index, 'nombre', value)}
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Seleccionar" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {optionList.map(option => (
+                                                    <SelectItem key={option} value={option}>{option}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    ) : (
+                                        item.nombre
+                                    )}
+                                </TableCell>
+                                {showImageColumn && (
+                                    <TableCell className="w-16 p-1">
+                                        {imageUrl ? (
+                                            <img src={imageUrl} alt={item.nombre} className="h-10 w-10 rounded-md object-cover"/>
+                                        ) : (
+                                            <div className="h-10 w-10 rounded-md bg-muted flex items-center justify-center">
+                                                <ImageIcon className="h-5 w-5 text-muted-foreground"/>
+                                            </div>
+                                        )}
+                                    </TableCell>
                                 )}
-                            </TableCell>
-                            <TableCell className="text-right font-medium">
-                                {isEditing ? <Input type="number" inputMode="decimal" className="w-20 ml-auto text-right" defaultValue={item.pesoPorc} onChange={(e) => handleChange(index, 'pesoPorc', e.target.value)} /> : formatPercentage(item.pesoPorc)}
-                            </TableCell>
-                            <TableCell className="text-right font-medium">
-                                {isEditing ? <Input type="number" inputMode="decimal" className="w-24 ml-auto text-right" defaultValue={item.totalEuros} onChange={(e) => handleChange(index, 'totalEuros', e.target.value)} /> : formatCurrency(item.totalEuros)}
-                            </TableCell>
-                            <TableCell className="text-right font-medium">
-                                 <TrendIndicator value={item.varPorc} />
-                            </TableCell>
-                            <TableCell className="text-right">
-                                {isEditing ? <Input type="number" inputMode="decimal" className="w-20 ml-auto text-right" defaultValue={item.varPorc} onChange={(e) => handleChange(index, 'varPorc', e.target.value)} /> : formatPercentage(item.varPorc)}
-                            </TableCell>
-                        </TableRow>
-                    ))}
+                                <TableCell className="text-right font-medium">
+                                    {isEditing ? <Input type="number" inputMode="decimal" className="w-20 ml-auto text-right" defaultValue={item.pesoPorc} onChange={(e) => handleChange(index, 'pesoPorc', e.target.value)} /> : formatPercentage(item.pesoPorc)}
+                                </TableCell>
+                                <TableCell className="text-right font-medium">
+                                    {isEditing ? <Input type="number" inputMode="decimal" className="w-24 ml-auto text-right" defaultValue={item.totalEuros} onChange={(e) => handleChange(index, 'totalEuros', e.target.value)} /> : formatCurrency(item.totalEuros)}
+                                </TableCell>
+                                <TableCell className="text-right font-medium">
+                                     <TrendIndicator value={item.varPorc} />
+                                </TableCell>
+                                <TableCell className="text-right">
+                                    {isEditing ? <Input type="number" inputMode="decimal" className="w-20 ml-auto text-right" defaultValue={item.varPorc} onChange={(e) => handleChange(index, 'varPorc', e.target.value)} /> : formatPercentage(item.varPorc)}
+                                </TableCell>
+                            </TableRow>
+                        )
+                    })}
                 </TableBody>
             </Table>
         </Card>
@@ -257,6 +276,8 @@ export function VentasManTab({ data, isEditing, onInputChange, onImageChange }: 
                         onInputChange={onInputChange}
                         onRowClick={setSelectedIndex}
                         selectedIndex={selectedIndex}
+                        imagenesComprador={imagenesComprador}
+                        showImageColumn={true}
                     />
                     <ImageImportCard 
                         selectedRow={selectedRow}
