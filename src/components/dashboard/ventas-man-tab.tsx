@@ -287,7 +287,7 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                                             valueId="datosPorSeccion.man.metricasPrincipales.totalUnidades"
                                             onInputChange={onInputChange}
                                             align="right"
-                                            className="text-lg font-medium"
+                                            className="font-medium"
                                         />
                                     </TableCell>
                                     <TableCell className="text-right">
@@ -298,7 +298,7 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                                             onInputChange={onInputChange}
                                             align="right"
                                             alwaysShowVariation
-                                            className="text-lg font-medium"
+                                            className="font-medium"
                                         />
                                     </TableCell>
                                 </TableRow>
@@ -373,7 +373,7 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                                             valueId="datosPorSeccion.man.metricasPrincipales.totalUnidades"
                                             onInputChange={onInputChange}
                                             align="right"
-                                            className="text-lg font-medium"
+                                            className="font-medium"
                                         />
                                     </TableCell>
                                 </TableRow>
