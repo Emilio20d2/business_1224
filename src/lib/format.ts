@@ -46,15 +46,34 @@ export const formatWeekIdToDateRange = (weekId: string): string => {
       return weekId;
     }
     
-    // Create a date on the first day of the year, then add weeks
-    const firstDayOfYear = new Date(year, 0, 1);
-    const firstDayOfIsoWeek = startOfISOWeek(firstDayOfYear);
-    const targetWeek = addWeeks(firstDayOfIsoWeek, week - 1);
-    const monday = startOfISOWeek(targetWeek);
+    const date = parse(`${year}-W${String(week).padStart(2, '0')}-1`, "yyyy-'W'II-i", new Date());
     
-    return format(monday, 'dd MMM', { locale: es });
+    return format(date, 'dd MMM', { locale: es });
   } catch (e) {
     console.error(`Error parsing weekId "${weekId}":`, e);
     return weekId;
   }
+};
+
+export const getPreviousWeekId = (weekId: string): string => {
+    if (!weekId || typeof weekId !== 'string' || !weekId.includes('-')) {
+        return weekId;
+    }
+
+    try {
+        const [yearStr, weekStr] = weekId.split('-');
+        const year = parseInt(yearStr, 10);
+        const week = parseInt(weekStr, 10);
+
+        if (isNaN(year) || isNaN(week)) {
+            return weekId;
+        }
+        
+        const date = parse(`${year}-W${String(week).padStart(2, '0')}-1`, "yyyy-'W'II-i", new Date());
+        const previousWeekDate = subWeeks(date, 1);
+        return getWeekIdFromDate(previousWeekDate);
+    } catch (e) {
+        console.error(`Error calculating previous week for "${weekId}":`, e);
+        return weekId;
+    }
 };
