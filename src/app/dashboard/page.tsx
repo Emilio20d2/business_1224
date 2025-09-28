@@ -41,10 +41,12 @@ import { es } from 'date-fns/locale';
 import semanaExportada from '@/../semana-exportada.json';
 import { VentasWomanTab } from '@/components/dashboard/ventas-woman-tab';
 import { VentasNinoTab } from '@/components/dashboard/ventas-nino-tab';
+import { OperacionesSubTab } from '@/components/dashboard/operaciones-sub-tab';
+import { FocusSemanalTab } from '@/components/dashboard/focus-semanal-tab';
 
 
 type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan' | 'compradorWoman' | 'zonaComercialWoman' | 'agrupacionComercialWoman' | 'compradorNino' | 'zonaComercialNino' | 'agrupacionComercialNino';
-type TabValue = "datosSemanales" | "aqneSemanal" | "acumulado" | "man" | "woman" | "nino";
+type TabValue = "datosSemanales" | "aqneSemanal" | "acumulado" | "man" | "woman" | "nino" | 'ventas' | 'operaciones' | 'focus';
 
 
 const tabConfig: Record<string, { label: string; icon?: React.FC<React.SVGProps<SVGSVGElement>>, text?: string, path?: string }> = {
@@ -102,12 +104,11 @@ function DashboardPageComponent() {
   const [listToEdit, setListToEdit] = useState<{ listKey: EditableList, title: string } | null>(null);
   
   const selectedWeek = searchParams.get('week') || '';
-  const activeTab = (searchParams.get('tab') as TabValue) || 'datosSemanales';
-
+  const [activeSubTab, setActiveSubTab] = useState<string>('ventas');
+  
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [isCalendarOpen, setCalendarOpen] = useState(false);
   const [importCompleted, setImportCompleted] = useState(false);
-
 
   const canEdit = user?.email === 'emiliogp@inditex.com';
   const { toast } = useToast();
@@ -124,7 +125,7 @@ function DashboardPageComponent() {
     if (!date) return;
     setSelectedDate(date);
     const newWeekId = getWeekIdFromDate(date);
-    updateUrl(newWeekId, activeTab);
+    updateUrl(newWeekId, 'datosSemanales');
     setCalendarOpen(false);
   };
   
@@ -132,17 +133,15 @@ function DashboardPageComponent() {
     const config = tabConfig[newTab];
     if (config?.path) {
         router.push(`${config.path}?week=${selectedWeek}`);
-    } else {
-        updateUrl(selectedWeek, newTab);
     }
   };
   
   useEffect(() => {
     if (!searchParams.has('week') && user) {
         const previousWeekId = getPreviousWeekId(getCurrentWeekId());
-        updateUrl(previousWeekId, activeTab);
+        updateUrl(previousWeekId, 'datosSemanales');
     }
-  }, [user, searchParams, updateUrl, activeTab]);
+  }, [user, searchParams, updateUrl]);
 
 
  const fetchData = useCallback(async (weekId: string) => {
@@ -263,12 +262,12 @@ function DashboardPageComponent() {
        setDataLoading(false);
         if(canEdit) {
             const newWeekId = getPreviousWeekId(getCurrentWeekId());
-            updateUrl(newWeekId, activeTab);
+            updateUrl(newWeekId, 'datosSemanales');
         } else {
             setError("No hay informes disponibles. Contacta al administrador.");
         }
     }
-  }, [user, authLoading, router, fetchData, selectedWeek, canEdit, updateUrl, activeTab]);
+  }, [user, authLoading, router, fetchData, selectedWeek, canEdit, updateUrl]);
 
 
   const handleInputChange = (path: string, value: any) => {
@@ -465,6 +464,14 @@ const handleImportSpecificWeek = async () => {
     }
 };
 
+  const tabButtons = [
+    { value: 'ventas', label: 'VENTAS' },
+    { value: 'aqne', label: 'AQNE' },
+    { value: 'acumulado', label: 'ACUMULADO' },
+    { value: 'operaciones', label: 'OPERACIONES' },
+    { value: 'focus', label: 'FOCUS' },
+  ];
+
 
   if (authLoading || (dataLoading && !error)) {
     return (
@@ -507,7 +514,7 @@ const handleImportSpecificWeek = async () => {
               <div className="flex items-center gap-2">
                  {Object.keys(tabConfig).map(tabKey => {
                     const config = tabConfig[tabKey];
-                    const isActive = activeTab === tabKey;
+                    const isActive = tabKey === 'datosSemanales';
                     return (
                        <Tooltip key={tabKey}>
                           <TooltipTrigger asChild>
@@ -637,13 +644,21 @@ const handleImportSpecificWeek = async () => {
         
         <main>
           {data ? (
-             <Tabs value={activeTab} onValueChange={(value) => updateUrl(selectedWeek, value)} className="w-full">
-              <TabsList className="grid w-full grid-cols-3 mb-4">
-                <TabsTrigger value="datosSemanales">GENERAL</TabsTrigger>
-                <TabsTrigger value="aqneSemanal">AQNE SEMANAL</TabsTrigger>
-                <TabsTrigger value="acumulado">ACUMULADO</TabsTrigger>
-              </TabsList>
-              <TabsContent value="datosSemanales" className="mt-0">
+            <Tabs value={activeSubTab} onValueChange={setActiveSubTab} className="w-full">
+              <div className="mb-4 grid w-full grid-cols-2 md:grid-cols-5 gap-2">
+                {tabButtons.map(tab => (
+                    <Button
+                        key={tab.value}
+                        variant={activeSubTab === tab.value ? 'default' : 'outline'}
+                        onClick={() => setActiveSubTab(tab.value)}
+                        className="w-full"
+                    >
+                        {tab.label}
+                    </Button>
+                ))}
+              </div>
+              
+              <TabsContent value="ventas" className="mt-0">
                 <DatosSemanalesTab 
                   ventas={data.ventas}
                   rendimientoTienda={data.rendimientoTienda}
@@ -654,12 +669,23 @@ const handleImportSpecificWeek = async () => {
                   onInputChange={handleInputChange} 
                 />
               </TabsContent>
-              <TabsContent value="aqneSemanal" className="mt-0">
+              <TabsContent value="aqne" className="mt-0">
                 <AqneSemanalTab data={data} isEditing={isEditing} onInputChange={handleInputChange} />
               </TabsContent>
               <TabsContent value="acumulado" className="mt-0">
                 <AcumuladoTab data={data.acumulado} isEditing={isEditing} onInputChange={handleInputChange}/>
               </TabsContent>
+              <TabsContent value="operaciones" className="mt-0">
+                <OperacionesSubTab data={data} isEditing={isEditing} onInputChange={handleInputChange} />
+              </TabsContent>
+              <TabsContent value="focus" className="mt-0">
+                <FocusSemanalTab 
+                  text={data.focusSemanal} 
+                  isEditing={isEditing} 
+                  onInputChange={handleInputChange} 
+                />
+              </TabsContent>
+
             </Tabs>
           ) : (
              <div className="flex flex-col items-center justify-center min-h-[60vh]">
