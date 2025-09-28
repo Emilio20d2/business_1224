@@ -271,8 +271,8 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                                             <span>Unidades</span>
                                         </div>
                                     </TableHead>
-                                    <TableHead className="text-right w-[20%] uppercase font-bold text-primary"><Percent className="h-4 w-4 inline-block" /></TableHead>
-                                    <TableHead className="text-right w-[20%] uppercase font-bold text-primary"><Euro className="h-4 w-4 inline-block" /></TableHead>
+                                    <TableHead className="w-[20%]"></TableHead>
+                                    <TableHead className='text-right w-[20%] uppercase font-bold text-primary'>UNIDADES</TableHead>
                                     <TableHead className="text-right w-[20%] uppercase font-bold text-primary">Var %</TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -343,8 +343,8 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                                             <span>Unidades</span>
                                         </div>
                                     </TableHead>
-                                    <TableHead className='text-right w-[20%] uppercase font-bold text-primary'><Percent className="h-4 w-4 inline-block" /></TableHead>
-                                    <TableHead className='text-right w-[20%] uppercase font-bold text-primary'><Euro className="h-4 w-4 inline-block" /></TableHead>
+                                    <TableHead className="w-[20%]"></TableHead>
+                                    <TableHead className='text-right w-[20%] uppercase font-bold text-primary'>UNIDADES</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
