@@ -1,3 +1,4 @@
+
 import semanaExportada from '@/../semana-exportada.json';
 
 type DesgloseItem = {

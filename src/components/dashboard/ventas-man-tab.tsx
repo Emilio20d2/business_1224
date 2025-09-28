@@ -23,7 +23,7 @@ import { Card } from "@/components/ui/card";
 import { formatCurrency, formatPercentage } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { Button } from '../ui/button';
-import { Users, MapPin, ShoppingBasket, Percent, Euro, Shirt } from 'lucide-react';
+import { Users, MapPin, ShoppingBasket, Percent, Euro, Shirt, Footprints, SprayCan } from 'lucide-react';
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { OperacionesSubTab } from './operaciones-sub-tab';
 import { FocusSemanalTab } from './focus-semanal-tab';
@@ -42,7 +42,8 @@ const DataTable = ({
     list,
     isEditing, 
     dataKey, 
-    onInputChange
+    onInputChange,
+    showFooter = false
 }: { 
     title: string,
     icon: React.ReactNode,
@@ -50,7 +51,8 @@ const DataTable = ({
     list: string[] | undefined,
     isEditing: boolean, 
     dataKey: string, 
-    onInputChange: VentasManTabProps['onInputChange']
+    onInputChange: VentasManTabProps['onInputChange'],
+    showFooter?: boolean
 }) => {
     if (!data || !Array.isArray(data)) {
         return <p className="text-center text-muted-foreground mt-8">No hay datos disponibles.</p>;
@@ -74,15 +76,15 @@ const DataTable = ({
             <Table>
                 <TableHeader className="sticky top-0 bg-card z-10">
                     <TableRow>
-                        <TableHead className="uppercase font-bold w-1/4">
+                        <TableHead className="uppercase font-bold w-[40%]">
                             <div className="flex items-center gap-2 text-primary">
                                 {icon}
                                 <span>{title}</span>
                             </div>
                         </TableHead>
-                        <TableHead className='text-right w-1/4 uppercase font-bold text-primary'><Percent className="h-4 w-4 inline-block" /></TableHead>
-                        <TableHead className='text-right w-1/4 uppercase font-bold text-primary'><Euro className="h-4 w-4 inline-block" /></TableHead>
-                        <TableHead className='text-right w-1/4 uppercase font-bold text-primary'>Var %</TableHead>
+                        <TableHead className='text-right w-[20%] uppercase font-bold text-primary'><Percent className="h-4 w-4 inline-block" /></TableHead>
+                        <TableHead className='text-right w-[20%] uppercase font-bold text-primary'><Euro className="h-4 w-4 inline-block" /></TableHead>
+                        <TableHead className='text-right w-[20%] uppercase font-bold text-primary'>Var %</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -126,16 +128,18 @@ const DataTable = ({
                         )
                     })}
                 </TableBody>
-                 <TableFooter>
-                    <TableRow className="bg-muted/50 hover:bg-muted/60">
-                        <TableHead className="font-bold uppercase">Total</TableHead>
-                        <TableHead className="text-right font-bold">{formatPercentage(100)}</TableHead>
-                        <TableHead className="text-right font-bold">{formatCurrency(totalEuros)}</TableHead>
-                        <TableHead className={cn("text-right font-bold", weightedVarPorc < 0 ? "text-red-600" : "text-green-600")}>
-                            {formatPercentage(weightedVarPorc)}
-                        </TableHead>
-                    </TableRow>
-                </TableFooter>
+                 {showFooter && (
+                    <TableFooter>
+                        <TableRow className="bg-muted/50 hover:bg-muted/60">
+                            <TableHead className="font-bold uppercase">Total</TableHead>
+                            <TableHead className="text-right font-bold">{formatPercentage(100)}</TableHead>
+                            <TableHead className="text-right font-bold">{formatCurrency(totalEuros)}</TableHead>
+                            <TableHead className={cn("text-right font-bold", weightedVarPorc < 0 ? "text-red-600" : "text-green-600")}>
+                                {formatPercentage(weightedVarPorc)}
+                            </TableHead>
+                        </TableRow>
+                    </TableFooter>
+                )}
             </Table>
         </Card>
     );
@@ -181,6 +185,27 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                         list={listas.compradorMan}
                         isEditing={isEditing}
                         onInputChange={onInputChange}
+                        showFooter={true}
+                    />
+                    <DataTable
+                        title="Calzado"
+                        icon={<Footprints className="h-5 w-5" />}
+                        dataKey="ventasMan.zonaComercial"
+                        data={ventasMan.zonaComercial}
+                        list={listas.zonaComercialMan}
+                        isEditing={isEditing}
+                        onInputChange={onInputChange}
+                        showFooter={false}
+                    />
+                    <DataTable
+                        title="Perfumeria"
+                        icon={<SprayCan className="h-5 w-5" />}
+                        dataKey="ventasMan.agrupacionComercial"
+                        data={ventasMan.agrupacionComercial}
+                        list={listas.agrupacionComercialMan}
+                        isEditing={isEditing}
+                        onInputChange={onInputChange}
+                        showFooter={false}
                     />
                </div>
             </TabsContent>
