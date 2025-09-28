@@ -18,7 +18,8 @@ import {
   SprayCan,
   Clock,
   Percent,
-  Sparkles
+  Sparkles,
+  Shirt
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
@@ -41,7 +42,7 @@ type SectionName = keyof WeeklyData["datosPorSeccion"];
 const WomanIcon = () => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-primary"><path d="M12 5c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3"/><path d="M18.37 13.57a6.03 6.03 0 0 0-1.3-4.57l-2.07-2.07a1 1 0 0 0-1.41 0l-2.07 2.07a6.03 6.03 0 0 0-1.3 4.57"/><path d="M6 21a2 2 0 0 0 2-2v-4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v4a2 2 0 0 0 2 2"/></svg>;
 const ManIcon = () => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-primary"><path d="M12 5c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3"/><path d="M7 14a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v7h-4v-4h-2v4H7v-7Z"/></svg>;
 const NinoIcon = () => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-primary"><path d="M12 6.5c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3"/><path d="m5.6 21.5 1.5-6a2 2 0 0 1 2-1.5h5.8a2 2 0 0 1 2 1.5l1.5 6"/><path d="M12 14v-2.5"/><path d="M10 16c.5 1.33 1 2 2 2s1.5-.67 2-2"/></svg>;
-const RopaIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 text-primary"><path d="m21.21 15.89-1.42-1.42a2 2 0 0 0-2.82 0L12 19.41l-5.96-5.96a2 2 0 0 0-2.82 0L1.79 15.89a2 2 0 0 0 0 2.82l1.42 1.42a2 2 0 0 0 2.82 0L12 14.2l5.96 5.96a2 2 0 0 0 2.82 0l1.42-1.42a2 2 0 0 0 0-2.82z"/><path d="M7.24 2.24 9 4l2.8-2.8L14 3l2.45-2.45L18.3 3 20 1.24 22 4l-1.8 1.8L22 7.64l-2.4-2.4-1.83 1.83L15.31 5l-2.46 2.46L10.4 5l-1.83 1.83-2.4-2.4L4.4 5.8 2.55 4l1.8-1.8L6 4l1.24-1.76z"/></svg>;
+const RopaIcon = () => <Shirt className="h-4 w-4 text-primary" />;
 
 
 const sectionConfig = {
@@ -230,7 +231,7 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
               <div className="flex flex-row justify-around items-center gap-4 h-full">
                   <DatoSimple 
                       label={<Package className="h-5 w-5 text-primary"/>}
-                      value={isEditing ? perdidas.merma.unidades : formatNumber(perdidas.merma.unidades)}
+                      value={perdidas.merma.unidades}
                       isEditing={isEditing}
                       valueId="perdidas.merma.unidades"
                       align="center"
@@ -239,7 +240,7 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
                   />
                    <DatoSimple 
                       label={<Percent className="h-5 w-5 text-primary"/>}
-                      value={isEditing ? perdidas.merma.porcentaje : formatPercentage(perdidas.merma.porcentaje)}
+                      value={perdidas.merma.porcentaje}
                       isEditing={isEditing}
                       valueId="perdidas.merma.porcentaje"
                       align="center"
@@ -253,18 +254,17 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
               <div className="grid grid-cols-2 gap-4 h-full">
                    <DatoSimple 
                     label="Repo" 
-                    value={formatPercentage(operaciones.repoPorc)} 
+                    value={operaciones.repoPorc} 
                     isEditing={isEditing}
                     align="center" 
                     unit="%" 
                     icon={<RefreshCw className="h-5 w-5 text-primary"/>} 
-                    trendDirection="down"
                     valueId="operaciones.repoPorc"
                     onInputChange={onInputChange}
                   />
                   <DatoSimple 
                     label="Frescura" 
-                    value={formatPercentage(operaciones.frescuraPorc)} 
+                    value={operaciones.frescuraPorc} 
                     isEditing={isEditing}
                     align="center" unit="%" 
                     icon={<Sparkles className="h-5 w-5 text-primary"/>} 
@@ -280,7 +280,7 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
                    <DatoSimple 
                     icon={<Clock className="h-5 w-5 text-primary"/>} 
                     label="Filas Caja" 
-                    value={formatPercentage(operaciones.filasCajaPorc)}
+                    value={operaciones.filasCajaPorc}
                     isEditing={isEditing}
                     align="center" 
                     unit="%"
@@ -290,7 +290,7 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
                   <DatoSimple 
                     icon={<ScanLine className="h-5 w-5 text-primary"/>} 
                     label="ACO" 
-                    value={formatPercentage(operaciones.scoPorc)}
+                    value={operaciones.scoPorc}
                     isEditing={isEditing}
                     align="center" 
                     unit="%"
@@ -300,7 +300,7 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
                   <DatoSimple 
                     icon={<Inbox className="h-5 w-5 text-primary"/>} 
                     label="DropOff" 
-                    value={formatPercentage(operaciones.dropOffPorc)} 
+                    value={operaciones.dropOffPorc} 
                     isEditing={isEditing}
                     align="center" 
                     unit="%"
@@ -312,7 +312,7 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
           
            <KpiCard title="V. Ipod" icon={<Smartphone className="h-5 w-5 text-primary" />} className="md:col-span-1">
               <DatoSimple 
-                value={formatNumber(operaciones.ventaIpod)} 
+                value={operaciones.ventaIpod} 
                 isEditing={isEditing}
                 align="center"
                 valueId="operaciones.ventaIpod"
@@ -322,7 +322,7 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
 
           <KpiCard title="E-Ticket" icon={<Ticket className="h-5 w-5 text-primary" />} className="md:col-span-1">
               <DatoSimple 
-                value={formatPercentage(operaciones.eTicketPorc)} 
+                value={operaciones.eTicketPorc} 
                 isEditing={isEditing}
                 align="center" 
                 unit="%"

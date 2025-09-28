@@ -12,8 +12,8 @@ export const formatNumber = (amount: number | null | undefined) => {
 };
 
 export const formatPercentage = (value: number | null | undefined) => {
-  if (value === null || value === undefined || typeof value !== 'number') return 'N/A';
-  return `${value.toFixed(2).replace('.', ',')}%`;
+  if (value === null || value === undefined) return 'N/A';
+  return `${Math.round(value)}%`;
 };
 
 export const formatGap = (value: number) => {
