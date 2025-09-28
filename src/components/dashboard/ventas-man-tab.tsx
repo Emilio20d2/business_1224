@@ -24,7 +24,7 @@ import { formatCurrency, formatPercentage, formatNumber } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { Button } from '../ui/button';
 import { Users, MapPin, ShoppingBasket, Percent, Euro, Shirt, Footprints, SprayCan, Package } from 'lucide-react';
-import { Tabs, TabsContent } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { OperacionesSubTab } from './operaciones-sub-tab';
 import { FocusSemanalTab } from './focus-semanal-tab';
 import { DatoSimple } from './kpi-card';
@@ -202,15 +202,13 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
 
     const tabButtons = [
         { value: 'ventas', label: 'VENTAS' },
-        { value: 'aqne', label: 'AQNE' },
         { value: 'zonaYAgrupacion', label: 'ZONA Y AGRUPACIÓN' },
         { value: 'operaciones', label: 'OPERACIONES' },
-        { value: 'focus', label: 'FOCUS' },
     ];
 
     return (
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <div className="mb-4 grid w-full grid-cols-2 md:grid-cols-5 gap-2">
+            <div className="mb-4 grid w-full grid-cols-2 md:grid-cols-3 gap-2">
                 {tabButtons.map(tab => (
                     <Button
                         key={tab.value}
@@ -293,74 +291,6 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                </div>
             </TabsContent>
 
-            <TabsContent value="aqne" className="mt-0">
-                 <div className="grid gap-4 items-start grid-cols-1">
-                   <DataTable
-                        title="Ropa"
-                        icon={<Shirt className="h-5 w-5" />}
-                        dataKey="ventasMan.pesoComprador"
-                        data={ventasMan.pesoComprador.sort((a, b) => (b.totalEuros || 0) - (a.totalEuros || 0)).map(item => ({
-                            ...item,
-                            pesoPorc: grandTotalEuros > 0 ? ((Number(item.totalEuros) || 0) / grandTotalEuros) * 100 : 0
-                        }))}
-                        list={listas.compradorMan}
-                        isEditing={isEditing}
-                        onInputChange={onInputChange}
-                        showFooter={true}
-                        totalEurosOverride={ropaTotalEuros}
-                        totalPesoPorcOverride={ropaPesoPorcTotal}
-                        showVarPorc={false}
-                    />
-                    <DataTable
-                        title="Calzado"
-                        icon={<Footprints className="h-5 w-5" />}
-                        dataKey="datosPorSeccion.man.desglose"
-                        data={calzadoTableData}
-                        list={undefined}
-                        isEditing={isEditing}
-                        onInputChange={onInputChange}
-                        showFooter={false}
-                        showVarPorc={false}
-                    />
-                    <DataTable
-                        title="Perfumeria"
-                        icon={<SprayCan className="h-5 w-5" />}
-                        dataKey="datosPorSeccion.man.desglose"
-                        data={perfumeriaTableData}
-                        list={undefined}
-                        isEditing={isEditing}
-                        onInputChange={onInputChange}
-                        showFooter={false}
-                        showVarPorc={false}
-                    />
-                     <Card className="h-full overflow-y-auto">
-                        <Table>
-                           <TableHeader>
-                                <TableRow>
-                                    <TableHead className="w-[40%] uppercase font-bold text-primary">
-                                        <div className="flex items-center gap-2">
-                                            <Package className="h-4 w-4" />
-                                            <span>Unidades</span>
-                                        </div>
-                                    </TableHead>
-                                    <TableHead className="w-[20%]"></TableHead>
-                                    <TableHead className='text-right w-[20%] uppercase font-bold text-primary'>UNIDADES</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                <TableRow>
-                                    <TableCell className="font-bold uppercase">Total</TableCell>
-                                    <TableCell></TableCell>
-                                    <TableCell className="text-right font-medium">
-                                        {formatNumber(datosPorSeccion.man.metricasPrincipales.totalUnidades)}
-                                    </TableCell>
-                                </TableRow>
-                            </TableBody>
-                        </Table>
-                    </Card>
-               </div>
-            </TabsContent>
-
             <TabsContent value="zonaYAgrupacion" className="mt-0">
                 <div className="grid gap-4 items-start grid-cols-1 md:grid-cols-2">
                     <DataTable
@@ -390,13 +320,6 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                 <OperacionesSubTab data={data} isEditing={isEditing} onInputChange={onInputChange} />
             </TabsContent>
             
-            <TabsContent value="focus" className="mt-0">
-              <FocusSemanalTab 
-                text={data.focusSemanal} 
-                isEditing={isEditing} 
-                onInputChange={onInputChange} 
-              />
-            </TabsContent>
         </Tabs>
     );
 }
