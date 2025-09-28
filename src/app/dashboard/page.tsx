@@ -50,10 +50,10 @@ type TabValue = "datosSemanales" | "aqneSemanal" | "acumulado" | "man" | "woman"
 
 
 const tabConfig: Record<string, { label: string; icon?: React.FC<React.SVGProps<SVGSVGElement>>, text?: string, path?: string }> = {
-    datosSemanales: { label: "GENERAL", icon: LayoutDashboard },
-    woman: { label: "WOMAN", path: "/woman" },
+    datosSemanales: { label: "GENERAL", icon: LayoutDashboard, path: "/dashboard?tab=datosSemanales" },
+    woman: { label: "WOMAN", path: "/woman", text: "W" },
     man: { label: "MAN", text: "M", path: "/man" },
-    nino: { label: "NIÑO", path: "/nino" },
+    nino: { label: "NIÑO", path: "/nino", text: "N" },
 };
 
 
@@ -523,7 +523,7 @@ const handleImportSpecificWeek = async () => {
                                 aria-label={config.label}
                             >
                               {config.icon && <config.icon className={cn("h-4 w-4", !isActive && "text-primary")} />}
-                              {config.text && <span className={cn("font-bold text-lg", !isActive && "text-primary")}>{config.text}</span>}
+                              {config.text && <span className={cn("font-bold text-lg", isActive ? "" : "text-primary")}>{config.text}</span>}
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent>

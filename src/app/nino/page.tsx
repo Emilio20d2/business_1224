@@ -38,9 +38,9 @@ type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMa
 
 const tabConfig: Record<string, { label: string; icon?: React.FC<React.SVGProps<SVGSVGElement>>, text?: string, path?: string }> = {
     datosSemanales: { label: "GENERAL", icon: LayoutDashboard, path: "/dashboard?tab=datosSemanales" },
-    woman: { label: "WOMAN", path: "/woman" },
+    woman: { label: "WOMAN", path: "/woman", text: "W" },
     man: { label: "MAN", text: "M", path: "/man" },
-    nino: { label: "NIÑO", path: "/nino" },
+    nino: { label: "NIÑO", path: "/nino", text: "N" },
 };
 
 const listLabels: Record<EditableList, string> = {
@@ -433,7 +433,7 @@ const handleImportSpecificWeek = async () => {
                                 aria-label={config.label}
                             >
                                {config.icon && <config.icon className={cn("h-4 w-4", !isActive && "text-primary")} />}
-                               {config.text && <span className={cn("font-bold text-lg", !isActive && "text-primary")}>{config.text}</span>}
+                               {config.text && <span className={cn("font-bold text-lg", isActive ? "" : "text-primary")}>{config.text}</span>}
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent>
@@ -534,7 +534,7 @@ const handleImportSpecificWeek = async () => {
                             <span>Importar Semana 24</span>
                         </DropdownMenuItem>
                     )}
-                   </>
+                    </>
                   )}
                   {canEdit && <DropdownMenuSeparator />}
                   <DropdownMenuItem onSelect={() => {
