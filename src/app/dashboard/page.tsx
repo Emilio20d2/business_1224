@@ -468,8 +468,6 @@ const handleImportSpecificWeek = async () => {
     { value: 'ventas', label: 'VENTAS' },
     { value: 'aqne', label: 'AQNE' },
     { value: 'acumulado', label: 'ACUMULADO' },
-    { value: 'operaciones', label: 'OPERACIONES' },
-    { value: 'focus', label: 'FOCUS' },
   ];
 
 
@@ -645,7 +643,7 @@ const handleImportSpecificWeek = async () => {
         <main>
           {data ? (
             <Tabs value={activeSubTab} onValueChange={setActiveSubTab} className="w-full">
-              <div className="mb-4 grid w-full grid-cols-2 md:grid-cols-5 gap-2">
+              <div className="mb-4 grid w-full grid-cols-2 md:grid-cols-3 gap-2">
                 {tabButtons.map(tab => (
                     <Button
                         key={tab.value}
@@ -674,16 +672,6 @@ const handleImportSpecificWeek = async () => {
               </TabsContent>
               <TabsContent value="acumulado" className="mt-0">
                 <AcumuladoTab data={data.acumulado} isEditing={isEditing} onInputChange={handleInputChange}/>
-              </TabsContent>
-              <TabsContent value="operaciones" className="mt-0">
-                <OperacionesSubTab data={data} isEditing={isEditing} onInputChange={handleInputChange} />
-              </TabsContent>
-              <TabsContent value="focus" className="mt-0">
-                <FocusSemanalTab 
-                  text={data.focusSemanal} 
-                  isEditing={isEditing} 
-                  onInputChange={handleInputChange} 
-                />
               </TabsContent>
 
             </Tabs>
