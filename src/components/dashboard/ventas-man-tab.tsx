@@ -45,7 +45,8 @@ const DataTable = ({
     onInputChange,
     showFooter = false,
     totalEurosOverride,
-    totalVarPorcOverride
+    totalVarPorcOverride,
+    totalPesoPorcOverride,
 }: { 
     title: string,
     icon: React.ReactNode,
@@ -56,7 +57,8 @@ const DataTable = ({
     onInputChange: VentasManTabProps['onInputChange'],
     showFooter?: boolean,
     totalEurosOverride?: number,
-    totalVarPorcOverride?: number
+    totalVarPorcOverride?: number,
+    totalPesoPorcOverride?: number,
 }) => {
     if (!data || !Array.isArray(data)) {
         return <p className="text-center text-muted-foreground mt-8">No hay datos disponibles.</p>;
@@ -64,6 +66,7 @@ const DataTable = ({
     const optionList = list || [];
 
     const totalEuros = totalEurosOverride !== undefined ? totalEurosOverride : data.reduce((sum, item) => sum + (Number(item.totalEuros) || 0), 0);
+    
     const weightedVarPorc = totalVarPorcOverride !== undefined ? totalVarPorcOverride : (totalEuros > 0 
         ? data.reduce((sum, item) => sum + (Number(item.totalEuros) || 0) * (Number(item.varPorc) || 0), 0) / totalEuros
         : 0);
@@ -91,7 +94,6 @@ const DataTable = ({
                 </TableHeader>
                 <TableBody>
                     {data.map((item, index) => {
-                         const pesoPorc = totalEuros > 0 ? ((Number(item.totalEuros) || 0) / totalEuros) * 100 : 0;
                         return (
                             <TableRow 
                                 key={item.nombre + index}
@@ -116,15 +118,15 @@ const DataTable = ({
                                     )}
                                 </TableCell>
                                 <TableCell className="text-right font-medium">
-                                   {isEditing && onInputChange ? (
+                                    {isEditing && onInputChange ? (
                                         <Input
                                             type="number"
                                             readOnly
-                                            value={pesoPorc.toFixed(0)}
+                                            value={item.pesoPorc.toFixed(2)}
                                             className="w-full ml-auto text-right bg-muted"
                                         />
                                     ) : (
-                                        formatPercentage(pesoPorc)
+                                        formatPercentage(item.pesoPorc)
                                     )}
                                 </TableCell>
                                 <TableCell className="text-right font-medium">
@@ -143,7 +145,7 @@ const DataTable = ({
                     <TableFooter>
                         <TableRow className="bg-muted/50 hover:bg-muted/60">
                             <TableHead className="font-bold uppercase">Total</TableHead>
-                            <TableHead className="text-right font-bold">{formatPercentage(data.reduce((sum, item) => sum + (totalEuros > 0 ? ((Number(item.totalEuros) || 0) / totalEuros) * 100 : 0), 0))}</TableHead>
+                            <TableHead className="text-right font-bold">{formatPercentage(totalPesoPorcOverride ?? 0)}</TableHead>
                             <TableHead className="text-right font-bold">{formatCurrency(totalEuros)}</TableHead>
                             <TableHead className={cn("text-right font-bold", weightedVarPorc < 0 ? "text-red-600" : "text-green-600")}>
                                 {formatPercentage(weightedVarPorc)}
@@ -232,6 +234,7 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                         showFooter={true}
                         totalEurosOverride={ropaTotalEuros}
                         totalVarPorcOverride={ropaWeightedVarPorc}
+                        totalPesoPorcOverride={ropaPesoPorcTotal}
                     />
                     <DataTable
                         title="Calzado"
