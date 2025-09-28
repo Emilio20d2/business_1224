@@ -265,7 +265,7 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                         <Table>
                             <TableHeader className="sticky top-0 bg-card z-10">
                                 <TableRow>
-                                    <TableHead className="w-[40%] uppercase font-bold text-primary">
+                                     <TableHead className="w-[40%] uppercase font-bold text-primary">
                                         <div className="flex items-center gap-2">
                                             <Package className="h-4 w-4" />
                                             <span>Unidades</span>
@@ -287,7 +287,6 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                                             valueId="datosPorSeccion.man.metricasPrincipales.totalUnidades"
                                             onInputChange={onInputChange}
                                             align="right"
-                                            className="text-base"
                                         />
                                     </TableCell>
                                     <TableCell className="text-right font-medium">
@@ -298,7 +297,6 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                                             onInputChange={onInputChange}
                                             align="right"
                                             alwaysShowVariation
-                                            className="text-base"
                                         />
                                     </TableCell>
                                 </TableRow>
@@ -373,7 +371,6 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                                             valueId="datosPorSeccion.man.metricasPrincipales.totalUnidades"
                                             onInputChange={onInputChange}
                                             align="right"
-                                            className="text-base"
                                         />
                                     </TableCell>
                                 </TableRow>
