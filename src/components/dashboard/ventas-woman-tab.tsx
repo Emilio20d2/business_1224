@@ -229,7 +229,7 @@ export function VentasWomanTab({ data, isEditing, onInputChange }: VentasWomanTa
                         title="Ropa"
                         icon={<Shirt className="h-5 w-5" />}
                         dataKey="ventasWoman.pesoComprador"
-                        data={ventasWoman.pesoComprador.map(item => ({
+                        data={ventasWoman.pesoComprador.sort((a, b) => (b.totalEuros || 0) - (a.totalEuros || 0)).map(item => ({
                             ...item,
                             pesoPorc: grandTotalEuros > 0 ? ((Number(item.totalEuros) || 0) / grandTotalEuros) * 100 : 0
                         }))}
@@ -299,7 +299,7 @@ export function VentasWomanTab({ data, isEditing, onInputChange }: VentasWomanTa
                         title="Ropa"
                         icon={<Shirt className="h-5 w-5" />}
                         dataKey="ventasWoman.pesoComprador"
-                        data={ventasWoman.pesoComprador.map(item => ({
+                        data={ventasWoman.pesoComprador.sort((a, b) => (b.totalEuros || 0) - (a.totalEuros || 0)).map(item => ({
                             ...item,
                             pesoPorc: grandTotalEuros > 0 ? ((Number(item.totalEuros) || 0) / grandTotalEuros) * 100 : 0
                         }))}

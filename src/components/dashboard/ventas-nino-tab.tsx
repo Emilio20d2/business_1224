@@ -229,7 +229,7 @@ export function VentasNinoTab({ data, isEditing, onInputChange }: VentasNinoTabP
                         title="Ropa"
                         icon={<Shirt className="h-5 w-5" />}
                         dataKey="ventasNino.pesoComprador"
-                        data={ventasNino.pesoComprador.map(item => ({
+                        data={ventasNino.pesoComprador.sort((a, b) => (b.totalEuros || 0) - (a.totalEuros || 0)).map(item => ({
                             ...item,
                             pesoPorc: grandTotalEuros > 0 ? ((Number(item.totalEuros) || 0) / grandTotalEuros) * 100 : 0
                         }))}
@@ -299,7 +299,7 @@ export function VentasNinoTab({ data, isEditing, onInputChange }: VentasNinoTabP
                         title="Ropa"
                         icon={<Shirt className="h-5 w-5" />}
                         dataKey="ventasNino.pesoComprador"
-                        data={ventasNino.pesoComprador.map(item => ({
+                        data={ventasNino.pesoComprador.sort((a, b) => (b.totalEuros || 0) - (a.totalEuros || 0)).map(item => ({
                             ...item,
                             pesoPorc: grandTotalEuros > 0 ? ((Number(item.totalEuros) || 0) / grandTotalEuros) * 100 : 0
                         }))}
