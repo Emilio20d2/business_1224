@@ -167,7 +167,7 @@ function WomanPageComponent() {
         }
 
         let reportData: WeeklyData;
-        if (weekId === '2025-38' && !reportSnap.exists()) {
+        if (weekId === '2025-39' && !reportSnap.exists()) {
             reportData = semanaExportada as WeeklyData;
         } else if (!reportSnap.exists()) {
              if (canEdit) {
@@ -351,7 +351,7 @@ function WomanPageComponent() {
 
 const handleImportSpecificWeek = async () => {
     if (!canEdit) return;
-    const weekIdToImport = '2025-38';
+    const weekIdToImport = '2025-39';
     
     setIsSaving(true);
     toast({ title: "Importando datos...", description: `Guardando datos para la semana ${weekIdToImport}.` });
