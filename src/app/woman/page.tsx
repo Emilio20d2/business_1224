@@ -71,6 +71,7 @@ const synchronizeTableData = (list: string[], oldTableData: VentasManItem[]): Ve
             pesoPorc: 0,
             totalEuros: 0,
             varPorc: 0,
+            totalEurosSemanaAnterior: 0
         };
     });
 };
@@ -118,7 +119,7 @@ function WomanPageComponent() {
     const config = tabConfig[newTab];
     if (config?.path) {
         if(config.path.startsWith('/dashboard')) {
-            router.push(`${config.path}&week=${selectedWeek}`);
+             router.push(`${config.path}&week=${selectedWeek}`);
         } else {
             router.push(`${config.path}?week=${selectedWeek}`);
         }
@@ -553,7 +554,7 @@ const handleImportSpecificWeek = async () => {
            {data ? (
                 <VentasWomanTab 
                   data={data}
-                  isEditing={isEditing} 0
+                  isEditing={isEditing} 
                   onInputChange={handleInputChange}
                 />
             ) : (
