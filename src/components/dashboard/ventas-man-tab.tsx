@@ -20,10 +20,10 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
-import { formatCurrency, formatPercentage } from "@/lib/format";
+import { formatCurrency, formatPercentage, formatNumber } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { Button } from '../ui/button';
-import { Users, MapPin, ShoppingBasket, Percent, Euro, Shirt, Footprints, SprayCan } from 'lucide-react';
+import { Users, MapPin, ShoppingBasket, Percent, Euro, Shirt, Footprints, SprayCan, Package } from 'lucide-react';
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { OperacionesSubTab } from './operaciones-sub-tab';
 import { FocusSemanalTab } from './focus-semanal-tab';
@@ -73,7 +73,8 @@ const DataTable = ({
 
     const handleChange = (index: number, field: keyof VentasManItem, value: any) => {
         const path = `${dataKey}.${index}.${field}`;
-        onInputChange(path, value);
+        const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
+        onInputChange(path, isNaN(numericValue) ? "" : numericValue);
     };
 
     return (
@@ -81,15 +82,15 @@ const DataTable = ({
             <Table>
                 <TableHeader className="sticky top-0 bg-card z-10">
                     <TableRow>
-                        <TableHead className="uppercase font-bold w-1/4">
+                        <TableHead className="uppercase font-bold w-[40%]">
                             <div className="flex items-center gap-2 text-primary">
                                 {icon}
                                 <span>{title}</span>
                             </div>
                         </TableHead>
-                        <TableHead className='text-right w-1/4 uppercase font-bold text-primary'><Percent className="h-4 w-4 inline-block" /></TableHead>
-                        <TableHead className='text-right w-1/4 uppercase font-bold text-primary'><Euro className="h-4 w-4 inline-block" /></TableHead>
-                        <TableHead className='text-right w-1/4 uppercase font-bold text-primary'>Var %</TableHead>
+                        <TableHead className='text-right w-[20%] uppercase font-bold text-primary'><Percent className="h-4 w-4 inline-block" /></TableHead>
+                        <TableHead className='text-right w-[20%] uppercase font-bold text-primary'><Euro className="h-4 w-4 inline-block" /></TableHead>
+                        <TableHead className='text-right w-[20%] uppercase font-bold text-primary'>Var %</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -190,7 +191,15 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
         varPorc: perfumeriaData.varPorc,
         totalEurosSemanaAnterior: 0
     }] : [];
-    
+
+    const unidadesTableData: VentasManItem[] = [{
+        nombre: 'Unidades',
+        pesoPorc: 0,
+        totalEuros: datosPorSeccion.man.metricasPrincipales.totalUnidades,
+        varPorc: datosPorSeccion.man.metricasPrincipales.varPorcUnidades,
+        totalEurosSemanaAnterior: 0
+    }];
+
     const ropaPesoPorcTotal = grandTotalEuros > 0 ? (ropaTotalEuros / grandTotalEuros) * 100 : 0;
     const ropaWeightedVarPorc = ropaTotalEuros > 0
         ? ventasMan.pesoComprador.reduce((sum, item) => sum + (Number(item.totalEuros) || 0) * (Number(item.varPorc) || 0), 0) / ropaTotalEuros
@@ -256,6 +265,29 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                         onInputChange={onInputChange}
                         showFooter={false}
                     />
+                     <Card className="h-full overflow-y-auto">
+                        <Table>
+                            <TableHeader className="sticky top-0 bg-card z-10">
+                                <TableRow>
+                                    <TableHead className="uppercase font-bold w-3/4">
+                                        <div className="flex items-center gap-2 text-primary">
+                                            <Package className="h-5 w-5" />
+                                            <span>Unidades</span>
+                                        </div>
+                                    </TableHead>
+                                    <TableHead className='text-right w-1/4 uppercase font-bold text-primary'>Var %</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                <TableRow>
+                                    <TableCell>{formatNumber(datosPorSeccion.man.metricasPrincipales.totalUnidades)}</TableCell>
+                                    <TableCell className={cn("text-right font-medium", datosPorSeccion.man.metricasPrincipales.varPorcUnidades < 0 ? "text-red-600" : "text-green-600")}>
+                                        {formatPercentage(datosPorSeccion.man.metricasPrincipales.varPorcUnidades)}
+                                    </TableCell>
+                                </TableRow>
+                            </TableBody>
+                        </Table>
+                    </Card>
                </div>
             </TabsContent>
 

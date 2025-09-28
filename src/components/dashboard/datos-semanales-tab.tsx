@@ -6,6 +6,7 @@ import {
   Euro, 
   ChartLine, 
   Receipt,
+  Warehouse,
   ClipboardX,
   Trash2,
   Smartphone,
@@ -341,3 +342,4 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
     </div>
   );
 }
+
