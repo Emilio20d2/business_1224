@@ -52,7 +52,7 @@ type TabValue = "datosSemanales" | "aqneSemanal" | "acumulado" | "man" | "woman"
 const tabConfig: Record<string, { label: string; icon?: React.FC<React.SVGProps<SVGSVGElement>>, text?: string, path?: string }> = {
     datosSemanales: { label: "GENERAL", icon: LayoutDashboard, path: "/dashboard?tab=datosSemanales" },
     woman: { label: "WOMAN", path: "/woman", text: "W" },
-    man: { label: "MAN", path: "/man", text: "M" },
+    man: { label: "MAN", text: "M", path: "/man" },
     nino: { label: "NIÑO", path: "/nino", text: "N" },
 };
 
@@ -84,7 +84,6 @@ const synchronizeTableData = (list: string[], oldTableData: VentasManItem[]): Ve
             pesoPorc: 0,
             totalEuros: 0,
             varPorc: 0,
-            totalEurosSemanaAnterior: 0
         };
     });
 };
@@ -183,7 +182,7 @@ function DashboardPageComponent() {
 
         let reportData: WeeklyData;
         if (weekId === '2025-39' && !reportSnap.exists()) {
-            reportData = semanaExportada as WeeklyData;
+            reportData = JSON.parse(JSON.stringify(semanaExportada)) as WeeklyData;
         } else if (!reportSnap.exists()) {
              if (canEdit) {
                 toast({
@@ -302,42 +301,61 @@ function DashboardPageComponent() {
         
         const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
         
-        if (typeof current[finalKey] === 'number') {
-            current[finalKey] = isNaN(numericValue) || value === "" ? 0 : numericValue;
-        } else {
-            current[finalKey] = value;
+        current[finalKey] = isNaN(numericValue) || value === "" ? 0 : numericValue;
+        
+        // --- Automatic Calculations ---
+        
+        const [mainKey, sectionKey, subKey] = keys;
+
+        // 1. Recalculate section totals if a breakdown value changes
+        if (mainKey === 'datosPorSeccion' && subKey === 'desglose') {
+            const section = updatedData.datosPorSeccion[sectionKey];
+            if (section && Array.isArray(section.desglose)) {
+                const newTotalEuros = section.desglose.reduce((sum: number, item: any) => sum + (item.totalEuros || 0), 0);
+                section.metricasPrincipales.totalEuros = newTotalEuros;
+            }
         }
         
-        const [mainKey, sectionKey, subKey, index, field] = keys;
-        
-         if (mainKey === 'datosPorSeccion' || mainKey === 'aqneSemanal') {
-            const section = updatedData[mainKey][sectionKey];
+        // 2. Recalculate section weights and main sales card totals
+        if (mainKey === 'datosPorSeccion') {
+            const { man, woman, nino } = updatedData.datosPorSeccion;
+            
+            const totalEurosMan = man?.metricasPrincipales.totalEuros || 0;
+            const totalEurosWoman = woman?.metricasPrincipales.totalEuros || 0;
+            const totalEurosNino = nino?.metricasPrincipales.totalEuros || 0;
+            const grandTotalEuros = totalEurosMan + totalEurosWoman + totalEurosNino;
 
-            if (subKey === 'desglose') {
+            // Update main sales card totals
+            updatedData.ventas.totalEuros = grandTotalEuros;
+
+            const totalUnidadesMan = man?.metricasPrincipales.totalUnidades || 0;
+            const totalUnidadesWoman = woman?.metricasPrincipales.totalUnidades || 0;
+            const totalUnidadesNino = nino?.metricasPrincipales.totalUnidades || 0;
+            updatedData.ventas.totalUnidades = totalUnidadesMan + totalUnidadesWoman + totalUnidadesNino;
+
+            // Update section weights
+            if (grandTotalEuros > 0) {
+                if (man) man.pesoPorc = (totalEurosMan / grandTotalEuros) * 100;
+                if (woman) woman.pesoPorc = (totalEurosWoman / grandTotalEuros) * 100;
+                if (nino) nino.pesoPorc = (totalEurosNino / grandTotalEuros) * 100;
+            } else {
+                if (man) man.pesoPorc = 0;
+                if (woman) woman.pesoPorc = 0;
+                if (nino) nino.pesoPorc = 0;
+            }
+        }
+
+        // 3. Recalculate AQNE weights and daily totals
+        if (mainKey === 'aqneSemanal') {
+            const sections = updatedData.aqneSemanal;
+             if (subKey === 'desglose') {
+                const section = sections[sectionKey];
                 if (section && Array.isArray(section.desglose)) {
                     const newTotalEuros = section.desglose.reduce((sum: number, item: any) => sum + (item.totalEuros || 0), 0);
                     section.metricasPrincipales.totalEuros = newTotalEuros;
                 }
             }
-        }
-        
-        if (mainKey === 'datosPorSeccion') {
-            const { man, woman, nino } = updatedData.datosPorSeccion;
-            
-            const totalUnidades = (man?.metricasPrincipales.totalUnidades || 0) +
-                                (woman?.metricasPrincipales.totalUnidades || 0) +
-                                (nino?.metricasPrincipales.totalUnidades || 0);
-            updatedData.ventas.totalUnidades = totalUnidades;
-            
-            const totalEuros = (man?.metricasPrincipales.totalEuros || 0) +
-                                (woman?.metricasPrincipales.totalEuros || 0) +
-                                (nino?.metricasPrincipales.totalEuros || 0);
-            updatedData.ventas.totalEuros = totalEuros;
-        }
 
-        
-        if (mainKey === 'aqneSemanal') {
-            const sections = updatedData.aqneSemanal;
             const totalVentasAqne = (sections.woman.metricasPrincipales.totalEuros || 0) +
                                     (sections.man.metricasPrincipales.totalEuros || 0) +
                                     (sections.nino.metricasPrincipales.totalEuros || 0);
@@ -361,19 +379,21 @@ function DashboardPageComponent() {
             }
         }
 
-        if (keys[0] === 'ventasMan') {
-            const tableKey = keys[1] as keyof WeeklyData['ventasMan'];
-            if (!updatedData.ventasMan[tableKey]) updatedData.ventasMan[tableKey] = [];
+        // 4. Handle direct input in specific sales tables (man, woman, nino)
+        if (keys[0] === 'ventasMan' || keys[0] === 'ventasWoman' || keys[0] === 'ventasNino') {
+            const section = keys[0] as 'ventasMan' | 'ventasWoman' | 'ventasNino';
+            const tableKey = keys[1] as keyof WeeklyData[typeof section];
+            if (!updatedData[section][tableKey]) (updatedData[section] as any)[tableKey] = [];
             const itemIndex = parseInt(keys[2], 10);
             const fieldKey = keys[3] as keyof VentasManItem;
 
             if (
                 !isNaN(itemIndex) &&
-                updatedData.ventasMan &&
-                Array.isArray(updatedData.ventasMan[tableKey]) &&
-                updatedData.ventasMan[tableKey][itemIndex]
+                updatedData[section] &&
+                Array.isArray((updatedData[section] as any)[tableKey]) &&
+                (updatedData[section] as any)[tableKey][itemIndex]
             ) {
-                 (updatedData.ventasMan[tableKey] as VentasManItem[])[itemIndex][fieldKey] = value;
+                 ((updatedData[section] as any)[tableKey] as VentasManItem[])[itemIndex][fieldKey] = value;
             }
         }
         
