@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Card } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCurrency, formatPercentage } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { Button } from '../ui/button';
@@ -95,7 +95,7 @@ const DataTable = ({
                                 key={item.nombre + index}
                             >
                                 <TableCell>
-                                    {isEditing ? (
+                                    {isEditing && list && list.length > 0 ? (
                                         <Select
                                             value={item.nombre}
                                             onValueChange={(value) => handleChange(index, 'nombre', value)}
@@ -151,8 +151,28 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
     
     if (!data || !data.ventasMan || !data.listas) return <p>Cargando datos de Ventas Man...</p>;
 
-    const { ventasMan, listas } = data;
+    const { ventasMan, listas, datosPorSeccion } = data;
     
+    const calzadoData = datosPorSeccion.man.desglose.find(d => d.seccion === 'Calzado');
+    const perfumeriaData = datosPorSeccion.man.desglose.find(d => d.seccion === 'Perfumería');
+
+    const calzadoTableData: VentasManItem[] = calzadoData ? [{
+        nombre: 'Calzado',
+        pesoPorc: 0,
+        totalEuros: calzadoData.totalEuros,
+        varPorc: calzadoData.varPorc,
+        totalEurosSemanaAnterior: 0
+    }] : [];
+    
+    const perfumeriaTableData: VentasManItem[] = perfumeriaData ? [{
+        nombre: 'Perfumeria',
+        pesoPorc: 0,
+        totalEuros: perfumeriaData.totalEuros,
+        varPorc: perfumeriaData.varPorc,
+        totalEurosSemanaAnterior: 0
+    }] : [];
+
+
     const tabButtons = [
         { value: 'ventas', label: 'VENTAS' },
         { value: 'zonaYAgrupacion', label: 'ZONA Y AGRUPACIÓN' },
@@ -190,9 +210,9 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                     <DataTable
                         title="Calzado"
                         icon={<Footprints className="h-5 w-5" />}
-                        dataKey="ventasMan.zonaComercial"
-                        data={ventasMan.zonaComercial}
-                        list={listas.zonaComercialMan}
+                        dataKey="datosPorSeccion.man.desglose"
+                        data={calzadoTableData}
+                        list={undefined}
                         isEditing={isEditing}
                         onInputChange={onInputChange}
                         showFooter={false}
@@ -200,9 +220,9 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                     <DataTable
                         title="Perfumeria"
                         icon={<SprayCan className="h-5 w-5" />}
-                        dataKey="ventasMan.agrupacionComercial"
-                        data={ventasMan.agrupacionComercial}
-                        list={listas.agrupacionComercialMan}
+                        dataKey="datosPorSeccion.man.desglose"
+                        data={perfumeriaTableData}
+                        list={undefined}
                         isEditing={isEditing}
                         onInputChange={onInputChange}
                         showFooter={false}
