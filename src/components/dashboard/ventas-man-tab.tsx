@@ -265,15 +265,15 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                         <Table>
                             <TableHeader className="sticky top-0 bg-card z-10">
                                 <TableRow>
-                                     <TableHead className="w-[40%] uppercase font-bold text-primary">
+                                    <TableHead className="w-[40%] uppercase font-bold text-primary">
                                         <div className="flex items-center gap-2">
                                             <Package className="h-4 w-4" />
                                             <span>Unidades</span>
                                         </div>
                                     </TableHead>
-                                    <TableHead className='w-[20%]'></TableHead>
-                                    <TableHead className='w-[20%]'></TableHead>
-                                    <TableHead className='w-[20%]'></TableHead>
+                                    <TableHead className='text-right w-[20%]'></TableHead>
+                                    <TableHead className='text-right w-[20%]'></TableHead>
+                                    <TableHead className='text-right w-[20%]'></TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -350,22 +350,22 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                         <Table>
                            <TableHeader className="sticky top-0 bg-card z-10">
                                 <TableRow>
-                                     <TableHead className="w-[40%] uppercase font-bold text-primary">
+                                    <TableHead className="w-[40%] uppercase font-bold text-primary">
                                         <div className="flex items-center gap-2">
                                             <Package className="h-4 w-4" />
                                             <span>Unidades</span>
                                         </div>
                                     </TableHead>
-                                    <TableHead className='w-[20%]'></TableHead>
+                                    <TableHead className='text-right w-[20%]'></TableHead>
                                     <TableHead className='text-right w-[20%]'></TableHead>
                                 </TableRow>
                             </TableHeader>
-                             <TableBody>
+                            <TableBody>
                                 <TableRow>
                                     <TableCell className="font-bold uppercase">Total</TableCell>
                                     <TableCell></TableCell>
                                     <TableCell className="text-right font-medium">
-                                        <DatoSimple
+                                         <DatoSimple
                                             value={formatNumber(datosPorSeccion.man.metricasPrincipales.totalUnidades)}
                                             isEditing={isEditing}
                                             valueId="datosPorSeccion.man.metricasPrincipales.totalUnidades"
