@@ -41,19 +41,12 @@ export type WeeklyData = {
     };
     operaciones: {
         filasCajaPorc: number;
-        varPorcFilasCaja: number;
         scoPorc: number;
-        varPorcSco: number;
         dropOffPorc: number;
-        varPorcDropOff: number;
         ventaIpod: number;
-        varPorcVentaIpod: number;
         eTicketPorc: number;
-        varPorcETicket: number;
         repoPorc: number;
-        varPorcRepo: number;
         frescuraPorc: number;
-        varPorcFrescura: number;
     };
     logistica: {
         entradasSemanales: number;
@@ -67,7 +60,6 @@ export type WeeklyData = {
         merma: {
             unidades: number;
             porcentaje: number;
-            varPorcPorcentaje: number;
         };
     };
     almacenes: {
@@ -99,6 +91,16 @@ export type WeeklyData = {
     imagenesComprador: {
         [key: string]: string;
     };
+    ventasWoman: {
+        pesoComprador: VentasManItem[];
+        zonaComercial: VentasManItem[];
+        agrupacionComercial: VentasManItem[];
+    };
+    ventasNino: {
+        pesoComprador: VentasManItem[];
+        zonaComercial: VentasManItem[];
+        agrupacionComercial: VentasManItem[];
+    };
 };
 
 
@@ -128,7 +130,9 @@ type SeccionAqneData = {
     pesoPorc: number;
     metricasPrincipales: {
         totalEuros: number;
+        varPorcEuros: number;
         totalUnidades: number;
+        varPorcUnidades: number;
     };
     desglose: {
         seccion: string;
@@ -141,7 +145,6 @@ export type VentasManItem = {
     nombre: string;
     pesoPorc: number;
     totalEuros: number;
-    totalEurosSemanaAnterior: number;
     varPorc: number;
     imageUrl?: string;
 };
@@ -177,7 +180,6 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
             nombre: name,
             pesoPorc: 0,
             totalEuros: 0,
-            totalEurosSemanaAnterior: 0,
             varPorc: 0
         }));
     }
@@ -194,7 +196,7 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
     
      const createSeccionAqneData = (): SeccionAqneData => ({
         pesoPorc: 0,
-        metricasPrincipales: { totalEuros: 0, totalUnidades: 0 },
+        metricasPrincipales: { totalEuros: 0, varPorcEuros: 0, totalUnidades: 0, varPorcUnidades: 0 },
         desglose: [
             { seccion: "Ropa", totalEuros: 0, varPorc: 0 },
             { seccion: "Calzado", totalEuros: 0, varPorc: 0 },
@@ -209,18 +211,18 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
         ventas: { totalEuros: 0, varPorcEuros: 0, totalUnidades: 0, varPorcUnidades: 0 },
         rendimientoTienda: { trafico: 0, varPorcTrafico: 0, conversion: 0, varPorcConversion: 0 },
         operaciones: { 
-            filasCajaPorc: 0, varPorcFilasCaja: 0,
-            scoPorc: 0, varPorcSco: 0,
-            dropOffPorc: 0, varPorcDropOff: 0,
-            ventaIpod: 0, varPorcVentaIpod: 0,
-            eTicketPorc: 0, varPorcETicket: 0,
-            repoPorc: 0, varPorcRepo: 0,
-            frescuraPorc: 0, varPorcFrescura: 0
+            filasCajaPorc: 0,
+            scoPorc: 0,
+            dropOffPorc: 0,
+            ventaIpod: 0,
+            eTicketPorc: 0,
+            repoPorc: 0,
+            frescuraPorc: 0
         },
         logistica: { entradasSemanales: 0, salidasSemanales: 0 },
         perdidas: { 
             gap: { euros: 0, unidades: 0 }, 
-            merma: { unidades: 0, porcentaje: 0, varPorcPorcentaje: 0 } 
+            merma: { unidades: 0, porcentaje: 0 } 
         },
         almacenes: {
             ropa: { ocupacionPorc: 0, devolucionUnidades: 0, entradas: 0, salidas: 0 },
@@ -270,6 +272,16 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
                 ]
             }
         },
-        imagenesComprador: {}
+        imagenesComprador: {},
+        ventasWoman: {
+            pesoComprador: createVentasManItems(lists?.compradorWoman),
+            zonaComercial: createVentasManItems(lists?.zonaComercialWoman),
+            agrupacionComercial: createVentasManItems(lists?.agrupacionComercialWoman)
+        },
+        ventasNino: {
+            pesoComprador: createVentasManItems(lists?.compradorNino),
+            zonaComercial: createVentasManItems(lists?.zonaComercialNino),
+            agrupacionComercial: createVentasManItems(lists?.agrupacionComercialNino)
+        }
     };
 }

@@ -172,7 +172,7 @@ export function DatoSimple({
                       inputMode="decimal" 
                       step="any" 
                       defaultValue={numericValue} 
-                      className="font-medium text-right w-24" 
+                      className={cn("font-medium text-lg w-24", align === 'right' ? 'text-right' : 'text-center')} 
                       id={valueId}
                       onChange={handleValueChange}
                     />
@@ -182,13 +182,13 @@ export function DatoSimple({
         }
         const showValue = value !== 0 && (!value && (alwaysShowVariation && variation !== undefined)) ? '' : value;
 
-        if (showValue === '') return null;
+        if (showValue === '' && !isEditing) return null;
         
         return <strong className={cn("font-medium text-lg w-full flex items-center justify-center gap-1", valueColor, align === 'right' && 'justify-end', align === 'left' && 'justify-start')}>{showValue}</strong>;
     }
 
     const renderVariation = () => {
-      if (variation === undefined || (value === 0 && !alwaysShowVariation)) return null;
+      if (variation === undefined || (value === 0 && !alwaysShowVariation && !isEditing)) return null;
 
       if (isEditing && variationId && onInputChange) {
         return (

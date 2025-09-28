@@ -52,10 +52,9 @@ type TabValue = "datosSemanales" | "aqneSemanal" | "acumulado" | "man" | "woman"
 const tabConfig: Record<string, { label: string; icon?: React.FC<React.SVGProps<SVGSVGElement>>, text?: string, path?: string }> = {
     datosSemanales: { label: "GENERAL", icon: LayoutDashboard, path: "/dashboard?tab=datosSemanales" },
     woman: { label: "WOMAN", path: "/woman", text: "W" },
-    man: { label: "MAN", text: "M", path: "/man" },
+    man: { label: "MAN", path: "/man", text: "M" },
     nino: { label: "NIÑO", path: "/nino", text: "N" },
 };
-
 
 const listLabels: Record<EditableList, string> = {
     compradorMan: 'Comprador MAN',
@@ -85,6 +84,7 @@ const synchronizeTableData = (list: string[], oldTableData: VentasManItem[]): Ve
             pesoPorc: 0,
             totalEuros: 0,
             varPorc: 0,
+            totalEurosSemanaAnterior: 0
         };
     });
 };
@@ -125,21 +125,25 @@ function DashboardPageComponent() {
     if (!date) return;
     setSelectedDate(date);
     const newWeekId = getWeekIdFromDate(date);
-    updateUrl(newWeekId, 'datosSemanales');
+    updateUrl(newWeekId, 'ventas');
     setCalendarOpen(false);
   };
   
   const handleTabChange = (newTab: string) => {
     const config = tabConfig[newTab];
     if (config?.path) {
-        router.push(`${config.path}?week=${selectedWeek}`);
+        if(config.path.startsWith('/dashboard')) {
+             router.push(`${config.path}&week=${selectedWeek}`);
+        } else {
+            router.push(`${config.path}?week=${selectedWeek}`);
+        }
     }
   };
   
   useEffect(() => {
     if (!searchParams.has('week') && user) {
         const previousWeekId = getPreviousWeekId(getCurrentWeekId());
-        updateUrl(previousWeekId, 'datosSemanales');
+        updateUrl(previousWeekId, 'ventas');
     }
   }, [user, searchParams, updateUrl]);
 
@@ -262,7 +266,7 @@ function DashboardPageComponent() {
        setDataLoading(false);
         if(canEdit) {
             const newWeekId = getPreviousWeekId(getCurrentWeekId());
-            updateUrl(newWeekId, 'datosSemanales');
+            updateUrl(newWeekId, 'ventas');
         } else {
             setError("No hay informes disponibles. Contacta al administrador.");
         }

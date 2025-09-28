@@ -9,18 +9,20 @@ import {
   Warehouse,
   ClipboardX,
   Trash2,
+  Shirt,
+  Footprints,
+  SprayCan,
+  Truck,
+  PackageCheck,
+  Package,
+  Clock,
   Smartphone,
   Ticket,
   ScanLine,
   RefreshCw,
   Inbox,
-  Package,
-  Footprints,
-  SprayCan,
-  Clock,
   Percent,
-  Sparkles,
-  Shirt
+  Sparkles
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
@@ -78,7 +80,14 @@ const SectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionNa
             <CardContent>
                  <div className="grid grid-cols-2 gap-2">
                     <div className="bg-background rounded-lg p-3 text-center flex flex-col justify-center items-center gap-1">
-                        <div className={cn("font-bold text-lg", data.metricasPrincipales.totalEuros < 0 && "text-red-600")}>{formatCurrency(data.metricasPrincipales.totalEuros)}</div>
+                        <DatoSimple
+                            value={data.metricasPrincipales.totalEuros}
+                            isEditing={isEditing}
+                            valueId={`datosPorSeccion.${name}.metricasPrincipales.totalEuros`}
+                            onInputChange={onInputChange}
+                            align="center"
+                            unit="€"
+                         />
                         <DatoSimple
                             value=""
                             variation={data.metricasPrincipales.varPorcEuros}
@@ -207,18 +216,20 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
               <div className="flex flex-row justify-around items-center gap-4 h-full">
                   <DatoSimple 
                       label={<Euro className="h-5 w-5 text-primary"/>}
-                      value={isEditing ? perdidas.gap.euros : formatGap(perdidas.gap.euros)} 
+                      value={perdidas.gap.euros} 
                       isEditing={isEditing}
                       valueId="perdidas.gap.euros"
                       align="center"
+                      unit="€"
                       onInputChange={onInputChange}
                   />
                   <DatoSimple 
                       label={<Package className="h-5 w-5 text-primary"/>}
-                      value={isEditing ? perdidas.gap.unidades : formatGap(perdidas.gap.unidades)}
+                      value={perdidas.gap.unidades}
                       isEditing={isEditing}
                       valueId="perdidas.gap.unidades"
                       align="center"
+                      unit="Unid."
                       onInputChange={onInputChange}
                   />
               </div>
