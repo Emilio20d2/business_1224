@@ -147,7 +147,7 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
     const { ventasMan, listas } = data;
     
     const tabButtons = [
-        { value: 'comprador', label: 'COMPRADOR' },
+        { value: 'comprador', label: 'VENTAS' },
         { value: 'zonaYAgrupacion', label: 'ZONA Y AGRUPACIÓN' },
         { value: 'operaciones', label: 'OPERACIONES' },
         { value: 'focus', label: 'FOCUS' },
