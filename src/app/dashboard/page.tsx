@@ -166,7 +166,7 @@ function DashboardPageComponent() {
         ]);
 
         if (importStatusSnap.exists()) {
-            setImportCompleted(importStatusSnap.data().semana24Imported === true);
+            setImportCompleted(importStatusSnap.data().semana39Imported === true);
         } else {
             setImportCompleted(false);
         }
@@ -204,6 +204,12 @@ function DashboardPageComponent() {
         }
 
         reportData.listas = listData;
+
+        // Ensure main sales sections exist before synchronization
+        if (!reportData.ventasMan) reportData.ventasMan = { pesoComprador: [], zonaComercial: [], agrupacionComercial: [] };
+        if (!reportData.ventasWoman) reportData.ventasWoman = { pesoComprador: [], zonaComercial: [], agrupacionComercial: [] };
+        if (!reportData.ventasNino) reportData.ventasNino = { pesoComprador: [], zonaComercial: [], agrupacionComercial: [] };
+
 
         let needsSave = false;
         
@@ -449,7 +455,7 @@ const handleImportSpecificWeek = async () => {
     
     try {
         await setDoc(docRef, dataToImport, { merge: true });
-        await setDoc(importStatusRef, { semana24Imported: true }, { merge: true });
+        await setDoc(importStatusRef, { semana39Imported: true }, { merge: true });
         
         toast({
             title: "¡Importación completada!",
@@ -625,7 +631,7 @@ const handleImportSpecificWeek = async () => {
                     {canEdit && !importCompleted && (
                         <DropdownMenuItem onSelect={handleImportSpecificWeek}>
                             <Upload className="mr-2 h-4 w-4 text-primary" />
-                            <span>Importar Semana 24</span>
+                            <span>Importar Semana 39</span>
                         </DropdownMenuItem>
                     )}
                     </>
@@ -721,3 +727,6 @@ export default function DashboardPage() {
     );
 }
 
+
+
+    
