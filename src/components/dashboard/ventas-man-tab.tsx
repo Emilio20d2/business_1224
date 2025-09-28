@@ -422,5 +422,3 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
         </Tabs>
     );
 }
-
-    
