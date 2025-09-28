@@ -204,11 +204,12 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
         { value: 'ventas', label: 'VENTAS' },
         { value: 'zonaYAgrupacion', label: 'ZONA Y AGRUPACIÓN' },
         { value: 'operaciones', label: 'OPERACIONES' },
+        { value: 'focus', label: 'FOCUS' },
     ];
 
     return (
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <div className="mb-4 grid w-full grid-cols-2 md:grid-cols-3 gap-2">
+            <div className="mb-4 grid w-full grid-cols-2 md:grid-cols-4 gap-2">
                 {tabButtons.map(tab => (
                     <Button
                         key={tab.value}
@@ -320,6 +321,13 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                 <OperacionesSubTab data={data} isEditing={isEditing} onInputChange={onInputChange} />
             </TabsContent>
             
+            <TabsContent value="focus" className="mt-0">
+              <FocusSemanalTab 
+                text={data.focusSemanal} 
+                isEditing={isEditing} 
+                onInputChange={onInputChange} 
+              />
+            </TabsContent>
         </Tabs>
     );
 }
