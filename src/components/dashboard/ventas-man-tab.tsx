@@ -280,17 +280,17 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                                 <TableRow>
                                     <TableCell className="font-bold uppercase">Total</TableCell>
                                     <TableCell></TableCell>
-                                    <TableCell className="text-right">
+                                    <TableCell className="text-right font-medium">
                                         <DatoSimple
                                             value={formatNumber(datosPorSeccion.man.metricasPrincipales.totalUnidades)}
                                             isEditing={isEditing}
                                             valueId="datosPorSeccion.man.metricasPrincipales.totalUnidades"
                                             onInputChange={onInputChange}
                                             align="right"
-                                            className="font-medium"
+                                            className="text-base"
                                         />
                                     </TableCell>
-                                    <TableCell className="text-right">
+                                    <TableCell className="text-right font-medium">
                                         <DatoSimple
                                             variation={datosPorSeccion.man.metricasPrincipales.varPorcUnidades}
                                             isEditing={isEditing}
@@ -298,7 +298,7 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                                             onInputChange={onInputChange}
                                             align="right"
                                             alwaysShowVariation
-                                            className="font-medium"
+                                            className="text-base"
                                         />
                                     </TableCell>
                                 </TableRow>
@@ -366,14 +366,14 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                                 <TableRow>
                                     <TableCell className="font-bold uppercase">Total</TableCell>
                                     <TableCell></TableCell>
-                                    <TableCell className="text-right">
+                                    <TableCell className="text-right font-medium">
                                          <DatoSimple
                                             value={formatNumber(datosPorSeccion.man.metricasPrincipales.totalUnidades)}
                                             isEditing={isEditing}
                                             valueId="datosPorSeccion.man.metricasPrincipales.totalUnidades"
                                             onInputChange={onInputChange}
                                             align="right"
-                                            className="font-medium"
+                                            className="text-base"
                                         />
                                     </TableCell>
                                 </TableRow>
