@@ -263,10 +263,10 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                     />
                      <Card className="h-full overflow-y-auto">
                         <Table>
-                            <TableHeader className="sticky top-0 bg-card z-10">
+                             <TableHeader className="sticky top-0 bg-card z-10">
                                 <TableRow>
-                                    <TableHead className="uppercase font-bold w-[40%]" />
-                                    <TableHead className='text-right w-[20%]' />
+                                    <TableHead className="w-[40%]"></TableHead>
+                                    <TableHead className='w-[20%]'></TableHead>
                                     <TableHead className='text-right w-[20%] uppercase font-bold text-primary'>
                                         <div className="flex items-center justify-end gap-2">
                                             <Package className="h-4 w-4" />
@@ -278,19 +278,19 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                             </TableHeader>
                             <TableBody>
                                 <TableRow>
+                                    <TableCell className="font-bold uppercase">Total</TableCell>
                                     <TableCell></TableCell>
-                                    <TableCell></TableCell>
-                                    <TableCell className="text-right font-medium">
+                                    <TableCell className="text-right">
                                         <DatoSimple
-                                            value={datosPorSeccion.man.metricasPrincipales.totalUnidades}
+                                            value={formatNumber(datosPorSeccion.man.metricasPrincipales.totalUnidades)}
                                             isEditing={isEditing}
                                             valueId="datosPorSeccion.man.metricasPrincipales.totalUnidades"
                                             onInputChange={onInputChange}
                                             align="right"
-                                            className="text-lg"
+                                            className="text-lg font-medium"
                                         />
                                     </TableCell>
-                                    <TableCell className="text-right font-medium">
+                                    <TableCell className="text-right">
                                         <DatoSimple
                                             variation={datosPorSeccion.man.metricasPrincipales.varPorcUnidades}
                                             isEditing={isEditing}
@@ -298,7 +298,7 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                                             onInputChange={onInputChange}
                                             align="right"
                                             alwaysShowVariation
-                                            className="text-lg"
+                                            className="text-lg font-medium"
                                         />
                                     </TableCell>
                                 </TableRow>
@@ -350,10 +350,10 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                     />
                      <Card className="h-full overflow-y-auto">
                         <Table>
-                            <TableHeader className="sticky top-0 bg-card z-10">
+                           <TableHeader className="sticky top-0 bg-card z-10">
                                 <TableRow>
-                                    <TableHead className="uppercase font-bold w-[40%]" />
-                                    <TableHead className='text-right w-[20%]' />
+                                    <TableHead className="w-[60%]"></TableHead>
+                                    <TableHead className='w-[20%]'></TableHead>
                                     <TableHead className='text-right w-[20%] uppercase font-bold text-primary'>
                                         <div className="flex items-center justify-end gap-2">
                                             <Package className="h-4 w-4" />
@@ -364,16 +364,16 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                             </TableHeader>
                              <TableBody>
                                 <TableRow>
+                                    <TableCell className="font-bold uppercase">Total</TableCell>
                                     <TableCell></TableCell>
-                                    <TableCell></TableCell>
-                                    <TableCell className="text-right font-medium">
+                                    <TableCell className="text-right">
                                          <DatoSimple
-                                            value={datosPorSeccion.man.metricasPrincipales.totalUnidades}
+                                            value={formatNumber(datosPorSeccion.man.metricasPrincipales.totalUnidades)}
                                             isEditing={isEditing}
                                             valueId="datosPorSeccion.man.metricasPrincipales.totalUnidades"
                                             onInputChange={onInputChange}
                                             align="right"
-                                            className="text-lg"
+                                            className="text-lg font-medium"
                                         />
                                     </TableCell>
                                 </TableRow>
