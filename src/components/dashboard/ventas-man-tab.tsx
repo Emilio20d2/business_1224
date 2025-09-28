@@ -21,7 +21,7 @@ import { Card } from "@/components/ui/card";
 import { formatCurrency, formatPercentage } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { Button } from '../ui/button';
-import { Image as ImageIcon, ImagePlus, Loader2, Upload, Users, MapPin, ShoppingBasket, Percent, Euro, TrendingUp, ArrowUp, ArrowDown } from 'lucide-react';
+import { ImageIcon, ImagePlus, Loader2, Upload, Users, MapPin, ShoppingBasket, Percent, Euro, TrendingUp, ArrowUp, ArrowDown } from 'lucide-react';
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { OperacionesSubTab } from './operaciones-sub-tab';
 import { FocusSemanalTab } from './focus-semanal-tab';
@@ -55,11 +55,7 @@ const DataTable = ({
     list,
     isEditing, 
     dataKey, 
-    onInputChange,
-    onRowClick,
-    selectedIndex,
-    imagenesComprador,
-    showImageColumn
+    onInputChange
 }: { 
     title: string,
     icon: React.ReactNode,
@@ -67,11 +63,7 @@ const DataTable = ({
     list: string[] | undefined,
     isEditing: boolean, 
     dataKey: string, 
-    onInputChange: VentasManTabProps['onInputChange'],
-    onRowClick?: (index: number) => void,
-    selectedIndex?: number,
-    imagenesComprador?: { [key: string]: string },
-    showImageColumn?: boolean
+    onInputChange: VentasManTabProps['onInputChange']
 }) => {
     if (!data || !Array.isArray(data)) {
         return <p className="text-center text-muted-foreground mt-8">No hay datos disponibles.</p>;
@@ -94,7 +86,6 @@ const DataTable = ({
                                 <span>{title}</span>
                             </div>
                         </TableHead>
-                        {showImageColumn && <TableHead className='text-right'><ImageIcon className="h-4 w-4 text-primary inline-block" /></TableHead>}
                         <TableHead className='text-right'><Percent className="h-4 w-4 text-primary inline-block" /></TableHead>
                         <TableHead className='text-right'><Euro className="h-4 w-4 text-primary inline-block" /></TableHead>
                         <TableHead className='text-right'><TrendingUp className="h-4 w-4 text-primary inline-block" /></TableHead>
@@ -103,12 +94,9 @@ const DataTable = ({
                 </TableHeader>
                 <TableBody>
                     {data.map((item, index) => {
-                        const imageUrl = (imagenesComprador && imagenesComprador[item.nombre]) || item.imageUrl;
                         return (
                             <TableRow 
                                 key={item.nombre + index}
-                                onClick={() => onRowClick?.(index)}
-                                className={cn(onRowClick && 'cursor-pointer', selectedIndex === index && 'bg-muted/50')}
                             >
                                 <TableCell>
                                     {isEditing ? (
@@ -129,17 +117,6 @@ const DataTable = ({
                                         item.nombre
                                     )}
                                 </TableCell>
-                                {showImageColumn && (
-                                    <TableCell className="w-16 p-1">
-                                        {imageUrl ? (
-                                            <img src={imageUrl} alt={item.nombre} className="h-10 w-10 rounded-md object-cover"/>
-                                        ) : (
-                                            <div className="h-10 w-10 rounded-md bg-muted flex items-center justify-center">
-                                                <ImageIcon className="h-5 w-5 text-muted-foreground"/>
-                                            </div>
-                                        )}
-                                    </TableCell>
-                                )}
                                 <TableCell className="text-right font-medium">
                                     {isEditing ? <Input type="number" inputMode="decimal" className="w-20 ml-auto text-right" defaultValue={item.pesoPorc} onChange={(e) => handleChange(index, 'pesoPorc', e.target.value)} /> : formatPercentage(item.pesoPorc)}
                                 </TableCell>
@@ -161,86 +138,13 @@ const DataTable = ({
     );
 };
 
-const ImageImportCard = ({ selectedRow, isEditing, onImageChange, initialImageUrl }: { selectedRow: VentasManItem | null, isEditing: boolean, onImageChange: (file: File, onUploadComplete: (success: boolean, previewUrl: string) => void) => void, initialImageUrl: string | null }) => {
-    const [isUploading, setIsUploading] = React.useState(false);
-    const [preview, setPreview] = React.useState<string | null>(null);
-
-    React.useEffect(() => {
-        setPreview(initialImageUrl);
-        return () => {
-            if (preview && preview.startsWith('blob:')) {
-                URL.revokeObjectURL(preview);
-            }
-        };
-    }, [initialImageUrl]);
-
-    const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (file && selectedRow) {
-            setIsUploading(true);
-            onImageChange(file, (success, previewUrl) => {
-                if (success) {
-                    setPreview(previewUrl);
-                }
-                setIsUploading(false);
-            });
-        }
-        event.target.value = '';
-    };
-
-    const imageUrl = preview;
-
-    return (
-        <Card className="relative overflow-hidden p-0 gap-0 w-full aspect-[16/9]">
-            <div className="w-full h-full bg-muted flex items-center justify-center">
-                {isUploading && (
-                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-10">
-                        <Loader2 className="h-12 w-12 text-white animate-spin" />
-                    </div>
-                )}
-                {imageUrl ? (
-                    <img src={imageUrl} alt={selectedRow?.nombre || 'Análisis Visual'} className="h-full w-full object-cover" />
-                ) : (
-                    <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                        <ImagePlus className="h-12 w-12" />
-                        <p className="text-sm font-medium">Análisis Visual</p>
-                        <p className="text-xs text-center">Selecciona una fila para ver o cambiar la imagen.</p>
-                    </div>
-                )}
-            </div>
-            {isEditing && selectedRow && (
-                <div className="absolute bottom-2 right-2 z-20">
-                    <Button asChild variant="secondary" disabled={isUploading}>
-                        <label htmlFor="file-upload-comprador">
-                            <Upload className="mr-2 h-4 w-4" />
-                            Cambiar Imagen
-                            <input id="file-upload-comprador" type="file" onChange={handleImageUpload} className="sr-only" accept="image/*" disabled={isUploading} />
-                        </label>
-                    </Button>
-                </div>
-            )}
-        </Card>
-    );
-};
-
 
 export function VentasManTab({ data, isEditing, onInputChange, onImageChange }: VentasManTabProps) {
     const [activeTab, setActiveTab] = React.useState<string>('comprador');
-    const [selectedIndex, setSelectedIndex] = React.useState<number>(0);
     
     if (!data || !data.ventasMan || !data.listas) return <p>Cargando datos de Ventas Man...</p>;
 
-    const { ventasMan, listas, imagenesComprador } = data;
-    const selectedRow = ventasMan.pesoComprador?.[selectedIndex];
-    const imageUrl = selectedRow ? (imagenesComprador?.[selectedRow.nombre] || selectedRow.imageUrl) : null;
-
-    const handleImageChangeWrapper = (file: File, onUploadComplete: (success: boolean, previewUrl: string) => void) => {
-        if (!selectedRow) {
-            onUploadComplete(false, '');
-            return;
-        }
-        onImageChange(selectedRow.nombre, file, onUploadComplete);
-    };
+    const { ventasMan, listas } = data;
     
     const tabButtons = [
         { value: 'comprador', label: 'COMPRADOR' },
@@ -274,16 +178,6 @@ export function VentasManTab({ data, isEditing, onInputChange, onImageChange }: 
                         list={listas.compradorMan}
                         isEditing={isEditing}
                         onInputChange={onInputChange}
-                        onRowClick={setSelectedIndex}
-                        selectedIndex={selectedIndex}
-                        imagenesComprador={imagenesComprador}
-                        showImageColumn={true}
-                    />
-                    <ImageImportCard 
-                        selectedRow={selectedRow}
-                        isEditing={isEditing}
-                        onImageChange={handleImageChangeWrapper}
-                        initialImageUrl={imageUrl}
                     />
                </div>
             </TabsContent>

@@ -3,8 +3,7 @@
 import React, { useState, useContext, useEffect, useCallback, Suspense } from 'react';
 import type { WeeklyData, VentasManItem } from "@/lib/data";
 import { doc, getDoc, setDoc, updateDoc, collection, getDocs } from "firebase/firestore";
-import { db, storage } from '@/lib/firebase';
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { db } from '@/lib/firebase';
 import { Calendar as CalendarIcon, Settings, LogOut, Loader2, ChevronDown, Briefcase, List, LayoutDashboard, ShoppingBag, AreaChart, User as UserIcon, Pencil, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from "@/components/ui/calendar";
@@ -350,59 +349,6 @@ function DashboardPageComponent() {
     });
 };
 
-const handleImageChange = (compradorName: string, file: File, onUploadComplete: (success: boolean, previewUrl: string) => void) => {
-    if (!data || !canEdit || !compradorName) {
-        onUploadComplete(false, '');
-        return;
-    }
-    const previewUrl = URL.createObjectURL(file);
-    
-    // Immediately update UI with local blob URL
-    setData(prevData => {
-        if (!prevData) return null;
-        const updatedData = JSON.parse(JSON.stringify(prevData));
-        if (!updatedData.imagenesComprador) {
-            updatedData.imagenesComprador = {};
-        }
-        updatedData.imagenesComprador[compradorName] = previewUrl;
-        return updatedData;
-    });
-    
-    onUploadComplete(true, previewUrl);
-
-    // Upload to Firebase in the background
-    const storageRef = ref(storage, `informes/${selectedWeek}/${file.name}-${Date.now()}`);
-    uploadBytes(storageRef, file)
-        .then(snapshot => getDownloadURL(snapshot.ref))
-        .then(downloadURL => {
-            // Once uploaded, update the state with the permanent URL
-            setData(prevData => {
-                if (!prevData) return null;
-                const updatedData = JSON.parse(JSON.stringify(prevData));
-                updatedData.imagenesComprador[compradorName] = downloadURL;
-                return updatedData;
-            });
-            toast({
-                title: "Imagen subida",
-                description: "La imagen se ha subido y está lista para guardar.",
-            });
-             if (!isEditing) {
-                setIsEditing(true);
-            }
-        })
-        .catch(error => {
-            setError(`Error al subir imagen: ${error.message}`);
-            // Optionally, revert the preview if upload fails
-            setData(prevData => {
-                if (!prevData) return null;
-                const updatedData = JSON.parse(JSON.stringify(prevData));
-                // You might want to store the original URL to revert to it
-                delete updatedData.imagenesComprador[compradorName];
-                return updatedData;
-            });
-            onUploadComplete(false, '');
-        });
-};
 
 
   const handleSave = async () => {
@@ -411,16 +357,7 @@ const handleImageChange = (compradorName: string, file: File, onUploadComplete: 
     const docRef = doc(db, "informes", selectedWeek);
     const dataToSave = JSON.parse(JSON.stringify(data));
     
-    // Clean up local blob URLs before saving
-    if (dataToSave.imagenesComprador) {
-        Object.keys(dataToSave.imagenesComprador).forEach(key => {
-            if (dataToSave.imagenesComprador[key].startsWith('blob:')) {
-               // This was a preview, don't save it if the real URL isn't there
-               // Or find the real URL from a temporary mapping if you have one
-               delete dataToSave.imagenesComprador[key];
-            }
-        });
-    }
+    delete dataToSave.imagenesComprador;
 
     setDoc(docRef, dataToSave, { merge: true })
         .then(() => {
@@ -692,14 +629,14 @@ const handleImportSpecificWeek = async () => {
                 <AqneSemanalTab data={data} isEditing={isEditing} onInputChange={handleInputChange} />
               </TabsContent>
               <TabsContent value="acumulado" className="mt-0">
-                <AcumuladoTab data={data.acumulado} isEditing={isEditing} onInputChange={handleInputChange} />
+                <AcumuladoTab data={data.acumulado} isEditing={isEditing} onInputChange={onInputChange} />
               </TabsContent>
               <TabsContent value="man" className="mt-0">
                 <VentasManTab
                   data={data}
                   isEditing={isEditing}
                   onInputChange={handleInputChange}
-                  onImageChange={handleImageChange}
+                  onImageChange={() => {}}
                 />
               </TabsContent>
             </Tabs>
