@@ -57,31 +57,32 @@ const DataTable = ({
     }
     const optionList = list || [];
 
+    const totalEuros = data.reduce((sum, item) => sum + (Number(item.totalEuros) || 0), 0);
+
     const handleChange = (index: number, field: keyof VentasManItem, value: any) => {
         const path = `${dataKey}.${index}.${field}`;
         onInputChange(path, value);
     };
-
-    const totalPesoPorc = data.reduce((sum, item) => sum + (Number(item.pesoPorc) || 0), 0);
-    const totalEuros = data.reduce((sum, item) => sum + (Number(item.totalEuros) || 0), 0);
 
     return (
         <Card className="h-full overflow-y-auto">
             <Table>
                 <TableHeader className="sticky top-0 bg-card z-10">
                     <TableRow>
-                        <TableHead className="uppercase font-bold w-1/3">
+                        <TableHead className="uppercase font-bold w-1/4">
                             <div className="flex items-center gap-2 text-primary">
                                 {icon}
                                 <span>{title}</span>
                             </div>
                         </TableHead>
-                        <TableHead className='text-right w-1/3'><Percent className="h-4 w-4 text-primary inline-block" /></TableHead>
-                        <TableHead className='text-right w-1/3'><Euro className="h-4 w-4 text-primary inline-block" /></TableHead>
+                        <TableHead className='text-right w-1/4'><Percent className="h-4 w-4 text-primary inline-block" /></TableHead>
+                        <TableHead className='text-right w-1/4'><Euro className="h-4 w-4 text-primary inline-block" /></TableHead>
+                        <TableHead className='text-right w-1/4'>Var %</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
                     {data.map((item, index) => {
+                        const pesoPorc = totalEuros > 0 ? ((Number(item.totalEuros) || 0) / totalEuros) * 100 : 0;
                         return (
                             <TableRow 
                                 key={item.nombre + index}
@@ -106,10 +107,15 @@ const DataTable = ({
                                     )}
                                 </TableCell>
                                 <TableCell className="text-right font-medium">
-                                    {isEditing ? <Input type="number" inputMode="decimal" className="w-20 ml-auto text-right" defaultValue={item.pesoPorc} onChange={(e) => handleChange(index, 'pesoPorc', e.target.value)} /> : formatPercentage(item.pesoPorc)}
+                                  {formatPercentage(pesoPorc)}
                                 </TableCell>
                                 <TableCell className="text-right font-medium">
-                                    {isEditing ? <Input type="number" inputMode="decimal" className="w-24 ml-auto text-right" defaultValue={item.totalEuros} onChange={(e) => handleChange(index, 'totalEuros', e.target.value)} /> : formatCurrency(item.totalEuros)}
+                                    {isEditing ? <Input type="number" inputMode="decimal" className="w-full ml-auto text-right" defaultValue={item.totalEuros} onChange={(e) => handleChange(index, 'totalEuros', e.target.value)} /> : formatCurrency(item.totalEuros)}
+                                </TableCell>
+                                <TableCell className="text-right font-medium">
+                                    {isEditing ? <Input type="number" inputMode="decimal" className="w-full ml-auto text-right" defaultValue={item.varPorc} onChange={(e) => handleChange(index, 'varPorc', e.target.value)} /> : 
+                                     <span className={cn(item.varPorc < 0 ? "text-red-600" : "text-green-600")}>{formatPercentage(item.varPorc)}</span>
+                                    }
                                 </TableCell>
                             </TableRow>
                         )
@@ -118,8 +124,9 @@ const DataTable = ({
                  <TableFooter>
                     <TableRow className="bg-muted/50 hover:bg-muted/60">
                         <TableHead className="font-bold uppercase">Total</TableHead>
-                        <TableHead className="text-right font-bold">{formatPercentage(totalPesoPorc)}</TableHead>
+                        <TableHead className="text-right font-bold">{formatPercentage(100)}</TableHead>
                         <TableHead className="text-right font-bold">{formatCurrency(totalEuros)}</TableHead>
+                        <TableHead></TableHead>
                     </TableRow>
                 </TableFooter>
             </Table>
