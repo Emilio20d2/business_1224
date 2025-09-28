@@ -287,17 +287,18 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                                             valueId="datosPorSeccion.man.metricasPrincipales.totalUnidades"
                                             onInputChange={onInputChange}
                                             align="right"
-                                            unit="Unid."
+                                            className="text-lg"
                                         />
                                     </TableCell>
                                     <TableCell className="text-right font-medium">
                                         <DatoSimple
-                                            value={formatPercentage(datosPorSeccion.man.metricasPrincipales.varPorcUnidades)}
+                                            variation={datosPorSeccion.man.metricasPrincipales.varPorcUnidades}
                                             isEditing={isEditing}
-                                            valueId="datosPorSeccion.man.metricasPrincipales.varPorcUnidades"
+                                            variationId="datosPorSeccion.man.metricasPrincipales.varPorcUnidades"
                                             onInputChange={onInputChange}
                                             align="right"
-                                            unit="%"
+                                            alwaysShowVariation
+                                            className="text-lg"
                                         />
                                     </TableCell>
                                 </TableRow>
@@ -361,18 +362,18 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                                     </TableHead>
                                 </TableRow>
                             </TableHeader>
-                            <TableBody>
+                             <TableBody>
                                 <TableRow>
                                     <TableCell></TableCell>
                                     <TableCell></TableCell>
                                     <TableCell className="text-right font-medium">
-                                        <DatoSimple
+                                         <DatoSimple
                                             value={datosPorSeccion.man.metricasPrincipales.totalUnidades}
                                             isEditing={isEditing}
                                             valueId="datosPorSeccion.man.metricasPrincipales.totalUnidades"
                                             onInputChange={onInputChange}
                                             align="right"
-                                            unit="Unid."
+                                            className="text-lg"
                                         />
                                     </TableCell>
                                 </TableRow>
