@@ -282,11 +282,12 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                                     <TableCell></TableCell>
                                     <TableCell className="text-right font-medium">
                                         <DatoSimple
-                                            value={formatNumber(datosPorSeccion.man.metricasPrincipales.totalUnidades)}
+                                            value={datosPorSeccion.man.metricasPrincipales.totalUnidades}
                                             isEditing={isEditing}
                                             valueId="datosPorSeccion.man.metricasPrincipales.totalUnidades"
                                             onInputChange={onInputChange}
                                             align="right"
+                                            unit="Unid."
                                         />
                                     </TableCell>
                                     <TableCell className="text-right font-medium">
@@ -366,11 +367,12 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                                     <TableCell></TableCell>
                                     <TableCell className="text-right font-medium">
                                         <DatoSimple
-                                            value={formatNumber(datosPorSeccion.man.metricasPrincipales.totalUnidades)}
+                                            value={datosPorSeccion.man.metricasPrincipales.totalUnidades}
                                             isEditing={isEditing}
                                             valueId="datosPorSeccion.man.metricasPrincipales.totalUnidades"
                                             onInputChange={onInputChange}
                                             align="right"
+                                            unit="Unid."
                                         />
                                     </TableCell>
                                 </TableRow>
