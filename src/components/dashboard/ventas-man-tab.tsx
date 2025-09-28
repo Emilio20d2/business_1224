@@ -10,6 +10,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  TableFooter,
 } from "@/components/ui/table"
 import {
   Select,
@@ -22,7 +23,7 @@ import { Card } from "@/components/ui/card";
 import { formatCurrency, formatPercentage } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { Button } from '../ui/button';
-import { ImageIcon, ImagePlus, Loader2, Upload, Users, MapPin, ShoppingBasket, Percent, Euro, TrendingUp, ArrowUp, ArrowDown } from 'lucide-react';
+import { Users, MapPin, ShoppingBasket, Percent, Euro, TrendingUp } from 'lucide-react';
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { OperacionesSubTab } from './operaciones-sub-tab';
 import { FocusSemanalTab } from './focus-semanal-tab';
@@ -32,20 +33,6 @@ type VentasManTabProps = {
   data: WeeklyData;
   isEditing: boolean;
   onInputChange: (path: string, value: any) => void;
-};
-
-
-const TrendIndicator = ({ value }: { value: number }) => {
-  if (isNaN(value)) return null;
-  const isPositive = value >= 0;
-  const trendColor = isPositive ? 'text-green-600' : 'text-red-600';
-  const Icon = isPositive ? ArrowUp : ArrowDown;
-  
-  return (
-    <span className={cn("text-sm font-bold flex items-center justify-end gap-1", trendColor)}>
-      <Icon className="h-4 w-4" />
-    </span>
-  );
 };
 
 const DataTable = ({ 
@@ -75,6 +62,9 @@ const DataTable = ({
         onInputChange(path, value);
     };
 
+    const totalPesoPorc = data.reduce((sum, item) => sum + (item.pesoPorc || 0), 0);
+    const totalEuros = data.reduce((sum, item) => sum + (item.totalEuros || 0), 0);
+
     return (
         <Card className="h-full overflow-y-auto">
             <Table>
@@ -89,7 +79,6 @@ const DataTable = ({
                         <TableHead className='text-right'><Percent className="h-4 w-4 text-primary inline-block" /></TableHead>
                         <TableHead className='text-right'><Euro className="h-4 w-4 text-primary inline-block" /></TableHead>
                         <TableHead className='text-right'><TrendingUp className="h-4 w-4 text-primary inline-block" /></TableHead>
-                        <TableHead className='text-right'><Percent className="h-4 w-4 text-primary inline-block" /></TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -123,9 +112,6 @@ const DataTable = ({
                                 <TableCell className="text-right font-medium">
                                     {isEditing ? <Input type="number" inputMode="decimal" className="w-24 ml-auto text-right" defaultValue={item.totalEuros} onChange={(e) => handleChange(index, 'totalEuros', e.target.value)} /> : formatCurrency(item.totalEuros)}
                                 </TableCell>
-                                <TableCell className="text-right font-medium">
-                                     <TrendIndicator value={item.varPorc} />
-                                </TableCell>
                                 <TableCell className="text-right">
                                     {isEditing ? <Input type="number" inputMode="decimal" className="w-20 ml-auto text-right" defaultValue={item.varPorc} onChange={(e) => handleChange(index, 'varPorc', e.target.value)} /> : formatPercentage(item.varPorc)}
                                 </TableCell>
@@ -133,6 +119,14 @@ const DataTable = ({
                         )
                     })}
                 </TableBody>
+                 <TableFooter>
+                    <TableRow className="bg-muted/50 hover:bg-muted/60">
+                        <TableHead className="font-bold uppercase">Total</TableHead>
+                        <TableHead className="text-right font-bold">{formatPercentage(totalPesoPorc)}</TableHead>
+                        <TableHead className="text-right font-bold">{formatCurrency(totalEuros)}</TableHead>
+                        <TableHead></TableHead>
+                    </TableRow>
+                </TableFooter>
             </Table>
         </Card>
     );
@@ -140,14 +134,14 @@ const DataTable = ({
 
 
 export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabProps) {
-    const [activeTab, setActiveTab] = React.useState<string>('comprador');
+    const [activeTab, setActiveTab] = React.useState<string>('ventas');
     
     if (!data || !data.ventasMan || !data.listas) return <p>Cargando datos de Ventas Man...</p>;
 
     const { ventasMan, listas } = data;
     
     const tabButtons = [
-        { value: 'comprador', label: 'VENTAS' },
+        { value: 'ventas', label: 'VENTAS' },
         { value: 'zonaYAgrupacion', label: 'ZONA Y AGRUPACIÓN' },
         { value: 'operaciones', label: 'OPERACIONES' },
         { value: 'focus', label: 'FOCUS' },
@@ -168,10 +162,10 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                 ))}
             </div>
             
-            <TabsContent value="comprador" className="mt-0">
+            <TabsContent value="ventas" className="mt-0">
                <div className="grid gap-4 items-start grid-cols-1">
                    <DataTable
-                        title="Comprador"
+                        title="Ropa"
                         icon={<Users className="h-5 w-5" />}
                         dataKey="ventasMan.pesoComprador"
                         data={ventasMan.pesoComprador}
