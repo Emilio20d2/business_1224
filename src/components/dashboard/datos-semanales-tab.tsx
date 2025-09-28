@@ -165,6 +165,7 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
             value={formatCurrency(ventas.totalEuros)} 
             variation={ventas.varPorcEuros} 
             isEditing={isEditing}
+            valueId="ventas.totalEuros"
             variationId="ventas.varPorcEuros"
             onInputChange={onInputChange}
           />
@@ -232,19 +233,17 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
                       isEditing={isEditing}
                       valueId="perdidas.merma.unidades"
                       align="center"
+                      unit="Unid."
                       onInputChange={onInputChange}
                   />
                    <DatoSimple 
                       label={<Percent className="h-5 w-5 text-primary"/>}
                       value={isEditing ? perdidas.merma.porcentaje : formatPercentage(perdidas.merma.porcentaje)}
-                      variation={perdidas.merma.varPorcPorcentaje}
                       isEditing={isEditing}
                       valueId="perdidas.merma.porcentaje"
-                      variationId="perdidas.merma.varPorcPorcentaje"
                       align="center"
                       unit="%"
                       onInputChange={onInputChange}
-                      trendDirection="down"
                   />
               </div>
           </KpiCard>
@@ -260,6 +259,9 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
                     unit="%" 
                     icon={<RefreshCw className="h-5 w-5 text-primary"/>} 
                     trendDirection="down"
+                    valueId="operaciones.repoPorc"
+                    variationId="operaciones.varPorcRepo"
+                    onInputChange={onInputChange}
                   />
                   <DatoSimple 
                     label="Frescura" 
@@ -268,6 +270,9 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
                     isEditing={isEditing}
                     align="center" unit="%" 
                     icon={<Sparkles className="h-5 w-5 text-primary"/>} 
+                    valueId="operaciones.frescuraPorc"
+                    variationId="operaciones.varPorcFrescura"
+                    onInputChange={onInputChange}
                   />
               </div>
           </KpiCard>
@@ -279,37 +284,30 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
                     icon={<Clock className="h-5 w-5 text-primary"/>} 
                     label="Filas Caja" 
                     value={formatPercentage(operaciones.filasCajaPorc)}
-                    variation={operaciones.varPorcFilasCaja}
                     isEditing={isEditing}
                     align="center" 
                     unit="%"
-                    trendDirection="down"
                     valueId="operaciones.filasCajaPorc"
-                    variationId="operaciones.varPorcFilasCaja"
                     onInputChange={onInputChange}
                    />
                   <DatoSimple 
                     icon={<ScanLine className="h-5 w-5 text-primary"/>} 
                     label="ACO" 
                     value={formatPercentage(operaciones.scoPorc)}
-                    variation={operaciones.varPorcSco}
                     isEditing={isEditing}
                     align="center" 
                     unit="%"
                     valueId="operaciones.scoPorc"
-                    variationId="operaciones.varPorcSco"
                     onInputChange={onInputChange}
                   />
                   <DatoSimple 
                     icon={<Inbox className="h-5 w-5 text-primary"/>} 
                     label="DropOff" 
                     value={formatPercentage(operaciones.dropOffPorc)} 
-                    variation={operaciones.varPorcDropOff}
                     isEditing={isEditing}
                     align="center" 
                     unit="%"
                     valueId="operaciones.dropOffPorc"
-                    variationId="operaciones.varPorcDropOff"
                     onInputChange={onInputChange}
                   />
               </div>
@@ -318,11 +316,9 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
            <KpiCard title="V. Ipod" icon={<Smartphone className="h-5 w-5 text-primary" />} className="md:col-span-1">
               <DatoSimple 
                 value={formatNumber(operaciones.ventaIpod)} 
-                variation={operaciones.varPorcVentaIpod}
                 isEditing={isEditing}
                 align="center"
                 valueId="operaciones.ventaIpod"
-                variationId="operaciones.varPorcVentaIpod"
                 onInputChange={onInputChange}
               />
           </KpiCard>
@@ -330,12 +326,10 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
           <KpiCard title="E-Ticket" icon={<Ticket className="h-5 w-5 text-primary" />} className="md:col-span-1">
               <DatoSimple 
                 value={formatPercentage(operaciones.eTicketPorc)} 
-                variation={operaciones.varPorcETicket}
                 isEditing={isEditing}
                 align="center" 
                 unit="%"
                 valueId="operaciones.eTicketPorc"
-                variationId="operaciones.varPorcETicket"
                 onInputChange={onInputChange}
               />
           </KpiCard>
