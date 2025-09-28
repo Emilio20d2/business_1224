@@ -40,16 +40,13 @@ type DatosSemanalesTabProps = {
 
 type SectionName = keyof WeeklyData["datosPorSeccion"];
 
-const WomanIcon = () => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-primary"><path d="M12 5c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3"/><path d="M18.37 13.57a6.03 6.03 0 0 0-1.3-4.57l-2.07-2.07a1 1 0 0 0-1.41 0l-2.07 2.07a6.03 6.03 0 0 0-1.3 4.57"/><path d="M6 21a2 2 0 0 0 2-2v-4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v4a2 2 0 0 0 2 2"/></svg>;
-const ManIcon = () => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-primary"><path d="M12 5c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3"/><path d="M7 14a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v7h-4v-4h-2v4H7v-7Z"/></svg>;
-const NinoIcon = () => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-primary"><path d="M12 6.5c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3"/><path d="m5.6 21.5 1.5-6a2 2 0 0 1 2-1.5h5.8a2 2 0 0 1 2 1.5l1.5 6"/><path d="M12 14v-2.5"/><path d="M10 16c.5 1.33 1 2 2 2s1.5-.67 2-2"/></svg>;
 const RopaIcon = () => <Shirt className="h-4 w-4 text-primary" />;
 
 
 const sectionConfig = {
-    woman: { title: "WOMAN", icon: <WomanIcon />, color: "bg-pink-500" },
-    man: { title: "MAN", icon: <ManIcon />, color: "bg-blue-500" },
-    nino: { title: "NIÑO", icon: <NinoIcon />, color: "bg-primary" },
+    woman: { title: "WOMAN", color: "bg-pink-500" },
+    man: { title: "MAN", color: "bg-blue-500" },
+    nino: { title: "NIÑO", color: "bg-primary" },
 };
 
 const desgloseIconos: { [key: string]: React.ReactNode } = {
@@ -71,7 +68,6 @@ const SectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionNa
             <CardHeader className="pb-2">
                 <CardTitle className="flex justify-between items-center text-lg font-bold">
                     <div className="flex items-center gap-2">
-                        {config.icon}
                         {config.title}
                     </div>
                      <span className={cn("text-sm font-bold text-white rounded-md px-2 py-1", config.color)}>
