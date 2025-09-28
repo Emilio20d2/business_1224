@@ -274,25 +274,32 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                                     <TableCell></TableCell>
                                     <TableCell></TableCell>
                                     <TableCell className="text-right font-medium">
-                                        <DatoSimple 
-                                            value={datosPorSeccion.man.metricasPrincipales.totalUnidades}
-                                            isEditing={isEditing}
-                                            valueId="datosPorSeccion.man.metricasPrincipales.totalUnidades"
-                                            onInputChange={onInputChange}
-                                            align='right'
-                                        />
+                                        {isEditing ? (
+                                            <Input
+                                                type="number"
+                                                inputMode="decimal"
+                                                defaultValue={datosPorSeccion.man.metricasPrincipales.totalUnidades}
+                                                className="w-full ml-auto text-right font-medium"
+                                                onChange={(e) => onInputChange('datosPorSeccion.man.metricasPrincipales.totalUnidades', e.target.value)}
+                                            />
+                                        ) : (
+                                            formatNumber(datosPorSeccion.man.metricasPrincipales.totalUnidades)
+                                        )}
                                     </TableCell>
                                     <TableCell className="text-right font-medium">
-                                        <DatoSimple
-                                            value=""
-                                            variation={datosPorSeccion.man.metricasPrincipales.varPorcUnidades} 
-                                            isEditing={isEditing}
-                                            alwaysShowVariation
-                                            valueId="datosPorSeccion.man.metricasPrincipales.varPorcUnidades"
-                                            variationId="datosPorSeccion.man.metricasPrincipales.varPorcUnidades"
-                                            onInputChange={onInputChange}
-                                            align='right'
-                                        />
+                                        {isEditing ? (
+                                             <Input
+                                                type="number"
+                                                inputMode="decimal"
+                                                defaultValue={datosPorSeccion.man.metricasPrincipales.varPorcUnidades}
+                                                className="w-full ml-auto text-right font-medium"
+                                                onChange={(e) => onInputChange('datosPorSeccion.man.metricasPrincipales.varPorcUnidades', e.target.value)}
+                                            />
+                                        ) : (
+                                            <span className={cn(datosPorSeccion.man.metricasPrincipales.varPorcUnidades < 0 ? "text-red-600" : "text-green-600")}>
+                                                {formatPercentage(datosPorSeccion.man.metricasPrincipales.varPorcUnidades)}
+                                            </span>
+                                        )}
                                     </TableCell>
                                 </TableRow>
                             </TableBody>
