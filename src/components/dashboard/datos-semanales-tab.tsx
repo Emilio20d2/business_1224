@@ -1,3 +1,4 @@
+
 import type { WeeklyData } from "@/lib/data";
 import { formatCurrency, formatNumber, formatPercentage, formatGap } from "@/lib/format";
 import { KpiCard, DatoDoble, DatoSimple } from "./kpi-card";
@@ -253,25 +254,21 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
                    <DatoSimple 
                     label="Repo" 
                     value={formatPercentage(operaciones.repoPorc)} 
-                    variation={operaciones.varPorcRepo}
                     isEditing={isEditing}
                     align="center" 
                     unit="%" 
                     icon={<RefreshCw className="h-5 w-5 text-primary"/>} 
                     trendDirection="down"
                     valueId="operaciones.repoPorc"
-                    variationId="operaciones.varPorcRepo"
                     onInputChange={onInputChange}
                   />
                   <DatoSimple 
                     label="Frescura" 
                     value={formatPercentage(operaciones.frescuraPorc)} 
-                    variation={operaciones.varPorcFrescura}
                     isEditing={isEditing}
                     align="center" unit="%" 
                     icon={<Sparkles className="h-5 w-5 text-primary"/>} 
                     valueId="operaciones.frescuraPorc"
-                    variationId="operaciones.varPorcFrescura"
                     onInputChange={onInputChange}
                   />
               </div>

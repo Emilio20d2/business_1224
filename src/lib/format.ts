@@ -1,3 +1,4 @@
+
 import { format, addDays, getISOWeek, getYear, startOfISOWeek, parse, addWeeks, subWeeks } from 'date-fns';
 import { es } from 'date-fns/locale';
 
@@ -12,7 +13,7 @@ export const formatNumber = (amount: number | null | undefined) => {
 
 export const formatPercentage = (value: number | null | undefined) => {
   if (value === null || value === undefined) return 'N/A';
-  return `${value.toLocaleString('es-ES')}%`;
+  return `${value.toFixed(2).replace('.', ',')}%`;
 };
 
 export const formatGap = (value: number) => {
