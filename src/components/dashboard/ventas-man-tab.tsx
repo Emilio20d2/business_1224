@@ -48,6 +48,7 @@ const DataTable = ({
     totalEurosOverride,
     totalVarPorcOverride,
     totalPesoPorcOverride,
+    showVarPorc = true,
 }: { 
     title: string,
     icon: React.ReactNode,
@@ -60,6 +61,7 @@ const DataTable = ({
     totalEurosOverride?: number,
     totalVarPorcOverride?: number,
     totalPesoPorcOverride?: number,
+    showVarPorc?: boolean
 }) => {
     if (!data || !Array.isArray(data)) {
         return <p className="text-center text-muted-foreground mt-8">No hay datos disponibles.</p>;
@@ -96,7 +98,7 @@ const DataTable = ({
                         </TableHead>
                         <TableHead className='text-right w-[20%] uppercase font-bold text-primary'><Percent className="h-4 w-4 inline-block" /></TableHead>
                         <TableHead className='text-right w-[20%] uppercase font-bold text-primary'><Euro className="h-4 w-4 inline-block" /></TableHead>
-                        <TableHead className='text-right w-[20%] uppercase font-bold text-primary'>Var %</TableHead>
+                        {showVarPorc && <TableHead className='text-right w-[20%] uppercase font-bold text-primary'>Var %</TableHead>}
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -130,11 +132,13 @@ const DataTable = ({
                                 <TableCell className="text-right font-medium">
                                     {isEditing ? <Input type="number" inputMode="decimal" className="w-full ml-auto text-right" defaultValue={item.totalEuros} onChange={(e) => handleChange(index, 'totalEuros', e.target.value)} /> : formatCurrency(item.totalEuros)}
                                 </TableCell>
-                                <TableCell className="text-right font-medium">
-                                     {isEditing ? <Input type="number" inputMode="decimal" className="w-full ml-auto text-right" defaultValue={item.varPorc} onChange={(e) => handleChange(index, 'varPorc', e.target.value)} /> : 
-                                     <span className={cn(item.varPorc < 0 ? "text-red-600" : "text-green-600")}>{formatPercentage(item.varPorc)}</span>
-                                    }
-                                </TableCell>
+                                {showVarPorc && (
+                                    <TableCell className="text-right font-medium">
+                                        {isEditing ? <Input type="number" inputMode="decimal" className="w-full ml-auto text-right" defaultValue={item.varPorc} onChange={(e) => handleChange(index, 'varPorc', e.target.value)} /> : 
+                                        <span className={cn(item.varPorc < 0 ? "text-red-600" : "text-green-600")}>{formatPercentage(item.varPorc)}</span>
+                                        }
+                                    </TableCell>
+                                )}
                             </TableRow>
                         )
                     })}
@@ -145,9 +149,11 @@ const DataTable = ({
                             <TableHead className="font-bold uppercase">Total</TableHead>
                             <TableHead className="text-right font-bold">{formatPercentage(finalTotalPesoPorc)}</TableHead>
                             <TableHead className="text-right font-bold">{formatCurrency(finalTotalEuros)}</TableHead>
-                            <TableHead className={cn("text-right font-bold", finalWeightedVarPorc < 0 ? "text-red-600" : "text-green-600")}>
-                                {formatPercentage(finalWeightedVarPorc)}
-                            </TableHead>
+                            {showVarPorc && (
+                                <TableHead className={cn("text-right font-bold", finalWeightedVarPorc < 0 ? "text-red-600" : "text-green-600")}>
+                                    {formatPercentage(finalWeightedVarPorc)}
+                                </TableHead>
+                            )}
                         </TableRow>
                     </TableFooter>
                 )}
@@ -196,6 +202,7 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
 
     const tabButtons = [
         { value: 'ventas', label: 'VENTAS' },
+        { value: 'aqne', label: 'AQNE' },
         { value: 'zonaYAgrupacion', label: 'ZONA Y AGRUPACIÓN' },
         { value: 'operaciones', label: 'OPERACIONES' },
         { value: 'focus', label: 'FOCUS' },
@@ -203,7 +210,7 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
 
     return (
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <div className="mb-4 grid w-full grid-cols-2 md:grid-cols-4 gap-2">
+            <div className="mb-4 grid w-full grid-cols-2 md:grid-cols-5 gap-2">
                 {tabButtons.map(tab => (
                     <Button
                         key={tab.value}
@@ -258,14 +265,14 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                         <Table>
                             <TableHeader className="sticky top-0 bg-card z-10">
                                 <TableRow>
-                                    <TableHead className="uppercase font-bold w-[40%]">
-                                        <div className="flex items-center gap-2 text-primary">
-                                            <Package className="h-5 w-5" />
+                                    <TableHead className="uppercase font-bold w-[40%]" />
+                                    <TableHead className='text-right w-[20%]' />
+                                    <TableHead className='text-right w-[20%] uppercase font-bold text-primary'>
+                                        <div className="flex items-center justify-end gap-2">
+                                            <Package className="h-4 w-4" />
                                             <span>Unidades</span>
                                         </div>
                                     </TableHead>
-                                    <TableHead className='text-right w-[20%]'></TableHead>
-                                    <TableHead className='text-right w-[20%] uppercase font-bold text-primary'>Total</TableHead>
                                     <TableHead className='text-right w-[20%] uppercase font-bold text-primary'>Var %</TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -274,32 +281,97 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                                     <TableCell></TableCell>
                                     <TableCell></TableCell>
                                     <TableCell className="text-right font-medium">
-                                        {isEditing ? (
-                                            <Input
-                                                type="number"
-                                                inputMode="decimal"
-                                                defaultValue={datosPorSeccion.man.metricasPrincipales.totalUnidades}
-                                                className="w-full ml-auto text-right font-medium"
-                                                onChange={(e) => onInputChange('datosPorSeccion.man.metricasPrincipales.totalUnidades', e.target.value)}
-                                            />
-                                        ) : (
-                                            formatNumber(datosPorSeccion.man.metricasPrincipales.totalUnidades)
-                                        )}
+                                        <DatoSimple
+                                            value={formatNumber(datosPorSeccion.man.metricasPrincipales.totalUnidades)}
+                                            isEditing={isEditing}
+                                            valueId="datosPorSeccion.man.metricasPrincipales.totalUnidades"
+                                            onInputChange={onInputChange}
+                                            align="right"
+                                        />
                                     </TableCell>
                                     <TableCell className="text-right font-medium">
-                                        {isEditing ? (
-                                             <Input
-                                                type="number"
-                                                inputMode="decimal"
-                                                defaultValue={datosPorSeccion.man.metricasPrincipales.varPorcUnidades}
-                                                className="w-full ml-auto text-right font-medium"
-                                                onChange={(e) => onInputChange('datosPorSeccion.man.metricasPrincipales.varPorcUnidades', e.target.value)}
-                                            />
-                                        ) : (
-                                            <span className={cn(datosPorSeccion.man.metricasPrincipales.varPorcUnidades < 0 ? "text-red-600" : "text-green-600")}>
-                                                {formatPercentage(datosPorSeccion.man.metricasPrincipales.varPorcUnidades)}
-                                            </span>
-                                        )}
+                                        <DatoSimple
+                                            value={formatPercentage(datosPorSeccion.man.metricasPrincipales.varPorcUnidades)}
+                                            isEditing={isEditing}
+                                            valueId="datosPorSeccion.man.metricasPrincipales.varPorcUnidades"
+                                            onInputChange={onInputChange}
+                                            align="right"
+                                            unit="%"
+                                        />
+                                    </TableCell>
+                                </TableRow>
+                            </TableBody>
+                        </Table>
+                    </Card>
+               </div>
+            </TabsContent>
+
+            <TabsContent value="aqne" className="mt-0">
+                 <div className="grid gap-4 items-start grid-cols-1">
+                   <DataTable
+                        title="Ropa"
+                        icon={<Shirt className="h-5 w-5" />}
+                        dataKey="ventasMan.pesoComprador"
+                        data={ventasMan.pesoComprador.map(item => ({
+                            ...item,
+                            pesoPorc: grandTotalEuros > 0 ? ((Number(item.totalEuros) || 0) / grandTotalEuros) * 100 : 0
+                        }))}
+                        list={listas.compradorMan}
+                        isEditing={isEditing}
+                        onInputChange={onInputChange}
+                        showFooter={true}
+                        totalEurosOverride={ropaTotalEuros}
+                        totalPesoPorcOverride={ropaPesoPorcTotal}
+                        showVarPorc={false}
+                    />
+                    <DataTable
+                        title="Calzado"
+                        icon={<Footprints className="h-5 w-5" />}
+                        dataKey="datosPorSeccion.man.desglose"
+                        data={calzadoTableData}
+                        list={undefined}
+                        isEditing={isEditing}
+                        onInputChange={onInputChange}
+                        showFooter={false}
+                        showVarPorc={false}
+                    />
+                    <DataTable
+                        title="Perfumeria"
+                        icon={<SprayCan className="h-5 w-5" />}
+                        dataKey="datosPorSeccion.man.desglose"
+                        data={perfumeriaTableData}
+                        list={undefined}
+                        isEditing={isEditing}
+                        onInputChange={onInputChange}
+                        showFooter={false}
+                        showVarPorc={false}
+                    />
+                     <Card className="h-full overflow-y-auto">
+                        <Table>
+                            <TableHeader className="sticky top-0 bg-card z-10">
+                                <TableRow>
+                                    <TableHead className="uppercase font-bold w-[40%]" />
+                                    <TableHead className='text-right w-[20%]' />
+                                    <TableHead className='text-right w-[20%] uppercase font-bold text-primary'>
+                                        <div className="flex items-center justify-end gap-2">
+                                            <Package className="h-4 w-4" />
+                                            <span>Unidades</span>
+                                        </div>
+                                    </TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                <TableRow>
+                                    <TableCell></TableCell>
+                                    <TableCell></TableCell>
+                                    <TableCell className="text-right font-medium">
+                                        <DatoSimple
+                                            value={formatNumber(datosPorSeccion.man.metricasPrincipales.totalUnidades)}
+                                            isEditing={isEditing}
+                                            valueId="datosPorSeccion.man.metricasPrincipales.totalUnidades"
+                                            onInputChange={onInputChange}
+                                            align="right"
+                                        />
                                     </TableCell>
                                 </TableRow>
                             </TableBody>
@@ -347,3 +419,5 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
         </Tabs>
     );
 }
+
+    
