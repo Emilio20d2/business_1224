@@ -274,7 +274,12 @@ function DashboardPageComponent() {
         const finalKey = keys[keys.length - 1];
         
         const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
-        current[finalKey] = isNaN(numericValue) || value === "" ? value : numericValue;
+        
+        if (typeof current[finalKey] === 'number') {
+            current[finalKey] = isNaN(numericValue) || value === "" ? 0 : numericValue;
+        } else {
+            current[finalKey] = value;
+        }
         
         const [mainKey, sectionKey, subKey, index, field] = keys;
         
@@ -629,14 +634,13 @@ const handleImportSpecificWeek = async () => {
                 <AqneSemanalTab data={data} isEditing={isEditing} onInputChange={handleInputChange} />
               </TabsContent>
               <TabsContent value="acumulado" className="mt-0">
-                <AcumuladoTab data={data.acumulado} isEditing={isEditing} onInputChange={handleInputChange} />
+                <AcumuladoTab data={data.acumulado} isEditing={isEditing} onInputChange={handleInputChange}/>
               </TabsContent>
               <TabsContent value="man" className="mt-0">
                 <VentasManTab
                   data={data}
                   isEditing={isEditing}
                   onInputChange={handleInputChange}
-                  onImageChange={() => {}}
                 />
               </TabsContent>
             </Tabs>

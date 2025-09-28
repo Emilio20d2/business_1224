@@ -1,3 +1,4 @@
+
 "use client"
 import React from 'react';
 import type { WeeklyData, VentasManItem } from "@/lib/data";
@@ -31,7 +32,6 @@ type VentasManTabProps = {
   data: WeeklyData;
   isEditing: boolean;
   onInputChange: (path: string, value: any) => void;
-  onImageChange: (compradorName: string, file: File, onUploadComplete: (success: boolean, previewUrl: string) => void) => void;
 };
 
 
@@ -139,7 +139,7 @@ const DataTable = ({
 };
 
 
-export function VentasManTab({ data, isEditing, onInputChange, onImageChange }: VentasManTabProps) {
+export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabProps) {
     const [activeTab, setActiveTab] = React.useState<string>('comprador');
     
     if (!data || !data.ventasMan || !data.listas) return <p>Cargando datos de Ventas Man...</p>;

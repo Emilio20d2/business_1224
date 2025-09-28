@@ -268,7 +268,12 @@ function ManPageComponent() {
         const finalKey = keys[keys.length - 1];
         
         const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
-        current[finalKey] = isNaN(numericValue) || value === "" ? value : numericValue;
+
+        if (typeof current[finalKey] === 'number') {
+            current[finalKey] = isNaN(numericValue) || value === "" ? 0 : numericValue;
+        } else {
+            current[finalKey] = value;
+        }
 
         if (keys[0] === 'ventasMan') {
             const tableKey = keys[1] as keyof WeeklyData['ventasMan'];
@@ -556,7 +561,6 @@ const handleImportSpecificWeek = async () => {
                   data={data}
                   isEditing={isEditing} 
                   onInputChange={handleInputChange}
-                  onImageChange={() => {}}
                 />
             ) : (
              <div className="flex flex-col items-center justify-center min-h-[60vh]">
