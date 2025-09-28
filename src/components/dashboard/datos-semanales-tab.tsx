@@ -80,14 +80,7 @@ const SectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionNa
             <CardContent>
                  <div className="grid grid-cols-2 gap-2">
                     <div className="bg-background rounded-lg p-3 text-center flex flex-col justify-center items-center gap-1">
-                        <DatoSimple
-                            value={data.metricasPrincipales.totalEuros}
-                            isEditing={isEditing}
-                            valueId={`datosPorSeccion.${name}.metricasPrincipales.totalEuros`}
-                            onInputChange={onInputChange}
-                            align="center"
-                            unit="€"
-                         />
+                        <div className={cn("font-bold text-lg", data.metricasPrincipales.totalEuros < 0 && "text-red-600")}>{formatCurrency(data.metricasPrincipales.totalEuros)}</div>
                         <DatoSimple
                             value=""
                             variation={data.metricasPrincipales.varPorcEuros}
@@ -349,4 +342,5 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
     </div>
   );
 }
+
 
