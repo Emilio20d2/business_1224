@@ -46,7 +46,7 @@ export const formatWeekIdToDateRange = (weekId: string): string => {
       return weekId;
     }
     
-    const date = parse(`${year}-W${String(week).padStart(2, '0')}-1`, "yyyy-'W'II-i", new Date());
+    const date = parse(`${year}-W${String(week).padStart(2, '0')}-1`, "RRRR-'W'II-i", new Date());
     
     return format(date, 'dd MMM', { locale: es });
   } catch (e) {
@@ -69,7 +69,7 @@ export const getPreviousWeekId = (weekId: string): string => {
             return weekId;
         }
         
-        const date = parse(`${year}-W${String(week).padStart(2, '0')}-1`, "yyyy-'W'II-i", new Date());
+        const date = parse(`${year}-W${String(week).padStart(2, '0')}-1`, "RRRR-'W'II-i", new Date());
         const previousWeekDate = subWeeks(date, 1);
         return getWeekIdFromDate(previousWeekDate);
     } catch (e) {
