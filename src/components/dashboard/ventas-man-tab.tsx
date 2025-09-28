@@ -88,15 +88,15 @@ const DataTable = ({
             <Table>
                 <TableHeader className="sticky top-0 bg-card z-10">
                     <TableRow>
-                        <TableHead className="uppercase font-bold w-1/4">
+                        <TableHead className="uppercase font-bold w-[40%]">
                             <div className="flex items-center gap-2 text-primary">
                                 {icon}
                                 <span>{title}</span>
                             </div>
                         </TableHead>
-                        <TableHead className='text-right w-1/4 uppercase font-bold text-primary'><Percent className="h-4 w-4 inline-block" /></TableHead>
-                        <TableHead className='text-right w-1/4 uppercase font-bold text-primary'><Euro className="h-4 w-4 inline-block" /></TableHead>
-                        <TableHead className='text-right w-1/4 uppercase font-bold text-primary'>Var %</TableHead>
+                        <TableHead className='text-right w-[20%] uppercase font-bold text-primary'><Percent className="h-4 w-4 inline-block" /></TableHead>
+                        <TableHead className='text-right w-[20%] uppercase font-bold text-primary'><Euro className="h-4 w-4 inline-block" /></TableHead>
+                        <TableHead className='text-right w-[20%] uppercase font-bold text-primary'>Var %</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -258,17 +258,21 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                         <Table>
                             <TableHeader className="sticky top-0 bg-card z-10">
                                 <TableRow>
-                                    <TableHead className="uppercase font-bold w-1/2">
+                                    <TableHead className="uppercase font-bold w-[40%]">
                                         <div className="flex items-center gap-2 text-primary">
                                             <Package className="h-5 w-5" />
                                             <span>Unidades</span>
                                         </div>
                                     </TableHead>
-                                    <TableHead className='text-right w-1/2 uppercase font-bold text-primary'>Var %</TableHead>
+                                    <TableHead className='text-right w-[20%]'></TableHead>
+                                    <TableHead className='text-right w-[20%] uppercase font-bold text-primary'>Total</TableHead>
+                                    <TableHead className='text-right w-[20%] uppercase font-bold text-primary'>Var %</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 <TableRow>
+                                    <TableCell></TableCell>
+                                    <TableCell></TableCell>
                                     <TableCell className="text-right font-medium">
                                         <DatoSimple 
                                             value={datosPorSeccion.man.metricasPrincipales.totalUnidades}
@@ -279,10 +283,13 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                                         />
                                     </TableCell>
                                     <TableCell className="text-right font-medium">
-                                        <DatoSimple 
-                                            value={formatPercentage(datosPorSeccion.man.metricasPrincipales.varPorcUnidades)}
+                                        <DatoSimple
+                                            value=""
+                                            variation={datosPorSeccion.man.metricasPrincipales.varPorcUnidades} 
                                             isEditing={isEditing}
+                                            alwaysShowVariation
                                             valueId="datosPorSeccion.man.metricasPrincipales.varPorcUnidades"
+                                            variationId="datosPorSeccion.man.metricasPrincipales.varPorcUnidades"
                                             onInputChange={onInputChange}
                                             align='right'
                                         />
