@@ -65,11 +65,16 @@ const DataTable = ({
     }
     const optionList = list || [];
 
-    const totalEuros = totalEurosOverride !== undefined ? totalEurosOverride : data.reduce((sum, item) => sum + (Number(item.totalEuros) || 0), 0);
+    const totalEuros = data.reduce((sum, item) => sum + (Number(item.totalEuros) || 0), 0);
     
-    const weightedVarPorc = totalVarPorcOverride !== undefined ? totalVarPorcOverride : (totalEuros > 0 
+    const weightedVarPorc = totalEuros > 0 
         ? data.reduce((sum, item) => sum + (Number(item.totalEuros) || 0) * (Number(item.varPorc) || 0), 0) / totalEuros
-        : 0);
+        : 0;
+
+    const finalTotalEuros = totalEurosOverride !== undefined ? totalEurosOverride : totalEuros;
+    const finalWeightedVarPorc = totalVarPorcOverride !== undefined ? totalVarPorcOverride : weightedVarPorc;
+    const finalTotalPesoPorc = totalPesoPorcOverride !== undefined ? totalPesoPorcOverride : data.reduce((sum, item) => sum + (Number(item.pesoPorc) || 0), 0);
+
 
     const handleChange = (index: number, field: keyof VentasManItem, value: any) => {
         const path = `${dataKey}.${index}.${field}`;
@@ -82,15 +87,15 @@ const DataTable = ({
             <Table>
                 <TableHeader className="sticky top-0 bg-card z-10">
                     <TableRow>
-                        <TableHead className="uppercase font-bold w-[40%]">
+                        <TableHead className="uppercase font-bold w-1/4">
                             <div className="flex items-center gap-2 text-primary">
                                 {icon}
                                 <span>{title}</span>
                             </div>
                         </TableHead>
-                        <TableHead className='text-right w-[20%] uppercase font-bold text-primary'><Percent className="h-4 w-4 inline-block" /></TableHead>
-                        <TableHead className='text-right w-[20%] uppercase font-bold text-primary'><Euro className="h-4 w-4 inline-block" /></TableHead>
-                        <TableHead className='text-right w-[20%] uppercase font-bold text-primary'>Var %</TableHead>
+                        <TableHead className='text-right w-1/4 uppercase font-bold text-primary'><Percent className="h-4 w-4 inline-block" /></TableHead>
+                        <TableHead className='text-right w-1/4 uppercase font-bold text-primary'><Euro className="h-4 w-4 inline-block" /></TableHead>
+                        <TableHead className='text-right w-1/4 uppercase font-bold text-primary'>Var %</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -123,7 +128,7 @@ const DataTable = ({
                                         <Input
                                             type="number"
                                             readOnly
-                                            value={item.pesoPorc.toFixed(2)}
+                                            value={item.pesoPorc.toFixed(0)}
                                             className="w-full ml-auto text-right bg-muted"
                                         />
                                     ) : (
@@ -146,10 +151,10 @@ const DataTable = ({
                     <TableFooter>
                         <TableRow className="bg-muted/50 hover:bg-muted/60">
                             <TableHead className="font-bold uppercase">Total</TableHead>
-                            <TableHead className="text-right font-bold">{formatPercentage(totalPesoPorcOverride ?? 0)}</TableHead>
-                            <TableHead className="text-right font-bold">{formatCurrency(totalEuros)}</TableHead>
-                            <TableHead className={cn("text-right font-bold", weightedVarPorc < 0 ? "text-red-600" : "text-green-600")}>
-                                {formatPercentage(weightedVarPorc)}
+                            <TableHead className="text-right font-bold">{formatPercentage(finalTotalPesoPorc)}</TableHead>
+                            <TableHead className="text-right font-bold">{formatCurrency(finalTotalEuros)}</TableHead>
+                            <TableHead className={cn("text-right font-bold", finalWeightedVarPorc < 0 ? "text-red-600" : "text-green-600")}>
+                                {formatPercentage(finalWeightedVarPorc)}
                             </TableHead>
                         </TableRow>
                     </TableFooter>
@@ -191,14 +196,6 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
         varPorc: perfumeriaData.varPorc,
         totalEurosSemanaAnterior: 0
     }] : [];
-
-    const unidadesTableData: VentasManItem[] = [{
-        nombre: 'Unidades',
-        pesoPorc: 0,
-        totalEuros: datosPorSeccion.man.metricasPrincipales.totalUnidades,
-        varPorc: datosPorSeccion.man.metricasPrincipales.varPorcUnidades,
-        totalEurosSemanaAnterior: 0
-    }];
 
     const ropaPesoPorcTotal = grandTotalEuros > 0 ? (ropaTotalEuros / grandTotalEuros) * 100 : 0;
     const ropaWeightedVarPorc = ropaTotalEuros > 0
@@ -269,13 +266,13 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                         <Table>
                             <TableHeader className="sticky top-0 bg-card z-10">
                                 <TableRow>
-                                    <TableHead className="uppercase font-bold w-3/4">
+                                    <TableHead className="uppercase font-bold w-1/2">
                                         <div className="flex items-center gap-2 text-primary">
                                             <Package className="h-5 w-5" />
                                             <span>Unidades</span>
                                         </div>
                                     </TableHead>
-                                    <TableHead className='text-right w-1/4 uppercase font-bold text-primary'>Var %</TableHead>
+                                    <TableHead className='text-right w-1/2 uppercase font-bold text-primary'>Var %</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
