@@ -16,8 +16,6 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
   DropdownMenuSub,
   DropdownMenuSubTrigger,
   DropdownMenuSubContent,
@@ -40,8 +38,8 @@ type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMa
 
 const tabConfig: Record<string, { label: string; icon?: React.FC<React.SVGProps<SVGSVGElement>>, text?: string, path?: string }> = {
     datosSemanales: { label: "GENERAL", icon: LayoutDashboard, path: "/dashboard?tab=datosSemanales" },
-    man: { label: "MAN", text: "M", path: "/man" },
     woman: { label: "WOMAN", path: "/woman" },
+    man: { label: "MAN", text: "M", path: "/man" },
     nino: { label: "NIÑO", path: "/nino" },
 };
 
@@ -436,7 +434,7 @@ const handleImportSpecificWeek = async () => {
                                 aria-label={config.label}
                             >
                                {config.icon && <config.icon className={cn("h-4 w-4", !isActive && "text-primary")} />}
-                               {config.text && <span className="font-bold text-lg">{config.text}</span>}
+                               {config.text && <span className={cn("font-bold text-lg", !isActive && "text-primary")}>{config.text}</span>}
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent>
