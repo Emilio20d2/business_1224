@@ -263,17 +263,17 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                     />
                      <Card className="h-full overflow-y-auto">
                         <Table>
-                            <TableHeader className="sticky top-0 bg-card z-10">
+                             <TableHeader className="sticky top-0 bg-card z-10">
                                 <TableRow>
-                                    <TableHead className="w-[40%]"></TableHead>
-                                    <TableHead className='w-[20%]'></TableHead>
-                                    <TableHead className='text-right w-[20%] uppercase font-bold text-primary'>
-                                        <div className="flex items-center justify-end gap-2">
+                                    <TableHead className="w-[40%] uppercase font-bold text-primary">
+                                        <div className="flex items-center gap-2">
                                             <Package className="h-4 w-4" />
                                             <span>Unidades</span>
                                         </div>
                                     </TableHead>
-                                    <TableHead className='text-right w-[20%] uppercase font-bold text-primary'>Var %</TableHead>
+                                    <TableHead className='w-[20%]'></TableHead>
+                                    <TableHead className='text-right w-[20%]'></TableHead>
+                                    <TableHead className='text-right w-[20%]'></TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -352,14 +352,14 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                         <Table>
                            <TableHeader className="sticky top-0 bg-card z-10">
                                 <TableRow>
-                                    <TableHead className="w-[60%]"></TableHead>
-                                    <TableHead className='w-[20%]'></TableHead>
-                                    <TableHead className='text-right w-[20%] uppercase font-bold text-primary'>
-                                        <div className="flex items-center justify-end gap-2">
+                                     <TableHead className="w-[40%] uppercase font-bold text-primary">
+                                        <div className="flex items-center gap-2">
                                             <Package className="h-4 w-4" />
                                             <span>Unidades</span>
                                         </div>
                                     </TableHead>
+                                    <TableHead className='w-[20%]'></TableHead>
+                                    <TableHead className='text-right w-[20%]'></TableHead>
                                 </TableRow>
                             </TableHeader>
                              <TableBody>
