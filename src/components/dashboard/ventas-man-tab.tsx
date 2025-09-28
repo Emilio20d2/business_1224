@@ -263,7 +263,7 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                     />
                      <Card className="h-full overflow-y-auto">
                         <Table>
-                             <TableHeader className="sticky top-0 bg-card z-10">
+                            <TableHeader className="sticky top-0 bg-card z-10">
                                 <TableRow>
                                     <TableHead className="w-[40%]"></TableHead>
                                     <TableHead className='w-[20%]'></TableHead>
