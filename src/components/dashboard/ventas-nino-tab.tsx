@@ -202,14 +202,13 @@ export function VentasNinoTab({ data, isEditing, onInputChange }: VentasNinoTabP
 
     const tabButtons = [
         { value: 'ventas', label: 'VENTAS' },
-        { value: 'aqne', label: 'AQNE' },
         { value: 'operaciones', label: 'OPERACIONES' },
         { value: 'focus', label: 'FOCUS' },
     ];
 
     return (
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <div className="mb-4 grid w-full grid-cols-2 md:grid-cols-4 gap-2">
+            <div className="mb-4 grid w-full grid-cols-2 md:grid-cols-3 gap-2">
                 {tabButtons.map(tab => (
                     <Button
                         key={tab.value}
@@ -284,74 +283,6 @@ export function VentasNinoTab({ data, isEditing, onInputChange }: VentasNinoTabP
                                     </TableCell>
                                     <TableCell className={cn("text-right font-medium", datosPorSeccion.nino.metricasPrincipales.varPorcUnidades < 0 ? "text-red-600" : "text-green-600")}>
                                         {formatPercentage(datosPorSeccion.nino.metricasPrincipales.varPorcUnidades)}
-                                    </TableCell>
-                                </TableRow>
-                            </TableBody>
-                        </Table>
-                    </Card>
-               </div>
-            </TabsContent>
-
-            <TabsContent value="aqne" className="mt-0">
-                 <div className="grid gap-4 items-start grid-cols-1">
-                   <DataTable
-                        title="Ropa"
-                        icon={<Shirt className="h-5 w-5" />}
-                        dataKey="ventasNino.pesoComprador"
-                        data={ventasNino.pesoComprador.sort((a, b) => (b.totalEuros || 0) - (a.totalEuros || 0)).map(item => ({
-                            ...item,
-                            pesoPorc: grandTotalEuros > 0 ? ((Number(item.totalEuros) || 0) / grandTotalEuros) * 100 : 0
-                        }))}
-                        list={listas.compradorNino}
-                        isEditing={isEditing}
-                        onInputChange={onInputChange}
-                        showFooter={true}
-                        totalEurosOverride={ropaTotalEuros}
-                        totalPesoPorcOverride={ropaPesoPorcTotal}
-                        showVarPorc={false}
-                    />
-                    <DataTable
-                        title="Calzado"
-                        icon={<Footprints className="h-5 w-5" />}
-                        dataKey="datosPorSeccion.nino.desglose"
-                        data={calzadoTableData}
-                        list={undefined}
-                        isEditing={isEditing}
-                        onInputChange={onInputChange}
-                        showFooter={false}
-                        showVarPorc={false}
-                    />
-                    <DataTable
-                        title="Perfumeria"
-                        icon={<SprayCan className="h-5 w-5" />}
-                        dataKey="datosPorSeccion.nino.desglose"
-                        data={perfumeriaTableData}
-                        list={undefined}
-                        isEditing={isEditing}
-                        onInputChange={onInputChange}
-                        showFooter={false}
-                        showVarPorc={false}
-                    />
-                     <Card className="h-full overflow-y-auto">
-                        <Table>
-                           <TableHeader>
-                                <TableRow>
-                                    <TableHead className="w-[40%] uppercase font-bold text-primary">
-                                        <div className="flex items-center gap-2">
-                                            <Package className="h-4 w-4" />
-                                            <span>Unidades</span>
-                                        </div>
-                                    </TableHead>
-                                    <TableHead className="w-[20%]"></TableHead>
-                                    <TableHead className='text-right w-[20%] uppercase font-bold text-primary'>UNIDADES</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                <TableRow>
-                                    <TableCell className="font-bold uppercase">Total</TableCell>
-                                    <TableCell></TableCell>
-                                    <TableCell className="text-right font-medium">
-                                        {formatNumber(datosPorSeccion.nino.metricasPrincipales.totalUnidades)}
                                     </TableCell>
                                 </TableRow>
                             </TableBody>
