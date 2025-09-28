@@ -23,7 +23,7 @@ import { Card } from "@/components/ui/card";
 import { formatCurrency, formatPercentage } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { Button } from '../ui/button';
-import { Users, MapPin, ShoppingBasket, Percent, Euro, TrendingUp } from 'lucide-react';
+import { Users, MapPin, ShoppingBasket, Percent, Euro } from 'lucide-react';
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { OperacionesSubTab } from './operaciones-sub-tab';
 import { FocusSemanalTab } from './focus-semanal-tab';
@@ -62,22 +62,22 @@ const DataTable = ({
         onInputChange(path, value);
     };
 
-    const totalPesoPorc = data.reduce((sum, item) => sum + (item.pesoPorc || 0), 0);
-    const totalEuros = data.reduce((sum, item) => sum + (item.totalEuros || 0), 0);
+    const totalPesoPorc = data.reduce((sum, item) => sum + (Number(item.pesoPorc) || 0), 0);
+    const totalEuros = data.reduce((sum, item) => sum + (Number(item.totalEuros) || 0), 0);
 
     return (
         <Card className="h-full overflow-y-auto">
             <Table>
                 <TableHeader className="sticky top-0 bg-card z-10">
                     <TableRow>
-                        <TableHead className="uppercase font-bold">
+                        <TableHead className="uppercase font-bold w-1/3">
                             <div className="flex items-center gap-2 text-primary">
                                 {icon}
                                 <span>{title}</span>
                             </div>
                         </TableHead>
-                        <TableHead className='text-right'><Percent className="h-4 w-4 text-primary inline-block" /></TableHead>
-                        <TableHead className='text-right'><Euro className="h-4 w-4 text-primary inline-block" /></TableHead>
+                        <TableHead className='text-right w-1/3'><Percent className="h-4 w-4 text-primary inline-block" /></TableHead>
+                        <TableHead className='text-right w-1/3'><Euro className="h-4 w-4 text-primary inline-block" /></TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
