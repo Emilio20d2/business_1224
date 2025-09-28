@@ -71,6 +71,7 @@ const synchronizeTableData = (list: string[], oldTableData: VentasManItem[]): Ve
             pesoPorc: 0,
             totalEuros: 0,
             varPorc: 0,
+            totalEurosSemanaAnterior: 0
         };
     });
 };
