@@ -166,13 +166,13 @@ export function DatoSimple({
         if (isEditing && valueId && onInputChange) {
             const numericValue = typeof rawValue === 'number' && !isNaN(rawValue) ? rawValue : '';
             return (
-                 <div className="flex items-center justify-center gap-1 w-full">
+                 <div className="flex items-baseline justify-center gap-1 w-full">
                     <Input 
                       type="number"
                       inputMode="decimal" 
                       step="any" 
                       defaultValue={numericValue} 
-                      className="w-24 h-8 self-center text-center" 
+                      className="font-bold text-lg text-right w-24" 
                       id={valueId}
                       onChange={handleValueChange}
                     />
@@ -184,7 +184,7 @@ export function DatoSimple({
 
         if (showValue === '') return null;
         
-        return <strong className={cn("font-semibold text-lg w-full flex items-center justify-center gap-1", valueColor)}>{showValue}</strong>;
+        return <strong className={cn("font-semibold text-lg w-full flex items-center justify-center gap-1", valueColor, align === 'right' && 'justify-end', align === 'left' && 'justify-start')}>{showValue}</strong>;
     }
 
     const renderVariation = () => {
@@ -197,7 +197,7 @@ export function DatoSimple({
                   type="number" 
                   inputMode="decimal" 
                   defaultValue={variation} 
-                  className="w-16 h-7 text-xs" 
+                  className="w-16 h-7 text-xs text-right" 
                   id={variationId}
                   onChange={handleVariationChange}
               />

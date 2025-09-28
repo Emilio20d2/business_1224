@@ -27,6 +27,7 @@ import { Users, MapPin, ShoppingBasket, Percent, Euro, Shirt, Footprints, SprayC
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { OperacionesSubTab } from './operaciones-sub-tab';
 import { FocusSemanalTab } from './focus-semanal-tab';
+import { DatoSimple } from './kpi-card';
 
 
 type VentasManTabProps = {
@@ -124,16 +125,7 @@ const DataTable = ({
                                     )}
                                 </TableCell>
                                 <TableCell className="text-right font-medium">
-                                    {isEditing && onInputChange ? (
-                                        <Input
-                                            type="number"
-                                            readOnly
-                                            value={item.pesoPorc.toFixed(0)}
-                                            className="w-full ml-auto text-right bg-muted"
-                                        />
-                                    ) : (
-                                        formatPercentage(item.pesoPorc)
-                                    )}
+                                    {formatPercentage(item.pesoPorc)}
                                 </TableCell>
                                 <TableCell className="text-right font-medium">
                                     {isEditing ? <Input type="number" inputMode="decimal" className="w-full ml-auto text-right" defaultValue={item.totalEuros} onChange={(e) => handleChange(index, 'totalEuros', e.target.value)} /> : formatCurrency(item.totalEuros)}
@@ -277,9 +269,23 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                             </TableHeader>
                             <TableBody>
                                 <TableRow>
-                                    <TableCell>{formatNumber(datosPorSeccion.man.metricasPrincipales.totalUnidades)}</TableCell>
-                                    <TableCell className={cn("text-right font-medium", datosPorSeccion.man.metricasPrincipales.varPorcUnidades < 0 ? "text-red-600" : "text-green-600")}>
-                                        {formatPercentage(datosPorSeccion.man.metricasPrincipales.varPorcUnidades)}
+                                    <TableCell>
+                                        <DatoSimple 
+                                            value={formatNumber(datosPorSeccion.man.metricasPrincipales.totalUnidades)}
+                                            isEditing={isEditing}
+                                            valueId="datosPorSeccion.man.metricasPrincipales.totalUnidades"
+                                            onInputChange={onInputChange}
+                                            align='left'
+                                        />
+                                    </TableCell>
+                                    <TableCell className="text-right font-medium">
+                                        <DatoSimple 
+                                            value={formatPercentage(datosPorSeccion.man.metricasPrincipales.varPorcUnidades)}
+                                            isEditing={isEditing}
+                                            valueId="datosPorSeccion.man.metricasPrincipales.varPorcUnidades"
+                                            onInputChange={onInputChange}
+                                            align='right'
+                                        />
                                     </TableCell>
                                 </TableRow>
                             </TableBody>
