@@ -23,7 +23,7 @@ import { Card } from "@/components/ui/card";
 import { formatCurrency, formatPercentage } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { Button } from '../ui/button';
-import { Users, MapPin, ShoppingBasket, Percent, Euro } from 'lucide-react';
+import { Users, MapPin, ShoppingBasket, Percent, Euro, Shirt } from 'lucide-react';
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { OperacionesSubTab } from './operaciones-sub-tab';
 import { FocusSemanalTab } from './focus-semanal-tab';
@@ -58,6 +58,11 @@ const DataTable = ({
     const optionList = list || [];
 
     const totalEuros = data.reduce((sum, item) => sum + (Number(item.totalEuros) || 0), 0);
+    
+    const weightedVarPorc = totalEuros > 0 
+        ? data.reduce((sum, item) => sum + (Number(item.totalEuros) || 0) * (Number(item.varPorc) || 0), 0) / totalEuros
+        : 0;
+
 
     const handleChange = (index: number, field: keyof VentasManItem, value: any) => {
         const path = `${dataKey}.${index}.${field}`;
@@ -75,8 +80,8 @@ const DataTable = ({
                                 <span>{title}</span>
                             </div>
                         </TableHead>
-                        <TableHead className='text-right w-1/4'><Percent className="h-4 w-4 text-primary inline-block" /></TableHead>
-                        <TableHead className='text-right w-1/4'><Euro className="h-4 w-4 text-primary inline-block" /></TableHead>
+                        <TableHead className='text-right w-1/4 uppercase font-bold text-primary'><Percent className="h-4 w-4 inline-block" /></TableHead>
+                        <TableHead className='text-right w-1/4 uppercase font-bold text-primary'><Euro className="h-4 w-4 inline-block" /></TableHead>
                         <TableHead className='text-right w-1/4 uppercase font-bold text-primary'>Var %</TableHead>
                     </TableRow>
                 </TableHeader>
@@ -126,7 +131,9 @@ const DataTable = ({
                         <TableHead className="font-bold uppercase">Total</TableHead>
                         <TableHead className="text-right font-bold">{formatPercentage(100)}</TableHead>
                         <TableHead className="text-right font-bold">{formatCurrency(totalEuros)}</TableHead>
-                        <TableHead></TableHead>
+                        <TableHead className={cn("text-right font-bold", weightedVarPorc < 0 ? "text-red-600" : "text-green-600")}>
+                            {formatPercentage(weightedVarPorc)}
+                        </TableHead>
                     </TableRow>
                 </TableFooter>
             </Table>
@@ -168,7 +175,7 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                <div className="grid gap-4 items-start grid-cols-1">
                    <DataTable
                         title="Ropa"
-                        icon={<Users className="h-5 w-5" />}
+                        icon={<Shirt className="h-5 w-5" />}
                         dataKey="ventasMan.pesoComprador"
                         data={ventasMan.pesoComprador}
                         list={listas.compradorMan}
