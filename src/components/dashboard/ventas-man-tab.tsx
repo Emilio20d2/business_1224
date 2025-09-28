@@ -269,13 +269,13 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                             </TableHeader>
                             <TableBody>
                                 <TableRow>
-                                    <TableCell>
+                                    <TableCell className="text-right font-medium">
                                         <DatoSimple 
-                                            value={formatNumber(datosPorSeccion.man.metricasPrincipales.totalUnidades)}
+                                            value={datosPorSeccion.man.metricasPrincipales.totalUnidades}
                                             isEditing={isEditing}
                                             valueId="datosPorSeccion.man.metricasPrincipales.totalUnidades"
                                             onInputChange={onInputChange}
-                                            align='left'
+                                            align='right'
                                         />
                                     </TableCell>
                                     <TableCell className="text-right font-medium">
