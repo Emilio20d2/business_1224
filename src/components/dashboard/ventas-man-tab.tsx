@@ -43,7 +43,9 @@ const DataTable = ({
     isEditing, 
     dataKey, 
     onInputChange,
-    showFooter = false
+    showFooter = false,
+    totalEurosOverride,
+    totalVarPorcOverride
 }: { 
     title: string,
     icon: React.ReactNode,
@@ -52,19 +54,19 @@ const DataTable = ({
     isEditing: boolean, 
     dataKey: string, 
     onInputChange: VentasManTabProps['onInputChange'],
-    showFooter?: boolean
+    showFooter?: boolean,
+    totalEurosOverride?: number,
+    totalVarPorcOverride?: number
 }) => {
     if (!data || !Array.isArray(data)) {
         return <p className="text-center text-muted-foreground mt-8">No hay datos disponibles.</p>;
     }
     const optionList = list || [];
 
-    const totalEuros = data.reduce((sum, item) => sum + (Number(item.totalEuros) || 0), 0);
-    
-    const weightedVarPorc = totalEuros > 0 
+    const totalEuros = totalEurosOverride !== undefined ? totalEurosOverride : data.reduce((sum, item) => sum + (Number(item.totalEuros) || 0), 0);
+    const weightedVarPorc = totalVarPorcOverride !== undefined ? totalVarPorcOverride : (totalEuros > 0 
         ? data.reduce((sum, item) => sum + (Number(item.totalEuros) || 0) * (Number(item.varPorc) || 0), 0) / totalEuros
-        : 0;
-
+        : 0);
 
     const handleChange = (index: number, field: keyof VentasManItem, value: any) => {
         const path = `${dataKey}.${index}.${field}`;
@@ -76,20 +78,20 @@ const DataTable = ({
             <Table>
                 <TableHeader className="sticky top-0 bg-card z-10">
                     <TableRow>
-                        <TableHead className="uppercase font-bold w-[40%]">
+                        <TableHead className="uppercase font-bold w-1/4">
                             <div className="flex items-center gap-2 text-primary">
                                 {icon}
                                 <span>{title}</span>
                             </div>
                         </TableHead>
-                        <TableHead className='text-right w-[20%] uppercase font-bold text-primary'><Percent className="h-4 w-4 inline-block" /></TableHead>
-                        <TableHead className='text-right w-[20%] uppercase font-bold text-primary'><Euro className="h-4 w-4 inline-block" /></TableHead>
-                        <TableHead className='text-right w-[20%] uppercase font-bold text-primary'>Var %</TableHead>
+                        <TableHead className='text-right w-1/4 uppercase font-bold text-primary'><Percent className="h-4 w-4 inline-block" /></TableHead>
+                        <TableHead className='text-right w-1/4 uppercase font-bold text-primary'><Euro className="h-4 w-4 inline-block" /></TableHead>
+                        <TableHead className='text-right w-1/4 uppercase font-bold text-primary'>Var %</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
                     {data.map((item, index) => {
-                        const pesoPorc = totalEuros > 0 ? ((Number(item.totalEuros) || 0) / totalEuros) * 100 : 0;
+                         const pesoPorc = totalEuros > 0 ? ((Number(item.totalEuros) || 0) / totalEuros) * 100 : 0;
                         return (
                             <TableRow 
                                 key={item.nombre + index}
@@ -114,13 +116,22 @@ const DataTable = ({
                                     )}
                                 </TableCell>
                                 <TableCell className="text-right font-medium">
-                                  {formatPercentage(pesoPorc)}
+                                   {isEditing && onInputChange ? (
+                                        <Input
+                                            type="number"
+                                            readOnly
+                                            value={pesoPorc.toFixed(0)}
+                                            className="w-full ml-auto text-right bg-muted"
+                                        />
+                                    ) : (
+                                        formatPercentage(pesoPorc)
+                                    )}
                                 </TableCell>
                                 <TableCell className="text-right font-medium">
                                     {isEditing ? <Input type="number" inputMode="decimal" className="w-full ml-auto text-right" defaultValue={item.totalEuros} onChange={(e) => handleChange(index, 'totalEuros', e.target.value)} /> : formatCurrency(item.totalEuros)}
                                 </TableCell>
                                 <TableCell className="text-right font-medium">
-                                    {isEditing ? <Input type="number" inputMode="decimal" className="w-full ml-auto text-right" defaultValue={item.varPorc} onChange={(e) => handleChange(index, 'varPorc', e.target.value)} /> : 
+                                     {isEditing ? <Input type="number" inputMode="decimal" className="w-full ml-auto text-right" defaultValue={item.varPorc} onChange={(e) => handleChange(index, 'varPorc', e.target.value)} /> : 
                                      <span className={cn(item.varPorc < 0 ? "text-red-600" : "text-green-600")}>{formatPercentage(item.varPorc)}</span>
                                     }
                                 </TableCell>
@@ -132,7 +143,7 @@ const DataTable = ({
                     <TableFooter>
                         <TableRow className="bg-muted/50 hover:bg-muted/60">
                             <TableHead className="font-bold uppercase">Total</TableHead>
-                            <TableHead className="text-right font-bold">{formatPercentage(100)}</TableHead>
+                            <TableHead className="text-right font-bold">{formatPercentage(data.reduce((sum, item) => sum + (totalEuros > 0 ? ((Number(item.totalEuros) || 0) / totalEuros) * 100 : 0), 0))}</TableHead>
                             <TableHead className="text-right font-bold">{formatCurrency(totalEuros)}</TableHead>
                             <TableHead className={cn("text-right font-bold", weightedVarPorc < 0 ? "text-red-600" : "text-green-600")}>
                                 {formatPercentage(weightedVarPorc)}
@@ -153,25 +164,35 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
 
     const { ventasMan, listas, datosPorSeccion } = data;
     
+    const ropaTotalEuros = ventasMan.pesoComprador.reduce((sum, item) => sum + (Number(item.totalEuros) || 0), 0);
     const calzadoData = datosPorSeccion.man.desglose.find(d => d.seccion === 'Calzado');
     const perfumeriaData = datosPorSeccion.man.desglose.find(d => d.seccion === 'Perfumería');
 
+    const calzadoTotalEuros = calzadoData?.totalEuros || 0;
+    const perfumeriaTotalEuros = perfumeriaData?.totalEuros || 0;
+
+    const grandTotalEuros = ropaTotalEuros + calzadoTotalEuros + perfumeriaTotalEuros;
+
     const calzadoTableData: VentasManItem[] = calzadoData ? [{
         nombre: 'Calzado',
-        pesoPorc: 0,
-        totalEuros: calzadoData.totalEuros,
+        pesoPorc: grandTotalEuros > 0 ? (calzadoTotalEuros / grandTotalEuros) * 100 : 0,
+        totalEuros: calzadoTotalEuros,
         varPorc: calzadoData.varPorc,
         totalEurosSemanaAnterior: 0
     }] : [];
     
     const perfumeriaTableData: VentasManItem[] = perfumeriaData ? [{
         nombre: 'Perfumeria',
-        pesoPorc: 0,
-        totalEuros: perfumeriaData.totalEuros,
+        pesoPorc: grandTotalEuros > 0 ? (perfumeriaTotalEuros / grandTotalEuros) * 100 : 0,
+        totalEuros: perfumeriaTotalEuros,
         varPorc: perfumeriaData.varPorc,
         totalEurosSemanaAnterior: 0
     }] : [];
-
+    
+    const ropaPesoPorcTotal = grandTotalEuros > 0 ? (ropaTotalEuros / grandTotalEuros) * 100 : 0;
+    const ropaWeightedVarPorc = ropaTotalEuros > 0
+        ? ventasMan.pesoComprador.reduce((sum, item) => sum + (Number(item.totalEuros) || 0) * (Number(item.varPorc) || 0), 0) / ropaTotalEuros
+        : 0;
 
     const tabButtons = [
         { value: 'ventas', label: 'VENTAS' },
@@ -201,11 +222,16 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                         title="Ropa"
                         icon={<Shirt className="h-5 w-5" />}
                         dataKey="ventasMan.pesoComprador"
-                        data={ventasMan.pesoComprador}
+                        data={ventasMan.pesoComprador.map(item => ({
+                            ...item,
+                            pesoPorc: grandTotalEuros > 0 ? ((Number(item.totalEuros) || 0) / grandTotalEuros) * 100 : 0
+                        }))}
                         list={listas.compradorMan}
                         isEditing={isEditing}
                         onInputChange={onInputChange}
                         showFooter={true}
+                        totalEurosOverride={ropaTotalEuros}
+                        totalVarPorcOverride={ropaWeightedVarPorc}
                     />
                     <DataTable
                         title="Calzado"
@@ -240,6 +266,7 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                         list={listas.zonaComercialMan}
                         isEditing={isEditing}
                         onInputChange={onInputChange}
+                        showFooter
                     />
                     <DataTable
                         title="Agrupación Comercial"
@@ -249,6 +276,7 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                         list={listas.agrupacionComercialMan}
                         isEditing={isEditing}
                         onInputChange={onInputChange}
+                        showFooter
                     />
                 </div>
             </TabsContent>
