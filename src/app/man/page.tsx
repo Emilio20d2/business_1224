@@ -30,7 +30,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { EditListDialog } from '@/components/dashboard/edit-list-dialog';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { formatWeekIdToDateRange, getCurrentWeekId, getWeekIdFromDate } from '@/lib/format';
+import { formatWeekIdToDateRange, getCurrentWeekId, getWeekIdFromDate, getPreviousWeekId } from '@/lib/format';
 import { format, subWeeks } from 'date-fns';
 import semanaExportada from '@/../semana-exportada.json';
 
@@ -38,11 +38,11 @@ import semanaExportada from '@/../semana-exportada.json';
 type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan' | 'compradorWoman' | 'zonaComercialWoman' | 'agrupacionComercialWoman' | 'compradorNino' | 'zonaComercialNino' | 'agrupacionComercialNino';
 
 
-const tabConfig: Record<string, { label: string; icon: React.FC<React.SVGProps<SVGSVGElement>>, path?: string }> = {
-    datosSemanales: { label: "GENERAL", icon: LayoutDashboard, path: "/dashboard" },
-    aqneSemanal: { label: "AQNE", icon: ShoppingBag, path: "/dashboard" },
-    acumulado: { label: "ACUMULADO", icon: AreaChart, path: "/dashboard" },
-    man: { label: "MAN", icon: UserIcon, path: "/man" },
+const tabConfig: Record<string, { label: string; icon?: React.FC<React.SVGProps<SVGSVGElement>>, text?: string, path?: string }> = {
+    datosSemanales: { label: "GENERAL", icon: LayoutDashboard, path: "/dashboard?tab=datosSemanales" },
+    man: { label: "MAN", text: "M", path: "/man" },
+    woman: { label: "WOMAN", path: "/woman" },
+    nino: { label: "NIÑO", path: "/nino" },
 };
 
 const listLabels: Record<EditableList, string> = {
@@ -72,7 +72,6 @@ const synchronizeTableData = (list: string[], oldTableData: VentasManItem[]): Ve
             nombre: itemName,
             pesoPorc: 0,
             totalEuros: 0,
-            totalEurosSemanaAnterior: 0,
             varPorc: 0,
         };
     });
@@ -122,8 +121,8 @@ function ManPageComponent() {
   const handleTabChange = (newTab: string) => {
     const config = tabConfig[newTab];
     if (config?.path) {
-        if(config.path === '/dashboard') {
-            router.push(`${config.path}?week=${selectedWeek}&tab=${newTab}`);
+        if(config.path.startsWith('/dashboard')) {
+             router.push(`${config.path}&week=${selectedWeek}`);
         } else {
             router.push(`${config.path}?week=${selectedWeek}`);
         }
@@ -132,8 +131,7 @@ function ManPageComponent() {
 
   useEffect(() => {
     if (!searchParams.has('week') && user) {
-        const previousWeekDate = subWeeks(new Date(), 1);
-        const previousWeekId = getWeekIdFromDate(previousWeekDate);
+        const previousWeekId = getPreviousWeekId(getCurrentWeekId());
         updateUrl(previousWeekId);
     }
   }, [user, searchParams, updateUrl]);
@@ -237,8 +235,7 @@ function ManPageComponent() {
     } else if (!authLoading && user && !selectedWeek) {
       setDataLoading(false);
         if(canEdit) {
-            const previousWeekDate = subWeeks(new Date(), 1);
-            const newWeekId = getWeekIdFromDate(previousWeekDate);
+            const newWeekId = getPreviousWeekId(getCurrentWeekId());
             updateUrl(newWeekId);
         } else {
             setError("No hay informes disponibles. Contacta al administrador.");
@@ -426,7 +423,7 @@ const handleImportSpecificWeek = async () => {
           </h1>
           <div className="flex items-center gap-2">
               <div className="flex items-center gap-2">
-                 {(Object.keys(tabConfig)).map(tabKey => {
+                 {Object.keys(tabConfig).map(tabKey => {
                     const config = tabConfig[tabKey];
                     const isActive = activeTab === tabKey;
                     return (
@@ -438,7 +435,8 @@ const handleImportSpecificWeek = async () => {
                                 onClick={() => handleTabChange(tabKey)}
                                 aria-label={config.label}
                             >
-                                <config.icon className={cn("h-4 w-4", !isActive && "text-primary")} />
+                               {config.icon && <config.icon className={cn("h-4 w-4", !isActive && "text-primary")} />}
+                               {config.text && <span className="font-bold text-lg">{config.text}</span>}
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent>

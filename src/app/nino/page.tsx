@@ -4,24 +4,17 @@ import React, { useState, useContext, useEffect, useCallback, Suspense } from 'r
 import type { WeeklyData, VentasManItem } from "@/lib/data";
 import { doc, getDoc, setDoc, updateDoc, collection, getDocs } from "firebase/firestore";
 import { db } from '@/lib/firebase';
-import { Calendar as CalendarIcon, Settings, LogOut, Loader2, ChevronDown, Briefcase, List, LayoutDashboard, ShoppingBag, AreaChart, User as UserIcon, Pencil, Upload } from 'lucide-react';
+import { Calendar as CalendarIcon, Settings, LogOut, Loader2, Briefcase, List, LayoutDashboard, ShoppingBag, AreaChart, Pencil, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { DatosSemanalesTab } from "@/components/dashboard/datos-semanales-tab";
-import { AqneSemanalTab } from "@/components/dashboard/aqne-semanal-tab";
-import { AcumuladoTab } from "@/components/dashboard/acumulado-tab";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
   DropdownMenuSub,
   DropdownMenuSubTrigger,
   DropdownMenuSubContent,
@@ -34,26 +27,21 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { EditListDialog } from '@/components/dashboard/edit-list-dialog';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { VentasManTab } from '@/components/dashboard/ventas-man-tab';
-import { formatWeekIdToDateRange, getCurrentWeekId, getWeekIdFromDate, getPreviousWeekId } from '@/lib/format';
-import { format, parse, startOfISOWeek, addWeeks, subWeeks } from 'date-fns';
-import { es } from 'date-fns/locale';
-import semanaExportada from '@/../semana-exportada.json';
-import { VentasWomanTab } from '@/components/dashboard/ventas-woman-tab';
 import { VentasNinoTab } from '@/components/dashboard/ventas-nino-tab';
+import { formatWeekIdToDateRange, getCurrentWeekId, getWeekIdFromDate, getPreviousWeekId } from '@/lib/format';
+import { subWeeks } from 'date-fns';
+import semanaExportada from '@/../semana-exportada.json';
 
 
 type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan' | 'compradorWoman' | 'zonaComercialWoman' | 'agrupacionComercialWoman' | 'compradorNino' | 'zonaComercialNino' | 'agrupacionComercialNino';
-type TabValue = "datosSemanales" | "aqneSemanal" | "acumulado" | "man" | "woman" | "nino";
 
 
 const tabConfig: Record<string, { label: string; icon?: React.FC<React.SVGProps<SVGSVGElement>>, text?: string, path?: string }> = {
-    datosSemanales: { label: "GENERAL", icon: LayoutDashboard },
+    datosSemanales: { label: "GENERAL", icon: LayoutDashboard, path: "/dashboard?tab=datosSemanales" },
     man: { label: "MAN", text: "M", path: "/man" },
     woman: { label: "WOMAN", path: "/woman" },
     nino: { label: "NIÑO", path: "/nino" },
 };
-
 
 const listLabels: Record<EditableList, string> = {
     compradorMan: 'Comprador MAN',
@@ -87,7 +75,7 @@ const synchronizeTableData = (list: string[], oldTableData: VentasManItem[]): Ve
     });
 };
 
-function DashboardPageComponent() {
+function NinoPageComponent() {
   const { user, loading: authLoading, logout } = useContext(AuthContext);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -100,10 +88,10 @@ function DashboardPageComponent() {
   
   const [isListDialogOpen, setListDialogOpen] = useState(false);
   const [listToEdit, setListToEdit] = useState<{ listKey: EditableList, title: string } | null>(null);
-  
-  const selectedWeek = searchParams.get('week') || '';
-  const activeTab = (searchParams.get('tab') as TabValue) || 'datosSemanales';
 
+  const selectedWeek = searchParams.get('week') || '';
+  const activeTab = "nino";
+  
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [isCalendarOpen, setCalendarOpen] = useState(false);
   const [importCompleted, setImportCompleted] = useState(false);
@@ -112,45 +100,46 @@ function DashboardPageComponent() {
   const canEdit = user?.email === 'emiliogp@inditex.com';
   const { toast } = useToast();
   
-  const updateUrl = useCallback((newWeek: string, newTab: string) => {
-      if (!newWeek || !newTab) return;
+  const updateUrl = useCallback((newWeek: string) => {
+      if (!newWeek) return;
       const params = new URLSearchParams(searchParams);
       params.set('week', newWeek);
-      params.set('tab', newTab);
-      router.replace(`/dashboard?${params.toString()}`);
-  },[router, searchParams]);
+      router.replace(`/nino?${params.toString()}`);
+  }, [router, searchParams]);
+
 
   const handleDateSelect = (date: Date | undefined) => {
     if (!date) return;
     setSelectedDate(date);
     const newWeekId = getWeekIdFromDate(date);
-    updateUrl(newWeekId, activeTab);
+    updateUrl(newWeekId);
     setCalendarOpen(false);
   };
   
   const handleTabChange = (newTab: string) => {
     const config = tabConfig[newTab];
     if (config?.path) {
-        router.push(`${config.path}?week=${selectedWeek}`);
-    } else {
-        updateUrl(selectedWeek, newTab);
+        if(config.path.startsWith('/dashboard')) {
+             router.push(`${config.path}&week=${selectedWeek}`);
+        } else {
+            router.push(`${config.path}?week=${selectedWeek}`);
+        }
     }
   };
-  
+
   useEffect(() => {
     if (!searchParams.has('week') && user) {
         const previousWeekId = getPreviousWeekId(getCurrentWeekId());
-        updateUrl(previousWeekId, activeTab);
+        updateUrl(previousWeekId);
     }
-  }, [user, searchParams, updateUrl, activeTab]);
+  }, [user, searchParams, updateUrl]);
 
 
  const fetchData = useCallback(async (weekId: string) => {
     if (!user || !weekId) return;
-    
+
     setDataLoading(true);
     setError(null);
-
     try {
         const reportRef = doc(db, "informes", weekId);
         const listsRef = doc(db, "configuracion", "listas");
@@ -167,14 +156,14 @@ function DashboardPageComponent() {
         } else {
             setImportCompleted(false);
         }
-
+        
         let listData: WeeklyData['listas'];
         if (listsSnap.exists()) {
             listData = listsSnap.data() as WeeklyData['listas'];
         } else {
             listData = getInitialLists();
-            if(canEdit) {
-                await setDoc(listsRef, listData);
+            if (canEdit) {
+              await setDoc(listsRef, listData);
             }
         }
 
@@ -195,7 +184,7 @@ function DashboardPageComponent() {
         } else {
             reportData = reportSnap.data() as WeeklyData;
         }
-        
+
         if (!reportData.imagenesComprador) {
           reportData.imagenesComprador = {};
         }
@@ -214,30 +203,12 @@ function DashboardPageComponent() {
         };
 
         let changed;
-        [reportData.ventasMan.pesoComprador, changed] = syncAndCheck(reportData.ventasMan.pesoComprador, listData.compradorMan);
-        if (changed) needsSave = true;
-        
-        [reportData.ventasMan.zonaComercial, changed] = syncAndCheck(reportData.ventasMan.zonaComercial, listData.zonaComercialMan);
-        if (changed) needsSave = true;
-        
-        [reportData.ventasMan.agrupacionComercial, changed] = syncAndCheck(reportData.ventasMan.agrupacionComercial, listData.agrupacionComercialMan);
-        if (changed) needsSave = true;
-        
-        [reportData.ventasWoman.pesoComprador, changed] = syncAndCheck(reportData.ventasWoman.pesoComprador, listData.compradorWoman);
-        if (changed) needsSave = true;
-        
-        [reportData.ventasWoman.zonaComercial, changed] = syncAndCheck(reportData.ventasWoman.zonaComercial, listData.zonaComercialWoman);
-        if (changed) needsSave = true;
-        
-        [reportData.ventasWoman.agrupacionComercial, changed] = syncAndCheck(reportData.ventasWoman.agrupacionComercial, listData.agrupacionComercialWoman);
-        if (changed) needsSave = true;
-
         [reportData.ventasNino.pesoComprador, changed] = syncAndCheck(reportData.ventasNino.pesoComprador, listData.compradorNino);
         if (changed) needsSave = true;
-
+        
         [reportData.ventasNino.zonaComercial, changed] = syncAndCheck(reportData.ventasNino.zonaComercial, listData.zonaComercialNino);
         if (changed) needsSave = true;
-
+        
         [reportData.ventasNino.agrupacionComercial, changed] = syncAndCheck(reportData.ventasNino.agrupacionComercial, listData.agrupacionComercialNino);
         if (changed) needsSave = true;
 
@@ -246,7 +217,7 @@ function DashboardPageComponent() {
         }
         
         setData(reportData);
-    } catch (err: any) {
+    } catch(err: any) {
         setError(`Error al cargar el informe: ${err.message}.`);
         setData(null);
     } finally {
@@ -260,15 +231,15 @@ function DashboardPageComponent() {
     } else if (!authLoading && user && selectedWeek) {
       fetchData(selectedWeek);
     } else if (!authLoading && user && !selectedWeek) {
-       setDataLoading(false);
+      setDataLoading(false);
         if(canEdit) {
             const newWeekId = getPreviousWeekId(getCurrentWeekId());
-            updateUrl(newWeekId, activeTab);
+            updateUrl(newWeekId);
         } else {
             setError("No hay informes disponibles. Contacta al administrador.");
         }
     }
-  }, [user, authLoading, router, fetchData, selectedWeek, canEdit, updateUrl, activeTab]);
+  }, [user, authLoading, router, fetchData, selectedWeek, canEdit, updateUrl]);
 
 
   const handleInputChange = (path: string, value: any) => {
@@ -292,87 +263,32 @@ function DashboardPageComponent() {
         const finalKey = keys[keys.length - 1];
         
         const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
-        
+
         if (typeof current[finalKey] === 'number') {
             current[finalKey] = isNaN(numericValue) || value === "" ? 0 : numericValue;
         } else {
             current[finalKey] = value;
         }
-        
-        const [mainKey, sectionKey, subKey, index, field] = keys;
-        
-         if (mainKey === 'datosPorSeccion' || mainKey === 'aqneSemanal') {
-            const section = updatedData[mainKey][sectionKey];
 
-            if (subKey === 'desglose') {
-                if (section && Array.isArray(section.desglose)) {
-                    const newTotalEuros = section.desglose.reduce((sum: number, item: any) => sum + (item.totalEuros || 0), 0);
-                    section.metricasPrincipales.totalEuros = newTotalEuros;
-                }
-            }
-        }
-        
-        if (mainKey === 'datosPorSeccion') {
-            const { man, woman, nino } = updatedData.datosPorSeccion;
-            
-            const totalUnidades = (man?.metricasPrincipales.totalUnidades || 0) +
-                                (woman?.metricasPrincipales.totalUnidades || 0) +
-                                (nino?.metricasPrincipales.totalUnidades || 0);
-            updatedData.ventas.totalUnidades = totalUnidades;
-            
-            const totalEuros = (man?.metricasPrincipales.totalEuros || 0) +
-                                (woman?.metricasPrincipales.totalEuros || 0) +
-                                (nino?.metricasPrincipales.totalEuros || 0);
-            updatedData.ventas.totalEuros = totalEuros;
-        }
-
-        
-        if (mainKey === 'aqneSemanal') {
-            const sections = updatedData.aqneSemanal;
-            const totalVentasAqne = (sections.woman.metricasPrincipales.totalEuros || 0) +
-                                    (sections.man.metricasPrincipales.totalEuros || 0) +
-                                    (sections.nino.metricasPrincipales.totalEuros || 0);
-
-            if (totalVentasAqne > 0) {
-                sections.woman.pesoPorc = parseFloat(((sections.woman.metricasPrincipales.totalEuros / totalVentasAqne) * 100).toFixed(2));
-                sections.man.pesoPorc = parseFloat(((sections.man.metricasPrincipales.totalEuros / totalVentasAqne) * 100).toFixed(2));
-                sections.nino.pesoPorc = parseFloat(((sections.nino.metricasPrincipales.totalEuros / totalVentasAqne) * 100).toFixed(2));
-            } else {
-                sections.woman.pesoPorc = 0;
-                sections.man.pesoPorc = 0;
-                sections.nino.pesoPorc = 0;
-            }
-        }
-        
-        if (keys[0] === 'ventasDiariasAQNE') {
-            const ventaIndex = parseInt(keys[1], 10);
-            if (!isNaN(ventaIndex) && updatedData.ventasDiariasAQNE[ventaIndex]) {
-                const day = updatedData.ventasDiariasAQNE[ventaIndex];
-                day.total = (day.woman || 0) + (day.man || 0) + (day.nino || 0);
-            }
-        }
-
-        if (keys[0] === 'ventasMan') {
-            const tableKey = keys[1] as keyof WeeklyData['ventasMan'];
-            if (!updatedData.ventasMan[tableKey]) updatedData.ventasMan[tableKey] = [];
+        if (keys[0] === 'ventasNino') {
+            const tableKey = keys[1] as keyof WeeklyData['ventasNino'];
+             if (!updatedData.ventasNino[tableKey]) updatedData.ventasNino[tableKey] = [];
             const itemIndex = parseInt(keys[2], 10);
             const fieldKey = keys[3] as keyof VentasManItem;
 
             if (
                 !isNaN(itemIndex) &&
-                updatedData.ventasMan &&
-                Array.isArray(updatedData.ventasMan[tableKey]) &&
-                updatedData.ventasMan[tableKey][itemIndex]
+                updatedData.ventasNino &&
+                Array.isArray(updatedData.ventasNino[tableKey]) &&
+                updatedData.ventasNino[tableKey][itemIndex]
             ) {
-                 (updatedData.ventasMan[tableKey] as VentasManItem[])[itemIndex][fieldKey] = value;
+                 (updatedData.ventasNino[tableKey] as VentasManItem[])[itemIndex][fieldKey] = value;
             }
         }
         
         return updatedData;
     });
 };
-
-
 
   const handleSave = async () => {
     if (!data) return;
@@ -381,7 +297,7 @@ function DashboardPageComponent() {
     const dataToSave = JSON.parse(JSON.stringify(data));
     
     delete dataToSave.imagenesComprador;
-
+    
     setDoc(docRef, dataToSave, { merge: true })
         .then(() => {
             toast({
@@ -392,7 +308,7 @@ function DashboardPageComponent() {
             fetchData(selectedWeek);
         })
         .catch(async (error: any) => {
-             setError(`Error al guardar: ${error.message}`);
+            setError(`Error al guardar: ${error.message}`);
         })
         .finally(() => {
             setIsSaving(false);
@@ -465,7 +381,6 @@ const handleImportSpecificWeek = async () => {
     }
 };
 
-
   if (authLoading || (dataLoading && !error)) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
@@ -476,8 +391,8 @@ const handleImportSpecificWeek = async () => {
       </div>
     );
   }
-  
-    if (error) {
+
+  if (error) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen gap-4 text-center p-4">
         <p className="text-lg font-semibold text-destructive">Error al Cargar Datos</p>
@@ -486,7 +401,7 @@ const handleImportSpecificWeek = async () => {
       </div>
     );
   }
-  
+
   if (!user) {
      return (
         <div className="flex flex-col items-center justify-center min-h-screen">
@@ -517,8 +432,8 @@ const handleImportSpecificWeek = async () => {
                                 onClick={() => handleTabChange(tabKey)}
                                 aria-label={config.label}
                             >
-                              {config.icon && <config.icon className={cn("h-4 w-4", !isActive && "text-primary")} />}
-                              {config.text && <span className="font-bold text-lg">{config.text}</span>}
+                               {config.icon && <config.icon className={cn("h-4 w-4", !isActive && "text-primary")} />}
+                               {config.text && <span className="font-bold text-lg">{config.text}</span>}
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent>
@@ -540,8 +455,8 @@ const handleImportSpecificWeek = async () => {
                             )}
                         >
                             <CalendarIcon className="mr-2 h-4 w-4" />
-                            <span>Semana: </span>
-                            {selectedWeek ? (
+                             <span>Semana: </span>
+                             {selectedWeek ? (
                                 <span className="ml-1 font-semibold">{formatWeekIdToDateRange(selectedWeek)}</span>
                             ) : (
                                 <span>Selecciona</span>
@@ -588,7 +503,7 @@ const handleImportSpecificWeek = async () => {
                   <DropdownMenuLabel>Opciones</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   {canEdit && (
-                    <>
+                     <>
                     <DropdownMenuSub>
                       <DropdownMenuSubTrigger>
                         <List className="mr-2 h-4 w-4 text-primary" />
@@ -613,13 +528,13 @@ const handleImportSpecificWeek = async () => {
                         </DropdownMenuSubContent>
                       </DropdownMenuPortal>
                     </DropdownMenuSub>
-                    {canEdit && !importCompleted && (
+                     {canEdit && !importCompleted && (
                         <DropdownMenuItem onSelect={handleImportSpecificWeek}>
                             <Upload className="mr-2 h-4 w-4 text-primary" />
                             <span>Importar Semana 24</span>
                         </DropdownMenuItem>
                     )}
-                    </>
+                   </>
                   )}
                   {canEdit && <DropdownMenuSeparator />}
                   <DropdownMenuItem onSelect={() => {
@@ -636,36 +551,17 @@ const handleImportSpecificWeek = async () => {
         </header>
         
         <main>
-          {data ? (
-             <Tabs value={activeTab} onValueChange={(value) => updateUrl(selectedWeek, value)} className="w-full">
-              <TabsList className="grid w-full grid-cols-3 mb-4">
-                <TabsTrigger value="datosSemanales">GENERAL</TabsTrigger>
-                <TabsTrigger value="aqneSemanal">AQNE SEMANAL</TabsTrigger>
-                <TabsTrigger value="acumulado">ACUMULADO</TabsTrigger>
-              </TabsList>
-              <TabsContent value="datosSemanales" className="mt-0">
-                <DatosSemanalesTab 
-                  ventas={data.ventas}
-                  rendimientoTienda={data.rendimientoTienda}
-                  operaciones={data.operaciones}
-                  perdidas={data.perdidas}
-                  datosPorSeccion={data.datosPorSeccion}
+           {data ? (
+                <VentasNinoTab 
+                  data={data}
                   isEditing={isEditing} 
-                  onInputChange={handleInputChange} 
+                  onInputChange={handleInputChange}
                 />
-              </TabsContent>
-              <TabsContent value="aqneSemanal" className="mt-0">
-                <AqneSemanalTab data={data} isEditing={isEditing} onInputChange={handleInputChange} />
-              </TabsContent>
-              <TabsContent value="acumulado" className="mt-0">
-                <AcumuladoTab data={data.acumulado} isEditing={isEditing} onInputChange={handleInputChange}/>
-              </TabsContent>
-            </Tabs>
-          ) : (
+            ) : (
              <div className="flex flex-col items-center justify-center min-h-[60vh]">
                 <p>Selecciona una semana para ver los datos.</p>
             </div>
-          )}
+            )}
         </main>
         
         {listToEdit && data?.listas && (
@@ -690,16 +586,15 @@ const handleImportSpecificWeek = async () => {
 }
 
 
-export default function DashboardPage() {
+export default function NinoPage() {
     return (
         <Suspense fallback={
             <div className="flex flex-col items-center justify-center min-h-screen">
                 <Loader2 className="h-12 w-12 animate-spin text-primary" />
-                <p className="mt-4">Cargando dashboard...</p>
+                <p className="mt-4">Cargando sección NIÑO...</p>
             </div>
         }>
-            <DashboardPageComponent />
+            <NinoPageComponent />
         </Suspense>
     );
 }
-
