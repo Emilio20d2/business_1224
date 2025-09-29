@@ -322,8 +322,8 @@ function DashboardPageComponent() {
         const [mainKey] = keys;
         
         if (mainKey === 'datosPorSeccion') {
-            const sectionName = keys[1] as keyof WeeklyData['datosPorSeccion'];
-            const section = updatedData.datosPorSeccion[sectionName];
+            const sectionKey = keys[1] as keyof WeeklyData['datosPorSeccion'];
+            const section = updatedData.datosPorSeccion[sectionKey];
             
             // 1. Recalculate the section total
             if (section && Array.isArray(section.desglose)) {
@@ -750,6 +750,8 @@ export default function DashboardPage() {
 }
 
 
+
+    
 
     
 
