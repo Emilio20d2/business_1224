@@ -38,7 +38,7 @@ import { VentasManTab } from '@/components/dashboard/ventas-man-tab';
 import { formatWeekIdToDateRange, getCurrentWeekId, getWeekIdFromDate, getPreviousWeekId } from '@/lib/format';
 import { format, parse, startOfISOWeek, addWeeks, subWeeks } from 'date-fns';
 import { es } from 'date-fns/locale';
-import semanaExportada from '@/../semana-exportada.json';
+
 import { VentasWomanTab } from '@/components/dashboard/ventas-woman-tab';
 import { VentasNinoTab } from '@/components/dashboard/ventas-nino-tab';
 import { OperacionesSubTab } from '@/components/dashboard/operaciones-sub-tab';
@@ -121,8 +121,7 @@ function DashboardPageComponent() {
   
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [isCalendarOpen, setCalendarOpen] = useState(false);
-  const [importCompleted, setImportCompleted] = useState(false);
-
+  
   const canEdit = user?.email === 'emiliogp@inditex.com';
   const { toast } = useToast();
   
@@ -172,19 +171,11 @@ function DashboardPageComponent() {
     try {
         const reportRef = doc(db, "informes", weekId);
         const listsRef = doc(db, "configuracion", "listas");
-        const importStatusRef = doc(db, "configuracion", "importStatus");
 
-        const [reportSnap, listsSnap, importStatusSnap] = await Promise.all([
+        const [reportSnap, listsSnap] = await Promise.all([
             getDoc(reportRef),
             getDoc(listsRef),
-            getDoc(importStatusRef)
         ]);
-
-        if (importStatusSnap.exists()) {
-            setImportCompleted(importStatusSnap.data().semana39Imported === true);
-        } else {
-            setImportCompleted(false);
-        }
 
         let listData: WeeklyData['listas'];
         if (listsSnap.exists()) {
@@ -197,9 +188,7 @@ function DashboardPageComponent() {
         }
 
         let reportData: WeeklyData;
-        if (weekId === '2025-39' && !reportSnap.exists()) {
-            reportData = JSON.parse(JSON.stringify(semanaExportada)) as WeeklyData;
-        } else if (!reportSnap.exists()) {
+        if (!reportSnap.exists()) {
              if (canEdit) {
                 toast({
                     title: "Creando nueva semana",
@@ -337,15 +326,6 @@ function DashboardPageComponent() {
 
             updatedData.ventas.totalEuros = grandTotalEuros;
 
-             if (grandTotalEuros > 0) {
-                updatedData.datosPorSeccion.man.pesoPorc = parseFloat(((totalEurosMan / grandTotalEuros) * 100).toFixed(2));
-                updatedData.datosPorSeccion.woman.pesoPorc = parseFloat(((totalEurosWoman / grandTotalEuros) * 100).toFixed(2));
-                updatedData.datosPorSeccion.nino.pesoPorc = parseFloat(((totalEurosNino / grandTotalEuros) * 100).toFixed(2));
-            } else {
-                updatedData.datosPorSeccion.man.pesoPorc = 0;
-                updatedData.datosPorSeccion.woman.pesoPorc = 0;
-                updatedData.datosPorSeccion.nino.pesoPorc = 0;
-            }
         }
         
         if (mainKey === 'aqneSemanal') {
@@ -481,37 +461,6 @@ function DashboardPageComponent() {
         });
 };
 
-const handleImportSpecificWeek = async () => {
-    if (!canEdit) return;
-    const weekIdToImport = '2025-39';
-    
-    setIsSaving(true);
-    toast({ title: "Importando datos...", description: `Guardando datos para la semana ${weekIdToImport}.` });
-
-    const docRef = doc(db, "informes", weekIdToImport);
-    const importStatusRef = doc(db, "configuracion", "importStatus");
-    const dataToImport = semanaExportada as WeeklyData;
-    
-    try {
-        await setDoc(docRef, dataToImport, { merge: true });
-        await setDoc(importStatusRef, { semana39Imported: true }, { merge: true });
-        
-        toast({
-            title: "¡Importación completada!",
-            description: `Los datos para la semana ${weekIdToImport} se han guardado en la base de datos.`,
-        });
-        
-        setImportCompleted(true);
-        if (selectedWeek === weekIdToImport) {
-            fetchData(weekIdToImport);
-        }
-    } catch (error: any) {
-         setError(`Error al importar: ${error.message}`);
-         toast({ variant: "destructive", title: "Error al importar", description: "No se pudieron guardar los datos." });
-    } finally {
-        setIsSaving(false);
-    }
-};
 
   const tabButtons = [
     { value: 'ventas', label: 'VENTAS' },
@@ -667,12 +616,6 @@ const handleImportSpecificWeek = async () => {
                         </DropdownMenuSubContent>
                       </DropdownMenuPortal>
                     </DropdownMenuSub>
-                    {canEdit && !importCompleted && (
-                        <DropdownMenuItem onSelect={handleImportSpecificWeek}>
-                            <Upload className="mr-2 h-4 w-4 text-primary" />
-                            <span>Importar Semana 39</span>
-                        </DropdownMenuItem>
-                    )}
                     </>
                   )}
                   {canEdit && <DropdownMenuSeparator />}

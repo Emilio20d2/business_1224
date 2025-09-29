@@ -30,7 +30,6 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { VentasNinoTab } from '@/components/dashboard/ventas-nino-tab';
 import { formatWeekIdToDateRange, getCurrentWeekId, getWeekIdFromDate, getPreviousWeekId } from '@/lib/format';
 import { subWeeks } from 'date-fns';
-import semanaExportada from '@/../semana-exportada.json';
 
 
 type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan' | 'compradorWoman' | 'zonaComercialWoman' | 'agrupacionComercialWoman' | 'compradorNino' | 'zonaComercialNino' | 'agrupacionComercialNino';
@@ -108,8 +107,6 @@ function NinoPageComponent() {
   
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [isCalendarOpen, setCalendarOpen] = useState(false);
-  const [importCompleted, setImportCompleted] = useState(false);
-
 
   const canEdit = user?.email === 'emiliogp@inditex.com';
   const { toast } = useToast();
@@ -157,19 +154,11 @@ function NinoPageComponent() {
     try {
         const reportRef = doc(db, "informes", weekId);
         const listsRef = doc(db, "configuracion", "listas");
-        const importStatusRef = doc(db, "configuracion", "importStatus");
 
-        const [reportSnap, listsSnap, importStatusSnap] = await Promise.all([
+        const [reportSnap, listsSnap] = await Promise.all([
             getDoc(reportRef),
             getDoc(listsRef),
-            getDoc(importStatusRef)
         ]);
-
-        if (importStatusSnap.exists()) {
-            setImportCompleted(importStatusSnap.data().semana39Imported === true);
-        } else {
-            setImportCompleted(false);
-        }
         
         let listData: WeeklyData['listas'];
         if (listsSnap.exists()) {
@@ -182,9 +171,7 @@ function NinoPageComponent() {
         }
 
         let reportData: WeeklyData;
-        if (weekId === '2025-39' && !reportSnap.exists()) {
-            reportData = JSON.parse(JSON.stringify(semanaExportada)) as WeeklyData;
-        } else if (!reportSnap.exists()) {
+        if (!reportSnap.exists()) {
              if (canEdit) {
                 toast({
                     title: "Creando nueva semana",
@@ -293,7 +280,7 @@ function NinoPageComponent() {
 
                 if (totalEuros > 0) {
                     table.forEach((item: VentasManItem) => {
-                        item.pesoPorc = parseFloat((((item.totalEuros || 0) / totalEuros) * 100).toFixed(1));
+                        item.pesoPorc = Math.round((((item.totalEuros || 0) / totalEuros) * 100));
                     });
                 } else {
                      table.forEach((item: VentasManItem) => {
@@ -366,38 +353,6 @@ function NinoPageComponent() {
         .finally(() => {
             setIsSaving(false);
         });
-};
-
-const handleImportSpecificWeek = async () => {
-    if (!canEdit) return;
-    const weekIdToImport = '2025-39';
-    
-    setIsSaving(true);
-    toast({ title: "Importando datos...", description: `Guardando datos para la semana ${weekIdToImport}.` });
-
-    const docRef = doc(db, "informes", weekIdToImport);
-    const importStatusRef = doc(db, "configuracion", "importStatus");
-    const dataToImport = semanaExportada as WeeklyData;
-    
-    try {
-        await setDoc(docRef, dataToImport, { merge: true });
-        await setDoc(importStatusRef, { semana39Imported: true }, { merge: true });
-        
-        toast({
-            title: "¡Importación completada!",
-            description: `Los datos para la semana ${weekIdToImport} se han guardado en la base de datos.`,
-        });
-        
-        setImportCompleted(true);
-        if (selectedWeek === weekIdToImport) {
-            fetchData(weekIdToImport);
-        }
-    } catch (error: any) {
-         setError(`Error al importar: ${error.message}`);
-         toast({ variant: "destructive", title: "Error al importar", description: "No se pudieron guardar los datos." });
-    } finally {
-        setIsSaving(false);
-    }
 };
 
   if (authLoading || (dataLoading && !error)) {
@@ -547,12 +502,6 @@ const handleImportSpecificWeek = async () => {
                         </DropdownMenuSubContent>
                       </DropdownMenuPortal>
                     </DropdownMenuSub>
-                     {canEdit && !importCompleted && (
-                        <DropdownMenuItem onSelect={handleImportSpecificWeek}>
-                            <Upload className="mr-2 h-4 w-4 text-primary" />
-                            <span>Importar Semana 39</span>
-                        </DropdownMenuItem>
-                    )}
                     </>
                   )}
                   {canEdit && <DropdownMenuSeparator />}
