@@ -82,7 +82,8 @@ const DataTable = ({
     const handleChange = (index: number, field: keyof VentasManItem, value: any) => {
         const path = `${dataKey}.${index}.${field}`;
         const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
-        onInputChange(path, isNaN(numericValue) ? "" : numericValue, true);
+        const reorder = field === 'totalEuros';
+        onInputChange(path, isNaN(numericValue) ? "" : numericValue, reorder);
     };
 
     return (
@@ -180,7 +181,7 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
     const ropaPesoPorcTotal = grandTotalEuros > 0 ? (ropaTotalEuros / grandTotalEuros) * 100 : 0;
     
     // Use the varPorc from the main section data, not a weighted average
-    const ropaVarPorcTotal = datosPorSeccion.man.desglose.find(d => d.seccion === 'Ropa')?.varPorc ?? 0;
+    const ropaVarPorcTotal = datosPorSeccion.man.metricasPrincipales.varPorcEuros;
 
 
     const tabButtons = [
@@ -211,10 +212,7 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                         title="Ropa"
                         icon={<Shirt className="h-5 w-5" />}
                         dataKey="ventasMan.pesoComprador"
-                        data={ventasMan.pesoComprador.map(item => ({
-                            ...item,
-                            pesoPorc: grandTotalEuros > 0 ? ((Number(item.totalEuros) || 0) / grandTotalEuros) * 100 : 0
-                        }))}
+                        data={ventasMan.pesoComprador}
                         list={listas.compradorMan}
                         isEditing={isEditing}
                         onInputChange={onInputChange}
@@ -322,3 +320,6 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
         </Tabs>
     );
 }
+
+
+    

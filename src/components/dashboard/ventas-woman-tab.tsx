@@ -82,7 +82,8 @@ const DataTable = ({
     const handleChange = (index: number, field: keyof VentasManItem, value: any) => {
         const path = `${dataKey}.${index}.${field}`;
         const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
-        onInputChange(path, isNaN(numericValue) ? "" : numericValue, true);
+        const reorder = field === 'totalEuros';
+        onInputChange(path, isNaN(numericValue) ? "" : numericValue, reorder);
     };
 
     return (
@@ -178,7 +179,7 @@ export function VentasWomanTab({ data, isEditing, onInputChange }: VentasWomanTa
     }] : [];
 
     const ropaPesoPorcTotal = grandTotalEuros > 0 ? (ropaTotalEuros / grandTotalEuros) * 100 : 0;
-    const ropaVarPorcTotal = datosPorSeccion.woman.desglose.find(d => d.seccion === 'Ropa')?.varPorc ?? 0;
+    const ropaVarPorcTotal = datosPorSeccion.woman.metricasPrincipales.varPorcEuros;
 
     const tabButtons = [
         { value: 'ventas', label: 'VENTAS' },
@@ -207,10 +208,7 @@ export function VentasWomanTab({ data, isEditing, onInputChange }: VentasWomanTa
                         title="Ropa"
                         icon={<Shirt className="h-5 w-5" />}
                         dataKey="ventasWoman.pesoComprador"
-                        data={ventasWoman.pesoComprador.map(item => ({
-                            ...item,
-                            pesoPorc: grandTotalEuros > 0 ? ((Number(item.totalEuros) || 0) / grandTotalEuros) * 100 : 0
-                        }))}
+                        data={ventasWoman.pesoComprador}
                         list={listas.compradorWoman}
                         isEditing={isEditing}
                         onInputChange={onInputChange}
@@ -293,6 +291,8 @@ export function VentasWomanTab({ data, isEditing, onInputChange }: VentasWomanTa
         </Tabs>
     );
 }
+
+    
 
     
 

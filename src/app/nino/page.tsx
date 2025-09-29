@@ -61,15 +61,7 @@ const synchronizeTableData = (list: string[], oldTableData: VentasManItem[]): Ve
     
     const oldDataMap = new Map(safeOldTableData.map(item => [item.nombre, item]));
     
-    const sortedList = [...safeList].sort((a, b) => {
-        const aItem = oldDataMap.get(a);
-        const bItem = oldDataMap.get(b);
-        const aTotal = aItem?.totalEuros ?? 0;
-        const bTotal = bItem?.totalEuros ?? 0;
-        return bTotal - aTotal;
-    });
-
-    return sortedList.map(itemName => {
+    return safeList.map(itemName => {
         const existingItem = oldDataMap.get(itemName);
         if (existingItem) {
             return { ...existingItem, imageUrl: existingItem.imageUrl || "" };
@@ -227,6 +219,10 @@ function NinoPageComponent() {
             if (currentNames !== listNames) {
                 return [synchronizeTableData(list || [], reportTable || []), true];
             }
+            const sortedTable = [...(reportTable || [])].sort((a, b) => (b.totalEuros || 0) - (a.totalEuros || 0));
+            if (JSON.stringify(sortedTable) !== JSON.stringify(reportTable)) {
+                return [sortedTable, true];
+            }
             return [reportTable || [], false];
         };
 
@@ -277,45 +273,33 @@ function NinoPageComponent() {
         if (!prevData) return null;
 
         const updatedData = JSON.parse(JSON.stringify(prevData));
-        
         let current: any = updatedData;
         const keys = path.split('.');
         
         for (let i = 0; i < keys.length - 1; i++) {
-            if (current[keys[i]] === undefined) {
-                current[keys[i]] = {};
-            }
+            if (current[keys[i]] === undefined) current[keys[i]] = {};
             current = current[keys[i]];
         }
         
         const finalKey = keys[keys.length - 1];
-        
         const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
+        current[finalKey] = isNaN(numericValue) || value === "" ? 0 : numericValue;
 
-        if (typeof current[finalKey] === 'number') {
-            current[finalKey] = isNaN(numericValue) || value === "" ? 0 : numericValue;
-        } else {
-            current[finalKey] = value;
-        }
+        if (keys[0] === 'ventasNino' && keys[1] === 'pesoComprador' && reorder) {
+            const table = updatedData.ventasNino.pesoComprador;
+            const totalEuros = table.reduce((sum: number, item: VentasManItem) => sum + (item.totalEuros || 0), 0);
 
-        if (keys[0] === 'ventasNino') {
-            const tableKey = keys[1] as keyof WeeklyData['ventasNino'];
-             if (!updatedData.ventasNino[tableKey]) updatedData.ventasNino[tableKey] = [];
-            const itemIndex = parseInt(keys[2], 10);
-            const fieldKey = keys[3] as keyof VentasManItem;
-
-            if (
-                !isNaN(itemIndex) &&
-                updatedData.ventasNino &&
-                Array.isArray(updatedData.ventasNino[tableKey]) &&
-                updatedData.ventasNino[tableKey][itemIndex]
-            ) {
-                 (updatedData.ventasNino[tableKey] as VentasManItem[])[itemIndex][fieldKey] = value;
-
-                 if (reorder && tableKey === 'pesoComprador') {
-                    (updatedData.ventasNino[tableKey] as VentasManItem[]).sort((a,b) => (b.totalEuros || 0) - (a.totalEuros || 0));
-                 }
+            if (totalEuros > 0) {
+                table.forEach((item: VentasManItem) => {
+                    item.pesoPorc = parseFloat((((item.totalEuros || 0) / totalEuros) * 100).toFixed(1));
+                });
+            } else {
+                 table.forEach((item: VentasManItem) => {
+                    item.pesoPorc = 0;
+                });
             }
+
+            table.sort((a: VentasManItem, b: VentasManItem) => (b.totalEuros || 0) - (a.totalEuros || 0));
         }
         
         return updatedData;
@@ -631,6 +615,8 @@ export default function NinoPage() {
     );
 }
 
+
+    
 
     
 
