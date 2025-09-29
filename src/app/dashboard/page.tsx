@@ -336,6 +336,16 @@ function DashboardPageComponent() {
             const grandTotalEuros = totalEurosMan + totalEurosWoman + totalEurosNino;
 
             updatedData.ventas.totalEuros = grandTotalEuros;
+
+             if (grandTotalEuros > 0) {
+                updatedData.datosPorSeccion.man.pesoPorc = parseFloat(((totalEurosMan / grandTotalEuros) * 100).toFixed(2));
+                updatedData.datosPorSeccion.woman.pesoPorc = parseFloat(((totalEurosWoman / grandTotalEuros) * 100).toFixed(2));
+                updatedData.datosPorSeccion.nino.pesoPorc = parseFloat(((totalEurosNino / grandTotalEuros) * 100).toFixed(2));
+            } else {
+                updatedData.datosPorSeccion.man.pesoPorc = 0;
+                updatedData.datosPorSeccion.woman.pesoPorc = 0;
+                updatedData.datosPorSeccion.nino.pesoPorc = 0;
+            }
         }
         
         if (mainKey === 'aqneSemanal') {
@@ -358,6 +368,26 @@ function DashboardPageComponent() {
                 sections.woman.pesoPorc = 0;
                 sections.man.pesoPorc = 0;
                 sections.nino.pesoPorc = 0;
+            }
+        }
+        
+        if (keys[0] === 'acumulado') {
+            const periodoKey = keys[1] as keyof WeeklyData['acumulado'];
+            const periodo = updatedData.acumulado[periodoKey];
+
+            if (periodo && Array.isArray(periodo.desglose)) {
+                const totalEurosPeriodo = periodo.desglose.reduce((sum, item) => sum + (item.totalEuros || 0), 0);
+                periodo.totalEuros = totalEurosPeriodo;
+
+                if (totalEurosPeriodo > 0) {
+                    periodo.desglose.forEach(item => {
+                        item.pesoPorc = parseFloat(((item.totalEuros / totalEurosPeriodo) * 100).toFixed(2));
+                    });
+                } else {
+                    periodo.desglose.forEach(item => {
+                        item.pesoPorc = 0;
+                    });
+                }
             }
         }
         
