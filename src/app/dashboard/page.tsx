@@ -352,7 +352,7 @@ function DashboardPageComponent() {
         }
         
         if (mainKey === 'aqneSemanal') {
-            const sectionKey = keys[1];
+            const sectionKey = keys[1] as keyof WeeklyData['aqneSemanal'];
             const section = updatedData.aqneSemanal[sectionKey];
             if (section && Array.isArray(section.desglose)) {
                 section.metricasPrincipales.totalEuros = section.desglose.reduce((sum: number, item: any) => sum + (item.totalEuros || 0), 0);
@@ -750,6 +750,8 @@ export default function DashboardPage() {
 }
 
 
+
+    
 
     
 
