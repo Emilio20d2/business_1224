@@ -169,7 +169,7 @@ function ManPageComponent() {
 
         let reportData: WeeklyData;
         if (weekId === '2025-39' && !reportSnap.exists()) {
-            reportData = semanaExportada as WeeklyData;
+            reportData = JSON.parse(JSON.stringify(semanaExportada)) as WeeklyData;
         } else if (!reportSnap.exists()) {
              if (canEdit) {
                 toast({
@@ -603,5 +603,7 @@ export default function ManPage() {
     );
 }
 
+
+    
 
     

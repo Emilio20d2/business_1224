@@ -71,7 +71,6 @@ const synchronizeTableData = (list: string[], oldTableData: VentasManItem[]): Ve
             pesoPorc: 0,
             totalEuros: 0,
             varPorc: 0,
-            totalEurosSemanaAnterior: 0
         };
     });
 };
@@ -170,7 +169,7 @@ function NinoPageComponent() {
 
         let reportData: WeeklyData;
         if (weekId === '2025-39' && !reportSnap.exists()) {
-            reportData = semanaExportada as WeeklyData;
+            reportData = JSON.parse(JSON.stringify(semanaExportada)) as WeeklyData;
         } else if (!reportSnap.exists()) {
              if (canEdit) {
                 toast({
@@ -603,5 +602,7 @@ export default function NinoPage() {
     );
 }
 
+
+    
 
     
