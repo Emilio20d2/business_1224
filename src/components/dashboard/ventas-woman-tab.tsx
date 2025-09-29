@@ -33,7 +33,7 @@ import { DatoSimple } from './kpi-card';
 type VentasWomanTabProps = {
   data: WeeklyData;
   isEditing: boolean;
-  onInputChange: (path: string, value: any) => void;
+  onInputChange: (path: string, value: any, reorder?: boolean) => void;
 };
 
 const DataTable = ({ 
@@ -82,7 +82,7 @@ const DataTable = ({
     const handleChange = (index: number, field: keyof VentasManItem, value: any) => {
         const path = `${dataKey}.${index}.${field}`;
         const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
-        onInputChange(path, isNaN(numericValue) ? "" : numericValue);
+        onInputChange(path, isNaN(numericValue) ? "" : numericValue, true);
     };
 
     return (
@@ -152,7 +152,7 @@ export function VentasWomanTab({ data, isEditing, onInputChange }: VentasWomanTa
     
     if (!data || !data.ventasWoman || !data.listas) return <p>Cargando datos de Ventas Woman...</p>;
 
-    const { ventasWoman, listas, datosPorSeccion } = data;
+    const { ventasWoman, listas, datosPorSeccion, woman, logistica, almacenes } = data;
     
     const ropaTotalEuros = ventasWoman.pesoComprador.reduce((sum, item) => sum + (Number(item.totalEuros) || 0), 0);
     const calzadoData = datosPorSeccion.woman.desglose.find(d => d.seccion === 'Calzado');
@@ -275,10 +275,10 @@ export function VentasWomanTab({ data, isEditing, onInputChange }: VentasWomanTa
 
             <TabsContent value="operaciones" className="mt-0">
                 <OperacionesSubTab 
-                    operaciones={data.woman.operaciones} 
-                    perdidas={data.woman.perdidas}
-                    logistica={data.logistica}
-                    almacenes={data.almacenes}
+                    operaciones={woman.operaciones} 
+                    perdidas={woman.perdidas}
+                    logistica={logistica}
+                    almacenes={almacenes}
                     isEditing={isEditing} 
                     onInputChange={onInputChange}
                     basePath="woman"
@@ -295,6 +295,8 @@ export function VentasWomanTab({ data, isEditing, onInputChange }: VentasWomanTa
         </Tabs>
     );
 }
+
+    
 
     
 

@@ -33,7 +33,7 @@ import { DatoSimple } from './kpi-card';
 type VentasNinoTabProps = {
   data: WeeklyData;
   isEditing: boolean;
-  onInputChange: (path: string, value: any) => void;
+  onInputChange: (path: string, value: any, reorder?: boolean) => void;
 };
 
 const DataTable = ({ 
@@ -82,7 +82,7 @@ const DataTable = ({
     const handleChange = (index: number, field: keyof VentasManItem, value: any) => {
         const path = `${dataKey}.${index}.${field}`;
         const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
-        onInputChange(path, isNaN(numericValue) ? "" : numericValue);
+        onInputChange(path, isNaN(numericValue) ? "" : numericValue, true);
     };
 
     return (
@@ -152,7 +152,7 @@ export function VentasNinoTab({ data, isEditing, onInputChange }: VentasNinoTabP
     
     if (!data || !data.ventasNino || !data.listas) return <p>Cargando datos de Ventas Niño...</p>;
 
-    const { ventasNino, listas, datosPorSeccion } = data;
+    const { ventasNino, listas, datosPorSeccion, nino, logistica, almacenes } = data;
     
     const ropaTotalEuros = ventasNino.pesoComprador.reduce((sum, item) => sum + (Number(item.totalEuros) || 0), 0);
     const calzadoData = datosPorSeccion.nino.desglose.find(d => d.seccion === 'Calzado');
@@ -275,10 +275,10 @@ export function VentasNinoTab({ data, isEditing, onInputChange }: VentasNinoTabP
 
             <TabsContent value="operaciones" className="mt-0">
                 <OperacionesSubTab 
-                    operaciones={data.nino.operaciones} 
-                    perdidas={data.nino.perdidas}
-                    logistica={data.logistica}
-                    almacenes={data.almacenes}
+                    operaciones={nino.operaciones} 
+                    perdidas={nino.perdidas}
+                    logistica={logistica}
+                    almacenes={almacenes}
                     isEditing={isEditing} 
                     onInputChange={onInputChange}
                     basePath="nino"
@@ -295,6 +295,8 @@ export function VentasNinoTab({ data, isEditing, onInputChange }: VentasNinoTabP
         </Tabs>
     );
 }
+
+    
 
     
 

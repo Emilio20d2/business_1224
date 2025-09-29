@@ -33,7 +33,7 @@ import { DatoSimple } from './kpi-card';
 type VentasManTabProps = {
   data: WeeklyData;
   isEditing: boolean;
-  onInputChange: (path: string, value: any) => void;
+  onInputChange: (path: string, value: any, reorder?: boolean) => void;
 };
 
 const DataTable = ({ 
@@ -82,7 +82,7 @@ const DataTable = ({
     const handleChange = (index: number, field: keyof VentasManItem, value: any) => {
         const path = `${dataKey}.${index}.${field}`;
         const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
-        onInputChange(path, isNaN(numericValue) ? "" : numericValue);
+        onInputChange(path, isNaN(numericValue) ? "" : numericValue, true);
     };
 
     return (
@@ -152,7 +152,7 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
     
     if (!data || !data.ventasMan || !data.listas) return <p>Cargando datos de Ventas Man...</p>;
 
-    const { ventasMan, listas, datosPorSeccion } = data;
+    const { ventasMan, listas, datosPorSeccion, man, logistica, almacenes } = data;
     
     const ropaTotalEuros = ventasMan.pesoComprador.reduce((sum, item) => sum + (Number(item.totalEuros) || 0), 0);
     const calzadoData = datosPorSeccion.man.desglose.find(d => d.seccion === 'Calzado');
@@ -301,10 +301,10 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
 
             <TabsContent value="operaciones" className="mt-0">
                 <OperacionesSubTab 
-                    operaciones={data.man.operaciones} 
-                    perdidas={data.man.perdidas}
-                    logistica={data.logistica}
-                    almacenes={data.almacenes}
+                    operaciones={man.operaciones} 
+                    perdidas={man.perdidas}
+                    logistica={logistica}
+                    almacenes={almacenes}
                     isEditing={isEditing} 
                     onInputChange={onInputChange}
                     basePath="man"
@@ -321,6 +321,8 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
         </Tabs>
     );
 }
+
+    
 
     
 

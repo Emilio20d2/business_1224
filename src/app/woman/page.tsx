@@ -1,7 +1,7 @@
 
 "use client"
 import React, { useState, useContext, useEffect, useCallback, Suspense } from 'react';
-import type { WeeklyData, VentasManItem } from "@/lib/data";
+import type { WeeklyData, VentasManItem, SectionSpecificData } from "@/lib/data";
 import { doc, getDoc, setDoc, updateDoc, collection, getDocs } from "firebase/firestore";
 import { db } from '@/lib/firebase';
 import { Calendar as CalendarIcon, Settings, LogOut, Loader2, Briefcase, List, LayoutDashboard, ShoppingBag, AreaChart, Pencil, Upload } from 'lucide-react';
@@ -61,7 +61,15 @@ const synchronizeTableData = (list: string[], oldTableData: VentasManItem[]): Ve
     
     const oldDataMap = new Map(safeOldTableData.map(item => [item.nombre, item]));
     
-    return safeList.map(itemName => {
+    const sortedList = [...safeList].sort((a, b) => {
+        const aItem = oldDataMap.get(a);
+        const bItem = oldDataMap.get(b);
+        const aTotal = aItem?.totalEuros ?? 0;
+        const bTotal = bItem?.totalEuros ?? 0;
+        return bTotal - aTotal;
+    });
+
+    return sortedList.map(itemName => {
         const existingItem = oldDataMap.get(itemName);
         if (existingItem) {
             return { ...existingItem, imageUrl: existingItem.imageUrl || "" };
@@ -74,6 +82,20 @@ const synchronizeTableData = (list: string[], oldTableData: VentasManItem[]): Ve
         };
     });
 };
+
+const ensureSectionSpecificData = (data: WeeklyData): WeeklyData => {
+    const defaultSectionData: SectionSpecificData = {
+        operaciones: { filasCajaPorc: 0, scoPorc: 0, dropOffPorc: 0, ventaIpod: 0, eTicketPorc: 0, repoPorc: 0, frescuraPorc: 0 },
+        perdidas: { gap: { euros: 0, unidades: 0 }, merma: { unidades: 0, porcentaje: 0 } }
+    };
+
+    if (!data.general) data.general = JSON.parse(JSON.stringify(defaultSectionData));
+    if (!data.man) data.man = JSON.parse(JSON.stringify(defaultSectionData));
+    if (!data.woman) data.woman = JSON.parse(JSON.stringify(defaultSectionData));
+    if (!data.nino) data.nino = JSON.parse(JSON.stringify(defaultSectionData));
+
+    return data;
+}
 
 function WomanPageComponent() {
   const { user, loading: authLoading, logout } = useContext(AuthContext);
@@ -188,6 +210,9 @@ function WomanPageComponent() {
         }
 
         reportData.listas = listData;
+        
+        reportData = ensureSectionSpecificData(reportData);
+
 
         // Ensure main sales sections exist before synchronization
         if (!reportData.ventasWoman) reportData.ventasWoman = { pesoComprador: [], zonaComercial: [], agrupacionComercial: [] };
@@ -243,7 +268,7 @@ function WomanPageComponent() {
   }, [user, authLoading, router, fetchData, selectedWeek, canEdit, updateUrl]);
 
 
-  const handleInputChange = (path: string, value: any) => {
+  const handleInputChange = (path: string, value: any, reorder = false) => {
     if (!canEdit) return;
     
     setData(prevData => {
@@ -284,6 +309,10 @@ function WomanPageComponent() {
                 updatedData.ventasWoman[tableKey][itemIndex]
             ) {
                  (updatedData.ventasWoman[tableKey] as VentasManItem[])[itemIndex][fieldKey] = value;
+                 
+                 if (reorder && tableKey === 'pesoComprador') {
+                    (updatedData.ventasWoman[tableKey] as VentasManItem[]).sort((a,b) => (b.totalEuros || 0) - (a.totalEuros || 0));
+                 }
             }
         }
         
@@ -601,6 +630,8 @@ export default function WomanPage() {
     );
 }
 
+
+    
 
     
 
