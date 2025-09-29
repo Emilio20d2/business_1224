@@ -283,7 +283,7 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                         list={listas.zonaComercialMan}
                         isEditing={isEditing}
                         onInputChange={onInputChange}
-                        showFooter
+                        showFooter={true}
                     />
                     <DataTable
                         title="Agrupación Comercial"
@@ -293,7 +293,7 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                         list={listas.agrupacionComercialMan}
                         isEditing={isEditing}
                         onInputChange={onInputChange}
-                        showFooter
+                        showFooter={true}
                     />
                 </div>
             </TabsContent>
@@ -324,4 +324,5 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
 
     
 
+    
     
