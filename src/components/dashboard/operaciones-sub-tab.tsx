@@ -63,7 +63,7 @@ const FilaModulo = ({ icon, label, value, isEditing, id, onInputChange, unit }: 
             {icon}
             <span className="text-muted-foreground">{label}</span>
         </div>
-        <div className="flex justify-end items-center">
+        <div className="flex justify-end items-center text-right w-full">
          {isEditing && id && onInputChange ? 
             <div className="flex items-center justify-end gap-1 w-full">
                 <Input type="number" inputMode="decimal" defaultValue={value} className="font-bold text-right w-24" id={id} onChange={(e) => onInputChange(id, e.target.value)} />
@@ -80,7 +80,7 @@ export function OperacionesSubTab({ operaciones, perdidas, logistica, almacenes,
     <div className="space-y-4">
       {/* Gestión de Almacén y Logística */}
       <KpiCard title="Gestión de Almacén y Logística" icon={<Warehouse className="h-5 w-5 text-primary" />} className="md:col-span-6">
-        <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_1.5fr_1.5fr] gap-6 place-items-center">
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_1.5fr_1.5fr] gap-6 place-items-start">
           <ModuloAlmacen title="Entradas">
             <ModuloContenidoGrande icon={<Truck className="h-8 w-8 text-primary"/>} value={logistica.entradasSemanales} isEditing={isEditing} id="logistica.entradasSemanales" onInputChange={onInputChange} />
           </ModuloAlmacen>
@@ -144,10 +144,9 @@ export function OperacionesSubTab({ operaciones, perdidas, logistica, almacenes,
             </div>
         </KpiCard>
         
-        <KpiCard title="Reposición y Frescura" icon={<Sparkles className="h-5 w-5 text-primary" />}>
+        <KpiCard title="Reposición" icon={<RefreshCw className="h-5 w-5 text-primary" />}>
             <div className="flex flex-row justify-center items-center gap-4">
                 <DatoSimple icon={<RefreshCw className="h-5 w-5 text-primary"/>} label="Repo" value={operaciones.repoPorc} isEditing={isEditing} valueId={`${basePath}.operaciones.repoPorc`} align="center" unit="%" onInputChange={onInputChange} />
-                <DatoSimple icon={<Sparkles className="h-5 w-5 text-primary"/>} label="Frescura" value={operaciones.frescuraPorc} isEditing={isEditing} valueId={`${basePath}.operaciones.frescuraPorc`} align="center" unit="%" onInputChange={onInputChange} />
             </div>
         </KpiCard>
       </div>
