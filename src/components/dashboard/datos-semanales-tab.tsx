@@ -230,7 +230,6 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
                       isEditing={isEditing}
                       valueId="general.perdidas.gap.euros"
                       align="center"
-                      unit="€"
                       onInputChange={onInputChange}
                   />
                   <DatoSimple 
@@ -239,7 +238,6 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
                       isEditing={isEditing}
                       valueId="general.perdidas.gap.unidades"
                       align="center"
-                      unit="Unid."
                       onInputChange={onInputChange}
                   />
               </div>

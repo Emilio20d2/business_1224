@@ -21,7 +21,8 @@ import {
   ScanLine,
   RefreshCw,
   Inbox,
-  Percent
+  Percent,
+  Sparkles
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
@@ -105,7 +106,6 @@ export function OperacionesSubTab({ operaciones, perdidas, logistica, almacenes,
                     isEditing={isEditing}
                     valueId={`${basePath}.perdidas.gap.euros`}
                     align="center"
-                    unit="€"
                     onInputChange={onInputChange}
                 />
                 <DatoSimple 
@@ -114,7 +114,6 @@ export function OperacionesSubTab({ operaciones, perdidas, logistica, almacenes,
                     isEditing={isEditing}
                     valueId={`${basePath}.perdidas.gap.unidades`}
                     align="center"
-                    unit="Unid."
                     onInputChange={onInputChange}
                 />
             </div>
@@ -137,15 +136,15 @@ export function OperacionesSubTab({ operaciones, perdidas, logistica, almacenes,
                     isEditing={isEditing}
                     valueId={`${basePath}.perdidas.merma.porcentaje`}
                     align="center"
-                    unit="%"
                     onInputChange={onInputChange}
                 />
             </div>
         </KpiCard>
         
-        <KpiCard title="Reposición" icon={<Package className="h-5 w-5 text-primary" />}>
-            <div className="grid grid-cols-1 gap-4">
-                <DatoSimple icon={<RefreshCw className="h-5 w-5 text-primary"/>} label="Repo" value={isEditing ? operaciones.repoPorc : formatPercentage(operaciones.repoPorc)} isEditing={isEditing} valueId={`${basePath}.operaciones.repoPorc`} align="center" onInputChange={onInputChange} unit="%" />
+        <KpiCard title="Reposición y Frescura" icon={<Sparkles className="h-5 w-5 text-primary" />}>
+            <div className="flex flex-row justify-center items-center gap-4">
+                <DatoSimple icon={<RefreshCw className="h-5 w-5 text-primary"/>} label="Repo" value={isEditing ? operaciones.repoPorc : formatPercentage(operaciones.repoPorc)} isEditing={isEditing} valueId={`${basePath}.operaciones.repoPorc`} align="center" onInputChange={onInputChange} />
+                <DatoSimple icon={<Sparkles className="h-5 w-5 text-primary"/>} label="Frescura" value={isEditing ? operaciones.frescuraPorc : formatPercentage(operaciones.frescuraPorc)} isEditing={isEditing} valueId={`${basePath}.operaciones.frescuraPorc`} align="center" onInputChange={onInputChange} />
             </div>
         </KpiCard>
       </div>
