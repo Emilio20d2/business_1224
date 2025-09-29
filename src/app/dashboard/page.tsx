@@ -320,14 +320,12 @@ function DashboardPageComponent() {
         
         current[finalKey] = isNaN(numericValue) || value === "" ? 0 : numericValue;
         
-        // --- Automatic Calculations ---
         const [mainKey, sectionKey] = keys;
         
         if (mainKey === 'datosPorSeccion') {
             const section = updatedData.datosPorSeccion[sectionKey];
             if (section && Array.isArray(section.desglose)) {
-                const newTotalEuros = section.desglose.reduce((sum: number, item: any) => sum + (item.totalEuros || 0), 0);
-                section.metricasPrincipales.totalEuros = newTotalEuros;
+                section.metricasPrincipales.totalEuros = section.desglose.reduce((sum: number, item: any) => sum + (item.totalEuros || 0), 0);
             }
 
             const { man, woman, nino } = updatedData.datosPorSeccion;
@@ -357,8 +355,7 @@ function DashboardPageComponent() {
         if (mainKey === 'aqneSemanal') {
             const section = updatedData.aqneSemanal[sectionKey];
             if (section && Array.isArray(section.desglose)) {
-                const newTotalEuros = section.desglose.reduce((sum: number, item: any) => sum + (item.totalEuros || 0), 0);
-                section.metricasPrincipales.totalEuros = newTotalEuros;
+                section.metricasPrincipales.totalEuros = section.desglose.reduce((sum: number, item: any) => sum + (item.totalEuros || 0), 0);
             }
         
             const sections = updatedData.aqneSemanal;
@@ -399,9 +396,6 @@ function DashboardPageComponent() {
                 (updatedData[section] as any)[tableKey][itemIndex]
             ) {
                  ((updatedData[section] as any)[tableKey] as VentasManItem[])[itemIndex][fieldKey] = value;
-            }
-             if (tableKey === 'pesoComprador') {
-                (updatedData[section] as any)[tableKey].sort((a: VentasManItem, b: VentasManItem) => (b.totalEuros || 0) - (a.totalEuros || 0));
             }
         }
         
@@ -756,6 +750,8 @@ export default function DashboardPage() {
 }
 
 
+
+    
 
     
 
