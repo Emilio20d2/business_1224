@@ -7,10 +7,10 @@ import { cn } from '@/lib/utils';
 type FocusSemanalTabProps = {
   text: string;
   isEditing: boolean;
-  onInputChange: (path: string, value: string) => void;
+  onTextChange: (value: string) => void;
 };
 
-export function FocusSemanalTab({ text, isEditing, onInputChange }: FocusSemanalTabProps) {
+export function FocusSemanalTab({ text, isEditing, onTextChange }: FocusSemanalTabProps) {
   return (
     <Card>
       <CardHeader>
@@ -23,7 +23,7 @@ export function FocusSemanalTab({ text, isEditing, onInputChange }: FocusSemanal
         {isEditing ? (
           <Textarea
             value={text}
-            onChange={(e) => onInputChange('focusSemanal', e.target.value)}
+            onChange={(e) => onTextChange(e.target.value)}
             className="min-h-[200px] text-base"
             placeholder="Escribe aquí tus objetivos, notas o el foco para la semana..."
           />

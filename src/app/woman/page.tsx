@@ -293,6 +293,17 @@ function WomanPageComponent() {
     });
 };
 
+  const handleFocusChange = (newValue: string) => {
+    if (!canEdit) return;
+    setData(prevData => {
+      if (!prevData) return null;
+      return {
+        ...prevData,
+        focusSemanal: newValue,
+      };
+    });
+  };
+
   const handleSave = async () => {
     if (!data) return;
     setIsSaving(true);
@@ -524,6 +535,7 @@ function WomanPageComponent() {
                   data={data}
                   isEditing={isEditing} 
                   onInputChange={handleInputChange}
+                  onTextChange={handleFocusChange}
                 />
             ) : (
              <div className="flex flex-col items-center justify-center min-h-[60vh]">
@@ -566,9 +578,3 @@ export default function WomanPage() {
         </Suspense>
     );
 }
-
-    
-
-    
-
-    

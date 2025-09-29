@@ -27,6 +27,7 @@ type VentasManTabProps = {
   data: WeeklyData;
   isEditing: boolean;
   onInputChange: (path: string, value: any, reorder?: boolean) => void;
+  onTextChange: (value: string) => void;
   imagePreviews: Record<string, string>;
   onImageUpload: (compradorName: string, file: File) => void;
   onViewImage: (imageUrl: string) => void;
@@ -174,7 +175,7 @@ const DataTable = ({
 };
 
 
-export function VentasManTab({ data, isEditing, onInputChange, imagePreviews, onImageUpload, onViewImage }: VentasManTabProps) {
+export function VentasManTab({ data, isEditing, onInputChange, onTextChange, imagePreviews, onImageUpload, onViewImage }: VentasManTabProps) {
     const [activeTab, setActiveTab] = React.useState<string>('ventas');
     
     if (!data || !data.ventasMan || !data.listas) return <p>Cargando datos de Ventas Man...</p>;
@@ -342,7 +343,7 @@ export function VentasManTab({ data, isEditing, onInputChange, imagePreviews, on
               <FocusSemanalTab 
                 text={data.focusSemanal} 
                 isEditing={isEditing} 
-                onInputChange={onInputChange} 
+                onTextChange={onTextChange} 
               />
             </TabsContent>
         </Tabs>

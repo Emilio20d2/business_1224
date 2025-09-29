@@ -314,6 +314,17 @@ function ManPageComponent() {
     });
 };
 
+  const handleFocusChange = (newValue: string) => {
+    if (!canEdit) return;
+    setData(prevData => {
+      if (!prevData) return null;
+      return {
+        ...prevData,
+        focusSemanal: newValue,
+      };
+    });
+  };
+
   const handleImageUpload = (compradorName: string, file: File) => {
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -568,6 +579,7 @@ function ManPageComponent() {
                   data={data}
                   isEditing={isEditing} 
                   onInputChange={handleInputChange}
+                  onTextChange={handleFocusChange}
                   imagePreviews={imagePreviews}
                   onImageUpload={handleImageUpload}
                   onViewImage={(imageUrl) => { setViewingImage(imageUrl); setImageViewerOpen(true); }}
@@ -619,9 +631,3 @@ export default function ManPage() {
         </Suspense>
     );
 }
-
-    
-
-    
-
-    

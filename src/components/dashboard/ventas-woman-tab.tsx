@@ -34,6 +34,7 @@ type VentasWomanTabProps = {
   data: WeeklyData;
   isEditing: boolean;
   onInputChange: (path: string, value: any, reorder?: boolean) => void;
+  onTextChange: (value: string) => void;
 };
 
 const DataTable = ({ 
@@ -150,7 +151,7 @@ const DataTable = ({
 };
 
 
-export function VentasWomanTab({ data, isEditing, onInputChange }: VentasWomanTabProps) {
+export function VentasWomanTab({ data, isEditing, onInputChange, onTextChange }: VentasWomanTabProps) {
     const [activeTab, setActiveTab] = React.useState<string>('ventas');
     
     if (!data || !data.ventasWoman || !data.listas) return <p>Cargando datos de Ventas Woman...</p>;
@@ -287,7 +288,7 @@ export function VentasWomanTab({ data, isEditing, onInputChange }: VentasWomanTa
               <FocusSemanalTab 
                 text={data.focusSemanal} 
                 isEditing={isEditing} 
-                onInputChange={onInputChange} 
+                onTextChange={onTextChange} 
               />
             </TabsContent>
         </Tabs>
