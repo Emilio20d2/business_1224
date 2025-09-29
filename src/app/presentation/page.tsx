@@ -72,7 +72,7 @@ function PresentationPageComponent() {
     <div
       className="flex h-screen w-screen cursor-pointer flex-col items-center justify-center bg-white p-8 text-zinc-900"
       onClick={handleScreenClick}
-      style={{ fontFamily: "'Aptos', sans-serif" }}
+      style={{ fontFamily: "'Aptos', sans-serif", fontWeight: 300 }}
     >
       <main className="flex flex-col items-center text-center gap-12">
         <Image src="/Zara_Logo.svg.png" alt="Zara Logo" width={400} height={88} />
