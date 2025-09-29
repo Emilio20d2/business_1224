@@ -36,7 +36,7 @@ type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMa
 
 
 const tabConfig: Record<string, { label: string; icon?: React.FC<React.SVGProps<SVGSVGElement>>, text?: string, path?: string }> = {
-    datosSemanales: { label: "GENERAL", icon: LayoutDashboard, path: "/dashboard?tab=datosSemanales" },
+    datosSemanales: { label: "GENERAL", icon: LayoutDashboard, path: "/dashboard?tab=ventas" },
     woman: { label: "WOMAN", path: "/woman", text: "W" },
     man: { label: "MAN", text: "M", path: "/man" },
     nino: { label: "NIÑO", path: "/nino", text: "N" },
@@ -130,7 +130,8 @@ function WomanPageComponent() {
     const config = tabConfig[newTab];
     if (config?.path) {
         if(config.path.startsWith('/dashboard')) {
-             router.push(`${config.path}&week=${selectedWeek}`);
+             const newPath = config.path.includes('?') ? `${config.path}&week=${selectedWeek}` : `${config.path}?week=${selectedWeek}`;
+             router.push(newPath);
         } else {
             router.push(`${config.path}?week=${selectedWeek}`);
         }
