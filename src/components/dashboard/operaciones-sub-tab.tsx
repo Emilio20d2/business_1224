@@ -39,7 +39,7 @@ type OperacionesSubTabProps = {
 
 
 const ModuloAlmacen = ({ title, children, className }: { title: string, children: React.ReactNode, className?: string }) => (
-    <div className={cn("flex flex-col text-center gap-2", className)}>
+    <div className={cn("flex flex-col text-center gap-2 w-full", className)}>
         <h4 className="text-sm font-semibold text-muted-foreground tracking-wider uppercase">{title}</h4>
         <div className="flex flex-col gap-3">
             {children}
@@ -58,18 +58,18 @@ const ModuloContenidoGrande = ({ icon, value, isEditing, id, onInputChange }: { 
 );
 
 const FilaModulo = ({ icon, label, value, isEditing, id, onInputChange, unit }: { icon: React.ReactNode, label: string, value: number, isEditing?: boolean, id?: string, onInputChange?: (path: string, value: string | number) => void; unit: string }) => (
-     <div className="grid grid-cols-2 items-center gap-4 text-md w-40">
-        <div className="flex items-center gap-2 text-primary text-left">
+     <div className="grid grid-cols-2 items-center gap-4 text-md">
+        <div className="flex items-center gap-2 text-primary justify-start">
             {icon}
             <span className="text-muted-foreground">{label}</span>
         </div>
-        <div className="flex justify-end">
+        <div className="flex justify-end items-center">
          {isEditing && id && onInputChange ? 
             <div className="flex items-center justify-end gap-1 w-full">
-                <Input type="number" inputMode="decimal" defaultValue={value} className="font-bold text-right w-20" id={id} onChange={(e) => onInputChange(id, e.target.value)} />
+                <Input type="number" inputMode="decimal" defaultValue={value} className="font-bold text-right w-24" id={id} onChange={(e) => onInputChange(id, e.target.value)} />
                 <span className="text-sm text-muted-foreground">{unit}</span>
             </div>
-            : <div className="font-bold text-right">{unit === '%' ? formatPercentage(value) : formatNumber(value)}</div>
+            : <div className="font-bold text-right w-full">{unit === '%' ? formatPercentage(value) : formatNumber(value)}</div>
         }
         </div>
     </div>
@@ -80,7 +80,7 @@ export function OperacionesSubTab({ operaciones, perdidas, logistica, almacenes,
     <div className="space-y-4">
       {/* Gestión de Almacén y Logística */}
       <KpiCard title="Gestión de Almacén y Logística" icon={<Warehouse className="h-5 w-5 text-primary" />} className="md:col-span-6">
-        <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_1fr_1.5fr] gap-6 place-items-start">
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_1.5fr_1.5fr] gap-6 place-items-center">
           <ModuloAlmacen title="Entradas">
             <ModuloContenidoGrande icon={<Truck className="h-8 w-8 text-primary"/>} value={logistica.entradasSemanales} isEditing={isEditing} id="logistica.entradasSemanales" onInputChange={onInputChange} />
           </ModuloAlmacen>
