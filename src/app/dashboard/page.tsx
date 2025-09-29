@@ -325,7 +325,7 @@ function DashboardPageComponent() {
             const sectionKey = keys[1] as keyof WeeklyData['datosPorSeccion'];
             const section = updatedData.datosPorSeccion[sectionKey];
             
-            // 1. Recalculate the section total
+            // 1. Recalculate the section total from its breakdown
             if (section && Array.isArray(section.desglose)) {
                 section.metricasPrincipales.totalEuros = section.desglose.reduce((sum: number, item: any) => sum + (item.totalEuros || 0), 0);
             }
@@ -339,7 +339,7 @@ function DashboardPageComponent() {
 
             updatedData.ventas.totalEuros = grandTotalEuros;
 
-            // 3. Recalculate weights
+            // 3. Recalculate weights for each section
             if (grandTotalEuros > 0) {
                 if (sections.man) sections.man.pesoPorc = parseFloat(((totalEurosMan / grandTotalEuros) * 100).toFixed(2));
                 if (sections.woman) sections.woman.pesoPorc = parseFloat(((totalEurosWoman / grandTotalEuros) * 100).toFixed(2));
