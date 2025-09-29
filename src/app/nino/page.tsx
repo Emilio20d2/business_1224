@@ -4,7 +4,7 @@ import React, { useState, useContext, useEffect, useCallback, Suspense } from 'r
 import type { WeeklyData, VentasManItem, SectionSpecificData } from "@/lib/data";
 import { doc, getDoc, setDoc, updateDoc, collection, getDocs } from "firebase/firestore";
 import { db } from '@/lib/firebase';
-import { Calendar as CalendarIcon, Settings, LogOut, Loader2, Briefcase, List, LayoutDashboard, ShoppingBag, AreaChart, Pencil, Upload } from 'lucide-react';
+import { Calendar as CalendarIcon, Settings, LogOut, Loader2, Briefcase, List, LayoutDashboard, Pencil, Upload, Projector } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -29,8 +29,6 @@ import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { VentasNinoTab } from '@/components/dashboard/ventas-nino-tab';
 import { formatWeekIdToDateRange, getCurrentWeekId, getWeekIdFromDate, getPreviousWeekId } from '@/lib/format';
-import { subWeeks } from 'date-fns';
-
 
 type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan' | 'compradorWoman' | 'zonaComercialWoman' | 'agrupacionComercialWoman' | 'compradorNino' | 'zonaComercialNino' | 'agrupacionComercialNino';
 
@@ -393,7 +391,7 @@ function NinoPageComponent() {
             <Briefcase className="h-7 w-7" />
             BUSSINES
           </h1>
-          <div className="flex w-full flex-wrap items-center justify-start sm:w-auto sm:justify-end gap-2">
+          <div className="flex w-full flex-wrap items-center justify-start sm:justify-end gap-2">
               <div className="flex items-center gap-2">
                  {Object.keys(tabConfig).map(tabKey => {
                     const config = tabConfig[tabKey];
@@ -465,6 +463,9 @@ function NinoPageComponent() {
                       <Pencil className="h-4 w-4 text-primary" />
                     </Button>
                   )}
+                   <Button onClick={() => router.push(`/presentation?week=${selectedWeek}`)} variant="outline" size="icon" disabled={!data}>
+                        <Projector className="h-4 w-4 text-primary" />
+                   </Button>
                 </>
               )}
               <DropdownMenu>
@@ -566,16 +567,3 @@ export default function NinoPage() {
         </Suspense>
     );
 }
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    

@@ -4,7 +4,7 @@ import React, { useState, useContext, useEffect, useCallback, Suspense } from 'r
 import type { WeeklyData, VentasManItem, SectionSpecificData } from "@/lib/data";
 import { doc, getDoc, setDoc, updateDoc, collection, getDocs } from "firebase/firestore";
 import { db } from '@/lib/firebase';
-import { Calendar as CalendarIcon, Settings, LogOut, Loader2, ChevronDown, Briefcase, List, LayoutDashboard, ShoppingBag, AreaChart, User as UserIcon, Pencil, Upload } from 'lucide-react';
+import { Calendar as CalendarIcon, Settings, LogOut, Loader2, Briefcase, List, LayoutDashboard, Pencil, Upload, Projector } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -29,8 +29,8 @@ import { EditListDialog } from '@/components/dashboard/edit-list-dialog';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { formatWeekIdToDateRange, getCurrentWeekId, getWeekIdFromDate, getPreviousWeekId } from '@/lib/format';
-import { format, subWeeks } from 'date-fns';
-
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import Image from 'next/image';
 
 type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan' | 'compradorWoman' | 'zonaComercialWoman' | 'agrupacionComercialWoman' | 'compradorNino' | 'zonaComercialNino' | 'agrupacionComercialNino';
 
@@ -54,7 +54,7 @@ const listLabels: Record<EditableList, string> = {
     agrupacionComercialNino: 'Agrupación Comercial NIÑO',
 };
 
-const synchronizeTableData = (list: string[], oldTableData: VentasManItem[]): VentasManItem[] => {
+const synchronizeTableData = (list: string[], oldTableData: VentasManItem[], images: Record<string, string>): VentasManItem[] => {
     const safeList = Array.isArray(list) ? list : [];
     const safeOldTableData = Array.isArray(oldTableData) ? oldTableData : [];
     
@@ -63,13 +63,14 @@ const synchronizeTableData = (list: string[], oldTableData: VentasManItem[]): Ve
     return safeList.map(itemName => {
         const existingItem = oldDataMap.get(itemName);
         if (existingItem) {
-            return { ...existingItem, imageUrl: existingItem.imageUrl || "" };
+            return { ...existingItem, imageUrl: images[itemName] || existingItem.imageUrl || "" };
         }
         return {
             nombre: itemName,
             pesoPorc: 0,
             totalEuros: 0,
             varPorc: 0,
+            imageUrl: images[itemName] || "",
         };
     });
 };
@@ -107,6 +108,11 @@ function ManPageComponent() {
   
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [isCalendarOpen, setCalendarOpen] = useState(false);
+  
+  const [imagePreviews, setImagePreviews] = useState<Record<string, string>>({});
+  const [isImageViewerOpen, setImageViewerOpen] = useState(false);
+  const [viewingImage, setViewingImage] = useState<string | null>(null);
+
 
   const canEdit = user?.email === 'emiliogp@inditex.com';
   const { toast } = useToast();
@@ -152,6 +158,7 @@ function ManPageComponent() {
 
     setDataLoading(true);
     setError(null);
+    setImagePreviews({});
     try {
         const reportRef = doc(db, "informes", weekId);
         const listsRef = doc(db, "configuracion", "listas");
@@ -190,6 +197,8 @@ function ManPageComponent() {
         if (!reportData.imagenesComprador) {
           reportData.imagenesComprador = {};
         }
+        
+        setImagePreviews(reportData.imagenesComprador || {});
 
         reportData.listas = listData;
         
@@ -201,28 +210,36 @@ function ManPageComponent() {
 
         let needsSave = false;
         
-        const syncAndCheck = (reportTable: VentasManItem[] | undefined, list: string[] | undefined): [VentasManItem[], boolean] => {
+        const syncAndCheck = (reportTable: VentasManItem[] | undefined, list: string[] | undefined, images: Record<string,string>): [VentasManItem[], boolean] => {
             const currentNames = reportTable?.map(i => i.nombre).sort().join(',') || '';
             const listNames = (list || []).sort().join(',');
+            
             if (currentNames !== listNames) {
-                return [synchronizeTableData(list || [], reportTable || []), true];
+                return [synchronizeTableData(list || [], reportTable || [], images), true];
             }
-             // Ensure it's sorted on initial load as well
-            const sortedTable = [...(reportTable || [])].sort((a, b) => (b.totalEuros || 0) - (a.totalEuros || 0));
-            if (JSON.stringify(sortedTable) !== JSON.stringify(reportTable)) {
+
+            const tableWithImages = (reportTable || []).map(item => ({...item, imageUrl: images[item.nombre] || item.imageUrl || ''}));
+
+            if(JSON.stringify(tableWithImages) !== JSON.stringify(reportTable)) {
+                return [tableWithImages, true];
+            }
+
+            const sortedTable = [...tableWithImages].sort((a, b) => (b.totalEuros || 0) - (a.totalEuros || 0));
+            if (JSON.stringify(sortedTable) !== JSON.stringify(tableWithImages)) {
                 return [sortedTable, true];
             }
-            return [reportTable || [], false];
+
+            return [tableWithImages, false];
         };
 
         let changed;
-        [reportData.ventasMan.pesoComprador, changed] = syncAndCheck(reportData.ventasMan.pesoComprador, listData.compradorMan);
+        [reportData.ventasMan.pesoComprador, changed] = syncAndCheck(reportData.ventasMan.pesoComprador, listData.compradorMan, reportData.imagenesComprador);
         if (changed) needsSave = true;
         
-        [reportData.ventasMan.zonaComercial, changed] = syncAndCheck(reportData.ventasMan.zonaComercial, listData.zonaComercialMan);
+        [reportData.ventasMan.zonaComercial, changed] = syncAndCheck(reportData.ventasMan.zonaComercial, listData.zonaComercialMan, {});
         if (changed) needsSave = true;
         
-        [reportData.ventasMan.agrupacionComercial, changed] = syncAndCheck(reportData.ventasMan.agrupacionComercial, listData.agrupacionComercialMan);
+        [reportData.ventasMan.agrupacionComercial, changed] = syncAndCheck(reportData.ventasMan.agrupacionComercial, listData.agrupacionComercialMan, {});
         if (changed) needsSave = true;
 
         if (needsSave && canEdit) {
@@ -297,14 +314,36 @@ function ManPageComponent() {
     });
 };
 
+  const handleImageUpload = (compradorName: string, file: File) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const result = e.target?.result as string;
+      setImagePreviews(prev => ({...prev, [compradorName]: result }));
+    };
+    reader.readAsDataURL(file);
+  }
+
   const handleSave = async () => {
     if (!data) return;
     setIsSaving(true);
     const docRef = doc(db, "informes", selectedWeek);
+    
+    // Create a deep copy to avoid modifying state directly
     const dataToSave = JSON.parse(JSON.stringify(data));
     
-    delete dataToSave.imagenesComprador;
+    // Assign the latest image previews to the data to be saved
+    dataToSave.imagenesComprador = imagePreviews;
     
+    // Strip imageUrl from ventasMan.pesoComprador before saving if you only want it on `imagenesComprador`
+    // If you want it on both, you can skip this. Let's keep it on both for easier display loading.
+    if(dataToSave.ventasMan?.pesoComprador) {
+        dataToSave.ventasMan.pesoComprador.forEach((item: VentasManItem) => {
+            if(imagePreviews[item.nombre]) {
+                item.imageUrl = imagePreviews[item.nombre];
+            }
+        });
+    }
+
     setDoc(docRef, dataToSave, { merge: true })
         .then(() => {
             toast({
@@ -312,7 +351,7 @@ function ManPageComponent() {
                 description: "Los cambios se han guardado en la base de datos.",
             });
             setIsEditing(false);
-            fetchData(selectedWeek);
+            fetchData(selectedWeek); // Refreshes data and image previews from DB
         })
         .catch(async (error: any) => {
             setError(`Error al guardar: ${error.message}`);
@@ -324,7 +363,7 @@ function ManPageComponent() {
   
   const handleCancel = () => {
     setIsEditing(false);
-    fetchData(selectedWeek); 
+    fetchData(selectedWeek); // This will also reset imagePreviews to what's in the DB
   };
   
   const handleOpenListDialog = (listKey: EditableList, title: string) => {
@@ -395,7 +434,7 @@ function ManPageComponent() {
             <Briefcase className="h-7 w-7" />
             BUSSINES
           </h1>
-          <div className="flex w-full flex-wrap items-center justify-start sm:w-auto sm:justify-end gap-2">
+          <div className="flex w-full flex-wrap items-center justify-start sm:justify-end gap-2">
               <div className="flex items-center gap-2">
                  {Object.keys(tabConfig).map(tabKey => {
                     const config = tabConfig[tabKey];
@@ -463,10 +502,13 @@ function ManPageComponent() {
                       <Button variant="outline" onClick={handleCancel} disabled={isSaving || !data}>Cancelar</Button>
                     </>
                   ) : (
-                    <Button onClick={() => setIsEditing(true)} variant="outline" size="icon" disabled={!data}>
-                      <Pencil className="h-4 w-4 text-primary" />
-                    </Button>
+                     <Button onClick={() => setIsEditing(true)} variant="outline" size="icon" disabled={!data}>
+                        <Pencil className="h-4 w-4 text-primary" />
+                     </Button>
                   )}
+                  <Button onClick={() => router.push(`/presentation?week=${selectedWeek}`)} variant="outline" size="icon" disabled={!data}>
+                    <Projector className="h-4 w-4 text-primary" />
+                  </Button>
                 </>
               )}
               <DropdownMenu>
@@ -526,6 +568,9 @@ function ManPageComponent() {
                   data={data}
                   isEditing={isEditing} 
                   onInputChange={handleInputChange}
+                  imagePreviews={imagePreviews}
+                  onImageUpload={handleImageUpload}
+                  onViewImage={(imageUrl) => { setViewingImage(imageUrl); setImageViewerOpen(true); }}
                 />
             ) : (
              <div className="flex flex-col items-center justify-center min-h-[60vh]">
@@ -550,6 +595,12 @@ function ManPageComponent() {
             }}
           />
         )}
+        
+        <Dialog open={isImageViewerOpen} onOpenChange={setImageViewerOpen}>
+            <DialogContent className="max-w-4xl p-0">
+                {viewingImage && <Image src={viewingImage} alt="Vista ampliada" width={1280} height={720} className="w-full h-auto object-contain rounded-lg" />}
+            </DialogContent>
+        </Dialog>
       </div>
     </TooltipProvider>
   );
@@ -568,16 +619,3 @@ export default function ManPage() {
         </Suspense>
     );
 }
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    

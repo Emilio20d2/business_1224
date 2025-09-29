@@ -4,7 +4,7 @@ import React, { useState, useContext, useEffect, useCallback, Suspense } from 'r
 import type { WeeklyData, VentasManItem, SectionSpecificData } from "@/lib/data";
 import { doc, getDoc, setDoc, updateDoc, collection, getDocs } from "firebase/firestore";
 import { db } from '@/lib/firebase';
-import { Calendar as CalendarIcon, Settings, LogOut, Loader2, ChevronDown, Briefcase, List, LayoutDashboard, ShoppingBag, AreaChart, User as UserIcon, Pencil, Upload } from 'lucide-react';
+import { Calendar as CalendarIcon, Settings, LogOut, Loader2, Briefcase, List, LayoutDashboard, Pencil, Upload, Projector } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -15,13 +15,9 @@ import { AcumuladoTab } from "@/components/dashboard/acumulado-tab";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
   DropdownMenuSub,
   DropdownMenuSubTrigger,
   DropdownMenuSubContent,
@@ -34,20 +30,9 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { EditListDialog } from '@/components/dashboard/edit-list-dialog';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { VentasManTab } from '@/components/dashboard/ventas-man-tab';
 import { formatWeekIdToDateRange, getCurrentWeekId, getWeekIdFromDate, getPreviousWeekId } from '@/lib/format';
-import { format, parse, startOfISOWeek, addWeeks, subWeeks } from 'date-fns';
-import { es } from 'date-fns/locale';
-
-import { VentasWomanTab } from '@/components/dashboard/ventas-woman-tab';
-import { VentasNinoTab } from '@/components/dashboard/ventas-nino-tab';
-import { OperacionesSubTab } from '@/components/dashboard/operaciones-sub-tab';
-import { FocusSemanalTab } from '@/components/dashboard/focus-semanal-tab';
-
 
 type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan' | 'compradorWoman' | 'zonaComercialWoman' | 'agrupacionComercialWoman' | 'compradorNino' | 'zonaComercialNino' | 'agrupacionComercialNino';
-type TabValue = "datosSemanales" | "aqneSemanal" | "acumulado" | "man" | "woman" | "nino" | 'ventas' | 'operaciones' | 'focus';
-
 
 const tabConfig: Record<string, { label: string; icon?: React.FC<React.SVGProps<SVGSVGElement>>, text?: string, path?: string }> = {
     datosSemanales: { label: "GENERAL", icon: LayoutDashboard, path: "/dashboard?tab=ventas" },
@@ -329,9 +314,9 @@ function DashboardPageComponent() {
             updatedData.ventas.totalEuros = grandTotalEuros;
 
              if (grandTotalEuros > 0) {
-                if (sections.man) sections.man.pesoPorc = parseFloat(((totalEurosMan / grandTotalEuros) * 100).toFixed(1));
-                if (sections.woman) sections.woman.pesoPorc = parseFloat(((totalEurosWoman / grandTotalEuros) * 100).toFixed(1));
-                if (sections.nino) sections.nino.pesoPorc = parseFloat(((totalEurosNino / grandTotalEuros) * 100).toFixed(1));
+                if (sections.man) sections.man.pesoPorc = Math.round((totalEurosMan / grandTotalEuros) * 100);
+                if (sections.woman) sections.woman.pesoPorc = Math.round((totalEurosWoman / grandTotalEuros) * 100);
+                if (sections.nino) sections.nino.pesoPorc = Math.round((totalEurosNino / grandTotalEuros) * 100);
             } else {
                 if (sections.man) sections.man.pesoPorc = 0;
                 if (sections.woman) sections.woman.pesoPorc = 0;
@@ -352,9 +337,9 @@ function DashboardPageComponent() {
                                     (sections.nino.metricasPrincipales.totalEuros || 0);
 
             if (totalVentasAqne > 0) {
-                sections.woman.pesoPorc = parseFloat(((sections.woman.metricasPrincipales.totalEuros / totalVentasAqne) * 100).toFixed(1));
-                sections.man.pesoPorc = parseFloat(((sections.man.metricasPrincipales.totalEuros / totalVentasAqne) * 100).toFixed(1));
-                sections.nino.pesoPorc = parseFloat(((sections.nino.metricasPrincipales.totalEuros / totalVentasAqne) * 100).toFixed(1));
+                sections.woman.pesoPorc = Math.round((sections.woman.metricasPrincipales.totalEuros / totalVentasAqne) * 100);
+                sections.man.pesoPorc = Math.round((sections.man.metricasPrincipales.totalEuros / totalVentasAqne) * 100);
+                sections.nino.pesoPorc = Math.round((sections.nino.metricasPrincipales.totalEuros / totalVentasAqne) * 100);
             } else {
                 sections.woman.pesoPorc = 0;
                 sections.man.pesoPorc = 0;
@@ -372,7 +357,7 @@ function DashboardPageComponent() {
 
                 if (totalEurosPeriodo > 0) {
                     periodo.desglose.forEach(item => {
-                        item.pesoPorc = parseFloat(((item.totalEuros / totalEurosPeriodo) * 100).toFixed(1));
+                        item.pesoPorc = Math.round((item.totalEuros / totalEurosPeriodo) * 100);
                     });
                 } else {
                     periodo.desglose.forEach(item => {
@@ -517,7 +502,7 @@ function DashboardPageComponent() {
               <Briefcase className="h-7 w-7" />
               BUSSINES
            </h1>
-           <div className="flex w-full flex-wrap items-center justify-start sm:w-auto sm:justify-end gap-2">
+           <div className="flex w-full flex-wrap items-center justify-start sm:justify-end gap-2">
               <div className="flex items-center gap-2">
                  {Object.keys(tabConfig).map(tabKey => {
                     const config = tabConfig[tabKey];
@@ -585,10 +570,13 @@ function DashboardPageComponent() {
                         <Button variant="outline" onClick={handleCancel} disabled={isSaving || !data}>Cancelar</Button>
                       </>
                     ) : (
-                      <Button onClick={() => setIsEditing(true)} variant="outline" size="icon" disabled={!data}>
-                        <Pencil className="h-4 w-4 text-primary" />
-                      </Button>
+                       <Button onClick={() => setIsEditing(true)} variant="outline" size="icon" disabled={!data}>
+                            <Pencil className="h-4 w-4 text-primary" />
+                       </Button>
                     )}
+                     <Button onClick={() => router.push(`/presentation?week=${selectedWeek}`)} variant="outline" size="icon" disabled={!data}>
+                        <Projector className="h-4 w-4 text-primary" />
+                     </Button>
                   </>
                 )}
                 <DropdownMenu>
