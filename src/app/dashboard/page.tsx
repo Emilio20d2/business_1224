@@ -117,7 +117,7 @@ function DashboardPageComponent() {
   const [listToEdit, setListToEdit] = useState<{ listKey: EditableList, title: string } | null>(null);
   
   const selectedWeek = searchParams.get('week') || '';
-  const [activeSubTab, setActiveSubTab] = useState<string>('ventas');
+  const activeSubTab = searchParams.get('tab') || 'ventas';
   
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [isCalendarOpen, setCalendarOpen] = useState(false);
@@ -138,7 +138,7 @@ function DashboardPageComponent() {
     if (!date) return;
     setSelectedDate(date);
     const newWeekId = getWeekIdFromDate(date);
-    updateUrl(newWeekId, 'ventas');
+    updateUrl(newWeekId, activeSubTab);
     setCalendarOpen(false);
   };
   
@@ -150,6 +150,8 @@ function DashboardPageComponent() {
         } else {
             router.push(`${config.path}?week=${selectedWeek}`);
         }
+    } else {
+      updateUrl(selectedWeek, newTab);
     }
   };
   
@@ -296,7 +298,7 @@ function DashboardPageComponent() {
   }, [user, authLoading, router, fetchData, selectedWeek, canEdit, updateUrl]);
 
 
-  const handleInputChange = (path: string, value: any) => {
+ const handleInputChange = (path: string, value: any) => {
     if (!canEdit) return;
     
     setData(prevData => {
@@ -320,9 +322,9 @@ function DashboardPageComponent() {
         
         current[finalKey] = isNaN(numericValue) || value === "" ? 0 : numericValue;
         
-        const [mainKey, sectionKey] = keys;
+        const [mainKey, sectionKey, thirdKey] = keys;
         
-        if (mainKey === 'datosPorSeccion') {
+        if (mainKey === 'datosPorSeccion' && thirdKey === 'desglose') {
             const section = updatedData.datosPorSeccion[sectionKey];
             if (section && Array.isArray(section.desglose)) {
                 section.metricasPrincipales.totalEuros = section.desglose.reduce((sum: number, item: any) => sum + (item.totalEuros || 0), 0);
@@ -674,13 +676,13 @@ const handleImportSpecificWeek = async () => {
         
         <main>
           {data ? (
-            <Tabs value={activeSubTab} onValueChange={setActiveSubTab} className="w-full">
+            <Tabs value={activeSubTab} onValueChange={handleTabChange} className="w-full">
               <div className="mb-4 grid w-full grid-cols-2 md:grid-cols-3 gap-2">
                 {tabButtons.map(tab => (
                     <Button
                         key={tab.value}
                         variant={activeSubTab === tab.value ? 'default' : 'outline'}
-                        onClick={() => setActiveSubTab(tab.value)}
+                        onClick={() => handleTabChange(tab.value)}
                         className="w-full"
                     >
                         {tab.label}
