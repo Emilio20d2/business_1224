@@ -300,15 +300,14 @@ function DashboardPageComponent() {
 
  const handleInputChange = (path: string, value: any) => {
     if (!canEdit) return;
-    
+
     setData(prevData => {
         if (!prevData) return null;
 
         const updatedData = JSON.parse(JSON.stringify(prevData));
-        
         let current: any = updatedData;
         const keys = path.split('.');
-        
+
         for (let i = 0; i < keys.length - 1; i++) {
             if (current[keys[i]] === undefined) {
                 current[keys[i]] = {};
@@ -317,15 +316,15 @@ function DashboardPageComponent() {
         }
         
         const finalKey = keys[keys.length - 1];
-        
         const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
-        
         current[finalKey] = isNaN(numericValue) || value === "" ? 0 : numericValue;
         
         const [mainKey, sectionKey] = keys;
-        
+
         if (mainKey === 'datosPorSeccion') {
-            const section = updatedData.datosPorSeccion[sectionKey];
+            const sectionName = sectionKey as keyof WeeklyData['datosPorSeccion'];
+            const section = updatedData.datosPorSeccion[sectionName];
+            
             if (section && Array.isArray(section.desglose)) {
                 section.metricasPrincipales.totalEuros = section.desglose.reduce((sum: number, item: any) => sum + (item.totalEuros || 0), 0);
             }
