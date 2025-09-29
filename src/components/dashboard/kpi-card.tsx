@@ -131,12 +131,14 @@ export function DatoSimple({
 }: DatoSimpleProps) {
     const handleValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (onInputChange && valueId) {
-            onInputChange(valueId, e.target.value);
+            const numericValue = parseFloat(e.target.value.replace(',', '.'));
+            onInputChange(valueId, isNaN(numericValue) ? "" : numericValue);
         }
     };
     const handleVariationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (onInputChange && variationId) {
-            onInputChange(variationId, e.target.value);
+            const numericValue = parseFloat(e.target.value.replace(',', '.'));
+            onInputChange(variationId, isNaN(numericValue) ? "" : numericValue);
         }
     };
     
@@ -163,13 +165,13 @@ export function DatoSimple({
         if (isEditing && valueId && onInputChange) {
             const numericValue = typeof rawValue === 'number' && !isNaN(rawValue) ? rawValue : '';
             return (
-                 <div className="flex items-center justify-center gap-1 w-full">
+                 <div className="flex items-baseline justify-center gap-1 w-full">
                     <Input 
                       type="number"
                       inputMode="decimal" 
                       step="any" 
                       defaultValue={numericValue} 
-                      className="w-24 h-8 self-center text-center" 
+                      className={cn("font-medium text-lg w-24", align === 'right' ? 'text-right' : 'text-center')} 
                       id={valueId}
                       onChange={handleValueChange}
                     />
@@ -177,10 +179,11 @@ export function DatoSimple({
                  </div>
             )
         }
-        const showValue = value || (alwaysShowVariation && variation !== undefined) ? value : '';
-        if (showValue === '') return null;
+        const showValue = value !== 0 && (!value && (alwaysShowVariation && variation !== undefined)) ? '' : value;
+
+        if (showValue === '' && !isEditing) return null;
         
-        return <strong className={cn("font-semibold text-lg w-full flex items-center justify-center gap-1", valueColor)}>{showValue}</strong>;
+        return <strong className={cn("font-medium text-lg w-full flex items-center justify-center gap-1", valueColor, align === 'right' && 'justify-end', align === 'left' && 'justify-start')}>{showValue}{!isEditing && unit}</strong>;
     }
 
     const renderVariation = () => {
@@ -193,7 +196,7 @@ export function DatoSimple({
                   type="number" 
                   inputMode="decimal" 
                   defaultValue={variation} 
-                  className="w-16 h-7 text-xs" 
+                  className="w-16 h-7 text-xs text-right" 
                   id={variationId}
                   onChange={handleVariationChange}
               />

@@ -80,6 +80,11 @@ const AcumuladoCard = ({ title, data, isEditing, idPrefix, onInputChange }: { ti
               verticalAlign="middle"
               align="right"
               wrapperStyle={{ fontSize: '14px' }}
+              formatter={(value, entry) => {
+                const { color } = entry;
+                const item = chartData.find(d => d.name === value);
+                return <span style={{ color: 'hsl(var(--foreground))' }}>{value} ({formatPercentage(item?.value || 0)})</span>;
+              }}
             />
           </PieChart>
         </ResponsiveContainer>
@@ -103,8 +108,14 @@ const AcumuladoCard = ({ title, data, isEditing, idPrefix, onInputChange }: { ti
                  {isEditing ? (
                   <>
                     <Input type="number" inputMode="decimal" defaultValue={item.totalEuros} className="w-full text-right" id={`${idPrefix}-desglose-${index}-euros`} onChange={(e) => handleChange(index, 'totalEuros', e.target.value)} />
-                    <Input type="number" inputMode="decimal" step="0.1" defaultValue={item.varPorc} className="w-full text-right" id={`${idPrefix}-desglose-${index}-var`} onChange={(e) => handleChange(index, 'varPorc', e.target.value)} />
-                    <Input type="number" inputMode="decimal" step="0.1" defaultValue={item.pesoPorc} className="w-full text-right" id={`${idPrefix}-desglose-${index}-peso`} onChange={(e) => handleChange(index, 'pesoPorc', e.target.value)} />
+                    <div className="flex items-center">
+                      <Input type="number" inputMode="decimal" step="0.1" defaultValue={item.varPorc} className="w-full text-right" id={`${idPrefix}-desglose-${index}-var`} onChange={(e) => handleChange(index, 'varPorc', e.target.value)} />
+                      <span className="ml-1 text-muted-foreground">%</span>
+                    </div>
+                     <div className="flex items-center">
+                      <Input type="number" inputMode="decimal" step="0.1" defaultValue={item.pesoPorc} className="w-full text-right" id={`${idPrefix}-desglose-${index}-peso`} onChange={(e) => handleChange(index, 'pesoPorc', e.target.value)} />
+                       <span className="ml-1 text-muted-foreground">%</span>
+                    </div>
                   </>
                  ) : (
                   <>
