@@ -178,9 +178,7 @@ export function VentasWomanTab({ data, isEditing, onInputChange }: VentasWomanTa
     }] : [];
 
     const ropaPesoPorcTotal = grandTotalEuros > 0 ? (ropaTotalEuros / grandTotalEuros) * 100 : 0;
-    const ropaWeightedVarPorc = ropaTotalEuros > 0
-        ? ventasWoman.pesoComprador.reduce((sum, item) => sum + (Number(item.totalEuros) || 0) * (Number(item.varPorc) || 0), 0) / ropaTotalEuros
-        : 0;
+    const ropaVarPorcTotal = datosPorSeccion.woman.desglose.find(d => d.seccion === 'Ropa')?.varPorc ?? 0;
 
     const tabButtons = [
         { value: 'ventas', label: 'VENTAS' },
@@ -218,7 +216,7 @@ export function VentasWomanTab({ data, isEditing, onInputChange }: VentasWomanTa
                         onInputChange={onInputChange}
                         showFooter={true}
                         totalEurosOverride={ropaTotalEuros}
-                        totalVarPorcOverride={ropaWeightedVarPorc}
+                        totalVarPorcOverride={ropaVarPorcTotal}
                         totalPesoPorcOverride={ropaPesoPorcTotal}
                     />
                     <DataTable

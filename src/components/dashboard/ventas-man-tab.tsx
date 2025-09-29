@@ -178,9 +178,10 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
     }] : [];
 
     const ropaPesoPorcTotal = grandTotalEuros > 0 ? (ropaTotalEuros / grandTotalEuros) * 100 : 0;
-    const ropaWeightedVarPorc = ropaTotalEuros > 0
-        ? ventasMan.pesoComprador.reduce((sum, item) => sum + (Number(item.totalEuros) || 0) * (Number(item.varPorc) || 0), 0) / ropaTotalEuros
-        : 0;
+    
+    // Use the varPorc from the main section data, not a weighted average
+    const ropaVarPorcTotal = datosPorSeccion.man.desglose.find(d => d.seccion === 'Ropa')?.varPorc ?? 0;
+
 
     const tabButtons = [
         { value: 'ventas', label: 'VENTAS' },
@@ -219,7 +220,7 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                         onInputChange={onInputChange}
                         showFooter={true}
                         totalEurosOverride={ropaTotalEuros}
-                        totalVarPorcOverride={ropaWeightedVarPorc}
+                        totalVarPorcOverride={ropaVarPorcTotal}
                         totalPesoPorcOverride={ropaPesoPorcTotal}
                     />
                     <DataTable
@@ -321,11 +322,3 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
         </Tabs>
     );
 }
-
-    
-
-    
-
-    
-
-    
