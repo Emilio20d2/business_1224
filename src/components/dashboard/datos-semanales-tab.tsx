@@ -64,10 +64,6 @@ const SectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionNa
     const handleDesgloseChange = (index: number, field: string, value: string) => {
         onInputChange(`datosPorSeccion.${name}.desglose.${index}.${field}`, value);
     };
-
-    const handlePesoChange = (value: string) => {
-        onInputChange(`datosPorSeccion.${name}.pesoPorc`, value);
-    };
     
     return (
         <Card className="flex-1">
@@ -76,22 +72,9 @@ const SectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionNa
                     <div className="flex items-center gap-2">
                         {config.title}
                     </div>
-                     {isEditing ? (
-                        <div className="flex items-center gap-1">
-                           <Input
-                             type="number"
-                             inputMode="decimal"
-                             defaultValue={data.pesoPorc}
-                             onBlur={(e) => handlePesoChange(e.target.value)}
-                             className={cn("w-20 h-7 text-sm font-bold text-right text-white rounded-md px-2 py-1", config.color)}
-                           />
-                           <span className="text-sm font-bold text-white">%</span>
-                        </div>
-                     ) : (
-                        <span className={cn("text-sm font-bold text-white rounded-md px-2 py-1", config.color)}>
-                            {formatPercentage(data.pesoPorc)}
-                        </span>
-                     )}
+                     <span className={cn("text-sm font-bold text-white rounded-md px-2 py-1", config.color)}>
+                        {formatPercentage(data.pesoPorc)}
+                    </span>
                 </CardTitle>
             </CardHeader>
             <CardContent>
@@ -362,5 +345,7 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
 
     
 
+
+    
 
     
