@@ -127,7 +127,7 @@ const DataTable = ({
                                     )}
                                 </TableCell>
                                 <TableCell className="text-right font-medium">
-                                    {formatPercentage(item.pesoPorc)}
+                                     {isEditing ? <Input type="number" inputMode="decimal" className="w-full ml-auto text-right" defaultValue={item.pesoPorc} onChange={(e) => handleChange(index, 'pesoPorc', e.target.value)} /> : formatPercentage(item.pesoPorc)}
                                 </TableCell>
                                 <TableCell className="text-right font-medium">
                                     {isEditing ? <Input type="number" inputMode="decimal" className="w-full ml-auto text-right" defaultValue={item.totalEuros} onChange={(e) => handleChange(index, 'totalEuros', e.target.value)} /> : formatCurrency(item.totalEuros)}
@@ -305,3 +305,5 @@ export function VentasWomanTab({ data, isEditing, onInputChange }: VentasWomanTa
         </Tabs>
     );
 }
+
+    
