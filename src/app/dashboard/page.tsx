@@ -305,7 +305,7 @@ function DashboardPageComponent() {
         
         // --- Automatic Calculations ---
         
-        const [mainKey, sectionKey, subKey] = keys;
+        const [mainKey, sectionKey, subKey, itemIndex, fieldKey] = keys;
 
         // 1. Recalculate section totals if a breakdown value changes
         if (mainKey === 'datosPorSeccion' && subKey === 'desglose') {
@@ -317,7 +317,7 @@ function DashboardPageComponent() {
         }
         
         // 2. Recalculate section weights and main sales card totals
-        if (mainKey === 'datosPorSeccion') {
+        if (mainKey === 'datosPorSeccion' && subKey === 'desglose') {
             const { man, woman, nino } = updatedData.datosPorSeccion;
             
             const totalEurosMan = man?.metricasPrincipales.totalEuros || 0;
@@ -347,15 +347,15 @@ function DashboardPageComponent() {
 
         // 3. Recalculate AQNE weights and daily totals
         if (mainKey === 'aqneSemanal') {
-            const sections = updatedData.aqneSemanal;
-             if (subKey === 'desglose') {
-                const section = sections[sectionKey];
+            if (subKey === 'desglose') {
+                const section = updatedData.aqneSemanal[sectionKey];
                 if (section && Array.isArray(section.desglose)) {
                     const newTotalEuros = section.desglose.reduce((sum: number, item: any) => sum + (item.totalEuros || 0), 0);
                     section.metricasPrincipales.totalEuros = newTotalEuros;
                 }
             }
 
+            const sections = updatedData.aqneSemanal;
             const totalVentasAqne = (sections.woman.metricasPrincipales.totalEuros || 0) +
                                     (sections.man.metricasPrincipales.totalEuros || 0) +
                                     (sections.nino.metricasPrincipales.totalEuros || 0);
@@ -748,6 +748,8 @@ export default function DashboardPage() {
 }
 
 
+
+    
 
     
 
