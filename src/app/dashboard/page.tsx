@@ -323,14 +323,12 @@ function DashboardPageComponent() {
         
         if (mainKey === 'datosPorSeccion') {
             const sectionKey = keys[1] as keyof WeeklyData['datosPorSeccion'];
-            const section = updatedData.datosPorSeccion[sectionKey];
+            const sectionData = updatedData.datosPorSeccion[sectionKey];
 
-            // 1. Recalculate the section total from its breakdown
-            if (section && Array.isArray(section.desglose)) {
-                section.metricasPrincipales.totalEuros = section.desglose.reduce((sum: number, item: any) => sum + (item.totalEuros || 0), 0);
+            if (sectionData && Array.isArray(sectionData.desglose)) {
+                sectionData.metricasPrincipales.totalEuros = sectionData.desglose.reduce((sum: number, item: any) => sum + (item.totalEuros || 0), 0);
             }
         
-            // 2. Recalculate the grand total
             const sections = updatedData.datosPorSeccion;
             const totalEurosMan = sections.man?.metricasPrincipales.totalEuros || 0;
             const totalEurosWoman = sections.woman?.metricasPrincipales.totalEuros || 0;
@@ -338,17 +336,6 @@ function DashboardPageComponent() {
             const grandTotalEuros = totalEurosMan + totalEurosWoman + totalEurosNino;
 
             updatedData.ventas.totalEuros = grandTotalEuros;
-
-            // 3. Recalculate weights for each section
-            if (grandTotalEuros > 0) {
-                if (sections.man) sections.man.pesoPorc = parseFloat(((totalEurosMan / grandTotalEuros) * 100).toFixed(2));
-                if (sections.woman) sections.woman.pesoPorc = parseFloat(((totalEurosWoman / grandTotalEuros) * 100).toFixed(2));
-                if (sections.nino) sections.nino.pesoPorc = parseFloat(((totalEurosNino / grandTotalEuros) * 100).toFixed(2));
-            } else {
-                if (sections.man) sections.man.pesoPorc = 0;
-                if (sections.woman) sections.woman.pesoPorc = 0;
-                if (sections.nino) sections.nino.pesoPorc = 0;
-            }
         }
         
         if (mainKey === 'aqneSemanal') {
