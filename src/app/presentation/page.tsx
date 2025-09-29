@@ -78,7 +78,7 @@ function PresentationPageComponent() {
         <Image src="/Zara_Logo.svg.png" alt="Zara Logo" width={400} height={88} />
         
         <div className="flex flex-col gap-4">
-            <h1 className="text-5xl font-bold tracking-tight">
+            <h1 className="text-5xl tracking-tight">
             VENTAS SEMANA
             </h1>
             <p className="text-3xl text-gray-500">
@@ -88,7 +88,7 @@ function PresentationPageComponent() {
       </main>
 
       <footer className="absolute bottom-8 text-center w-full">
-        <p className="text-lg font-semibold">ZARA 1224 - PUERTO VENECIA</p>
+        <p className="text-lg">ZARA 1224 - PUERTO VENECIA</p>
       </footer>
     </div>
   );

@@ -13,7 +13,7 @@ type KpiCardProps = {
 export function KpiCard({ title, icon, children, className }: KpiCardProps) {
   return (
     <div className={cn("bg-card text-card-foreground rounded-xl p-3 flex flex-col gap-2 shadow", className)}>
-      <h3 className="flex items-center gap-3 text-base font-semibold leading-none tracking-tight text-card-foreground/80 -m-3 mb-0 border-b p-3">
+      <h3 className="flex items-center gap-3 text-base font-normal leading-none tracking-tight text-card-foreground/80 -m-3 mb-0 border-b p-3">
         {icon} {title}
       </h3>
       <div className="flex flex-col gap-2 h-full">
@@ -172,7 +172,7 @@ export function DatoSimple({
                       inputMode="decimal" 
                       step="any" 
                       defaultValue={numericValue === 0 ? '0' : numericValue} 
-                      className={cn("font-medium text-lg w-24", align === 'right' ? 'text-right' : 'text-center')} 
+                      className={cn("text-lg w-24", align === 'right' ? 'text-right' : 'text-center')} 
                       id={valueId}
                       onChange={handleValueChange}
                     />
@@ -184,7 +184,7 @@ export function DatoSimple({
 
         if (showValue === '' && !isEditing) return null;
         
-        return <strong className={cn("font-medium text-lg w-full flex items-center justify-center gap-1", valueColor, align === 'right' && 'justify-end', align === 'left' && 'justify-start')}>{showValue}{!isEditing && unit && showValue !== '' ? unit : ''}</strong>;
+        return <strong className={cn("text-lg w-full flex items-center justify-center gap-1", valueColor, align === 'right' && 'justify-end', align === 'left' && 'justify-start')}>{showValue}{!isEditing && unit && showValue !== '' ? unit : ''}</strong>;
     }
 
     const renderVariation = () => {

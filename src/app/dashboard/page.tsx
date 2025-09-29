@@ -610,8 +610,8 @@ function DashboardPageComponent() {
                             <DropdownMenuSeparator />
                             <DropdownMenuLabel>NIÑO</DropdownMenuLabel>
                             <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorNino', 'Editar Lista: Comprador NIÑO')}>Comprador</DropdownMenuItem>
-                            <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialNino', 'Editar Lista: Zona Comercial NIÑO')}>Zona Comercial NIÑO</DropdownMenuItem>
-                            <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercialNino', 'Editar Lista: Agrupación Comercial NIÑO')}>Agrupación Comercial NIÑO</DropdownMenuItem>
+                            <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialNino', 'Editar Lista: Zona Comercial NIÑO')}>Zona Comercial</DropdownMenuItem>
+                            <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercialNino', 'Editar Lista: Agrupación Comercial NIÑO')}>Agrupación Comercial</DropdownMenuItem>
                           </DropdownMenuSubContent>
                         </DropdownMenuPortal>
                       </DropdownMenuSub>
@@ -662,7 +662,7 @@ function DashboardPageComponent() {
                 <AqneSemanalTab data={data} isEditing={isEditing} onInputChange={handleInputChange} />
               </TabsContent>
               <TabsContent value="acumulado" className="mt-0">
-                <AcumuladoTab data={data.acumulado} isEditing={isEditing} onInputChange={handleInputChange}/>
+                <AcumuladoTab data={data.acumulado} isEditing={isEditing} onInputChange={onInputChange}/>
               </TabsContent>
 
             </Tabs>

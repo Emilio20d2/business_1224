@@ -68,7 +68,7 @@ const SectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionNa
     return (
         <Card className="flex-1">
             <CardHeader className="pb-2">
-                <CardTitle className="flex justify-between items-center text-lg font-bold">
+                <CardTitle className="flex justify-between items-center text-lg font-normal">
                     <div className="flex items-center gap-2">
                         {config.title}
                     </div>

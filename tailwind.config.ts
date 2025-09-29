@@ -10,7 +10,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['var(--font-inter)', 'sans-serif'],
+        sans: ['Aptos', 'sans-serif'],
       },
       colors: {
         background: 'hsl(var(--background))',
