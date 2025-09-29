@@ -304,28 +304,21 @@ function DashboardPageComponent() {
         current[finalKey] = isNaN(numericValue) || value === "" ? 0 : numericValue;
         
         // --- Automatic Calculations ---
-        
         const [mainKey, sectionKey, subKey, itemIndex, fieldKey] = keys;
-
-        // 1. Recalculate section totals if a breakdown value changes
+        
         if (mainKey === 'datosPorSeccion' && subKey === 'desglose') {
             const section = updatedData.datosPorSeccion[sectionKey];
             if (section && Array.isArray(section.desglose)) {
                 const newTotalEuros = section.desglose.reduce((sum: number, item: any) => sum + (item.totalEuros || 0), 0);
                 section.metricasPrincipales.totalEuros = newTotalEuros;
             }
-        }
-        
-        // 2. Recalculate section weights and main sales card totals
-        if (mainKey === 'datosPorSeccion' && subKey === 'desglose') {
+
             const { man, woman, nino } = updatedData.datosPorSeccion;
-            
             const totalEurosMan = man?.metricasPrincipales.totalEuros || 0;
             const totalEurosWoman = woman?.metricasPrincipales.totalEuros || 0;
             const totalEurosNino = nino?.metricasPrincipales.totalEuros || 0;
             const grandTotalEuros = totalEurosMan + totalEurosWoman + totalEurosNino;
 
-            // Update main sales card totals
             updatedData.ventas.totalEuros = grandTotalEuros;
 
             const totalUnidadesMan = man?.metricasPrincipales.totalUnidades || 0;
@@ -333,7 +326,6 @@ function DashboardPageComponent() {
             const totalUnidadesNino = nino?.metricasPrincipales.totalUnidades || 0;
             updatedData.ventas.totalUnidades = totalUnidadesMan + totalUnidadesWoman + totalUnidadesNino;
 
-            // Update section weights
             if (grandTotalEuros > 0) {
                 if (man) man.pesoPorc = (totalEurosMan / grandTotalEuros) * 100;
                 if (woman) woman.pesoPorc = (totalEurosWoman / grandTotalEuros) * 100;
@@ -344,8 +336,7 @@ function DashboardPageComponent() {
                 if (nino) nino.pesoPorc = 0;
             }
         }
-
-        // 3. Recalculate AQNE weights and daily totals
+        
         if (mainKey === 'aqneSemanal') {
             if (subKey === 'desglose') {
                 const section = updatedData.aqneSemanal[sectionKey];
@@ -379,7 +370,6 @@ function DashboardPageComponent() {
             }
         }
 
-        // 4. Handle direct input in specific sales tables (man, woman, nino)
         if (keys[0] === 'ventasMan' || keys[0] === 'ventasWoman' || keys[0] === 'ventasNino') {
             const section = keys[0] as 'ventasMan' | 'ventasWoman' | 'ventasNino';
             const tableKey = keys[1] as keyof WeeklyData[typeof section];
