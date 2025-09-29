@@ -502,12 +502,12 @@ function DashboardPageComponent() {
   return (
     <TooltipProvider>
       <div className="min-h-screen w-full p-2 sm:p-3 bg-background">
-        <header className="mb-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground flex items-center gap-2">
-            <Briefcase className="h-7 w-7" />
-            BUSSINES
-          </h1>
-          <div className="flex items-center gap-2">
+        <header className="mb-4 flex flex-wrap items-center justify-between gap-2">
+           <h1 className="text-2xl sm:text-3xl font-bold text-foreground flex items-center gap-2">
+              <Briefcase className="h-7 w-7" />
+              BUSSINES
+           </h1>
+           <div className="flex w-full flex-wrap items-center justify-start sm:w-auto sm:justify-end gap-2">
               <div className="flex items-center gap-2">
                  {Object.keys(tabConfig).map(tabKey => {
                     const config = tabConfig[tabKey];
@@ -533,104 +533,103 @@ function DashboardPageComponent() {
                 })}
               </div>
 
-            <div className="flex items-center gap-2">
-                <Popover open={isCalendarOpen} onOpenChange={setCalendarOpen}>
-                    <PopoverTrigger asChild>
-                        <Button
-                            variant={"outline"}
-                            className={cn(
-                                "w-auto justify-start text-left font-normal",
-                                !selectedDate && "text-muted-foreground"
-                            )}
-                        >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            <span>Semana: </span>
-                            {selectedWeek ? (
-                                <span className="ml-1 font-semibold">{formatWeekIdToDateRange(selectedWeek)}</span>
-                            ) : (
-                                <span>Selecciona</span>
-                            )}
-                        </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                            mode="single"
-                            selected={selectedDate}
-                            onSelect={handleDateSelect}
-                            initialFocus
-                            weekStartsOn={1}
-                            showOutsideDays
-                        />
-                    </PopoverContent>
-                </Popover>
-            </div>
-             <div className="flex items-center gap-2">
-              {canEdit && (
-                <>
-                  {isEditing ? (
-                    <>
-                      <Button onClick={handleSave} disabled={isSaving || !data}>
-                        {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        Guardar
+              <Popover open={isCalendarOpen} onOpenChange={setCalendarOpen}>
+                  <PopoverTrigger asChild>
+                      <Button
+                          variant={"outline"}
+                          className={cn(
+                              "w-auto justify-start text-left font-normal",
+                              !selectedDate && "text-muted-foreground"
+                          )}
+                      >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          <span>Semana: </span>
+                          {selectedWeek ? (
+                              <span className="ml-1 font-semibold">{formatWeekIdToDateRange(selectedWeek)}</span>
+                          ) : (
+                              <span>Selecciona</span>
+                          )}
                       </Button>
-                      <Button variant="outline" onClick={handleCancel} disabled={isSaving || !data}>Cancelar</Button>
-                    </>
-                  ) : (
-                    <Button onClick={() => setIsEditing(true)} variant="outline" size="icon" disabled={!data}>
-                      <Pencil className="h-4 w-4 text-primary" />
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                          mode="single"
+                          selected={selectedDate}
+                          onSelect={handleDateSelect}
+                          initialFocus
+                          weekStartsOn={1}
+                          showOutsideDays
+                      />
+                  </PopoverContent>
+              </Popover>
+
+              <div className="flex items-center gap-2">
+                {canEdit && (
+                  <>
+                    {isEditing ? (
+                      <>
+                        <Button onClick={handleSave} disabled={isSaving || !data}>
+                          {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                          Guardar
+                        </Button>
+                        <Button variant="outline" onClick={handleCancel} disabled={isSaving || !data}>Cancelar</Button>
+                      </>
+                    ) : (
+                      <Button onClick={() => setIsEditing(true)} variant="outline" size="icon" disabled={!data}>
+                        <Pencil className="h-4 w-4 text-primary" />
+                      </Button>
+                    )}
+                  </>
+                )}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="icon">
+                      <Settings className="h-4 w-4 text-primary" />
                     </Button>
-                  )}
-                </>
-              )}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="icon">
-                    <Settings className="h-4 w-4 text-primary" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56 z-50">
-                  <DropdownMenuLabel>Opciones</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  {canEdit && (
-                    <>
-                    <DropdownMenuSub>
-                      <DropdownMenuSubTrigger>
-                        <List className="mr-2 h-4 w-4 text-primary" />
-                        <span>Editar Listas</span>
-                      </DropdownMenuSubTrigger>
-                      <DropdownMenuPortal>
-                        <DropdownMenuSubContent>
-                          <DropdownMenuLabel>MAN</DropdownMenuLabel>
-                          <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorMan', 'Editar Lista: Comprador MAN')}>Comprador</DropdownMenuItem>
-                          <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialMan', 'Editar Lista: Zona Comercial MAN')}>Zona Comercial</DropdownMenuItem>
-                          <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercialMan', 'Editar Lista: Agrupación Comercial MAN')}>Agrupación Comercial</DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuLabel>WOMAN</DropdownMenuLabel>
-                          <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorWoman', 'Editar Lista: Comprador WOMAN')}>Comprador</DropdownMenuItem>
-                          <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialWoman', 'Editar Lista: Zona Comercial WOMAN')}>Zona Comercial</DropdownMenuItem>
-                          <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercialWoman', 'Editar Lista: Agrupación Comercial WOMAN')}>Agrupación Comercial</DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuLabel>NIÑO</DropdownMenuLabel>
-                          <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorNino', 'Editar Lista: Comprador NIÑO')}>Comprador</DropdownMenuItem>
-                          <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialNino', 'Editar Lista: Zona Comercial NIÑO')}>Zona Comercial NIÑO</DropdownMenuItem>
-                          <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercialNino', 'Editar Lista: Agrupación Comercial NIÑO')}>Agrupación Comercial</DropdownMenuItem>
-                        </DropdownMenuSubContent>
-                      </DropdownMenuPortal>
-                    </DropdownMenuSub>
-                    </>
-                  )}
-                  {canEdit && <DropdownMenuSeparator />}
-                  <DropdownMenuItem onSelect={() => {
-                    logout();
-                    router.push('/');
-                  }}>
-                    <LogOut className="mr-2 h-4 w-4 text-primary" />
-                    <span>Cerrar sesión</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </div>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56 z-50">
+                    <DropdownMenuLabel>Opciones</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    {canEdit && (
+                      <>
+                      <DropdownMenuSub>
+                        <DropdownMenuSubTrigger>
+                          <List className="mr-2 h-4 w-4 text-primary" />
+                          <span>Editar Listas</span>
+                        </DropdownMenuSubTrigger>
+                        <DropdownMenuPortal>
+                          <DropdownMenuSubContent>
+                            <DropdownMenuLabel>MAN</DropdownMenuLabel>
+                            <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorMan', 'Editar Lista: Comprador MAN')}>Comprador</DropdownMenuItem>
+                            <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialMan', 'Editar Lista: Zona Comercial MAN')}>Zona Comercial</DropdownMenuItem>
+                            <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercialMan', 'Editar Lista: Agrupación Comercial MAN')}>Agrupación Comercial</DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuLabel>WOMAN</DropdownMenuLabel>
+                            <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorWoman', 'Editar Lista: Comprador WOMAN')}>Comprador</DropdownMenuItem>
+                            <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialWoman', 'Editar Lista: Zona Comercial WOMAN')}>Zona Comercial</DropdownMenuItem>
+                            <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercialWoman', 'Editar Lista: Agrupación Comercial WOMAN')}>Agrupación Comercial</DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuLabel>NIÑO</DropdownMenuLabel>
+                            <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorNino', 'Editar Lista: Comprador NIÑO')}>Comprador</DropdownMenuItem>
+                            <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialNino', 'Editar Lista: Zona Comercial NIÑO')}>Zona Comercial NIÑO</DropdownMenuItem>
+                            <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercialNino', 'Editar Lista: Agrupación Comercial NIÑO')}>Agrupación Comercial</DropdownMenuItem>
+                          </DropdownMenuSubContent>
+                        </DropdownMenuPortal>
+                      </DropdownMenuSub>
+                      </>
+                    )}
+                    {canEdit && <DropdownMenuSeparator />}
+                    <DropdownMenuItem onSelect={() => {
+                      logout();
+                      router.push('/');
+                    }}>
+                      <LogOut className="mr-2 h-4 w-4 text-primary" />
+                      <span>Cerrar sesión</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+           </div>
         </header>
         
         <main>

@@ -388,12 +388,12 @@ function NinoPageComponent() {
   return (
     <TooltipProvider>
       <div className="min-h-screen w-full p-2 sm:p-3 bg-background">
-        <header className="mb-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+        <header className="mb-4 flex flex-wrap items-center justify-between gap-2">
           <h1 className="text-2xl sm:text-3xl font-bold text-foreground flex items-center gap-2">
             <Briefcase className="h-7 w-7" />
             BUSSINES
           </h1>
-          <div className="flex items-center gap-2">
+          <div className="flex w-full flex-wrap items-center justify-start sm:w-auto sm:justify-end gap-2">
               <div className="flex items-center gap-2">
                  {Object.keys(tabConfig).map(tabKey => {
                     const config = tabConfig[tabKey];
@@ -419,37 +419,36 @@ function NinoPageComponent() {
                 })}
               </div>
 
-            <div className="flex items-center gap-2">
-                <Popover open={isCalendarOpen} onOpenChange={setCalendarOpen}>
-                    <PopoverTrigger asChild>
-                        <Button
-                            variant={"outline"}
-                            className={cn(
-                                "w-auto justify-start text-left font-normal",
-                                !selectedDate && "text-muted-foreground"
-                            )}
-                        >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                             <span>Semana: </span>
-                             {selectedWeek ? (
-                                <span className="ml-1 font-semibold">{formatWeekIdToDateRange(selectedWeek)}</span>
-                            ) : (
-                                <span>Selecciona</span>
-                            )}
-                        </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                            mode="single"
-                            selected={selectedDate}
-                            onSelect={handleDateSelect}
-                            initialFocus
-                            weekStartsOn={1}
-                            showOutsideDays
-                        />
-                    </PopoverContent>
-                </Popover>
-            </div>
+              <Popover open={isCalendarOpen} onOpenChange={setCalendarOpen}>
+                  <PopoverTrigger asChild>
+                      <Button
+                          variant={"outline"}
+                          className={cn(
+                              "w-auto justify-start text-left font-normal",
+                              !selectedDate && "text-muted-foreground"
+                          )}
+                      >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                           <span>Semana: </span>
+                           {selectedWeek ? (
+                              <span className="ml-1 font-semibold">{formatWeekIdToDateRange(selectedWeek)}</span>
+                          ) : (
+                              <span>Selecciona</span>
+                          )}
+                      </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                          mode="single"
+                          selected={selectedDate}
+                          onSelect={handleDateSelect}
+                          initialFocus
+                          weekStartsOn={1}
+                          showOutsideDays
+                      />
+                  </PopoverContent>
+              </Popover>
+
              <div className="flex items-center gap-2">
               {canEdit && (
                 <>
