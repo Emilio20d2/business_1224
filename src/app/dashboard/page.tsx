@@ -304,9 +304,9 @@ function DashboardPageComponent() {
         current[finalKey] = isNaN(numericValue) || value === "" ? 0 : numericValue;
         
         // --- Automatic Calculations ---
-        const [mainKey, sectionKey, subKey, itemIndex, fieldKey] = keys;
+        const [mainKey, sectionKey] = keys;
         
-        if (mainKey === 'datosPorSeccion' && subKey === 'desglose') {
+        if (mainKey === 'datosPorSeccion') {
             const section = updatedData.datosPorSeccion[sectionKey];
             if (section && Array.isArray(section.desglose)) {
                 const newTotalEuros = section.desglose.reduce((sum: number, item: any) => sum + (item.totalEuros || 0), 0);
@@ -338,14 +338,12 @@ function DashboardPageComponent() {
         }
         
         if (mainKey === 'aqneSemanal') {
-            if (subKey === 'desglose') {
-                const section = updatedData.aqneSemanal[sectionKey];
-                if (section && Array.isArray(section.desglose)) {
-                    const newTotalEuros = section.desglose.reduce((sum: number, item: any) => sum + (item.totalEuros || 0), 0);
-                    section.metricasPrincipales.totalEuros = newTotalEuros;
-                }
+            const section = updatedData.aqneSemanal[sectionKey];
+            if (section && Array.isArray(section.desglose)) {
+                const newTotalEuros = section.desglose.reduce((sum: number, item: any) => sum + (item.totalEuros || 0), 0);
+                section.metricasPrincipales.totalEuros = newTotalEuros;
             }
-
+        
             const sections = updatedData.aqneSemanal;
             const totalVentasAqne = (sections.woman.metricasPrincipales.totalEuros || 0) +
                                     (sections.man.metricasPrincipales.totalEuros || 0) +
