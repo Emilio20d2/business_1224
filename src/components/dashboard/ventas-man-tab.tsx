@@ -78,6 +78,7 @@ const DataTable = ({
     const finalWeightedVarPorc = totalVarPorcOverride !== undefined ? totalVarPorcOverride : weightedVarPorc;
     const finalTotalPesoPorc = totalPesoPorcOverride !== undefined ? totalPesoPorcOverride : data.reduce((sum, item) => sum + (Number(item.pesoPorc) || 0), 0);
 
+    const displayedData = title === "Ropa" ? data.slice(0, 11) : data;
 
     const handleChange = (index: number, field: keyof VentasManItem, value: any) => {
         const path = `${dataKey}.${index}.${field}`;
@@ -103,7 +104,9 @@ const DataTable = ({
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {data.map((item, index) => {
+                    {displayedData.map((item, index) => {
+                        // Find original index to make sure we are updating the correct item in the original array
+                        const originalIndex = data.findIndex(d => d.nombre === item.nombre);
                         return (
                             <TableRow 
                                 key={item.nombre + index}
@@ -115,11 +118,11 @@ const DataTable = ({
                                     {formatPercentage(item.pesoPorc)}
                                 </TableCell>
                                 <TableCell className="text-right font-medium">
-                                    {isEditing ? <Input type="number" inputMode="decimal" className="w-full ml-auto text-right" defaultValue={item.totalEuros} onBlur={(e) => handleChange(index, 'totalEuros', e.target.value)} /> : formatCurrency(item.totalEuros)}
+                                    {isEditing ? <Input type="number" inputMode="decimal" className="w-full ml-auto text-right" defaultValue={item.totalEuros} onBlur={(e) => handleChange(originalIndex, 'totalEuros', e.target.value)} /> : formatCurrency(item.totalEuros)}
                                 </TableCell>
                                 {showVarPorc && (
                                     <TableCell className="text-right font-medium">
-                                        {isEditing ? <Input type="number" inputMode="decimal" className="w-full ml-auto text-right" defaultValue={item.varPorc} onBlur={(e) => handleChange(index, 'varPorc', e.target.value)} /> : 
+                                        {isEditing ? <Input type="number" inputMode="decimal" className="w-full ml-auto text-right" defaultValue={item.varPorc} onBlur={(e) => handleChange(originalIndex, 'varPorc', e.target.value)} /> : 
                                         <span className={cn(item.varPorc < 0 ? "text-red-600" : "text-green-600")}>{formatPercentage(item.varPorc)}</span>
                                         }
                                     </TableCell>
@@ -283,6 +286,7 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                         list={listas.zonaComercialMan}
                         isEditing={isEditing}
                         onInputChange={onInputChange}
+                        showFooter={false}
                     />
                     <DataTable
                         title="Agrupación Comercial"
@@ -292,6 +296,7 @@ export function VentasManTab({ data, isEditing, onInputChange }: VentasManTabPro
                         list={listas.agrupacionComercialMan}
                         isEditing={isEditing}
                         onInputChange={onInputChange}
+                        showFooter={false}
                     />
                 </div>
             </TabsContent>
