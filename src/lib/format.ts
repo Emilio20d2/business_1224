@@ -11,9 +11,14 @@ export const formatNumber = (amount: number | null | undefined) => {
   return new Intl.NumberFormat('es-ES').format(amount);
 };
 
-export const formatPercentage = (value: number | null | undefined) => {
+export const formatPercentage = (value: number | null | undefined, alwaysShowSign = false) => {
   if (value === null || value === undefined) return 'N/A';
-  return `${Math.round(value)}%`;
+  const roundedValue = Math.round(value);
+  if (alwaysShowSign) {
+      return `${roundedValue}%`;
+  }
+  const sign = roundedValue > 0 ? '+' : '';
+  return `${sign}${roundedValue}%`;
 };
 
 export const formatGap = (value: number) => {

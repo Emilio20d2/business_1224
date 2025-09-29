@@ -322,14 +322,14 @@ function DashboardPageComponent() {
         
         current[finalKey] = isNaN(numericValue) || value === "" ? 0 : numericValue;
         
-        const [mainKey, sectionKey, thirdKey] = keys;
+        const [mainKey, sectionKey] = keys;
         
-        if (mainKey === 'datosPorSeccion' && thirdKey === 'desglose') {
+        if (mainKey === 'datosPorSeccion') {
             const section = updatedData.datosPorSeccion[sectionKey];
             if (section && Array.isArray(section.desglose)) {
                 section.metricasPrincipales.totalEuros = section.desglose.reduce((sum: number, item: any) => sum + (item.totalEuros || 0), 0);
             }
-
+        
             const sections = updatedData.datosPorSeccion;
             const totalEurosMan = sections.man?.metricasPrincipales.totalEuros || 0;
             const totalEurosWoman = sections.woman?.metricasPrincipales.totalEuros || 0;

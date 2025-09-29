@@ -73,7 +73,7 @@ const SectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionNa
                         {config.title}
                     </div>
                      <span className={cn("text-sm font-bold text-white rounded-md px-2 py-1", config.color)}>
-                        {formatPercentage(data.pesoPorc)}
+                        {formatPercentage(data.pesoPorc, true)}
                     </span>
                 </CardTitle>
             </CardHeader>

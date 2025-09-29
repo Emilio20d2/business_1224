@@ -63,7 +63,7 @@ export function DatoDoble({ label, value, variation, unit, isEditing, valueId, v
              <Input 
                type="number" 
                inputMode="decimal" 
-               defaultValue={rawValue || ''}
+               defaultValue={Number.isNaN(rawValue) ? '' : rawValue}
                className="w-24 h-8" 
                id={valueId}
                onChange={handleValueChange}
@@ -183,7 +183,7 @@ export function DatoSimple({
 
         if (showValue === '' && !isEditing) return null;
         
-        return <strong className={cn("font-medium text-lg w-full flex items-center justify-center gap-1", valueColor, align === 'right' && 'justify-end', align === 'left' && 'justify-start')}>{showValue}{!isEditing && unit}</strong>;
+        return <strong className={cn("font-medium text-lg w-full flex items-center justify-center gap-1", valueColor, align === 'right' && 'justify-end', align === 'left' && 'justify-start')}>{showValue}{!isEditing && unit && showValue !== '' ? unit : ''}</strong>;
     }
 
     const renderVariation = () => {
