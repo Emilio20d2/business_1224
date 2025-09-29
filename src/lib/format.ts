@@ -21,6 +21,13 @@ export const formatPercentage = (value: number | null | undefined, alwaysShowSig
   return `${sign}${formattedValue}%`;
 };
 
+export const formatPercentageInt = (value: number | null | undefined) => {
+    if (value === null || value === undefined || isNaN(value)) return '0%';
+    const roundedValue = Math.round(value);
+    return `${roundedValue}%`;
+};
+
+
 export const formatGap = (value: number) => {
     const sign = value > 0 ? '+' : '';
     const formattedValue = new Intl.NumberFormat('es-ES').format(value);

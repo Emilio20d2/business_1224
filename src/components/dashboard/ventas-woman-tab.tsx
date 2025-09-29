@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
-import { formatCurrency, formatPercentage, formatNumber } from "@/lib/format";
+import { formatCurrency, formatPercentage, formatNumber, formatPercentageInt } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { Button } from '../ui/button';
 import { Users, MapPin, ShoppingBasket, Percent, Euro, Shirt, Footprints, SprayCan, Package } from 'lucide-react';
@@ -114,7 +114,7 @@ const DataTable = ({
                                     {item.nombre}
                                 </TableCell>
                                 <TableCell className="text-right font-medium">
-                                     {formatPercentage(item.pesoPorc)}
+                                     {formatPercentageInt(item.pesoPorc)}
                                 </TableCell>
                                 <TableCell className="text-right font-medium">
                                     {isEditing ? <Input type="number" inputMode="decimal" className="w-full ml-auto text-right" defaultValue={item.totalEuros} onBlur={(e) => handleChange(originalIndex, 'totalEuros', e.target.value)} /> : formatCurrency(item.totalEuros)}
@@ -134,7 +134,7 @@ const DataTable = ({
                     <TableFooter>
                         <TableRow className="bg-muted/50 hover:bg-muted/60">
                             <TableHead className="font-bold uppercase">Total</TableHead>
-                            <TableHead className="text-right font-bold">{formatPercentage(finalTotalPesoPorc)}</TableHead>
+                            <TableHead className="text-right font-bold">{formatPercentageInt(finalTotalPesoPorc)}</TableHead>
                             <TableHead className="text-right font-bold">{formatCurrency(finalTotalEuros)}</TableHead>
                             {showVarPorc && (
                                 <TableHead className={cn("text-right font-bold", finalWeightedVarPorc < 0 ? "text-red-600" : "text-green-600")}>
@@ -180,7 +180,7 @@ export function VentasWomanTab({ data, isEditing, onInputChange }: VentasWomanTa
         varPorc: perfumeriaData.varPorc,
     }] : [];
 
-    const ropaPesoPorcTotal = grandTotalEuros > 0 ? (ropaTotalEuros / grandTotalEuros) * 100 : 0;
+    const ropaPesoPorcTotal = grandTotalEuros > 0 ? Math.round((ropaTotalEuros / grandTotalEuros) * 100) : 0;
     const ropaVarPorcTotal = datosPorSeccion.woman.metricasPrincipales.varPorcEuros;
 
     const tabButtons = [
@@ -293,16 +293,3 @@ export function VentasWomanTab({ data, isEditing, onInputChange }: VentasWomanTa
         </Tabs>
     );
 }
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    

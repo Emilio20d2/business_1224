@@ -1,6 +1,6 @@
 
 import type { WeeklyData } from "@/lib/data";
-import { formatCurrency, formatNumber, formatPercentage, formatGap } from "@/lib/format";
+import { formatCurrency, formatNumber, formatPercentage, formatGap, formatPercentageInt } from "@/lib/format";
 import { KpiCard, DatoDoble, DatoSimple } from "./kpi-card";
 import { 
   Euro, 
@@ -73,7 +73,7 @@ const SectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionNa
                         {config.title}
                     </div>
                      <span className={cn("text-sm font-bold text-white rounded-md px-2 py-1", config.color)}>
-                        {formatPercentage(data.pesoPorc)}
+                        {formatPercentageInt(data.pesoPorc)}
                     </span>
                 </CardTitle>
             </CardHeader>
@@ -340,12 +340,3 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
     </div>
   );
 }
-
-    
-
-    
-
-
-    
-
-    

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import type { WeeklyData, Almacen } from "@/lib/data";
 import { formatNumber, formatPercentage } from "@/lib/format";

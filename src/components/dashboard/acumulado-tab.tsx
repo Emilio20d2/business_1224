@@ -1,7 +1,7 @@
 
 import React from 'react';
 import type { WeeklyData } from "@/lib/data";
-import { formatCurrency, formatPercentage } from "@/lib/format";
+import { formatCurrency, formatPercentage, formatPercentageInt } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { KpiCard, DatoDoble } from "./kpi-card";
 import { Input } from "@/components/ui/input";
@@ -68,7 +68,7 @@ const AcumuladoCard = ({ title, data, isEditing, idPrefix, onInputChange }: { ti
               ))}
             </Pie>
             <Tooltip
-              formatter={(value) => `${formatPercentage(value as number)}`}
+              formatter={(value) => `${formatPercentageInt(value as number)}`}
               contentStyle={{
                 backgroundColor: 'hsl(var(--background))',
                 borderColor: 'hsl(var(--border))',
@@ -84,7 +84,7 @@ const AcumuladoCard = ({ title, data, isEditing, idPrefix, onInputChange }: { ti
               formatter={(value, entry) => {
                 const { color } = entry;
                 const item = chartData.find(d => d.name === value);
-                return <span style={{ color: 'hsl(var(--foreground))' }}>{value} ({formatPercentage(item?.value || 0)})</span>;
+                return <span style={{ color: 'hsl(var(--foreground))' }}>{value} ({formatPercentageInt(item?.value || 0)})</span>;
               }}
             />
           </PieChart>
@@ -122,7 +122,7 @@ const AcumuladoCard = ({ title, data, isEditing, idPrefix, onInputChange }: { ti
                   <>
                     <div className={cn("text-right font-medium", item.totalEuros < 0 && "text-red-600")}>{formatCurrency(item.totalEuros)}</div>
                     <div className={cn("text-right", item.varPorc < 0 && "text-red-600")}>{formatPercentage(item.varPorc)}</div>
-                    <div className={cn("text-right", item.pesoPorc < 0 && "text-red-600")}>{formatPercentage(item.pesoPorc)}</div>
+                    <div className={cn("text-right", item.pesoPorc < 0 && "text-red-600")}>{formatPercentageInt(item.pesoPorc)}</div>
                   </>
                  )}
             </div>

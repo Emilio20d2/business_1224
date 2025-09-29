@@ -1,7 +1,7 @@
 
 import React from 'react';
 import type { WeeklyData } from "@/lib/data";
-import { formatCurrency, formatNumber, formatPercentage } from "@/lib/format";
+import { formatCurrency, formatNumber, formatPercentage, formatPercentageInt } from "@/lib/format";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { 
@@ -62,7 +62,7 @@ const AqneSectionCard = ({ name, data, isEditing, onInputChange }: { name: Secti
                         {config.title}
                     </div>
                     <span className={cn("text-sm font-bold text-white rounded-md px-2 py-1", config.color)}>
-                        {formatPercentage(data.pesoPorc)}
+                        {formatPercentageInt(data.pesoPorc)}
                     </span>
                 </CardTitle>
             </CardHeader>
