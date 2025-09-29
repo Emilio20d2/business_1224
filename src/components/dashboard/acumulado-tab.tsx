@@ -114,7 +114,7 @@ const AcumuladoCard = ({ title, data, isEditing, idPrefix, onInputChange }: { ti
                       <span className="ml-1 text-muted-foreground">%</span>
                     </div>
                      <div className="flex items-center">
-                      <Input type="number" inputMode="decimal" step="0.1" value={item.pesoPorc} className="w-full text-right" id={`${idPrefix}-desglose-${index}-peso`} onChange={(e) => handleChange(index, 'pesoPorc', e.target.value)} />
+                      <Input type="number" inputMode="decimal" step="0.1" value={item.pesoPorc} readOnly className="w-full text-right bg-muted" id={`${idPrefix}-desglose-${index}-peso`} />
                        <span className="ml-1 text-muted-foreground">%</span>
                     </div>
                   </>

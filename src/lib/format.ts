@@ -12,8 +12,8 @@ export const formatNumber = (amount: number | null | undefined) => {
 };
 
 export const formatPercentage = (value: number | null | undefined, alwaysShowSign = false) => {
-  if (value === null || value === undefined || isNaN(value)) return '0%';
-  const formattedValue = Math.round(value).toString();
+  if (value === null || value === undefined || isNaN(value)) return '0,0%';
+  const formattedValue = value.toFixed(1).replace('.', ',');
   if (alwaysShowSign) {
       return `${formattedValue}%`;
   }

@@ -341,9 +341,9 @@ function DashboardPageComponent() {
                                     (sections.nino.metricasPrincipales.totalEuros || 0);
 
             if (totalVentasAqne > 0) {
-                sections.woman.pesoPorc = parseFloat(((sections.woman.metricasPrincipales.totalEuros / totalVentasAqne) * 100).toFixed(2));
-                sections.man.pesoPorc = parseFloat(((sections.man.metricasPrincipales.totalEuros / totalVentasAqne) * 100).toFixed(2));
-                sections.nino.pesoPorc = parseFloat(((sections.nino.metricasPrincipales.totalEuros / totalVentasAqne) * 100).toFixed(2));
+                sections.woman.pesoPorc = parseFloat(((sections.woman.metricasPrincipales.totalEuros / totalVentasAqne) * 100).toFixed(1));
+                sections.man.pesoPorc = parseFloat(((sections.man.metricasPrincipales.totalEuros / totalVentasAqne) * 100).toFixed(1));
+                sections.nino.pesoPorc = parseFloat(((sections.nino.metricasPrincipales.totalEuros / totalVentasAqne) * 100).toFixed(1));
             } else {
                 sections.woman.pesoPorc = 0;
                 sections.man.pesoPorc = 0;
@@ -361,7 +361,7 @@ function DashboardPageComponent() {
 
                 if (totalEurosPeriodo > 0) {
                     periodo.desglose.forEach(item => {
-                        item.pesoPorc = parseFloat(((item.totalEuros / totalEurosPeriodo) * 100).toFixed(2));
+                        item.pesoPorc = parseFloat(((item.totalEuros / totalEurosPeriodo) * 100).toFixed(1));
                     });
                 } else {
                     periodo.desglose.forEach(item => {
