@@ -285,21 +285,24 @@ function NinoPageComponent() {
         const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
         current[finalKey] = isNaN(numericValue) || value === "" ? 0 : numericValue;
 
-        if (keys[0] === 'ventasNino' && keys[1] === 'pesoComprador' && reorder) {
-            const table = updatedData.ventasNino.pesoComprador;
-            const totalEuros = table.reduce((sum: number, item: VentasManItem) => sum + (item.totalEuros || 0), 0);
+        if (keys[0] === 'ventasNino' && reorder) {
+            const tableKey = keys[1] as 'pesoComprador' | 'zonaComercial' | 'agrupacionComercial';
+            const table = updatedData.ventasNino[tableKey] as VentasManItem[];
+            if (table) {
+                const totalEuros = table.reduce((sum: number, item: VentasManItem) => sum + (item.totalEuros || 0), 0);
 
-            if (totalEuros > 0) {
-                table.forEach((item: VentasManItem) => {
-                    item.pesoPorc = parseFloat((((item.totalEuros || 0) / totalEuros) * 100).toFixed(1));
-                });
-            } else {
-                 table.forEach((item: VentasManItem) => {
-                    item.pesoPorc = 0;
-                });
+                if (totalEuros > 0) {
+                    table.forEach((item: VentasManItem) => {
+                        item.pesoPorc = parseFloat((((item.totalEuros || 0) / totalEuros) * 100).toFixed(1));
+                    });
+                } else {
+                     table.forEach((item: VentasManItem) => {
+                        item.pesoPorc = 0;
+                    });
+                }
+
+                table.sort((a: VentasManItem, b: VentasManItem) => (b.totalEuros || 0) - (a.totalEuros || 0));
             }
-
-            table.sort((a: VentasManItem, b: VentasManItem) => (b.totalEuros || 0) - (a.totalEuros || 0));
         }
         
         return updatedData;
@@ -615,6 +618,8 @@ export default function NinoPage() {
     );
 }
 
+
+    
 
     
 
