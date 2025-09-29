@@ -386,11 +386,11 @@ function WomanPageComponent() {
     <TooltipProvider>
       <div className="min-h-screen w-full p-2 sm:p-3 bg-background">
         <header className="mb-4 flex flex-wrap items-center justify-between gap-2">
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground flex items-center gap-2">
-            <Briefcase className="h-7 w-7" />
-            BUSSINES
-          </h1>
-          <div className="flex w-full flex-wrap items-center justify-start sm:justify-end gap-2">
+          <div className="flex w-full flex-wrap items-center justify-start gap-x-4 gap-y-2">
+              <h1 className="text-2xl sm:text-3xl font-bold text-foreground flex items-center gap-2">
+                <Briefcase className="h-7 w-7" />
+                BUSSINES
+              </h1>
               <div className="flex items-center gap-2">
                  {Object.keys(tabConfig).map(tabKey => {
                     const config = tabConfig[tabKey];
@@ -566,5 +566,7 @@ export default function WomanPage() {
         </Suspense>
     );
 }
+
+    
 
     
