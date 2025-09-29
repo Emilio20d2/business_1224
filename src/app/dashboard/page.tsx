@@ -145,7 +145,8 @@ function DashboardPageComponent() {
     const config = tabConfig[newTab];
     if (config?.path) {
         if(config.path.startsWith('/dashboard')) {
-             const newPath = config.path.includes('?') ? `${config.path}&week=${selectedWeek}` : `${config.path}?week=${selectedWeek}`;
+             const newPathWithTab = `/dashboard?tab=${newTab === 'datosSemanales' ? 'ventas' : newTab}`;
+             const newPath = `${newPathWithTab}&week=${selectedWeek}`;
              router.push(newPath);
         } else {
             router.push(`${config.path}?week=${selectedWeek}`);
@@ -327,6 +328,15 @@ function DashboardPageComponent() {
 
             updatedData.ventas.totalEuros = grandTotalEuros;
 
+             if (grandTotalEuros > 0) {
+                if (sections.man) sections.man.pesoPorc = parseFloat(((totalEurosMan / grandTotalEuros) * 100).toFixed(1));
+                if (sections.woman) sections.woman.pesoPorc = parseFloat(((totalEurosWoman / grandTotalEuros) * 100).toFixed(1));
+                if (sections.nino) sections.nino.pesoPorc = parseFloat(((totalEurosNino / grandTotalEuros) * 100).toFixed(1));
+            } else {
+                if (sections.man) sections.man.pesoPorc = 0;
+                if (sections.woman) sections.woman.pesoPorc = 0;
+                if (sections.nino) sections.nino.pesoPorc = 0;
+            }
         }
         
         if (mainKey === 'aqneSemanal') {
@@ -612,7 +622,7 @@ function DashboardPageComponent() {
                             <DropdownMenuLabel>NIÑO</DropdownMenuLabel>
                             <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorNino', 'Editar Lista: Comprador NIÑO')}>Comprador</DropdownMenuItem>
                             <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialNino', 'Editar Lista: Zona Comercial NIÑO')}>Zona Comercial NIÑO</DropdownMenuItem>
-                            <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercialNino', 'Editar Lista: Agrupación Comercial NIÑO')}>Agrupación Comercial</DropdownMenuItem>
+                            <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercialNino', 'Editar Lista: Agrupación Comercial NIÑO')}>Agrupación Comercial NIÑO</DropdownMenuItem>
                           </DropdownMenuSubContent>
                         </DropdownMenuPortal>
                       </DropdownMenuSub>
@@ -708,29 +718,5 @@ export default function DashboardPage() {
         </Suspense>
     );
 }
-
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
 
     
