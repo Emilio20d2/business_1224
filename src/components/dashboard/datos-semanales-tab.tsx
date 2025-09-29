@@ -32,8 +32,8 @@ import { Separator } from "@/components/ui/separator";
 type DatosSemanalesTabProps = {
   ventas: WeeklyData['ventas'];
   rendimientoTienda: WeeklyData['rendimientoTienda'];
-  operaciones: WeeklyData['operaciones'];
-  perdidas: WeeklyData['perdidas'];
+  operaciones: WeeklyData['general']['operaciones'];
+  perdidas: WeeklyData['general']['perdidas'];
   datosPorSeccion: WeeklyData['datosPorSeccion'];
   isEditing: boolean;
   onInputChange: (path: string, value: string | number) => void;
@@ -64,7 +64,7 @@ const SectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionNa
     const handleDesgloseChange = (index: number, field: string, value: string) => {
         onInputChange(`datosPorSeccion.${name}.desglose.${index}.${field}`, value);
     };
-
+    
     return (
         <Card className="flex-1">
             <CardHeader className="pb-2">
@@ -125,7 +125,7 @@ const SectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionNa
                             
                             <div className="text-right">
                                 {isEditing ? (
-                                    <Input type="number" inputMode="decimal" defaultValue={item.totalEuros} onChange={(e) => handleDesgloseChange(index, 'totalEuros', e.target.value)} className="font-bold w-20 text-right" placeholder="€" />
+                                    <Input type="number" inputMode="decimal" defaultValue={item.totalEuros} onBlur={(e) => handleDesgloseChange(index, 'totalEuros', e.target.value)} className="font-bold w-20 text-right" placeholder="€" />
                                 ) : (
                                     <div className={cn("font-bold text-right", item.totalEuros < 0 && "text-red-600")}>{formatCurrency(item.totalEuros)}</div>
                                 )}
@@ -211,7 +211,7 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
                       label={<Euro className="h-5 w-5 text-primary"/>}
                       value={perdidas.gap.euros} 
                       isEditing={isEditing}
-                      valueId="perdidas.gap.euros"
+                      valueId="general.perdidas.gap.euros"
                       align="center"
                       unit="€"
                       onInputChange={onInputChange}
@@ -220,7 +220,7 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
                       label={<Package className="h-5 w-5 text-primary"/>}
                       value={perdidas.gap.unidades}
                       isEditing={isEditing}
-                      valueId="perdidas.gap.unidades"
+                      valueId="general.perdidas.gap.unidades"
                       align="center"
                       unit="Unid."
                       onInputChange={onInputChange}
@@ -234,7 +234,7 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
                       label={<Package className="h-5 w-5 text-primary"/>}
                       value={perdidas.merma.unidades}
                       isEditing={isEditing}
-                      valueId="perdidas.merma.unidades"
+                      valueId="general.perdidas.merma.unidades"
                       align="center"
                       unit="Unid."
                       onInputChange={onInputChange}
@@ -243,7 +243,7 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
                       label={<Percent className="h-5 w-5 text-primary"/>}
                       value={perdidas.merma.porcentaje}
                       isEditing={isEditing}
-                      valueId="perdidas.merma.porcentaje"
+                      valueId="general.perdidas.merma.porcentaje"
                       align="center"
                       unit="%"
                       onInputChange={onInputChange}
@@ -260,7 +260,7 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
                     align="center" 
                     unit="%" 
                     icon={<RefreshCw className="h-5 w-5 text-primary"/>} 
-                    valueId="operaciones.repoPorc"
+                    valueId="general.operaciones.repoPorc"
                     onInputChange={onInputChange}
                   />
                   <DatoSimple 
@@ -269,7 +269,7 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
                     isEditing={isEditing}
                     align="center" unit="%" 
                     icon={<Sparkles className="h-5 w-5 text-primary"/>} 
-                    valueId="operaciones.frescuraPorc"
+                    valueId="general.operaciones.frescuraPorc"
                     onInputChange={onInputChange}
                   />
               </div>
@@ -285,7 +285,7 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
                     isEditing={isEditing}
                     align="center" 
                     unit="%"
-                    valueId="operaciones.filasCajaPorc"
+                    valueId="general.operaciones.filasCajaPorc"
                     onInputChange={onInputChange}
                    />
                   <DatoSimple 
@@ -295,7 +295,7 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
                     isEditing={isEditing}
                     align="center" 
                     unit="%"
-                    valueId="operaciones.scoPorc"
+                    valueId="general.operaciones.scoPorc"
                     onInputChange={onInputChange}
                   />
                   <DatoSimple 
@@ -305,7 +305,7 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
                     isEditing={isEditing}
                     align="center" 
                     unit="%"
-                    valueId="operaciones.dropOffPorc"
+                    valueId="general.operaciones.dropOffPorc"
                     onInputChange={onInputChange}
                   />
               </div>
@@ -316,7 +316,7 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
                 value={operaciones.ventaIpod} 
                 isEditing={isEditing}
                 align="center"
-                valueId="operaciones.ventaIpod"
+                valueId="general.operaciones.ventaIpod"
                 onInputChange={onInputChange}
               />
           </KpiCard>
@@ -327,7 +327,7 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
                 isEditing={isEditing}
                 align="center" 
                 unit="%"
-                valueId="operaciones.eTicketPorc"
+                valueId="general.operaciones.eTicketPorc"
                 onInputChange={onInputChange}
               />
           </KpiCard>
@@ -342,3 +342,5 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
     </div>
   );
 }
+
+    

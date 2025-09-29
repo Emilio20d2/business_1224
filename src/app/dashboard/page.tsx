@@ -1,7 +1,7 @@
 
 "use client"
 import React, { useState, useContext, useEffect, useCallback, Suspense } from 'react';
-import type { WeeklyData, VentasManItem } from "@/lib/data";
+import type { WeeklyData, VentasManItem, SectionSpecificData } from "@/lib/data";
 import { doc, getDoc, setDoc, updateDoc, collection, getDocs } from "firebase/firestore";
 import { db } from '@/lib/firebase';
 import { Calendar as CalendarIcon, Settings, LogOut, Loader2, ChevronDown, Briefcase, List, LayoutDashboard, ShoppingBag, AreaChart, User as UserIcon, Pencil, Upload } from 'lucide-react';
@@ -87,6 +87,20 @@ const synchronizeTableData = (list: string[], oldTableData: VentasManItem[]): Ve
         };
     });
 };
+
+const ensureSectionSpecificData = (data: WeeklyData): WeeklyData => {
+    const defaultSectionData: SectionSpecificData = {
+        operaciones: { filasCajaPorc: 0, scoPorc: 0, dropOffPorc: 0, ventaIpod: 0, eTicketPorc: 0, repoPorc: 0, frescuraPorc: 0 },
+        perdidas: { gap: { euros: 0, unidades: 0 }, merma: { unidades: 0, porcentaje: 0 } }
+    };
+
+    if (!data.general) data.general = JSON.parse(JSON.stringify(defaultSectionData));
+    if (!data.man) data.man = JSON.parse(JSON.stringify(defaultSectionData));
+    if (!data.woman) data.woman = JSON.parse(JSON.stringify(defaultSectionData));
+    if (!data.nino) data.nino = JSON.parse(JSON.stringify(defaultSectionData));
+
+    return data;
+}
 
 function DashboardPageComponent() {
   const { user, loading: authLoading, logout } = useContext(AuthContext);
@@ -203,6 +217,9 @@ function DashboardPageComponent() {
         }
 
         reportData.listas = listData;
+        
+        reportData = ensureSectionSpecificData(reportData);
+
 
         // Ensure main sales sections exist before synchronization
         if (!reportData.ventasMan) reportData.ventasMan = { pesoComprador: [], zonaComercial: [], agrupacionComercial: [] };
@@ -382,6 +399,9 @@ function DashboardPageComponent() {
                 (updatedData[section] as any)[tableKey][itemIndex]
             ) {
                  ((updatedData[section] as any)[tableKey] as VentasManItem[])[itemIndex][fieldKey] = value;
+            }
+             if (tableKey === 'pesoComprador') {
+                (updatedData[section] as any)[tableKey].sort((a: VentasManItem, b: VentasManItem) => (b.totalEuros || 0) - (a.totalEuros || 0));
             }
         }
         
@@ -678,8 +698,8 @@ const handleImportSpecificWeek = async () => {
                 <DatosSemanalesTab 
                   ventas={data.ventas}
                   rendimientoTienda={data.rendimientoTienda}
-                  operaciones={data.operaciones}
-                  perdidas={data.perdidas}
+                  operaciones={data.general.operaciones}
+                  perdidas={data.general.perdidas}
                   datosPorSeccion={data.datosPorSeccion}
                   isEditing={isEditing} 
                   onInputChange={handleInputChange} 
@@ -736,6 +756,8 @@ export default function DashboardPage() {
 }
 
 
+
+    
 
     
 

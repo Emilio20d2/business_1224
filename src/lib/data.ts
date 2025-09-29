@@ -14,6 +14,32 @@ type AcumuladoPeriodo = {
     desglose: DesgloseItem[];
 };
 
+export type OperacionesData = {
+    filasCajaPorc: number;
+    scoPorc: number;
+    dropOffPorc: number;
+    ventaIpod: number;
+    eTicketPorc: number;
+    repoPorc: number;
+    frescuraPorc: number;
+};
+
+export type PerdidasData = {
+    gap: {
+        euros: number;
+        unidades: number;
+    };
+    merma: {
+        unidades: number;
+        porcentaje: number;
+    };
+};
+
+export type SectionSpecificData = {
+    operaciones: OperacionesData;
+    perdidas: PerdidasData;
+}
+
 export type WeeklyData = {
     periodo: string;
     listas: {
@@ -39,28 +65,13 @@ export type WeeklyData = {
         conversion: number;
         varPorcConversion: number;
     };
-    operaciones: {
-        filasCajaPorc: number;
-        scoPorc: number;
-        dropOffPorc: number;
-        ventaIpod: number;
-        eTicketPorc: number;
-        repoPorc: number;
-        frescuraPorc: number;
-    };
+    general: SectionSpecificData;
+    man: SectionSpecificData;
+    woman: SectionSpecificData;
+    nino: SectionSpecificData;
     logistica: {
         entradasSemanales: number;
         salidasSemanales: number;
-    };
-    perdidas: {
-        gap: {
-            euros: number;
-            unidades: number;
-        };
-        merma: {
-            unidades: number;
-            porcentaje: number;
-        };
     };
     almacenes: {
         ropa: Almacen;
@@ -172,6 +183,23 @@ export function getInitialLists(): WeeklyData['listas'] {
     };
 }
 
+const createInitialSectionSpecificData = (): SectionSpecificData => ({
+    operaciones: {
+        filasCajaPorc: 0,
+        scoPorc: 0,
+        dropOffPorc: 0,
+        ventaIpod: 0,
+        eTicketPorc: 0,
+        repoPorc: 0,
+        frescuraPorc: 0
+    },
+    perdidas: {
+        gap: { euros: 0, unidades: 0 },
+        merma: { unidades: 0, porcentaje: 0 }
+    }
+});
+
+
 // This function generates a new, blank report structure based on the provided lists.
 export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas']): WeeklyData {
     const createVentasManItems = (items: string[] | undefined): VentasManItem[] => {
@@ -210,20 +238,11 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
         listas: lists,
         ventas: { totalEuros: 0, varPorcEuros: 0, totalUnidades: 0, varPorcUnidades: 0 },
         rendimientoTienda: { trafico: 0, varPorcTrafico: 0, conversion: 0, varPorcConversion: 0 },
-        operaciones: { 
-            filasCajaPorc: 0,
-            scoPorc: 0,
-            dropOffPorc: 0,
-            ventaIpod: 0,
-            eTicketPorc: 0,
-            repoPorc: 0,
-            frescuraPorc: 0
-        },
+        general: createInitialSectionSpecificData(),
+        man: createInitialSectionSpecificData(),
+        woman: createInitialSectionSpecificData(),
+        nino: createInitialSectionSpecificData(),
         logistica: { entradasSemanales: 0, salidasSemanales: 0 },
-        perdidas: { 
-            gap: { euros: 0, unidades: 0 }, 
-            merma: { unidades: 0, porcentaje: 0 } 
-        },
         almacenes: {
             ropa: { ocupacionPorc: 0, devolucionUnidades: 0, entradas: 0, salidas: 0 },
             calzado: { ocupacionPorc: 0, devolucionUnidades: 0, entradas: 0, salidas: 0 },
@@ -285,5 +304,7 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
         }
     };
 }
+
+    
 
     
