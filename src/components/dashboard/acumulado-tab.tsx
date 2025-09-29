@@ -1,3 +1,4 @@
+
 import React from 'react';
 import type { WeeklyData } from "@/lib/data";
 import { formatCurrency, formatPercentage } from "@/lib/format";
@@ -113,7 +114,7 @@ const AcumuladoCard = ({ title, data, isEditing, idPrefix, onInputChange }: { ti
                       <span className="ml-1 text-muted-foreground">%</span>
                     </div>
                      <div className="flex items-center">
-                      <Input type="number" inputMode="decimal" step="0.1" defaultValue={item.pesoPorc} className="w-full text-right" id={`${idPrefix}-desglose-${index}-peso`} onChange={(e) => handleChange(index, 'pesoPorc', e.target.value)} />
+                      <Input type="number" inputMode="decimal" step="0.1" value={item.pesoPorc} className="w-full text-right" id={`${idPrefix}-desglose-${index}-peso`} onChange={(e) => handleChange(index, 'pesoPorc', e.target.value)} />
                        <span className="ml-1 text-muted-foreground">%</span>
                     </div>
                   </>
