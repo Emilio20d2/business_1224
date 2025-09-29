@@ -58,18 +58,20 @@ const ModuloContenidoGrande = ({ icon, value, isEditing, id, onInputChange }: { 
 );
 
 const FilaModulo = ({ icon, label, value, isEditing, id, onInputChange, unit }: { icon: React.ReactNode, label: string, value: number, isEditing?: boolean, id?: string, onInputChange?: (path: string, value: string | number) => void; unit: string }) => (
-     <div className="flex items-center justify-between gap-4 text-md w-40">
-        <div className="flex items-center gap-2 text-primary">
+     <div className="grid grid-cols-2 items-center gap-4 text-md w-40">
+        <div className="flex items-center gap-2 text-primary text-left">
             {icon}
             <span className="text-muted-foreground">{label}</span>
         </div>
+        <div className="flex justify-end">
          {isEditing && id && onInputChange ? 
-            <div className="flex items-center justify-end gap-1">
+            <div className="flex items-center justify-end gap-1 w-full">
                 <Input type="number" inputMode="decimal" defaultValue={value} className="font-bold text-right w-20" id={id} onChange={(e) => onInputChange(id, e.target.value)} />
                 <span className="text-sm text-muted-foreground">{unit}</span>
             </div>
-            : <div className="font-bold text-right w-24">{unit === '%' ? formatPercentage(value) : formatNumber(value)}</div>
+            : <div className="font-bold text-right">{unit === '%' ? formatPercentage(value) : formatNumber(value)}</div>
         }
+        </div>
     </div>
 )
 
