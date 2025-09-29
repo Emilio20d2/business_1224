@@ -1,5 +1,5 @@
 
-import { format, addDays, getISOWeek, getYear, startOfISOWeek, parse, addWeeks, subWeeks } from 'date-fns';
+import { format, addDays, getISOWeek, getYear, startOfISOWeek, parse, addWeeks, subWeeks, endOfISOWeek } from 'date-fns';
 import { es } from 'date-fns/locale';
 
 export const formatCurrency = (amount: number) => {
@@ -58,9 +58,16 @@ export const formatWeekIdToDateRange = (weekId: string): string => {
       return weekId;
     }
     
+    // Create a date based on year and week number. ISO 8601 weeks start on Monday.
     const date = parse(`${year}-W${String(week).padStart(2, '0')}-1`, "RRRR-'W'II-i", new Date());
     
-    return format(date, 'dd MMM', { locale: es });
+    const start = startOfISOWeek(date);
+    const end = endOfISOWeek(date);
+
+    const startFormatted = format(start, 'd', { locale: es });
+    const endFormatted = format(end, 'd \'de\' MMMM', { locale: es });
+
+    return `${startFormatted} - ${endFormatted}`;
   } catch (e) {
     console.error(`Error parsing weekId "${weekId}":`, e);
     return weekId;

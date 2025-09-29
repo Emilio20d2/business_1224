@@ -50,7 +50,7 @@ function PresentationPageComponent() {
 
   if (loading) {
     return (
-      <div className="flex h-screen w-screen items-center justify-center bg-gray-900 text-white">
+      <div className="flex h-screen w-screen items-center justify-center bg-gray-100 text-zinc-900">
         <Loader2 className="h-16 w-16 animate-spin" />
       </div>
     );
@@ -58,8 +58,8 @@ function PresentationPageComponent() {
 
   if (error) {
     return (
-      <div className="flex h-screen w-screen items-center justify-center bg-gray-900 text-white" onClick={handleScreenClick}>
-        <p className="text-xl text-red-400">{error}</p>
+      <div className="flex h-screen w-screen items-center justify-center bg-gray-100 text-zinc-900" onClick={handleScreenClick}>
+        <p className="text-xl text-red-500">{error}</p>
       </div>
     );
   }
@@ -68,40 +68,27 @@ function PresentationPageComponent() {
     return null;
   }
   
-  const { ventas } = data;
-
   return (
     <div
-      className="flex h-screen w-screen cursor-pointer flex-col items-center justify-center bg-zinc-900 p-8 text-white"
+      className="flex h-screen w-screen cursor-pointer flex-col items-center justify-center bg-white p-8 text-zinc-900"
       onClick={handleScreenClick}
       style={{ fontFamily: "'Aptos', sans-serif" }}
     >
-      <header className="absolute top-8 left-8">
-        <Image src="/Zara_Logo.svg.png" alt="Zara Logo" width={180} height={40} />
-      </header>
-
-      <main className="flex flex-col items-center text-center">
-        <h1 className="mb-4 text-6xl font-bold tracking-tight">
-          VENTAS SEMANA
-        </h1>
-        <p className="mb-12 text-4xl text-gray-400">
-          {formatWeekIdToDateRange(weekId)}
-        </p>
-
-        <div className="flex items-end gap-6">
-          <p className="text-9xl font-bold">{formatCurrency(ventas.totalEuros)}</p>
-          <p
-            className={`text-5xl font-bold ${
-              ventas.varPorcEuros >= 0 ? 'text-green-400' : 'text-red-400'
-            }`}
-          >
-            {formatPercentage(ventas.varPorcEuros)}
-          </p>
+      <main className="flex flex-col items-center text-center gap-12">
+        <Image src="/Zara_Logo.svg.png" alt="Zara Logo" width={400} height={88} />
+        
+        <div className="flex flex-col gap-4">
+            <h1 className="text-5xl font-bold tracking-tight">
+            VENTAS SEMANA
+            </h1>
+            <p className="text-3xl text-gray-500">
+            {formatWeekIdToDateRange(weekId)}
+            </p>
         </div>
       </main>
 
-      <footer className="absolute bottom-8 right-8 text-right">
-        <p className="text-2xl font-bold">ZARA 1224 - PUERTO VENECIA</p>
+      <footer className="absolute bottom-8 text-center w-full">
+        <p className="text-lg font-semibold">ZARA 1224 - PUERTO VENECIA</p>
       </footer>
     </div>
   );
@@ -110,7 +97,7 @@ function PresentationPageComponent() {
 export default function PresentationPage() {
     return (
         <Suspense fallback={
-            <div className="flex h-screen w-screen items-center justify-center bg-gray-900 text-white">
+            <div className="flex h-screen w-screen items-center justify-center bg-white">
                 <Loader2 className="h-16 w-16 animate-spin" />
             </div>
         }>
