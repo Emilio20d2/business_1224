@@ -64,11 +64,11 @@ const FilaModulo = ({ icon, label, value, isEditing, id, onInputChange, unit }: 
             <span className="text-muted-foreground">{label}</span>
         </div>
          {isEditing && id && onInputChange ? 
-            <div className="flex items-center gap-1">
+            <div className="flex items-center justify-end gap-1">
                 <Input type="number" inputMode="decimal" defaultValue={value} className="font-bold text-right w-20" id={id} onChange={(e) => onInputChange(id, e.target.value)} />
                 <span className="text-sm text-muted-foreground">{unit}</span>
             </div>
-            : <div className="font-bold text-right w-14">{unit === '%' ? formatPercentage(value) : formatNumber(value)}</div>
+            : <div className="font-bold text-right w-24">{unit === '%' ? formatPercentage(value) : formatNumber(value)}</div>
         }
     </div>
 )
@@ -151,5 +151,3 @@ export function OperacionesSubTab({ operaciones, perdidas, logistica, almacenes,
     </div>
   );
 }
-
-    
