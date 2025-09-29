@@ -12,13 +12,13 @@ export const formatNumber = (amount: number | null | undefined) => {
 };
 
 export const formatPercentage = (value: number | null | undefined, alwaysShowSign = false) => {
-  if (value === null || value === undefined) return 'N/A';
-  const roundedValue = Math.round(value);
+  if (value === null || value === undefined || isNaN(value)) return '0,0%';
+  const formattedValue = value.toFixed(1).replace('.', ',');
   if (alwaysShowSign) {
-      return `${roundedValue}%`;
+      return `${formattedValue}%`;
   }
-  const sign = roundedValue > 0 ? '+' : '';
-  return `${sign}${roundedValue}%`;
+  const sign = value > 0 ? '+' : '';
+  return `${sign}${formattedValue}%`;
 };
 
 export const formatGap = (value: number) => {
