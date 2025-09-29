@@ -319,16 +319,18 @@ function DashboardPageComponent() {
         const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
         current[finalKey] = isNaN(numericValue) || value === "" ? 0 : numericValue;
         
-        const [mainKey, sectionKey] = keys;
-
+        const [mainKey] = keys;
+        
         if (mainKey === 'datosPorSeccion') {
-            const sectionName = sectionKey as keyof WeeklyData['datosPorSeccion'];
+            const sectionName = keys[1] as keyof WeeklyData['datosPorSeccion'];
             const section = updatedData.datosPorSeccion[sectionName];
             
+            // 1. Recalculate the section total
             if (section && Array.isArray(section.desglose)) {
                 section.metricasPrincipales.totalEuros = section.desglose.reduce((sum: number, item: any) => sum + (item.totalEuros || 0), 0);
             }
         
+            // 2. Recalculate the grand total
             const sections = updatedData.datosPorSeccion;
             const totalEurosMan = sections.man?.metricasPrincipales.totalEuros || 0;
             const totalEurosWoman = sections.woman?.metricasPrincipales.totalEuros || 0;
@@ -337,11 +339,7 @@ function DashboardPageComponent() {
 
             updatedData.ventas.totalEuros = grandTotalEuros;
 
-            const totalUnidadesMan = sections.man?.metricasPrincipales.totalUnidades || 0;
-            const totalUnidadesWoman = sections.woman?.metricasPrincipales.totalUnidades || 0;
-            const totalUnidadesNino = sections.nino?.metricasPrincipales.totalUnidades || 0;
-            updatedData.ventas.totalUnidades = totalUnidadesMan + totalUnidadesWoman + totalUnidadesNino;
-
+            // 3. Recalculate weights
             if (grandTotalEuros > 0) {
                 if (sections.man) sections.man.pesoPorc = parseFloat(((totalEurosMan / grandTotalEuros) * 100).toFixed(2));
                 if (sections.woman) sections.woman.pesoPorc = parseFloat(((totalEurosWoman / grandTotalEuros) * 100).toFixed(2));
@@ -354,6 +352,7 @@ function DashboardPageComponent() {
         }
         
         if (mainKey === 'aqneSemanal') {
+            const sectionKey = keys[1];
             const section = updatedData.aqneSemanal[sectionKey];
             if (section && Array.isArray(section.desglose)) {
                 section.metricasPrincipales.totalEuros = section.desglose.reduce((sum: number, item: any) => sum + (item.totalEuros || 0), 0);
@@ -751,6 +750,8 @@ export default function DashboardPage() {
 }
 
 
+
+    
 
     
 
