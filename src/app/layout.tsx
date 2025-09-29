@@ -6,7 +6,7 @@ import { AuthProvider } from '@/context/auth-context';
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 
 export const metadata = {
-  title: 'BUSSINES',
+  title: 'BUSINESS',
   description: 'Panel de control de negocios',
   manifest: '/manifest.json',
   icons: {
@@ -40,3 +40,5 @@ export default function RootLayout({
     </html>
   );
 }
+
+    

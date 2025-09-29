@@ -58,9 +58,9 @@ export default function LoginPage() {
     <div className="flex items-center justify-center min-h-screen bg-background">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="text-2xl flex items-center gap-2">
+          <CardTitle className="text-2xl font-aptos font-light flex items-center gap-2">
             <Briefcase className="h-6 w-6" />
-            BUSSINES
+            BUSINESS
           </CardTitle>
           <CardDescription>
             Introduce tus credenciales para acceder al panel.
@@ -105,3 +105,5 @@ export default function LoginPage() {
     </div>
   );
 }
+
+    

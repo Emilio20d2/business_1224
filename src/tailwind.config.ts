@@ -11,6 +11,7 @@ export default {
     extend: {
       fontFamily: {
         sans: ['var(--font-inter)', 'sans-serif'],
+        aptos: ['Aptos', 'sans-serif'],
       },
       colors: {
         background: 'hsl(var(--background))',
@@ -95,3 +96,5 @@ export default {
   },
   plugins: [require('tailwindcss-animate'), require('@tailwindcss/typography')],
 } satisfies Config;
+
+    
