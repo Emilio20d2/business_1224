@@ -72,13 +72,10 @@ const SectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionNa
                     <div className="flex items-center gap-2">
                         {config.title}
                     </div>
-                    <span className={cn("text-sm font-bold text-white rounded-md px-2 py-1", config.color)}>
-                      {formatPercentage(data.pesoPorc)}
-                    </span>
                 </CardTitle>
             </CardHeader>
             <CardContent>
-                 <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-3 gap-2">
                     <div className="bg-background rounded-lg p-3 text-center flex flex-col justify-center items-center gap-1">
                         <div className={cn("font-bold text-lg", data.metricasPrincipales.totalEuros < 0 && "text-red-600")}>{formatCurrency(data.metricasPrincipales.totalEuros)}</div>
                         <DatoSimple
@@ -109,6 +106,17 @@ const SectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionNa
                             unit="%"
                             variationId={`datosPorSeccion.${name}.metricasPrincipales.varPorcUnidades`}
                             onInputChange={onInputChange}
+                        />
+                    </div>
+                     <div className="bg-background rounded-lg p-3 text-center flex flex-col justify-center items-center gap-1">
+                         <DatoSimple
+                            label="Peso"
+                            value={data.pesoPorc}
+                            isEditing={isEditing}
+                            valueId={`datosPorSeccion.${name}.pesoPorc`}
+                            onInputChange={onInputChange}
+                            align="center"
+                            unit="%"
                         />
                     </div>
                 </div>
