@@ -324,7 +324,7 @@ function DashboardPageComponent() {
         if (mainKey === 'datosPorSeccion') {
             const sectionKey = keys[1] as keyof WeeklyData['datosPorSeccion'];
             const section = updatedData.datosPorSeccion[sectionKey];
-            
+
             // 1. Recalculate the section total from its breakdown
             if (section && Array.isArray(section.desglose)) {
                 section.metricasPrincipales.totalEuros = section.desglose.reduce((sum: number, item: any) => sum + (item.totalEuros || 0), 0);
@@ -750,6 +750,8 @@ export default function DashboardPage() {
 }
 
 
+
+    
 
     
 

@@ -347,3 +347,5 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
 
     
 
+
+    
