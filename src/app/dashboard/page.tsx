@@ -330,27 +330,27 @@ function DashboardPageComponent() {
                 section.metricasPrincipales.totalEuros = section.desglose.reduce((sum: number, item: any) => sum + (item.totalEuros || 0), 0);
             }
 
-            const { man, woman, nino } = updatedData.datosPorSeccion;
-            const totalEurosMan = man?.metricasPrincipales.totalEuros || 0;
-            const totalEurosWoman = woman?.metricasPrincipales.totalEuros || 0;
-            const totalEurosNino = nino?.metricasPrincipales.totalEuros || 0;
+            const sections = updatedData.datosPorSeccion;
+            const totalEurosMan = sections.man?.metricasPrincipales.totalEuros || 0;
+            const totalEurosWoman = sections.woman?.metricasPrincipales.totalEuros || 0;
+            const totalEurosNino = sections.nino?.metricasPrincipales.totalEuros || 0;
             const grandTotalEuros = totalEurosMan + totalEurosWoman + totalEurosNino;
 
             updatedData.ventas.totalEuros = grandTotalEuros;
 
-            const totalUnidadesMan = man?.metricasPrincipales.totalUnidades || 0;
-            const totalUnidadesWoman = woman?.metricasPrincipales.totalUnidades || 0;
-            const totalUnidadesNino = nino?.metricasPrincipales.totalUnidades || 0;
+            const totalUnidadesMan = sections.man?.metricasPrincipales.totalUnidades || 0;
+            const totalUnidadesWoman = sections.woman?.metricasPrincipales.totalUnidades || 0;
+            const totalUnidadesNino = sections.nino?.metricasPrincipales.totalUnidades || 0;
             updatedData.ventas.totalUnidades = totalUnidadesMan + totalUnidadesWoman + totalUnidadesNino;
 
             if (grandTotalEuros > 0) {
-                if (man) man.pesoPorc = (totalEurosMan / grandTotalEuros) * 100;
-                if (woman) woman.pesoPorc = (totalEurosWoman / grandTotalEuros) * 100;
-                if (nino) nino.pesoPorc = (totalEurosNino / grandTotalEuros) * 100;
+                if (sections.man) sections.man.pesoPorc = parseFloat(((totalEurosMan / grandTotalEuros) * 100).toFixed(2));
+                if (sections.woman) sections.woman.pesoPorc = parseFloat(((totalEurosWoman / grandTotalEuros) * 100).toFixed(2));
+                if (sections.nino) sections.nino.pesoPorc = parseFloat(((totalEurosNino / grandTotalEuros) * 100).toFixed(2));
             } else {
-                if (man) man.pesoPorc = 0;
-                if (woman) woman.pesoPorc = 0;
-                if (nino) nino.pesoPorc = 0;
+                if (sections.man) sections.man.pesoPorc = 0;
+                if (sections.woman) sections.woman.pesoPorc = 0;
+                if (sections.nino) sections.nino.pesoPorc = 0;
             }
         }
         
