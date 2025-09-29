@@ -72,9 +72,6 @@ const SectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionNa
                     <div className="flex items-center gap-2">
                         {config.title}
                     </div>
-                     <span className={cn("text-sm font-bold text-white rounded-md px-2 py-1", config.color)}>
-                        {formatPercentage(data.pesoPorc, true)}
-                    </span>
                 </CardTitle>
             </CardHeader>
             <CardContent>
