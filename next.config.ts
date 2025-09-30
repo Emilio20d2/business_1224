@@ -1,3 +1,4 @@
+
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
@@ -39,7 +40,7 @@ const nextConfig: NextConfig = {
       },
        {
         source: '/experiencia',
-        destination: '/man',
+        destination: '/experiencia',
         permanent: true,
       },
     ]
@@ -47,5 +48,7 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
+
+    
 
     

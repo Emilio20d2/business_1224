@@ -131,13 +131,10 @@ function DashboardPageComponent() {
   const handleTabChange = (newTab: string) => {
     const config = tabConfig[newTab];
     if (config?.path) {
-        if (config.path.startsWith('/dashboard')) {
-            const newPathWithTab = `/dashboard?tab=${newTab === 'datosSemanales' ? 'ventas' : newTab}`;
-            const newPath = `${newPathWithTab}&week=${selectedWeek}`;
-            router.push(newPath);
-        } else {
-            router.push(`${config.path}?week=${selectedWeek}`);
-        }
+        let newPath = config.path.split('?')[0];
+        const params = new URLSearchParams(config.path.split('?')[1]);
+        params.set('week', selectedWeek);
+        router.push(`${newPath}?${params.toString()}`);
     } else {
         updateUrl(selectedWeek, newTab);
     }
@@ -634,13 +631,13 @@ function DashboardPageComponent() {
         
         <main>
           {data ? (
-            <Tabs value={activeSubTab} onValueChange={(newTab) => handleTabChange(newTab)} className="w-full">
+            <Tabs value={activeSubTab} onValueChange={(newTab) => updateUrl(selectedWeek, newTab)} className="w-full">
               <div className="mb-4 grid w-full grid-cols-2 md:grid-cols-3 gap-2">
                 {tabButtons.map(tab => (
                     <Button
                         key={tab.value}
                         variant={activeSubTab === tab.value ? 'default' : 'outline'}
-                        onClick={() => handleTabChange(tab.value)}
+                        onClick={() => updateUrl(selectedWeek, tab.value)}
                         className="w-full"
                     >
                         {tab.label}
@@ -719,3 +716,6 @@ export default function DashboardPage() {
 
     
 
+
+
+    

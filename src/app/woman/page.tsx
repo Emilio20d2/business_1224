@@ -128,12 +128,10 @@ function WomanPageComponent() {
   const handleTabChange = (newTab: string) => {
     const config = tabConfig[newTab];
     if (config?.path) {
-        if(config.path.startsWith('/dashboard')) {
-             const newPath = config.path.includes('?') ? `${config.path}&week=${selectedWeek}` : `${config.path}?week=${selectedWeek}`;
-             router.push(newPath);
-        } else {
-            router.push(`${config.path}?week=${selectedWeek}`);
-        }
+        let newPath = config.path.split('?')[0];
+        const params = new URLSearchParams(config.path.split('?')[1]);
+        params.set('week', selectedWeek);
+        router.push(`${newPath}?${params.toString()}`);
     }
   };
 
@@ -591,3 +589,6 @@ export default function WomanPage() {
 
     
 
+
+
+    
