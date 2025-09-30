@@ -16,11 +16,10 @@ import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCurrency, formatPercentage, formatNumber, formatPercentageInt } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { Button } from '../ui/button';
-import { Users, MapPin, ShoppingBasket, Percent, Euro, Shirt, Footprints, SprayCan, Package, Upload } from 'lucide-react';
+import { Users, MapPin, ShoppingBasket, Percent, Euro, Shirt, Footprints, SprayCan, Package } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { OperacionesSubTab } from './operaciones-sub-tab';
 import { FocusSemanalTab } from './focus-semanal-tab';
-import Image from 'next/image';
 
 
 type VentasManTabProps = {
@@ -28,9 +27,6 @@ type VentasManTabProps = {
   isEditing: boolean;
   onInputChange: (path: string, value: any, reorder?: boolean) => void;
   onTextChange: (value: string) => void;
-  imagePreviews: Record<string, string>;
-  onImageUpload: (compradorName: string, file: File) => void;
-  onViewImage: (imageUrl: string) => void;
 };
 
 const DataTable = ({ 
@@ -46,9 +42,6 @@ const DataTable = ({
     totalVarPorcOverride,
     totalPesoPorcOverride,
     showVarPorc = true,
-    imagePreviews,
-    onImageUpload,
-    onViewImage,
 }: { 
     title: string,
     icon: React.ReactNode,
@@ -62,9 +55,6 @@ const DataTable = ({
     totalVarPorcOverride?: number,
     totalPesoPorcOverride?: number,
     showVarPorc?: boolean,
-    imagePreviews?: Record<string, string>;
-    onImageUpload?: (compradorName: string, file: File) => void;
-    onViewImage?: (imageUrl: string) => void;
 }) => {
     if (!data || !Array.isArray(data)) {
         return <p className="text-center text-muted-foreground mt-8">No hay datos disponibles.</p>;
@@ -89,24 +79,17 @@ const DataTable = ({
         onInputChange(path, isNaN(numericValue) ? "" : numericValue, reorder);
     };
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, itemName: string) => {
-        if (e.target.files && e.target.files[0] && onImageUpload) {
-            onImageUpload(itemName, e.target.files[0]);
-        }
-    };
-
     return (
         <Card className="h-full overflow-y-auto">
             <Table>
                 <TableHeader className="sticky top-0 bg-card z-10">
                     <TableRow>
-                        <TableHead className="uppercase font-bold w-[30%]">
+                        <TableHead className="uppercase font-bold w-[40%]">
                             <div className="flex items-center gap-2 text-primary">
                                 {icon}
                                 <span>{title}</span>
                             </div>
                         </TableHead>
-                        {title === "Ropa" && <TableHead className='w-[10%]'></TableHead>}
                         <TableHead className='text-right w-[20%] uppercase font-bold text-primary'><Percent className="h-4 w-4 inline-block" /></TableHead>
                         <TableHead className='text-right w-[20%] uppercase font-bold text-primary'><Euro className="h-4 w-4 inline-block" /></TableHead>
                         {showVarPorc && <TableHead className='text-right w-[20%] uppercase font-bold text-primary'>Var %</TableHead>}
@@ -115,28 +98,9 @@ const DataTable = ({
                 <TableBody>
                     {displayedData.map((item, index) => {
                         const originalIndex = data.findIndex(d => d.nombre === item.nombre);
-                        const imageUrl = imagePreviews ? imagePreviews[item.nombre] : item.imageUrl;
                         return (
                             <TableRow key={item.nombre + index}>
                                 <TableCell>{item.nombre}</TableCell>
-                                {title === "Ropa" && (
-                                    <TableCell>
-                                        {isEditing ? (
-                                            <label htmlFor={`upload-${item.nombre}`} className="cursor-pointer">
-                                                <div className="w-10 h-10 flex items-center justify-center border-2 border-dashed rounded-md hover:bg-muted">
-                                                    {imageUrl ? <Image src={imageUrl} alt={item.nombre} width={40} height={40} className="object-cover rounded-md" /> : <Upload className="h-4 w-4 text-muted-foreground" />}
-                                                </div>
-                                                <input id={`upload-${item.nombre}`} type="file" accept="image/*" className="hidden" onChange={(e) => handleFileChange(e, item.nombre)} />
-                                            </label>
-                                        ) : (
-                                            imageUrl && onViewImage ? (
-                                                <button onClick={() => onViewImage(imageUrl)}>
-                                                    <Image src={imageUrl} alt={item.nombre} width={40} height={40} className="object-cover rounded-md" />
-                                                </button>
-                                            ) : null
-                                        )}
-                                    </TableCell>
-                                )}
                                 <TableCell className="text-right font-medium">
                                     {formatPercentageInt(item.pesoPorc)}
                                 </TableCell>
@@ -158,7 +122,6 @@ const DataTable = ({
                     <TableFooter>
                         <TableRow className="bg-muted/50 hover:bg-muted/60">
                             <TableHead className="font-bold uppercase">Total</TableHead>
-                            {title === "Ropa" && <TableHead></TableHead>}
                             <TableHead className="text-right font-bold">{formatPercentageInt(finalTotalPesoPorc)}</TableHead>
                             <TableHead className="text-right font-bold">{formatCurrency(finalTotalEuros)}</TableHead>
                             {showVarPorc && (
@@ -175,7 +138,7 @@ const DataTable = ({
 };
 
 
-export function VentasManTab({ data, isEditing, onInputChange, onTextChange, imagePreviews, onImageUpload, onViewImage }: VentasManTabProps) {
+export function VentasManTab({ data, isEditing, onInputChange, onTextChange }: VentasManTabProps) {
     const [activeTab, setActiveTab] = React.useState<string>('ventas');
     
     if (!data || !data.ventasMan || !data.listas) return <p>Cargando datos de Ventas Man...</p>;
@@ -246,9 +209,6 @@ export function VentasManTab({ data, isEditing, onInputChange, onTextChange, ima
                         totalEurosOverride={ropaTotalEuros}
                         totalVarPorcOverride={ropaVarPorcTotal}
                         totalPesoPorcOverride={ropaPesoPorcTotal}
-                        imagePreviews={imagePreviews}
-                        onImageUpload={onImageUpload}
-                        onViewImage={onViewImage}
                     />
                     <DataTable
                         title="Calzado"
@@ -349,3 +309,5 @@ export function VentasManTab({ data, isEditing, onInputChange, onTextChange, ima
         </Tabs>
     );
 }
+
+    

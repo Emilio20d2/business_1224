@@ -156,7 +156,6 @@ export type VentasManItem = {
     pesoPorc: number;
     totalEuros: number;
     varPorc: number;
-    imageUrl?: string;
 };
 
 type VentaDiaria = {
@@ -305,5 +304,8 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
 }
 
     
+
+    
+
 
     
