@@ -33,6 +33,7 @@ import { KpiCard, DatoDoble, DatoSimple } from '@/components/dashboard/kpi-card'
 import { formatNumber } from '@/lib/format';
 import { EditListDialog } from '@/components/dashboard/edit-list-dialog';
 import { EditEmpleadosDialog } from '@/components/dashboard/edit-empleados-dialog';
+import { PedidosCard } from '@/components/dashboard/pedidos-card';
 
 type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan' | 'compradorWoman' | 'zonaComercialWoman' | 'agrupacionComercialWoman' | 'compradorNino' | 'zonaComercialNino' | 'agrupacionComercialNino' | 'compradorExperiencia';
 
@@ -235,6 +236,7 @@ function ExperienciaPageComponent() {
         experiencia: data.experiencia,
         rendimientoTienda: data.rendimientoTienda,
         general: data.general,
+        pedidos: data.pedidos,
     };
 
     setDoc(docRef, dataToSave, { merge: true })
@@ -571,6 +573,14 @@ function ExperienciaPageComponent() {
                                         </div>
                                     </KpiCard>
                                 </div>
+                            )}
+                             {data.pedidos && (
+                                <PedidosCard
+                                    data={data.pedidos}
+                                    isEditing={isEditing}
+                                    onInputChange={handleInputChange}
+                                    className="mt-4"
+                                />
                             )}
                         </div>
                     </TabsContent>
