@@ -1,10 +1,10 @@
 
-"use-client"
+"use client"
 import React, { useState, useContext, useEffect, useCallback, Suspense } from 'react';
-import type { WeeklyData } from "@/lib/data";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import type { WeeklyData, Empleado } from "@/lib/data";
+import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from '@/lib/firebase';
-import { Calendar as CalendarIcon, Settings, LogOut, Loader2, Briefcase, LayoutDashboard, Pencil, Projector, ChartLine, Receipt, Clock, ScanLine, Inbox, Ticket } from 'lucide-react';
+import { Calendar as CalendarIcon, Settings, LogOut, Loader2, Briefcase, LayoutDashboard, Pencil, Projector, ChartLine, Receipt, Clock, ScanLine, Inbox, Ticket, Users, List } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -16,6 +16,10 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+  DropdownMenuPortal,
 } from "@/components/ui/dropdown-menu"
 import { useToast } from '@/hooks/use-toast';
 import { AuthContext } from '@/context/auth-context';
@@ -26,7 +30,24 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { formatWeekIdToDateRange, getCurrentWeekId, getWeekIdFromDate, getPreviousWeekId } from '@/lib/format';
 import { FocusSemanalTab } from '@/components/dashboard/focus-semanal-tab';
 import { KpiCard, DatoDoble, DatoSimple } from '@/components/dashboard/kpi-card';
-import { formatCurrency, formatNumber } from '@/lib/format';
+import { formatNumber } from '@/lib/format';
+import { EditListDialog } from '@/components/dashboard/edit-list-dialog';
+import { EditEmpleadosDialog } from '@/components/dashboard/edit-empleados-dialog';
+
+type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan' | 'compradorWoman' | 'zonaComercialWoman' | 'agrupacionComercialWoman' | 'compradorNino' | 'zonaComercialNino' | 'agrupacionComercialNino' | 'compradorExperiencia';
+
+const listLabels: Record<EditableList, string> = {
+    compradorMan: 'Comprador MAN',
+    zonaComercialMan: 'Zona Comercial MAN',
+    agrupacionComercialMan: 'Agrupación Comercial MAN',
+    compradorWoman: 'Comprador WOMAN',
+    zonaComercialWoman: 'Zona Comercial WOMAN',
+    agrupacionComercialWoman: 'Agrupación Comercial WOMAN',
+    compradorNino: 'Comprador NIÑO',
+    zonaComercialNino: 'Zona Comercial NIÑO',
+    agrupacionComercialNino: 'Agrupación Comercial NIÑO',
+    compradorExperiencia: 'Comprador EXPERIENCIA',
+};
 
 
 const tabConfig: Record<string, { label: string; icon?: React.FC<React.SVGProps<SVGSVGElement>>, text?: string, path?: string }> = {
@@ -48,6 +69,10 @@ function ExperienciaPageComponent() {
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   
+  const [isListDialogOpen, setListDialogOpen] = useState(false);
+  const [isEmpleadosDialogOpen, setEmpleadosDialogOpen] = useState(false);
+  const [listToEdit, setListToEdit] = useState<{ listKey: EditableList, title: string } | null>(null);
+
   const selectedWeek = searchParams.get('week') || '';
   const activeTab = "experiencia";
   const [activeSubTab, setActiveSubTab] = useState('experiencia');
@@ -74,11 +99,11 @@ function ExperienciaPageComponent() {
     setCalendarOpen(false);
   };
   
-  const handleTabChange = (newTab: string) => {
-    const config = tabConfig[newTab];
+  const handleTabChange = (newTabKey: string) => {
+    const config = tabConfig[newTabKey];
     if (config?.path) {
-        let newPath = config.path.split('?')[0];
-        const params = new URLSearchParams(config.path.split('?')[1]);
+        const newPath = config.path.split('?')[0];
+        const params = new URLSearchParams(config.path.split('?')[1] || '');
         params.set('week', selectedWeek);
         router.push(`${newPath}?${params.toString()}`);
     }
@@ -233,6 +258,57 @@ function ExperienciaPageComponent() {
     setIsEditing(false);
     fetchData(selectedWeek); 
   };
+
+  const handleOpenListDialog = (listKey: EditableList, title: string) => {
+      if(!canEdit) return;
+      setListToEdit({ listKey, title });
+      setListDialogOpen(true);
+  };
+
+  const handleSaveList = async (listKey: EditableList, newItems: string[]) => {
+    if (!listKey || !canEdit) return;
+    setIsSaving(true);
+    const listsRef = doc(db, "configuracion", "listas");
+
+    updateDoc(listsRef, { [listKey]: newItems })
+        .then(() => {
+            toast({
+                title: "Lista actualizada",
+                description: `La lista "${listLabels[listKey]}" se ha guardado.`,
+            });
+            setListDialogOpen(false);
+            setListToEdit(null);
+            return fetchData(selectedWeek);
+        })
+        .catch(async (error: any) => {
+            setError(`Error al guardar la lista: ${error.message}`);
+        })
+        .finally(() => {
+            setIsSaving(false);
+        });
+  };
+
+ const handleSaveEmpleados = async (newItems: Empleado[]) => {
+    if (!canEdit) return;
+    setIsSaving(true);
+    const listsRef = doc(db, "configuracion", "listas");
+
+    updateDoc(listsRef, { empleados: newItems })
+        .then(() => {
+            toast({
+                title: "Lista de empleados actualizada",
+                description: `La lista de empleados se ha guardado.`,
+            });
+            setEmpleadosDialogOpen(false);
+            return fetchData(selectedWeek);
+        })
+        .catch(async (error: any) => {
+            setError(`Error al guardar la lista: ${error.message}`);
+        })
+        .finally(() => {
+            setIsSaving(false);
+        });
+};
   
   const tabButtons = [
     { value: 'experiencia', label: 'EXPERIENCIA' },
@@ -362,6 +438,42 @@ function ExperienciaPageComponent() {
                 <DropdownMenuContent className="w-56 z-50">
                   <DropdownMenuLabel>Opciones</DropdownMenuLabel>
                   <DropdownMenuSeparator />
+                  {canEdit && (
+                      <>
+                      <DropdownMenuItem onSelect={() => setEmpleadosDialogOpen(true)}>
+                        <Users className="mr-2 h-4 w-4 text-primary" />
+                        <span>Editar Empleados</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuSub>
+                        <DropdownMenuSubTrigger>
+                          <List className="mr-2 h-4 w-4 text-primary" />
+                          <span>Editar Listas</span>
+                        </DropdownMenuSubTrigger>
+                        <DropdownMenuPortal>
+                          <DropdownMenuSubContent>
+                            <DropdownMenuLabel>MAN</DropdownMenuLabel>
+                            <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorMan', 'Editar Lista: Comprador MAN')}>Comprador</DropdownMenuItem>
+                            <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialMan', 'Editar Lista: Zona Comercial MAN')}>Zona Comercial</DropdownMenuItem>
+                            <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercialMan', 'Editar Lista: Agrupación Comercial MAN')}>Agrupación Comercial</DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuLabel>WOMAN</DropdownMenuLabel>
+                            <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorWoman', 'Editar Lista: Comprador WOMAN')}>Comprador</DropdownMenuItem>
+                            <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialWoman', 'Editar Lista: Zona Comercial WOMAN')}>Zona Comercial</DropdownMenuItem>
+                            <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercialWoman', 'Editar Lista: Agrupación Comercial WOMAN')}>Agrupación Comercial</DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuLabel>NIÑO</DropdownMenuLabel>
+                            <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorNino', 'Editar Lista: Comprador NIÑO')}>Comprador</DropdownMenuItem>
+                            <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialNino', 'Editar Lista: Zona Comercial NIÑO')}>Zona Comercial</DropdownMenuItem>
+                            <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercialNino', 'Editar Lista: Agrupación Comercial NIÑO')}>Agrupación Comercial</DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuLabel>EXPERIENCIA</DropdownMenuLabel>
+                            <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorExperiencia', 'Editar Lista: Comprador EXPERIENCIA')}>Comprador</DropdownMenuItem>
+                          </DropdownMenuSubContent>
+                        </DropdownMenuPortal>
+                      </DropdownMenuSub>
+                      </>
+                    )}
+                  {canEdit && <DropdownMenuSeparator />}
                   <DropdownMenuItem onSelect={() => {
                     logout();
                     router.push('/');
@@ -480,6 +592,31 @@ function ExperienciaPageComponent() {
             </div>
             )}
         </main>
+         {listToEdit && data?.listas && (
+          <EditListDialog
+            isOpen={isListDialogOpen}
+            onClose={() => {
+              setListDialogOpen(false);
+              setListToEdit(null);
+            }}
+            title={listToEdit.title}
+            items={data.listas[listToEdit.listKey] || []}
+            onSave={(newItems) => {
+              if (listToEdit) {
+                handleSaveList(listToEdit.listKey, newItems);
+              }
+            }}
+          />
+        )}
+
+        {data?.listas?.empleados && (
+            <EditEmpleadosDialog
+                isOpen={isEmpleadosDialogOpen}
+                onClose={() => setEmpleadosDialogOpen(false)}
+                empleados={data.listas.empleados}
+                onSave={handleSaveEmpleados}
+            />
+        )}
       </div>
     </TooltipProvider>
   );

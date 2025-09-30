@@ -32,13 +32,7 @@ const nextConfig: NextConfig = {
     ],
   },
   async redirects() {
-    return [
-      {
-        source: '/comprador',
-        destination: '/man',
-        permanent: true,
-      },
-    ]
+    return []
   },
 };
 
@@ -47,3 +41,4 @@ export default nextConfig;
     
 
     
+
