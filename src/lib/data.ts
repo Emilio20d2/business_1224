@@ -51,6 +51,7 @@ export type WeeklyData = {
         compradorNino: string[];
         zonaComercialNino: string[];
         agrupacionComercialNino: string[];
+        compradorExperiencia: string[];
     };
     ventas: {
         totalEuros: number;
@@ -97,6 +98,10 @@ export type WeeklyData = {
       man: string;
       woman: string;
       nino: string;
+    };
+    experiencia: {
+      texto: string;
+      focus: string;
     };
     acumulado: {
         mensual: AcumuladoPeriodo;
@@ -182,6 +187,7 @@ export function getInitialLists(): WeeklyData['listas'] {
         compradorNino: ["NIÑO", "GLOBAL", "CIRCULAR", "DNWR", "SPORT", "ACCES", "BASIC"],
         zonaComercialNino: ["NIÑO FORMAL", "GLB URBAN", "CIRCULAR"],
         agrupacionComercialNino: ["PANTALON", "SASTRERIA", "TEJANO", "CAMISA", "POLO", "ZAPATO", "BERMUDA", "TRICOT", "ACCESORIOS", "BAÑO"],
+        compradorExperiencia: [],
     };
 }
 
@@ -279,6 +285,10 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
           woman: "",
           nino: ""
         },
+        experiencia: {
+            texto: "",
+            focus: ""
+        },
         acumulado: {
             mensual: {
                 totalEuros: 0, varPorcTotal: 0,
@@ -310,3 +320,5 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
         }
     };
 }
+
+    

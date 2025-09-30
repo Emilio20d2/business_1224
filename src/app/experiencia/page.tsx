@@ -1,13 +1,14 @@
 
 "use client"
-import React, { useState, useContext, useEffect, useCallback, Suspense } from 'react';
-import type { WeeklyData, VentasManItem, SectionSpecificData } from "@/lib/data";
-import { doc, getDoc, setDoc, updateDoc, collection, getDocs } from "firebase/firestore";
+import React, from 'react';
+import type { WeeklyData } from "@/lib/data";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from '@/lib/firebase';
-import { Calendar as CalendarIcon, Settings, LogOut, Loader2, Briefcase, List, LayoutDashboard, Pencil, Upload, Projector } from 'lucide-react';
+import { Calendar as CalendarIcon, Settings, LogOut, Loader2, Briefcase, LayoutDashboard, Pencil, Projector } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,23 +16,15 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-  DropdownMenuSub,
-  DropdownMenuSubTrigger,
-  DropdownMenuSubContent,
-  DropdownMenuPortal
 } from "@/components/ui/dropdown-menu"
 import { useToast } from '@/hooks/use-toast';
 import { AuthContext } from '@/context/auth-context';
 import { getInitialDataForWeek, getInitialLists } from '@/lib/data';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { EditListDialog } from '@/components/dashboard/edit-list-dialog';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { VentasNinoTab } from '@/components/dashboard/ventas-nino-tab';
 import { formatWeekIdToDateRange, getCurrentWeekId, getWeekIdFromDate, getPreviousWeekId } from '@/lib/format';
-
-type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan' | 'compradorWoman' | 'zonaComercialWoman' | 'agrupacionComercialWoman' | 'compradorNino' | 'zonaComercialNino' | 'agrupacionComercialNino';
-
+import { FocusSemanalTab } from '@/components/dashboard/focus-semanal-tab';
 
 const tabConfig: Record<string, { label: string; icon?: React.FC<React.SVGProps<SVGSVGElement>>, text?: string, path?: string }> = {
     datosSemanales: { label: "GENERAL", icon: LayoutDashboard, path: "/dashboard?tab=ventas" },
@@ -41,53 +34,7 @@ const tabConfig: Record<string, { label: string; icon?: React.FC<React.SVGProps<
     experiencia: { label: "EXPERIENCIA", text: "E", path: "/experiencia" },
 };
 
-const listLabels: Record<EditableList, string> = {
-    compradorMan: 'Comprador MAN',
-    zonaComercialMan: 'Zona Comercial MAN',
-    agrupacionComercialMan: 'Agrupación Comercial MAN',
-    compradorWoman: 'Comprador WOMAN',
-    zonaComercialWoman: 'Zona Comercial WOMAN',
-    agrupacionComercialWoman: 'Agrupación Comercial WOMAN',
-    compradorNino: 'Comprador NIÑO',
-    zonaComercialNino: 'Zona Comercial NIÑO',
-    agrupacionComercialNino: 'Agrupación Comercial NIÑO',
-};
-
-const synchronizeTableData = (list: string[], oldTableData: VentasManItem[]): VentasManItem[] => {
-    const safeList = Array.isArray(list) ? list : [];
-    const safeOldTableData = Array.isArray(oldTableData) ? oldTableData : [];
-    
-    const oldDataMap = new Map(safeOldTableData.map(item => [item.nombre, item]));
-    
-    return safeList.map(itemName => {
-        const existingItem = oldDataMap.get(itemName);
-        if (existingItem) {
-            return { ...existingItem, imageUrl: existingItem.imageUrl || "" };
-        }
-        return {
-            nombre: itemName,
-            pesoPorc: 0,
-            totalEuros: 0,
-            varPorc: 0,
-        };
-    });
-};
-
-const ensureSectionSpecificData = (data: WeeklyData): WeeklyData => {
-    const defaultSectionData: SectionSpecificData = {
-        operaciones: { filasCajaPorc: 0, scoPorc: 0, dropOffPorc: 0, ventaIpod: 0, eTicketPorc: 0, repoPorc: 0, frescuraPorc: 0 },
-        perdidas: { gap: { euros: 0, unidades: 0 }, merma: { unidades: 0, porcentaje: 0 } }
-    };
-
-    if (!data.general) data.general = JSON.parse(JSON.stringify(defaultSectionData));
-    if (!data.man) data.man = JSON.parse(JSON.stringify(defaultSectionData));
-    if (!data.woman) data.woman = JSON.parse(JSON.stringify(defaultSectionData));
-    if (!data.nino) data.nino = JSON.parse(JSON.stringify(defaultSectionData));
-
-    return data;
-}
-
-function NinoPageComponent() {
+function ExperienciaPageComponent() {
   const { user, loading: authLoading, logout } = useContext(AuthContext);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -98,15 +45,13 @@ function NinoPageComponent() {
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   
-  const [isListDialogOpen, setListDialogOpen] = useState(false);
-  const [listToEdit, setListToEdit] = useState<{ listKey: EditableList, title: string } | null>(null);
-
   const selectedWeek = searchParams.get('week') || '';
-  const activeTab = "nino";
+  const activeTab = "experiencia";
+  const [activeSubTab, setActiveSubTab] = useState('experiencia');
   
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [isCalendarOpen, setCalendarOpen] = useState(false);
-
+  
   const canEdit = user?.email === 'emiliogp@inditex.com';
   const { toast } = useToast();
   
@@ -114,7 +59,7 @@ function NinoPageComponent() {
       if (!newWeek) return;
       const params = new URLSearchParams(searchParams);
       params.set('week', newWeek);
-      router.replace(`/nino?${params.toString()}`);
+      router.replace(`/experiencia?${params.toString()}`);
   }, [router, searchParams]);
 
 
@@ -186,52 +131,10 @@ function NinoPageComponent() {
             reportData = reportSnap.data() as WeeklyData;
         }
 
-        if (!reportData.imagenesComprador) {
-          reportData.imagenesComprador = {};
-        }
-
         reportData.listas = listData;
-        
-        reportData = ensureSectionSpecificData(reportData);
 
-        if (typeof reportData.focusSemanal === 'string' || !reportData.focusSemanal) {
-            reportData.focusSemanal = {
-                man: "",
-                woman: "",
-                nino: typeof reportData.focusSemanal === 'string' ? reportData.focusSemanal : ""
-            };
-        }
-
-        // Ensure main sales sections exist before synchronization
-        if (!reportData.ventasNino) reportData.ventasNino = { pesoComprador: [], zonaComercial: [], agrupacionComercial: [] };
-
-        let needsSave = false;
-        
-        const syncAndCheck = (reportTable: VentasManItem[] | undefined, list: string[] | undefined): [VentasManItem[], boolean] => {
-            const currentNames = reportTable?.map(i => i.nombre).sort().join(',') || '';
-            const listNames = (list || []).sort().join(',');
-            if (currentNames !== listNames) {
-                return [synchronizeTableData(list || [], reportTable || []), true];
-            }
-            const sortedTable = [...(reportTable || [])].sort((a, b) => (b.totalEuros || 0) - (a.totalEuros || 0));
-            if (JSON.stringify(sortedTable) !== JSON.stringify(reportTable)) {
-                return [sortedTable, true];
-            }
-            return [reportTable || [], false];
-        };
-
-        let changed;
-        [reportData.ventasNino.pesoComprador, changed] = syncAndCheck(reportData.ventasNino.pesoComprador, listData.compradorNino);
-        if (changed) needsSave = true;
-        
-        [reportData.ventasNino.zonaComercial, changed] = syncAndCheck(reportData.ventasNino.zonaComercial, listData.zonaComercialNino);
-        if (changed) needsSave = true;
-        
-        [reportData.ventasNino.agrupacionComercial, changed] = syncAndCheck(reportData.ventasNino.agrupacionComercial, listData.agrupacionComercialNino);
-        if (changed) needsSave = true;
-
-        if (needsSave && canEdit) {
-            await setDoc(reportRef, reportData, { merge: true });
+        if (!reportData.experiencia) {
+            reportData.experiencia = { texto: "", focus: "" };
         }
         
         setData(reportData);
@@ -260,57 +163,14 @@ function NinoPageComponent() {
   }, [user, authLoading, router, fetchData, selectedWeek, canEdit, updateUrl]);
 
 
-  const handleInputChange = (path: string, value: any, reorder = false) => {
-    if (!canEdit) return;
-    
-    setData(prevData => {
-        if (!prevData) return null;
-
-        const updatedData = JSON.parse(JSON.stringify(prevData));
-        let current: any = updatedData;
-        const keys = path.split('.');
-        
-        for (let i = 0; i < keys.length - 1; i++) {
-            if (current[keys[i]] === undefined) current[keys[i]] = {};
-            current = current[keys[i]];
-        }
-        
-        const finalKey = keys[keys.length - 1];
-        const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
-        current[finalKey] = isNaN(numericValue) || value === "" ? 0 : numericValue;
-
-        if (keys[0] === 'ventasNino' && reorder) {
-            const tableKey = keys[1] as 'pesoComprador' | 'zonaComercial' | 'agrupacionComercial';
-            const table = updatedData.ventasNino[tableKey] as VentasManItem[];
-            if (table) {
-                const totalEuros = table.reduce((sum: number, item: VentasManItem) => sum + (item.totalEuros || 0), 0);
-
-                if (totalEuros > 0) {
-                    table.forEach((item: VentasManItem) => {
-                        item.pesoPorc = Math.round((((item.totalEuros || 0) / totalEuros) * 100));
-                    });
-                } else {
-                     table.forEach((item: VentasManItem) => {
-                        item.pesoPorc = 0;
-                    });
-                }
-
-                table.sort((a: VentasManItem, b: VentasManItem) => (b.totalEuros || 0) - (a.totalEuros || 0));
-            }
-        }
-        
-        return updatedData;
-    });
-};
-
-  const handleFocusChange = (newValue: string) => {
+  const handleTextChange = (field: 'texto' | 'focus', newValue: string) => {
     if (!canEdit) return;
     setData(prevData => {
       if (!prevData) return null;
-      const updatedFocus = { ...prevData.focusSemanal, nino: newValue };
+      const updatedExperiencia = { ...(prevData.experiencia || {texto: "", focus: ""}), [field]: newValue };
       return {
         ...prevData,
-        focusSemanal: updatedFocus,
+        experiencia: updatedExperiencia,
       };
     });
   };
@@ -319,10 +179,11 @@ function NinoPageComponent() {
     if (!data) return;
     setIsSaving(true);
     const docRef = doc(db, "informes", selectedWeek);
-    const dataToSave = JSON.parse(JSON.stringify(data));
     
-    delete dataToSave.imagenesComprador;
-    
+    const dataToSave = {
+        experiencia: data.experiencia
+    };
+
     setDoc(docRef, dataToSave, { merge: true })
         .then(() => {
             toast({
@@ -345,34 +206,10 @@ function NinoPageComponent() {
     fetchData(selectedWeek); 
   };
   
-  const handleOpenListDialog = (listKey: EditableList, title: string) => {
-      if(!canEdit) return;
-      setListToEdit({ listKey, title });
-      setListDialogOpen(true);
-  };
-  
- const handleSaveList = async (listKey: EditableList, newItems: string[]) => {
-    if (!listKey || !canEdit) return;
-    setIsSaving(true);
-    const listsRef = doc(db, "configuracion", "listas");
-
-    updateDoc(listsRef, { [listKey]: newItems })
-        .then(() => {
-            toast({
-                title: "Lista actualizada",
-                description: `La lista "${listLabels[listKey]}" se ha guardado.`,
-            });
-            setListDialogOpen(false);
-            setListToEdit(null);
-            return fetchData(selectedWeek);
-        })
-        .catch(async (error: any) => {
-            setError(`Error al guardar la lista: ${error.message}`);
-        })
-        .finally(() => {
-            setIsSaving(false);
-        });
-};
+  const tabButtons = [
+    { value: 'experiencia', label: 'EXPERIENCIA' },
+    { value: 'focus', label: 'FOCUS' },
+  ];
 
   if (authLoading || (dataLoading && !error)) {
     return (
@@ -497,35 +334,6 @@ function NinoPageComponent() {
                 <DropdownMenuContent className="w-56 z-50">
                   <DropdownMenuLabel>Opciones</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  {canEdit && (
-                     <>
-                    <DropdownMenuSub>
-                      <DropdownMenuSubTrigger>
-                        <List className="mr-2 h-4 w-4 text-primary" />
-                        <span>Editar Listas</span>
-                      </DropdownMenuSubTrigger>
-                      <DropdownMenuPortal>
-                        <DropdownMenuSubContent>
-                          <DropdownMenuLabel>MAN</DropdownMenuLabel>
-                          <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorMan', 'Editar Lista: Comprador MAN')}>Comprador</DropdownMenuItem>
-                          <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialMan', 'Editar Lista: Zona Comercial MAN')}>Zona Comercial</DropdownMenuItem>
-                          <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercialMan', 'Editar Lista: Agrupación Comercial MAN')}>Agrupación Comercial</DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuLabel>WOMAN</DropdownMenuLabel>
-                          <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorWoman', 'Editar Lista: Comprador WOMAN')}>Comprador</DropdownMenuItem>
-                          <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialWoman', 'Editar Lista: Zona Comercial WOMAN')}>Zona Comercial</DropdownMenuItem>
-                          <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercialWoman', 'Editar Lista: Agrupación Comercial WOMAN')}>Agrupación Comercial</DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuLabel>NIÑO</DropdownMenuLabel>
-                          <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorNino', 'Editar Lista: Comprador NIÑO')}>Comprador</DropdownMenuItem>
-                          <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialNino', 'Editar Lista: Zona Comercial NIÑO')}>Zona Comercial</DropdownMenuItem>
-                          <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercialNino', 'Editar Lista: Agrupación Comercial NIÑO')}>Agrupación Comercial</DropdownMenuItem>
-                        </DropdownMenuSubContent>
-                      </DropdownMenuPortal>
-                    </DropdownMenuSub>
-                    </>
-                  )}
-                  {canEdit && <DropdownMenuSeparator />}
                   <DropdownMenuItem onSelect={() => {
                     logout();
                     router.push('/');
@@ -541,50 +349,56 @@ function NinoPageComponent() {
         
         <main>
            {data ? (
-                <VentasNinoTab 
-                  data={data}
-                  isEditing={isEditing} 
-                  onInputChange={handleInputChange}
-                  onTextChange={handleFocusChange}
-                />
+                <Tabs value={activeSubTab} onValueChange={setActiveSubTab} className="w-full">
+                    <div className="mb-4 grid w-full grid-cols-2 md:grid-cols-2 gap-2">
+                        {tabButtons.map(tab => (
+                            <Button
+                                key={tab.value}
+                                variant={activeSubTab === tab.value ? 'default' : 'outline'}
+                                onClick={() => setActiveSubTab(tab.value)}
+                                className="w-full"
+                            >
+                                {tab.label}
+                            </Button>
+                        ))}
+                    </div>
+                    
+                    <TabsContent value="experiencia" className="mt-0">
+                      <FocusSemanalTab 
+                        text={data.experiencia?.texto || ""} 
+                        isEditing={isEditing} 
+                        onTextChange={(val) => handleTextChange('texto', val)} 
+                      />
+                    </TabsContent>
+                    <TabsContent value="focus" className="mt-0">
+                      <FocusSemanalTab 
+                        text={data.experiencia?.focus || ""} 
+                        isEditing={isEditing} 
+                        onTextChange={(val) => handleTextChange('focus', val)} 
+                      />
+                    </TabsContent>
+                </Tabs>
             ) : (
              <div className="flex flex-col items-center justify-center min-h-[60vh]">
                 <p>Selecciona una semana para ver los datos.</p>
             </div>
             )}
         </main>
-        
-        {listToEdit && data?.listas && (
-          <EditListDialog
-            isOpen={isListDialogOpen}
-            onClose={() => {
-              setListDialogOpen(false);
-              setListToEdit(null);
-            }}
-            title={listToEdit.title}
-            items={data.listas[listToEdit.listKey] || []}
-            onSave={(newItems) => {
-              if (listToEdit) {
-                handleSaveList(listToEdit.listKey, newItems);
-              }
-            }}
-          />
-        )}
       </div>
     </TooltipProvider>
   );
 }
 
 
-export default function NinoPage() {
+export default function ExperienciaPage() {
     return (
         <Suspense fallback={
             <div className="flex flex-col items-center justify-center min-h-screen">
                 <Loader2 className="h-12 w-12 animate-spin text-primary" />
-                <p className="mt-4">Cargando sección NIÑO...</p>
+                <p className="mt-4">Cargando sección EXPERIENCIA...</p>
             </div>
         }>
-            <NinoPageComponent />
+            <ExperienciaPageComponent />
         </Suspense>
     );
 }

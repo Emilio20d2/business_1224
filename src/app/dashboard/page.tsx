@@ -40,6 +40,7 @@ const tabConfig: Record<string, { label: string; icon?: React.FC<React.SVGProps<
     woman: { label: "WOMAN", path: "/woman", text: "W" },
     man: { label: "MAN", text: "M", path: "/man" },
     nino: { label: "NIÑO", path: "/nino", text: "N" },
+    experiencia: { label: "EXPERIENCIA", text: "E", path: "/experiencia" },
 };
 
 const listLabels: Record<EditableList, string> = {
@@ -707,6 +708,8 @@ export default function DashboardPage() {
         </Suspense>
     );
 }
+
+    
 
     
 

@@ -37,8 +37,15 @@ const nextConfig: NextConfig = {
         destination: '/man',
         permanent: true,
       },
+       {
+        source: '/experiencia',
+        destination: '/man',
+        permanent: true,
+      },
     ]
   },
 };
 
 export default nextConfig;
+
+    
