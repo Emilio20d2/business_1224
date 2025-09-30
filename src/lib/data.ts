@@ -107,7 +107,6 @@ export type WeeklyData = {
     };
     experiencia: {
       texto: string;
-      focus: string;
     };
     acumulado: {
         mensual: AcumuladoPeriodo;
@@ -297,7 +296,6 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
         },
         experiencia: {
             texto: "",
-            focus: ""
         },
         acumulado: {
             mensual: {
@@ -332,3 +330,5 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
         },
     };
 }
+
+    

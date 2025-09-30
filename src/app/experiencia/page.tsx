@@ -75,7 +75,6 @@ function ExperienciaPageComponent() {
 
   const selectedWeek = searchParams.get('week') || '';
   const activeTab = "experiencia";
-  const [activeSubTab, setActiveSubTab] = useState('experiencia');
   
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [isCalendarOpen, setCalendarOpen] = useState(false);
@@ -156,8 +155,8 @@ function ExperienciaPageComponent() {
 
         reportData.listas = listData;
 
-        if (!reportData.experiencia) {
-            reportData.experiencia = { texto: "", focus: "" };
+        if (typeof reportData.experiencia === 'string' || !reportData.experiencia) {
+            reportData.experiencia = { texto: typeof reportData.experiencia === 'string' ? reportData.experiencia : "" };
         }
         
         setData(reportData);
@@ -186,11 +185,11 @@ function ExperienciaPageComponent() {
   }, [user, authLoading, router, fetchData, selectedWeek, canEdit, updateUrl]);
 
 
-  const handleTextChange = (field: 'texto' | 'focus', newValue: string) => {
+  const handleTextChange = (newValue: string) => {
     if (!canEdit) return;
     setData(prevData => {
       if (!prevData) return null;
-      const updatedExperiencia = { ...(prevData.experiencia || {texto: "", focus: ""}), [field]: newValue };
+      const updatedExperiencia = { ...(prevData.experiencia || {texto: ""}), texto: newValue };
       return {
         ...prevData,
         experiencia: updatedExperiencia,
@@ -307,11 +306,6 @@ function ExperienciaPageComponent() {
         });
 };
   
-  const tabButtons = [
-    { value: 'experiencia', label: 'EXPERIENCIA' },
-    { value: 'focus', label: 'FOCUS' },
-  ];
-
   if (authLoading || (dataLoading && !error)) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
@@ -483,105 +477,83 @@ function ExperienciaPageComponent() {
           </div>
         </header>
         
-        <main>
+        <main className="space-y-4">
            {data ? (
-                <Tabs value={activeSubTab} onValueChange={setActiveSubTab} className="w-full">
-                    <div className="mb-4 grid w-full grid-cols-2 md:grid-cols-2 gap-2">
-                        {tabButtons.map(tab => (
-                            <Button
-                                key={tab.value}
-                                variant={activeSubTab === tab.value ? 'default' : 'outline'}
-                                onClick={() => setActiveSubTab(tab.value)}
-                                className="w-full"
-                            >
-                                {tab.label}
-                            </Button>
-                        ))}
-                    </div>
-                    
-                    <TabsContent value="experiencia" className="mt-0 space-y-4">
-                      {activeSubTab === 'experiencia' && data.rendimientoTienda && data.general && (
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <KpiCard title="Rendimiento de Tienda" icon={<ChartLine className="h-5 w-5 text-primary" />}>
-                                  <DatoDoble 
-                                      label="Tráfico" 
-                                      value={formatNumber(data.rendimientoTienda.trafico)} 
-                                      variation={data.rendimientoTienda.varPorcTrafico}
-                                      isEditing={isEditing}
-                                      valueId="rendimientoTienda.trafico"
-                                      variationId="rendimientoTienda.varPorcTrafico"
-                                      onInputChange={handleInputChange}
-                                  />
-                                  <DatoDoble 
-                                      label="Conversión" 
-                                      value={`${data.rendimientoTienda.conversion.toFixed(1)}%`}
-                                      variation={data.rendimientoTienda.varPorcConversion}
-                                      isEditing={isEditing}
-                                      valueId="rendimientoTienda.conversion"
-                                      variationId="rendimientoTienda.varPorcConversion"
-                                      onInputChange={handleInputChange}
-                                  />
-                              </KpiCard>
-                              <KpiCard title="Caja" icon={<Receipt className="h-5 w-5 text-primary" />}>
-                                  <div className="grid grid-cols-2 grid-rows-2 gap-4 h-full">
-                                    <DatoSimple 
-                                      icon={<Clock className="h-5 w-5 text-primary"/>} 
-                                      label="Filas Caja" 
-                                      value={data.general.operaciones.filasCajaPorc}
-                                      isEditing={isEditing}
-                                      align="center" 
-                                      unit="%"
-                                      valueId="general.operaciones.filasCajaPorc"
-                                      onInputChange={handleInputChange}
-                                    />
-                                    <DatoSimple 
-                                      icon={<ScanLine className="h-5 w-5 text-primary"/>} 
-                                      label="ACO" 
-                                      value={data.general.operaciones.scoPorc}
-                                      isEditing={isEditing}
-                                      align="center" 
-                                      unit="%"
-                                      valueId="general.operaciones.scoPorc"
-                                      onInputChange={handleInputChange}
-                                    />
-                                    <DatoSimple 
-                                      icon={<Inbox className="h-5 w-5 text-primary"/>} 
-                                      label="DropOff" 
-                                      value={data.general.operaciones.dropOffPorc} 
-                                      isEditing={isEditing}
-                                      align="center" 
-                                      unit="%"
-                                      valueId="general.operaciones.dropOffPorc"
-                                      onInputChange={handleInputChange}
-                                    />
-                                     <DatoSimple 
-                                      icon={<Ticket className="h-5 w-5 text-primary" />} 
-                                      label="E-Ticket" 
-                                      value={data.general.operaciones.eTicketPorc}
-                                      isEditing={isEditing}
-                                      align="center" 
-                                      unit="%"
-                                      valueId="general.operaciones.eTicketPorc"
-                                      onInputChange={handleInputChange}
-                                    />
-                                  </div>
-                              </KpiCard>
-                          </div>
-                      )}
-                      <FocusSemanalTab 
-                        text={data.experiencia?.texto || ""} 
-                        isEditing={isEditing} 
-                        onTextChange={(val) => handleTextChange('texto', val)} 
-                      />
-                    </TabsContent>
-                    <TabsContent value="focus" className="mt-0">
-                      <FocusSemanalTab 
-                        text={data.experiencia?.focus || ""} 
-                        isEditing={isEditing} 
-                        onTextChange={(val) => handleTextChange('focus', val)} 
-                      />
-                    </TabsContent>
-                </Tabs>
+                <>
+                  {data.rendimientoTienda && data.general && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <KpiCard title="Rendimiento de Tienda" icon={<ChartLine className="h-5 w-5 text-primary" />}>
+                              <DatoDoble 
+                                  label="Tráfico" 
+                                  value={formatNumber(data.rendimientoTienda.trafico)} 
+                                  variation={data.rendimientoTienda.varPorcTrafico}
+                                  isEditing={isEditing}
+                                  valueId="rendimientoTienda.trafico"
+                                  variationId="rendimientoTienda.varPorcTrafico"
+                                  onInputChange={handleInputChange}
+                              />
+                              <DatoDoble 
+                                  label="Conversión" 
+                                  value={`${data.rendimientoTienda.conversion.toFixed(1)}%`}
+                                  variation={data.rendimientoTienda.varPorcConversion}
+                                  isEditing={isEditing}
+                                  valueId="rendimientoTienda.conversion"
+                                  variationId="rendimientoTienda.varPorcConversion"
+                                  onInputChange={handleInputChange}
+                              />
+                          </KpiCard>
+                          <KpiCard title="Caja" icon={<Receipt className="h-5 w-5 text-primary" />}>
+                              <div className="grid grid-cols-2 grid-rows-2 gap-4 h-full">
+                                <DatoSimple 
+                                  icon={<Clock className="h-5 w-5 text-primary"/>} 
+                                  label="Filas Caja" 
+                                  value={data.general.operaciones.filasCajaPorc}
+                                  isEditing={isEditing}
+                                  align="center" 
+                                  unit="%"
+                                  valueId="general.operaciones.filasCajaPorc"
+                                  onInputChange={handleInputChange}
+                                />
+                                <DatoSimple 
+                                  icon={<ScanLine className="h-5 w-5 text-primary"/>} 
+                                  label="ACO" 
+                                  value={data.general.operaciones.scoPorc}
+                                  isEditing={isEditing}
+                                  align="center" 
+                                  unit="%"
+                                  valueId="general.operaciones.scoPorc"
+                                  onInputChange={handleInputChange}
+                                />
+                                <DatoSimple 
+                                  icon={<Inbox className="h-5 w-5 text-primary"/>} 
+                                  label="DropOff" 
+                                  value={data.general.operaciones.dropOffPorc} 
+                                  isEditing={isEditing}
+                                  align="center" 
+                                  unit="%"
+                                  valueId="general.operaciones.dropOffPorc"
+                                  onInputChange={handleInputChange}
+                                />
+                                 <DatoSimple 
+                                  icon={<Ticket className="h-5 w-5 text-primary" />} 
+                                  label="E-Ticket" 
+                                  value={data.general.operaciones.eTicketPorc}
+                                  isEditing={isEditing}
+                                  align="center" 
+                                  unit="%"
+                                  valueId="general.operaciones.eTicketPorc"
+                                  onInputChange={handleInputChange}
+                                />
+                              </div>
+                          </KpiCard>
+                      </div>
+                  )}
+                  <FocusSemanalTab 
+                    text={data.experiencia?.texto || ""} 
+                    isEditing={isEditing} 
+                    onTextChange={(val) => handleTextChange(val)} 
+                  />
+                </>
             ) : (
              <div className="flex flex-col items-center justify-center min-h-[60vh]">
                 <p>Selecciona una semana para ver los datos.</p>
