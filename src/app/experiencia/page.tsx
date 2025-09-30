@@ -631,7 +631,3 @@ export default function ExperienciaPage() {
         </Suspense>
     );
 }
-
-    
-
-    

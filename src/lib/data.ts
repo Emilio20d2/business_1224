@@ -194,7 +194,7 @@ export function getInitialLists(): WeeklyData['listas'] {
         compradorNino: ["NIÑO", "GLOBAL", "CIRCULAR", "DNWR", "SPORT", "ACCES", "BASIC"],
         zonaComercialNino: ["NIÑO FORMAL", "GLB URBAN", "CIRCULAR"],
         agrupacionComercialNino: ["PANTALON", "SASTRERIA", "TEJANO", "CAMISA", "POLO", "ZAPATO", "BERMUDA", "TRICOT", "ACCESORIOS", "BAÑO"],
-        compradorExperiencia: [],
+        compradorExperiencia: ["EXP 1", "EXP 2"],
         empleados: [
             { id: "12345", nombre: "Juan Pérez" },
             { id: "67890", nombre: "Ana López" },
@@ -334,5 +334,3 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
         },
     };
 }
-
-    

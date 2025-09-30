@@ -192,7 +192,8 @@ function ManPageComponent() {
             reportData.focusSemanal = {
                 man: typeof reportData.focusSemanal === 'string' ? reportData.focusSemanal : "",
                 woman: "",
-                nino: ""
+                nino: "",
+                experiencia: "",
             };
         }
 

@@ -192,7 +192,8 @@ function NinoPageComponent() {
             reportData.focusSemanal = {
                 man: "",
                 woman: "",
-                nino: typeof reportData.focusSemanal === 'string' ? reportData.focusSemanal : ""
+                nino: typeof reportData.focusSemanal === 'string' ? reportData.focusSemanal : "",
+                experiencia: ""
             };
         }
 
