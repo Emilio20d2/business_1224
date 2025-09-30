@@ -1,5 +1,10 @@
 
 
+export type Empleado = {
+    id: string;
+    nombre: string;
+};
+
 type DesgloseItem = {
     nombre: string;
     totalEuros: number;
@@ -52,6 +57,7 @@ export type WeeklyData = {
         zonaComercialNino: string[];
         agrupacionComercialNino: string[];
         compradorExperiencia: string[];
+        empleados: Empleado[];
     };
     ventas: {
         totalEuros: number;
@@ -107,9 +113,6 @@ export type WeeklyData = {
         mensual: AcumuladoPeriodo;
         anual: AcumuladoPeriodo;
     };
-    imagenesComprador: {
-        [key: string]: string;
-    };
     ventasWoman: {
         pesoComprador: VentasManItem[];
         zonaComercial: VentasManItem[];
@@ -119,6 +122,9 @@ export type WeeklyData = {
         pesoComprador: VentasManItem[];
         zonaComercial: VentasManItem[];
         agrupacionComercial: VentasManItem[];
+    };
+    ventasExperiencia: {
+        pesoComprador: VentasManItem[];
     };
 };
 
@@ -188,6 +194,10 @@ export function getInitialLists(): WeeklyData['listas'] {
         zonaComercialNino: ["NIÑO FORMAL", "GLB URBAN", "CIRCULAR"],
         agrupacionComercialNino: ["PANTALON", "SASTRERIA", "TEJANO", "CAMISA", "POLO", "ZAPATO", "BERMUDA", "TRICOT", "ACCESORIOS", "BAÑO"],
         compradorExperiencia: [],
+        empleados: [
+            { id: "12345", nombre: "Juan Pérez" },
+            { id: "67890", nombre: "Ana López" },
+        ],
     };
 }
 
@@ -307,7 +317,6 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
                 ]
             }
         },
-        imagenesComprador: {},
         ventasWoman: {
             pesoComprador: createVentasManItems(lists?.compradorWoman),
             zonaComercial: createVentasManItems(lists?.zonaComercialWoman),
@@ -317,8 +326,9 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
             pesoComprador: createVentasManItems(lists?.compradorNino),
             zonaComercial: createVentasManItems(lists?.zonaComercialNino),
             agrupacionComercial: createVentasManItems(lists?.agrupacionComercialNino)
-        }
+        },
+        ventasExperiencia: {
+            pesoComprador: createVentasManItems(lists?.compradorExperiencia)
+        },
     };
 }
-
-    

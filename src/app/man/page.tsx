@@ -132,10 +132,7 @@ function ManPageComponent() {
   const handleTabChange = (newTabKey: string) => {
     const config = tabConfig[newTabKey];
     if (config?.path) {
-        const newPath = config.path.split('?')[0];
-        const params = new URLSearchParams(config.path.split('?')[1] || '');
-        params.set('week', selectedWeek);
-        router.push(`${newPath}?${params.toString()}`);
+        router.push(`${config.path}?week=${selectedWeek}`);
     }
   };
 
@@ -622,11 +619,3 @@ export default function ManPage() {
         </Suspense>
     );
 }
-
-    
-
-    
-
-
-
-    

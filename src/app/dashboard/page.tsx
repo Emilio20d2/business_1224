@@ -134,10 +134,7 @@ function DashboardPageComponent() {
   const handleTabChange = (newTabKey: string) => {
     const config = tabConfig[newTabKey];
     if (config?.path) {
-        let newPath = config.path.split('?')[0];
-        const params = new URLSearchParams(config.path.split('?')[1]);
-        params.set('week', selectedWeek);
-        router.push(`${newPath}?${params.toString()}`);
+        router.push(`${config.path}?week=${selectedWeek}`);
     } else {
         updateUrl(selectedWeek, newTabKey);
     }
@@ -241,7 +238,7 @@ function DashboardPageComponent() {
         [reportData.ventasNino.agrupacionComercial, changed] = syncAndCheck(reportData.ventasNino.agrupacionComercial, listData.agrupacionComercialNino);
         if (changed) needsSave = true;
         
-        if (!reportData.ventasExperiencia) reportData.ventasExperiencia = { pesoComprador: [], zonaComercial: [], agrupacionComercial: [] };
+        if (!reportData.ventasExperiencia) reportData.ventasExperiencia = { pesoComprador: []};
 
         [reportData.ventasExperiencia.pesoComprador, changed] = syncAndCheck(reportData.ventasExperiencia.pesoComprador, listData.compradorExperiencia);
         if (changed) needsSave = true;
@@ -744,17 +741,3 @@ export default function DashboardPage() {
         </Suspense>
     );
 }
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-
-    
