@@ -310,6 +310,11 @@ function ExperienciaPageComponent() {
         });
 };
   
+  const tabButtons = [
+    { value: 'experiencia', label: 'EXPERIENCIA' },
+    { value: 'focus', label: 'FOCUS' },
+  ];
+
   if (authLoading || (dataLoading && !error)) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
@@ -484,11 +489,20 @@ function ExperienciaPageComponent() {
         <main className="space-y-4">
            {data ? (
                 <Tabs value={activeSubTab} onValueChange={setActiveSubTab} className="w-full">
-                    <TabsList className="grid w-full grid-cols-2">
-                        <TabsTrigger value="experiencia">EXPERIENCIA</TabsTrigger>
-                        <TabsTrigger value="focus">FOCUS</TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="experiencia" className="mt-4">
+                    <div className="mb-4 grid w-full grid-cols-2 gap-2">
+                        {tabButtons.map(tab => (
+                            <Button
+                                key={tab.value}
+                                variant={activeSubTab === tab.value ? 'default' : 'outline'}
+                                onClick={() => setActiveSubTab(tab.value)}
+                                className="w-full"
+                            >
+                                {tab.label}
+                            </Button>
+                        ))}
+                    </div>
+
+                    <TabsContent value="experiencia" className="mt-0">
                       <div className="space-y-4">
                         {data.rendimientoTienda && data.general && (
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -565,7 +579,7 @@ function ExperienciaPageComponent() {
                         />
                       </div>
                     </TabsContent>
-                    <TabsContent value="focus" className="mt-4">
+                    <TabsContent value="focus" className="mt-0">
                        <FocusSemanalTab 
                           text={data.experiencia?.focus || ""} 
                           isEditing={isEditing} 
