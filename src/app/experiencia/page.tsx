@@ -51,7 +51,7 @@ const listLabels: Record<EditableList, string> = {
 
 
 const tabConfig: Record<string, { label: string; icon?: React.FC<React.SVGProps<SVGSVGElement>>, text?: string, path?: string }> = {
-    datosSemanales: { label: "GENERAL", icon: LayoutDashboard, path: "/dashboard?tab=ventas" },
+    datosSemanales: { label: "GENERAL", icon: LayoutDashboard, path: "/dashboard" },
     woman: { label: "WOMAN", path: "/woman", text: "W" },
     man: { label: "MAN", text: "M", path: "/man" },
     nino: { label: "NIÑO", path: "/nino", text: "N" },
@@ -351,8 +351,7 @@ function ExperienciaPageComponent() {
                 BUSINESS
               </h1>
               <div className="flex items-center gap-2">
-                 {Object.keys(tabConfig).map(tabKey => {
-                    const config = tabConfig[tabKey];
+                 {Object.entries(tabConfig).map(([tabKey, config]) => {
                     const isActive = activeTab === tabKey;
                     return (
                        <Tooltip key={tabKey}>
@@ -632,3 +631,5 @@ export default function ExperienciaPage() {
         </Suspense>
     );
 }
+
+    
