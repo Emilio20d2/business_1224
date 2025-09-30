@@ -572,11 +572,6 @@ function ExperienciaPageComponent() {
                                     </KpiCard>
                                 </div>
                             )}
-                            <FocusSemanalTab 
-                              text={data.experiencia?.texto || ""} 
-                              isEditing={isEditing} 
-                              onTextChange={(val) => handleTextChange('texto', val)} 
-                            />
                         </div>
                     </TabsContent>
                     <TabsContent value="focus" className="mt-0">
@@ -636,5 +631,7 @@ export default function ExperienciaPage() {
         </Suspense>
     );
 }
+
+    
 
     
