@@ -491,8 +491,8 @@ function ExperienciaPageComponent() {
                     <TabsContent value="experiencia" className="mt-4">
                       <div className="space-y-4">
                         {data.rendimientoTienda && data.general && (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <KpiCard title="Rendimiento de Tienda" icon={<ChartLine className="h-5 w-5 text-primary" />}>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <KpiCard title="Rendimiento de Tienda" icon={<ChartLine className="h-5 w-5 text-primary" />} className="md:col-span-1">
                                     <DatoDoble 
                                         label="Tráfico" 
                                         value={formatNumber(data.rendimientoTienda.trafico)} 
@@ -512,8 +512,8 @@ function ExperienciaPageComponent() {
                                         onInputChange={handleInputChange}
                                     />
                                 </KpiCard>
-                                <KpiCard title="Caja" icon={<Receipt className="h-5 w-5 text-primary" />}>
-                                    <div className="grid grid-cols-2 grid-rows-2 gap-4 h-full">
+                                <KpiCard title="Caja" icon={<Receipt className="h-5 w-5 text-primary" />} className="md:col-span-2">
+                                    <div className="grid grid-cols-4 gap-4 h-full">
                                       <DatoSimple 
                                         icon={<Clock className="h-5 w-5 text-primary"/>} 
                                         label="Filas Caja" 
