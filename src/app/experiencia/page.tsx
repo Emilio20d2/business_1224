@@ -1,14 +1,14 @@
 
 "use client"
-import React, from 'react';
+import React, { useState, useContext, useEffect, useCallback, Suspense } from 'react';
 import type { WeeklyData } from "@/lib/data";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from '@/lib/firebase';
-import { Calendar as CalendarIcon, Settings, LogOut, Loader2, Briefcase, LayoutDashboard, Pencil, Projector } from 'lucide-react';
+import { Calendar as CalendarIcon, Settings, LogOut, Loader2, Briefcase, LayoutDashboard, Pencil, Projector, ChartLine, Receipt, Clock, ScanLine, Inbox, Ticket } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,6 +25,9 @@ import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { formatWeekIdToDateRange, getCurrentWeekId, getWeekIdFromDate, getPreviousWeekId } from '@/lib/format';
 import { FocusSemanalTab } from '@/components/dashboard/focus-semanal-tab';
+import { KpiCard, DatoDoble, DatoSimple } from '@/components/dashboard/kpi-card';
+import { formatCurrency, formatNumber } from '@/lib/format';
+
 
 const tabConfig: Record<string, { label: string; icon?: React.FC<React.SVGProps<SVGSVGElement>>, text?: string, path?: string }> = {
     datosSemanales: { label: "GENERAL", icon: LayoutDashboard, path: "/dashboard?tab=ventas" },
@@ -175,13 +178,40 @@ function ExperienciaPageComponent() {
     });
   };
 
+  const handleInputChange = (path: string, value: any) => {
+    if (!canEdit) return;
+
+    setData(prevData => {
+        if (!prevData) return null;
+
+        const updatedData = JSON.parse(JSON.stringify(prevData));
+        let current: any = updatedData;
+        const keys = path.split('.');
+
+        for (let i = 0; i < keys.length - 1; i++) {
+            if (current[keys[i]] === undefined) {
+                current[keys[i]] = {};
+            }
+            current = current[keys[i]];
+        }
+        
+        const finalKey = keys[keys.length - 1];
+        const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
+        current[finalKey] = isNaN(numericValue) || value === "" ? 0 : numericValue;
+        
+        return updatedData;
+    });
+};
+
   const handleSave = async () => {
     if (!data) return;
     setIsSaving(true);
     const docRef = doc(db, "informes", selectedWeek);
     
     const dataToSave = {
-        experiencia: data.experiencia
+        experiencia: data.experiencia,
+        rendimientoTienda: data.rendimientoTienda,
+        general: data.general,
     };
 
     setDoc(docRef, dataToSave, { merge: true })
@@ -363,7 +393,75 @@ function ExperienciaPageComponent() {
                         ))}
                     </div>
                     
-                    <TabsContent value="experiencia" className="mt-0">
+                    <TabsContent value="experiencia" className="mt-0 space-y-4">
+                      {activeSubTab === 'experiencia' && data.rendimientoTienda && data.general && (
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <KpiCard title="Rendimiento de Tienda" icon={<ChartLine className="h-5 w-5 text-primary" />}>
+                                  <DatoDoble 
+                                      label="Tráfico" 
+                                      value={formatNumber(data.rendimientoTienda.trafico)} 
+                                      variation={data.rendimientoTienda.varPorcTrafico}
+                                      isEditing={isEditing}
+                                      valueId="rendimientoTienda.trafico"
+                                      variationId="rendimientoTienda.varPorcTrafico"
+                                      onInputChange={handleInputChange}
+                                  />
+                                  <DatoDoble 
+                                      label="Conversión" 
+                                      value={`${data.rendimientoTienda.conversion.toFixed(1)}%`}
+                                      variation={data.rendimientoTienda.varPorcConversion}
+                                      isEditing={isEditing}
+                                      valueId="rendimientoTienda.conversion"
+                                      variationId="rendimientoTienda.varPorcConversion"
+                                      onInputChange={handleInputChange}
+                                  />
+                              </KpiCard>
+                              <KpiCard title="Caja" icon={<Receipt className="h-5 w-5 text-primary" />}>
+                                  <div className="grid grid-cols-2 grid-rows-2 gap-4 h-full">
+                                    <DatoSimple 
+                                      icon={<Clock className="h-5 w-5 text-primary"/>} 
+                                      label="Filas Caja" 
+                                      value={data.general.operaciones.filasCajaPorc}
+                                      isEditing={isEditing}
+                                      align="center" 
+                                      unit="%"
+                                      valueId="general.operaciones.filasCajaPorc"
+                                      onInputChange={handleInputChange}
+                                    />
+                                    <DatoSimple 
+                                      icon={<ScanLine className="h-5 w-5 text-primary"/>} 
+                                      label="ACO" 
+                                      value={data.general.operaciones.scoPorc}
+                                      isEditing={isEditing}
+                                      align="center" 
+                                      unit="%"
+                                      valueId="general.operaciones.scoPorc"
+                                      onInputChange={handleInputChange}
+                                    />
+                                    <DatoSimple 
+                                      icon={<Inbox className="h-5 w-5 text-primary"/>} 
+                                      label="DropOff" 
+                                      value={data.general.operaciones.dropOffPorc} 
+                                      isEditing={isEditing}
+                                      align="center" 
+                                      unit="%"
+                                      valueId="general.operaciones.dropOffPorc"
+                                      onInputChange={handleInputChange}
+                                    />
+                                     <DatoSimple 
+                                      icon={<Ticket className="h-5 w-5 text-primary" />} 
+                                      label="E-Ticket" 
+                                      value={data.general.operaciones.eTicketPorc}
+                                      isEditing={isEditing}
+                                      align="center" 
+                                      unit="%"
+                                      valueId="general.operaciones.eTicketPorc"
+                                      onInputChange={handleInputChange}
+                                    />
+                                  </div>
+                              </KpiCard>
+                          </div>
+                      )}
                       <FocusSemanalTab 
                         text={data.experiencia?.texto || ""} 
                         isEditing={isEditing} 
