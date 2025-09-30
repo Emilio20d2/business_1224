@@ -142,3 +142,5 @@ export function EditEmpleadosDialog({ isOpen, onClose, empleados, onSave }: Edit
     </Dialog>
   );
 }
+
+    
