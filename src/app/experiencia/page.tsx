@@ -158,6 +158,12 @@ function ExperienciaPageComponent() {
 
         reportData.listas = listData;
 
+        // Force creation of pedidos if it doesn't exist
+        if (!reportData.pedidos) {
+            reportData.pedidos = getInitialDataForWeek(weekId, listData).pedidos;
+        }
+
+
         if (typeof reportData.experiencia !== 'object' || reportData.experiencia === null) {
             reportData.experiencia = { texto: "", focus: "" };
         }
@@ -594,20 +600,18 @@ function ExperienciaPageComponent() {
                                 </div>
                             )}
                              {data.pedidos && (
-                                <>
                                 <PedidosCard
                                     data={data.pedidos}
                                     isEditing={isEditing}
                                     onInputChange={handleInputChange}
-                                    className="mt-4"
                                 />
+                             )}
+                             {data.pedidos?.rankingEmpleados && (
                                 <RankingEmpleadosCard
                                     ranking={data.pedidos.rankingEmpleados}
                                     isEditing={isEditing}
                                     onInputChange={handleInputChange}
-                                    className="mt-4"
                                 />
-                                </>
                             )}
                         </div>
                     </TabsContent>
@@ -642,7 +646,7 @@ function ExperienciaPageComponent() {
           />
         )}
 
-        {data?.listas?.empleados && (
+        {isEmpleadosDialogOpen && data?.listas?.empleados && (
             <EditEmpleadosDialog
                 isOpen={isEmpleadosDialogOpen}
                 onClose={() => setEmpleadosDialogOpen(false)}

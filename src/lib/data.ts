@@ -407,6 +407,17 @@ const createInitialSectionSpecificData = (): SectionSpecificData => ({
     }
 });
 
+const createInitialPedidosData = (): PedidosData => ({
+    rankingNacional: 0,
+    pedidosDia: 0,
+    unidadesDia: 0,
+    objetivoSemanal: 0,
+    pedidosDiaSemanaAnterior: 0,
+    pedidosDiaSemanaProxima: 0,
+    pedidosIpodExpirados: 0,
+    rankingEmpleados: Array.from({ length: 10 }, () => ({ id: '', nombre: '', pedidos: 0, unidades: 0, importe: 0 }))
+});
+
 
 // This function generates a new, blank report structure based on the provided lists.
 export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas']): WeeklyData {
@@ -490,16 +501,7 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
             texto: "",
             focus: "",
         },
-        pedidos: {
-            rankingNacional: 0,
-            pedidosDia: 0,
-            unidadesDia: 0,
-            objetivoSemanal: 0,
-            pedidosDiaSemanaAnterior: 0,
-            pedidosDiaSemanaProxima: 0,
-            pedidosIpodExpirados: 0,
-            rankingEmpleados: Array.from({ length: 10 }, () => ({ id: '', nombre: '', pedidos: 0, unidades: 0, importe: 0 }))
-        },
+        pedidos: createInitialPedidosData(),
         acumulado: {
             mensual: {
                 totalEuros: 0, varPorcTotal: 0,
