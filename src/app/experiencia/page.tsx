@@ -8,7 +8,6 @@ import { Calendar as CalendarIcon, Settings, LogOut, Loader2, Briefcase, LayoutD
 import { Button } from '@/components/ui/button';
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,6 +34,8 @@ import { EditListDialog } from '@/components/dashboard/edit-list-dialog';
 import { EditEmpleadosDialog } from '@/components/dashboard/edit-empleados-dialog';
 import { PedidosCard } from '@/components/dashboard/pedidos-card';
 import { RankingEmpleadosCard } from '@/components/dashboard/ranking-empleados-card';
+import { Tabs, TabsContent } from "@/components/ui/tabs";
+
 
 type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan' | 'compradorWoman' | 'zonaComercialWoman' | 'agrupacionComercialWoman' | 'compradorNino' | 'zonaComercialNino' | 'agrupacionComercialNino' | 'compradorExperiencia';
 
@@ -158,9 +159,9 @@ function ExperienciaPageComponent() {
 
         reportData.listas = listData;
 
-        // Force creation of pedidos if it doesn't exist
         if (!reportData.pedidos) {
             reportData.pedidos = getInitialDataForWeek(weekId, listData).pedidos;
+             await setDoc(reportRef, { pedidos: reportData.pedidos }, { merge: true });
         }
 
 
@@ -230,18 +231,16 @@ function ExperienciaPageComponent() {
         
         if (keys[0] === 'pedidos' && keys[1] === 'rankingEmpleados') {
              const index = parseInt(keys[2], 10);
-             const field = keys[3];
-             if(field === 'id') {
+             const field = keys[3] as 'id' | 'pedidos' | 'unidades';
+             const rankingItem = updatedData.pedidos.rankingEmpleados[index];
+             
+             if (field === 'id') {
+                rankingItem.id = value;
                 const employee = updatedData.listas.empleados.find((e: Empleado) => e.id === value);
-                current[finalKey] = value;
-                if(employee) {
-                    updatedData.pedidos.rankingEmpleados[index].nombre = employee.nombre;
-                } else {
-                    updatedData.pedidos.rankingEmpleados[index].nombre = 'No encontrado';
-                }
+                rankingItem.nombre = employee ? employee.nombre : 'No encontrado';
              } else {
                 const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
-                current[finalKey] = isNaN(numericValue) || value === "" ? 0 : numericValue;
+                rankingItem[field] = isNaN(numericValue) || value === "" ? 0 : numericValue;
              }
         } else {
             const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
@@ -611,6 +610,7 @@ function ExperienciaPageComponent() {
                                     ranking={data.pedidos.rankingEmpleados}
                                     isEditing={isEditing}
                                     onInputChange={handleInputChange}
+                                    empleados={data.listas.empleados}
                                 />
                             )}
                         </div>
@@ -646,7 +646,7 @@ function ExperienciaPageComponent() {
           />
         )}
 
-        {isEmpleadosDialogOpen && data?.listas?.empleados && (
+        {data?.listas?.empleados && (
             <EditEmpleadosDialog
                 isOpen={isEmpleadosDialogOpen}
                 onClose={() => setEmpleadosDialogOpen(false)}
@@ -672,3 +672,5 @@ export default function ExperienciaPage() {
         </Suspense>
     );
 }
+
+    

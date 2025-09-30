@@ -2,7 +2,7 @@
 "use client";
 
 import React from 'react';
-import type { PedidosData } from '@/lib/data';
+import type { PedidosData, Empleado } from '@/lib/data';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -13,10 +13,11 @@ type RankingEmpleadosCardProps = {
     ranking: PedidosData['rankingEmpleados'];
     isEditing: boolean;
     onInputChange: (path: string, value: string | number) => void;
+    empleados: Empleado[];
     className?: string;
 };
 
-export function RankingEmpleadosCard({ ranking, isEditing, onInputChange, className }: RankingEmpleadosCardProps) {
+export function RankingEmpleadosCard({ ranking, isEditing, onInputChange, empleados, className }: RankingEmpleadosCardProps) {
 
     const handleInputChange = (index: number, field: 'id' | 'pedidos' | 'unidades', value: string) => {
         onInputChange(`pedidos.rankingEmpleados.${index}.${field}`, value);
@@ -90,3 +91,5 @@ export function RankingEmpleadosCard({ ranking, isEditing, onInputChange, classN
         </Card>
     );
 }
+
+    
