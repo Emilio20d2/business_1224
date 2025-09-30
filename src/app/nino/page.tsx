@@ -193,6 +193,13 @@ function NinoPageComponent() {
         
         reportData = ensureSectionSpecificData(reportData);
 
+        if (typeof reportData.focusSemanal === 'string' || !reportData.focusSemanal) {
+            reportData.focusSemanal = {
+                man: "",
+                woman: "",
+                nino: typeof reportData.focusSemanal === 'string' ? reportData.focusSemanal : ""
+            };
+        }
 
         // Ensure main sales sections exist before synchronization
         if (!reportData.ventasNino) reportData.ventasNino = { pesoComprador: [], zonaComercial: [], agrupacionComercial: [] };
@@ -299,9 +306,10 @@ function NinoPageComponent() {
     if (!canEdit) return;
     setData(prevData => {
       if (!prevData) return null;
+      const updatedFocus = { ...prevData.focusSemanal, nino: newValue };
       return {
         ...prevData,
-        focusSemanal: newValue,
+        focusSemanal: updatedFocus,
       };
     });
   };

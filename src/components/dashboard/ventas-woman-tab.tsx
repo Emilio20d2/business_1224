@@ -156,7 +156,7 @@ export function VentasWomanTab({ data, isEditing, onInputChange, onTextChange }:
     
     if (!data || !data.ventasWoman || !data.listas) return <p>Cargando datos de Ventas Woman...</p>;
 
-    const { ventasWoman, listas, datosPorSeccion, woman, logistica, almacenes } = data;
+    const { ventasWoman, listas, datosPorSeccion, woman, logistica, almacenes, focusSemanal } = data;
     
     const ropaTotalEuros = ventasWoman.pesoComprador.reduce((sum, item) => sum + (Number(item.totalEuros) || 0), 0);
     const calzadoData = datosPorSeccion.woman.desglose.find(d => d.seccion === 'Calzado');
@@ -286,7 +286,7 @@ export function VentasWomanTab({ data, isEditing, onInputChange, onTextChange }:
             
             <TabsContent value="focus" className="mt-0">
               <FocusSemanalTab 
-                text={data.focusSemanal} 
+                text={focusSemanal.woman} 
                 isEditing={isEditing} 
                 onTextChange={onTextChange} 
               />

@@ -156,7 +156,7 @@ export function VentasNinoTab({ data, isEditing, onInputChange, onTextChange }: 
     
     if (!data || !data.ventasNino || !data.listas) return <p>Cargando datos de Ventas Niño...</p>;
 
-    const { ventasNino, listas, datosPorSeccion, nino, logistica, almacenes } = data;
+    const { ventasNino, listas, datosPorSeccion, nino, logistica, almacenes, focusSemanal } = data;
     
     const ropaTotalEuros = ventasNino.pesoComprador.reduce((sum, item) => sum + (Number(item.totalEuros) || 0), 0);
     const calzadoData = datosPorSeccion.nino.desglose.find(d => d.seccion === 'Calzado');
@@ -286,7 +286,7 @@ export function VentasNinoTab({ data, isEditing, onInputChange, onTextChange }: 
             
             <TabsContent value="focus" className="mt-0">
               <FocusSemanalTab 
-                text={data.focusSemanal} 
+                text={focusSemanal.nino} 
                 isEditing={isEditing} 
                 onTextChange={onTextChange} 
               />

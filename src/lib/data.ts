@@ -93,7 +93,11 @@ export type WeeklyData = {
         nino: SeccionAqneData;
     };
     ventasDiariasAQNE: VentaDiaria[];
-    focusSemanal: string;
+    focusSemanal: {
+      man: string;
+      woman: string;
+      nino: string;
+    };
     acumulado: {
         mensual: AcumuladoPeriodo;
         anual: AcumuladoPeriodo;
@@ -270,7 +274,11 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
             { dia: "SÁBADO", total: 0, woman: 0, man: 0, nino: 0 },
             { dia: "DOMINGO", total: 0, woman: 0, man: 0, nino: 0 }
         ],
-        focusSemanal: "",
+        focusSemanal: {
+          man: "",
+          woman: "",
+          nino: ""
+        },
         acumulado: {
             mensual: {
                 totalEuros: 0, varPorcTotal: 0,
@@ -302,10 +310,3 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
         }
     };
 }
-
-    
-
-    
-
-
-    

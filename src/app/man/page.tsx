@@ -189,6 +189,14 @@ function ManPageComponent() {
         
         reportData = ensureSectionSpecificData(reportData);
 
+        if (typeof reportData.focusSemanal === 'string' || !reportData.focusSemanal) {
+            reportData.focusSemanal = {
+                man: typeof reportData.focusSemanal === 'string' ? reportData.focusSemanal : "",
+                woman: "",
+                nino: ""
+            };
+        }
+
 
         // Ensure main sales sections exist before synchronization
         if (!reportData.ventasMan) reportData.ventasMan = { pesoComprador: [], zonaComercial: [], agrupacionComercial: [] };
@@ -294,9 +302,10 @@ function ManPageComponent() {
     if (!canEdit) return;
     setData(prevData => {
       if (!prevData) return null;
+      const updatedFocus = { ...prevData.focusSemanal, man: newValue };
       return {
         ...prevData,
-        focusSemanal: newValue,
+        focusSemanal: updatedFocus,
       };
     });
   };

@@ -143,7 +143,7 @@ export function VentasManTab({ data, isEditing, onInputChange, onTextChange }: V
     
     if (!data || !data.ventasMan || !data.listas) return <p>Cargando datos de Ventas Man...</p>;
 
-    const { ventasMan, listas, datosPorSeccion, man, logistica, almacenes } = data;
+    const { ventasMan, listas, datosPorSeccion, man, logistica, almacenes, focusSemanal } = data;
     
     const ropaTotalEuros = ventasMan.pesoComprador.reduce((sum, item) => sum + (Number(item.totalEuros) || 0), 0);
     const calzadoData = datosPorSeccion.man.desglose.find(d => d.seccion === 'Calzado');
@@ -301,7 +301,7 @@ export function VentasManTab({ data, isEditing, onInputChange, onTextChange }: V
             
             <TabsContent value="focus" className="mt-0">
               <FocusSemanalTab 
-                text={data.focusSemanal} 
+                text={focusSemanal.man} 
                 isEditing={isEditing} 
                 onTextChange={onTextChange} 
               />
