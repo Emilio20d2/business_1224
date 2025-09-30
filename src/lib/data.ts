@@ -104,6 +104,7 @@ export type WeeklyData = {
       man: string;
       woman: string;
       nino: string;
+      experiencia: string;
     };
     experiencia: {
       texto: string;
@@ -293,7 +294,8 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
         focusSemanal: {
           man: "",
           woman: "",
-          nino: ""
+          nino: "",
+          experiencia: ""
         },
         experiencia: {
             texto: "",

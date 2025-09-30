@@ -89,7 +89,7 @@ export function EditEmpleadosDialog({ isOpen, onClose, empleados, onSave }: Edit
         <div className="py-4">
           <div className="space-y-2 max-h-64 overflow-y-auto pr-2">
             {currentItems.map((item, index) => (
-              <div key={index} className="flex items-center gap-2">
+              <div key={item.id || index} className="flex items-center gap-2">
                 {editingIndex === index && editedItem ? (
                    <>
                     <Input value={editedItem.id} onChange={(e) => setEditedItem({...editedItem, id: e.target.value})} placeholder="ID Empleado" />
@@ -142,5 +142,3 @@ export function EditEmpleadosDialog({ isOpen, onClose, empleados, onSave }: Edit
     </Dialog>
   );
 }
-
-    
