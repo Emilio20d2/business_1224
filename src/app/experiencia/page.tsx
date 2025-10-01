@@ -1,10 +1,10 @@
 
 "use client"
 import React, { useState, useContext, useEffect, useCallback, Suspense } from 'react';
-import type { WeeklyData, Empleado } from "@/lib/data";
+import type { WeeklyData, Empleado, SectionSpecificData } from "@/lib/data";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from '@/lib/firebase';
-import { Calendar as CalendarIcon, Settings, LogOut, Loader2, Briefcase, LayoutDashboard, Pencil, Projector, AlertTriangle, Users, List, UserPlus } from 'lucide-react';
+import { Calendar as CalendarIcon, Settings, LogOut, Loader2, Briefcase, LayoutDashboard, Pencil, Projector, AlertTriangle, Users, List, UserPlus, ChartLine } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -33,6 +33,9 @@ import { PedidosCard } from '@/components/dashboard/pedidos-card';
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { EditEmpleadosDialog } from '@/components/dashboard/edit-empleados-dialog';
 import { RankingEmpleadosCard } from '@/components/dashboard/ranking-empleados-card';
+import { KpiCard, DatoDoble } from '@/components/dashboard/kpi-card';
+import { formatNumber, formatPercentage } from '@/lib/format';
+import { CajaCard } from '@/components/dashboard/caja-card';
 
 
 type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan' | 'compradorWoman' | 'zonaComercialWoman' | 'agrupacionComercialWoman' | 'compradorNino' | 'zonaComercialNino' | 'agrupacionComercialNino' | 'compradorExperiencia';
@@ -179,6 +182,17 @@ function ExperienciaPageComponent() {
             };
             needsSave = true;
         }
+
+        const defaultSectionData: SectionSpecificData = {
+            operaciones: { filasCajaPorc: 0, scoPorc: 0, dropOffPorc: 0, ventaIpod: 0, eTicketPorc: 0, repoPorc: 0, frescuraPorc: 0 },
+            perdidas: { gap: { euros: 0, unidades: 0 }, merma: { unidades: 0, porcentaje: 0 } }
+        };
+
+        if (!reportData.general) {
+            reportData.general = JSON.parse(JSON.stringify(defaultSectionData));
+            needsSave = true;
+        }
+
 
         if (!reportData.pedidos) {
             reportData.pedidos = getInitialDataForWeek(weekId, listData as WeeklyData['listas']).pedidos;
@@ -544,6 +558,34 @@ function ExperienciaPageComponent() {
 
                     <TabsContent value="experiencia" className="mt-0">
                         <div className="space-y-4">
+                           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                              <KpiCard title="Rendimiento de Tienda" icon={<ChartLine className="h-5 w-5 text-primary" />} className="md:col-span-1">
+                                <DatoDoble 
+                                  label="Tráfico" 
+                                  value={formatNumber(data.rendimientoTienda?.trafico)} 
+                                  variation={data.rendimientoTienda?.varPorcTrafico}
+                                  isEditing={isEditing}
+                                  valueId="rendimientoTienda.trafico"
+                                  variationId="rendimientoTienda.varPorcTrafico"
+                                  onInputChange={handleInputChange}
+                                />
+                                <DatoDoble 
+                                  label="Conversión" 
+                                  value={formatPercentage(data.rendimientoTienda?.conversion)} 
+                                  variation={data.rendimientoTienda?.varPorcConversion}
+                                  isEditing={isEditing}
+                                  valueId="rendimientoTienda.conversion"
+                                  variationId="rendimientoTienda.varPorcConversion"
+                                  onInputChange={handleInputChange}
+                                />
+                              </KpiCard>
+                              <CajaCard
+                                operaciones={data.general?.operaciones}
+                                isEditing={isEditing}
+                                onInputChange={handleInputChange}
+                                className="md:col-span-2"
+                              />
+                           </div>
                             <PedidosCard
                                 data={data.pedidos}
                                 isEditing={isEditing}
