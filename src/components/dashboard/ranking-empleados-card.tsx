@@ -60,14 +60,14 @@ export function RankingEmpleadosCard({ ranking, isEditing, onInputChange, emplea
                                 <TableCell>
                                     {isEditing ? (
                                         <Select
-                                            value={empleado.id}
-                                            onValueChange={(value) => handleInputChange(index, 'id', value)}
+                                            value={empleado.id || 'VACIO'}
+                                            onValueChange={(value) => handleInputChange(index, 'id', value === 'VACIO' ? '' : value)}
                                         >
                                             <SelectTrigger className="w-full">
                                                 <SelectValue placeholder="Selecciona ID" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="">
+                                                <SelectItem value="VACIO">
                                                     <span className="text-muted-foreground">-- Vacío --</span>
                                                 </SelectItem>
                                                 {sortedEmpleados.map((e) => (
