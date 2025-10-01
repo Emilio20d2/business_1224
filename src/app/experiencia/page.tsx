@@ -177,6 +177,15 @@ function ExperienciaPageComponent() {
             needsSave = true;
         }
 
+        // Force sync of employees list
+        const masterEmpleadosIds = (listData.empleados || []).map(e => e.id).sort().join(',');
+        const reportEmpleadosIds = (reportData.listas.empleados || []).map(e => e.id).sort().join(',');
+        if (masterEmpleadosIds !== reportEmpleadosIds) {
+            reportData.listas.empleados = listData.empleados;
+            // No need to set needsSave, as this is client-side state for the component
+        }
+
+
         if (needsSave && canEdit) {
             await setDoc(reportRef, reportData, { merge: true });
         }
