@@ -6,14 +6,7 @@ import type { PedidosData } from '@/lib/data';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { Trophy, ShoppingCart, Target, TrendingUp, TrendingDown, PackageWarning, MapPin } from 'lucide-react';
-
-type PedidosCardProps = {
-    data: PedidosData;
-    isEditing: boolean;
-    onInputChange: (path: string, value: string | number) => void;
-    className?: string;
-};
+import { AlertTriangle } from 'lucide-react';
 
 const RankingIcon = () => (
     <div className="relative w-8 h-8">
@@ -22,6 +15,13 @@ const RankingIcon = () => (
         <div className="absolute bottom-0 right-0 w-3 h-3 bg-gray-400 border-2 border-gray-600 rounded-t-sm"></div>
     </div>
 );
+
+type PedidosCardProps = {
+    data: PedidosData;
+    isEditing: boolean;
+    onInputChange: (path: string, value: string | number) => void;
+    className?: string;
+};
 
 export function PedidosCard({ data, isEditing, onInputChange, className }: PedidosCardProps) {
     const { 
@@ -79,14 +79,14 @@ export function PedidosCard({ data, isEditing, onInputChange, className }: Pedid
                                         <stop offset="100%" stopColor={toColor} />
                                     </linearGradient>
                                 </defs>
-                                <circle cx="60" cy="60" r="54" fill="none" stroke="hsl(var(--muted))" strokeWidth="8" />
+                                <circle cx="60" cy="60" r="54" fill="none" stroke="hsl(var(--muted))" strokeWidth="12" />
                                 <circle
                                     cx="60"
                                     cy="60"
                                     r="54"
                                     fill="none"
                                     stroke="url(#progressGradient)"
-                                    strokeWidth="8"
+                                    strokeWidth="12"
                                     strokeDasharray={`${2 * Math.PI * 54}`}
                                     strokeDashoffset={`${2 * Math.PI * 54 * (1 - progressPercentage / 100)}`}
                                     strokeLinecap="round"
@@ -120,7 +120,7 @@ export function PedidosCard({ data, isEditing, onInputChange, className }: Pedid
                     {/* Right Column */}
                      <div className="flex flex-col items-center justify-between h-full gap-8">
                         <div className="flex flex-col items-center text-red-500">
-                           <PackageWarning className="h-8 w-8"/>
+                           <AlertTriangle className="h-8 w-8"/>
                            <h3 className="font-bold tracking-wider mt-1">PED. IPOD EXPIRADOS/SEM</h3>
                            {isEditing ? (
                              <Input type="number" defaultValue={pedidosIpodExpirados} onBlur={(e) => handleChange('pedidosIpodExpirados', e.target.value)} className="w-24 h-10 text-3xl text-center mt-1" />
