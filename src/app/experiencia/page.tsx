@@ -545,20 +545,18 @@ function ExperienciaPageComponent() {
                     <TabsContent value="experiencia" className="mt-0">
                         <div className="space-y-4">
                              {data.pedidos && (
-                                <>
-                                    <PedidosCard
-                                        data={data.pedidos}
-                                        isEditing={isEditing}
-                                        onInputChange={handleInputChange}
-                                    />
-                                    <RankingEmpleadosCard
-                                        ranking={data.pedidos.rankingEmpleados}
-                                        empleados={data.listas.empleados}
-                                        isEditing={isEditing}
-                                        onInputChange={handleInputChange}
-                                    />
-                                </>
+                                <PedidosCard
+                                    data={data.pedidos}
+                                    isEditing={isEditing}
+                                    onInputChange={handleInputChange}
+                                />
                              )}
+                            <RankingEmpleadosCard
+                                ranking={data.pedidos.rankingEmpleados}
+                                empleados={data.listas.empleados}
+                                isEditing={isEditing}
+                                onInputChange={handleInputChange}
+                            />
                         </div>
                     </TabsContent>
                     <TabsContent value="focus" className="mt-0">
@@ -619,7 +617,5 @@ export default function ExperienciaPage() {
         </Suspense>
     );
 }
-
-    
 
     
