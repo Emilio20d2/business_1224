@@ -6,13 +6,11 @@ import type { PedidosData } from '@/lib/data';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Trophy, TrendingUp, TrendingDown } from 'lucide-react';
 
 const RankingIcon = () => (
     <div className="relative w-8 h-8">
-        <div className="absolute bottom-0 left-0 w-3 h-4 bg-gray-400 border-2 border-gray-600 rounded-t-sm"></div>
-        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-3 h-6 bg-gray-400 border-2 border-gray-600 rounded-t-sm"></div>
-        <div className="absolute bottom-0 right-0 w-3 h-3 bg-gray-400 border-2 border-gray-600 rounded-t-sm"></div>
+        <Trophy className="w-8 h-8 text-yellow-500" />
     </div>
 );
 

@@ -52,11 +52,18 @@ export type PedidosData = {
     pedidosDiaSemanaAnterior: number;
     pedidosDiaSemanaProxima: number;
     pedidosIpodExpirados: number;
+    rankingEmpleados: {
+        id: string;
+        nombre: string;
+        pedidos: number;
+        unidades: number;
+    }[];
 };
 
 export type WeeklyData = {
     periodo: string;
     listas: {
+        empleados: Empleado[];
         compradorMan: string[];
         zonaComercialMan: string[];
         agrupacionComercialMan: string[];
@@ -195,6 +202,14 @@ type VentaDiaria = {
 // This function now provides only the lists for initial setup.
 export function getInitialLists(): WeeklyData['listas'] {
     return {
+        empleados: [
+            { id: '178306', nombre: 'GONZALEZ, DAVID' },
+            { id: '176100', nombre: 'MARTIN, ADRIAN' },
+            { id: '458410', nombre: 'NAVARRO, SERGIO' },
+            { id: '166946', nombre: 'GRACIA, ALBERTO' },
+            { id: '1439', nombre: 'DOMINGUEZ, DAVID' },
+            { id: '175184', nombre: 'GARCIA, JOSE MANUEL' },
+        ],
         compradorMan: ["Comprador A", "Comprador B", "Comprador C"],
         zonaComercialMan: ["Zona 1", "Zona 2", "Zona 3"],
         agrupacionComercialMan: ["Grupo Alpha", "Grupo Beta", "Grupo Gamma"],
@@ -232,6 +247,7 @@ const createInitialPedidosData = (): PedidosData => ({
     pedidosDiaSemanaAnterior: 0,
     pedidosDiaSemanaProxima: 0,
     pedidosIpodExpirados: 0,
+    rankingEmpleados: Array(10).fill({ id: '', nombre: '', pedidos: 0, unidades: 0 }),
 });
 
 

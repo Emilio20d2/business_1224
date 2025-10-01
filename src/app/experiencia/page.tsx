@@ -2,10 +2,10 @@
 
 "use client"
 import React, { useState, useContext, useEffect, useCallback, Suspense } from 'react';
-import type { WeeklyData } from "@/lib/data";
+import type { WeeklyData, Empleado } from "@/lib/data";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from '@/lib/firebase';
-import { Calendar as CalendarIcon, Settings, LogOut, Loader2, Briefcase, LayoutDashboard, Pencil, Projector, ChartLine, Receipt, Clock, ScanLine, Inbox, Ticket, Users, List } from 'lucide-react';
+import { Calendar as CalendarIcon, Settings, LogOut, Loader2, Briefcase, LayoutDashboard, Pencil, Projector, AlertTriangle, Users, List } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -34,6 +34,8 @@ import { formatNumber } from '@/lib/format';
 import { EditListDialog } from '@/components/dashboard/edit-list-dialog';
 import { PedidosCard } from '@/components/dashboard/pedidos-card';
 import { Tabs, TabsContent } from "@/components/ui/tabs";
+import { RankingEmpleadosCard } from '@/components/dashboard/ranking-empleados-card';
+import { EditEmpleadosDialog } from '@/components/dashboard/edit-empleados-dialog';
 
 
 type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan' | 'compradorWoman' | 'zonaComercialWoman' | 'agrupacionComercialWoman' | 'compradorNino' | 'zonaComercialNino' | 'agrupacionComercialNino' | 'compradorExperiencia';
@@ -72,6 +74,7 @@ function ExperienciaPageComponent() {
   const [isSaving, setIsSaving] = useState(false);
   
   const [isListDialogOpen, setListDialogOpen] = useState(false);
+  const [isEmpleadosDialogOpen, setEmpleadosDialogOpen] = useState(false);
   const [listToEdit, setListToEdit] = useState<{ listKey: EditableList, title: string } | null>(null);
 
   const selectedWeek = searchParams.get('week') || '';
@@ -140,6 +143,8 @@ function ExperienciaPageComponent() {
         }
 
         let reportData: WeeklyData;
+        let needsSave = false;
+
         if (!reportSnap.exists()) {
              if (canEdit) {
                 toast({
@@ -164,6 +169,16 @@ function ExperienciaPageComponent() {
                 nino: "",
                 experiencia: typeof reportData.focusSemanal === 'string' ? reportData.focusSemanal : ""
             };
+            needsSave = true;
+        }
+
+        if (!reportData.pedidos) {
+            reportData.pedidos = getInitialDataForWeek(weekId, listData).pedidos;
+            needsSave = true;
+        }
+
+        if (needsSave && canEdit) {
+            await setDoc(reportRef, reportData, { merge: true });
         }
         
         setData(reportData);
@@ -192,18 +207,6 @@ function ExperienciaPageComponent() {
   }, [user, authLoading, router, fetchData, selectedWeek, canEdit, updateUrl]);
 
 
-  const handleFocusChange = (newValue: string) => {
-    if (!canEdit) return;
-    setData(prevData => {
-      if (!prevData) return null;
-       const updatedFocus = { ...(prevData.focusSemanal || { man: "", woman: "", nino: "", experiencia: "" }), experiencia: newValue };
-      return {
-        ...prevData,
-        focusSemanal: updatedFocus,
-      };
-    });
-  };
-
   const handleInputChange = (path: string, value: any) => {
     if (!canEdit) return;
 
@@ -225,6 +228,18 @@ function ExperienciaPageComponent() {
         
         if (keys[0] === 'focusSemanal') {
             updatedData.focusSemanal.experiencia = value;
+        } else if (path.startsWith('pedidos.rankingEmpleados')) {
+            const [, , indexStr, field] = keys;
+            const index = parseInt(indexStr, 10);
+            
+            if (field === 'id') {
+                const selectedEmpleado = updatedData.listas.empleados.find((e: Empleado) => e.id === value);
+                updatedData.pedidos.rankingEmpleados[index].id = value;
+                updatedData.pedidos.rankingEmpleados[index].nombre = selectedEmpleado ? selectedEmpleado.nombre : 'No encontrado';
+            } else {
+                const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
+                (updatedData.pedidos.rankingEmpleados[index] as any)[field] = isNaN(numericValue) || value === "" ? 0 : numericValue;
+            }
         }
         else {
             const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
@@ -292,6 +307,28 @@ function ExperienciaPageComponent() {
         })
         .catch(async (error: any) => {
             setError(`Error al guardar la lista: ${error.message}`);
+        })
+        .finally(() => {
+            setIsSaving(false);
+        });
+  };
+
+  const handleSaveEmpleados = async (empleados: Empleado[]) => {
+    if (!canEdit) return;
+    setIsSaving(true);
+    const listsRef = doc(db, "configuracion", "listas");
+
+    updateDoc(listsRef, { empleados: empleados })
+        .then(() => {
+            toast({
+                title: "Lista de empleados actualizada",
+                description: `La lista de empleados se ha guardado.`,
+            });
+            setEmpleadosDialogOpen(false);
+            fetchData(selectedWeek); // Refetch data to update the UI
+        })
+        .catch(async (error: any) => {
+            setError(`Error al guardar la lista de empleados: ${error.message}`);
         })
         .finally(() => {
             setIsSaving(false);
@@ -428,6 +465,10 @@ function ExperienciaPageComponent() {
                   <DropdownMenuSeparator />
                   {canEdit && (
                       <>
+                      <DropdownMenuItem onSelect={() => setEmpleadosDialogOpen(true)}>
+                        <Users className="mr-2 h-4 w-4 text-primary" />
+                        <span>Editar Empleados</span>
+                      </DropdownMenuItem>
                       <DropdownMenuSub>
                         <DropdownMenuSubTrigger>
                           <List className="mr-2 h-4 w-4 text-primary" />
@@ -489,80 +530,21 @@ function ExperienciaPageComponent() {
 
                     <TabsContent value="experiencia" className="mt-0">
                         <div className="space-y-4">
-                            {data.rendimientoTienda && data.general && (
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <KpiCard title="Rendimiento de Tienda" icon={<ChartLine className="h-5 w-5 text-primary" />} className="md:col-span-1">
-                                        <DatoDoble 
-                                            label="Tráfico" 
-                                            value={formatNumber(data.rendimientoTienda.trafico)} 
-                                            variation={data.rendimientoTienda.varPorcTrafico}
-                                            isEditing={isEditing}
-                                            valueId="rendimientoTienda.trafico"
-                                            variationId="rendimientoTienda.varPorcTrafico"
-                                            onInputChange={handleInputChange}
-                                        />
-                                        <DatoDoble 
-                                            label="Conversión" 
-                                            value={`${data.rendimientoTienda.conversion.toFixed(1)}%`}
-                                            variation={data.rendimientoTienda.varPorcConversion}
-                                            isEditing={isEditing}
-                                            valueId="rendimientoTienda.conversion"
-                                            variationId="rendimientoTienda.varPorcConversion"
-                                            onInputChange={handleInputChange}
-                                        />
-                                    </KpiCard>
-                                    <KpiCard title="Caja" icon={<Receipt className="h-5 w-5 text-primary" />} className="md:col-span-2">
-                                        <div className="grid grid-cols-4 gap-4 h-full">
-                                          <DatoSimple 
-                                            icon={<Clock className="h-5 w-5 text-primary"/>} 
-                                            label="Filas Caja" 
-                                            value={data.general.operaciones.filasCajaPorc}
-                                            isEditing={isEditing}
-                                            align="center" 
-                                            unit="%"
-                                            valueId="general.operaciones.filasCajaPorc"
-                                            onInputChange={handleInputChange}
-                                          />
-                                          <DatoSimple 
-                                            icon={<ScanLine className="h-5 w-5 text-primary"/>} 
-                                            label="ACO" 
-                                            value={data.general.operaciones.scoPorc}
-                                            isEditing={isEditing}
-                                            align="center" 
-                                            unit="%"
-                                            valueId="general.operaciones.scoPorc"
-                                            onInputChange={handleInputChange}
-                                          />
-                                          <DatoSimple 
-                                            icon={<Inbox className="h-5 w-5 text-primary"/>} 
-                                            label="DropOff" 
-                                            value={data.general.operaciones.dropOffPorc} 
-                                            isEditing={isEditing}
-                                            align="center" 
-                                            unit="%"
-                                            valueId="general.operaciones.dropOffPorc"
-                                            onInputChange={handleInputChange}
-                                          />
-                                           <DatoSimple 
-                                            icon={<Ticket className="h-5 w-5 text-primary" />} 
-                                            label="E-Ticket" 
-                                            value={data.general.operaciones.eTicketPorc}
-                                            isEditing={isEditing}
-                                            align="center" 
-                                            unit="%"
-                                            valueId="general.operaciones.eTicketPorc"
-                                            onInputChange={handleInputChange}
-                                          />
-                                        </div>
-                                    </KpiCard>
-                                </div>
-                            )}
                              {data.pedidos && (
-                                <PedidosCard
-                                    data={data.pedidos}
-                                    isEditing={isEditing}
-                                    onInputChange={handleInputChange}
-                                />
+                                <>
+                                    <PedidosCard
+                                        data={data.pedidos}
+                                        isEditing={isEditing}
+                                        onInputChange={handleInputChange}
+                                    />
+                                    <RankingEmpleadosCard
+                                        key={JSON.stringify(data.pedidos.rankingEmpleados)}
+                                        ranking={data.pedidos.rankingEmpleados}
+                                        empleados={data.listas.empleados}
+                                        isEditing={isEditing}
+                                        onInputChange={handleInputChange}
+                                    />
+                                </>
                              )}
                         </div>
                     </TabsContent>
@@ -595,6 +577,15 @@ function ExperienciaPageComponent() {
               }
             }}
           />
+        )}
+
+        {canEdit && data?.listas && (
+            <EditEmpleadosDialog
+              isOpen={isEmpleadosDialogOpen}
+              onClose={() => setEmpleadosDialogOpen(false)}
+              empleados={data.listas.empleados || []}
+              onSave={handleSaveEmpleados}
+            />
         )}
       </div>
     </TooltipProvider>

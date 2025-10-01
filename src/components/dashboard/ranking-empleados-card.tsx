@@ -110,5 +110,3 @@ export function RankingEmpleadosCard({ ranking, isEditing, onInputChange, emplea
         </Card>
     );
 }
-
-    
