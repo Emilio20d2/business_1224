@@ -526,7 +526,7 @@ function ExperienciaPageComponent() {
           </div>
         </header>
         
-        <main className="space-y-4">
+        <main>
            {data ? (
                 <Tabs value={activeSubTab} onValueChange={setActiveSubTab} className="w-full">
                     <div className="mb-4 grid w-full grid-cols-2 gap-2">
@@ -544,13 +544,11 @@ function ExperienciaPageComponent() {
 
                     <TabsContent value="experiencia" className="mt-0">
                         <div className="space-y-4">
-                             {data.pedidos && (
-                                <PedidosCard
-                                    data={data.pedidos}
-                                    isEditing={isEditing}
-                                    onInputChange={handleInputChange}
-                                />
-                             )}
+                            <PedidosCard
+                                data={data.pedidos}
+                                isEditing={isEditing}
+                                onInputChange={handleInputChange}
+                            />
                             <RankingEmpleadosCard
                                 ranking={data.pedidos.rankingEmpleados}
                                 empleados={data.listas.empleados}
