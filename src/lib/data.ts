@@ -315,7 +315,7 @@ const createInitialSectionSpecificData = (): SectionSpecificData => ({
     }
 });
 
-const createInitialPedidosData = (empleados: Empleado[]): PedidosData => ({
+const createInitialPedidosData = (): PedidosData => ({
     rankingNacional: 0,
     pedidosDia: 0,
     unidadesDia: 0,
@@ -414,7 +414,7 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
             texto: "",
             focus: "",
         },
-        pedidos: createInitialPedidosData(lists.empleados),
+        pedidos: createInitialPedidosData(),
         acumulado: {
             mensual: {
                 totalEuros: 0, varPorcTotal: 0,
