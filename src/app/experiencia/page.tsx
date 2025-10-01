@@ -34,8 +34,6 @@ import { formatNumber } from '@/lib/format';
 import { EditListDialog } from '@/components/dashboard/edit-list-dialog';
 import { PedidosCard } from '@/components/dashboard/pedidos-card';
 import { Tabs, TabsContent } from "@/components/ui/tabs";
-import { RankingEmpleadosCard } from '@/components/dashboard/ranking-empleados-card';
-import { EditEmpleadosDialog } from '@/components/dashboard/edit-empleados-dialog';
 
 
 type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan' | 'compradorWoman' | 'zonaComercialWoman' | 'agrupacionComercialWoman' | 'compradorNino' | 'zonaComercialNino' | 'agrupacionComercialNino' | 'compradorExperiencia';
@@ -74,7 +72,6 @@ function ExperienciaPageComponent() {
   const [isSaving, setIsSaving] = useState(false);
   
   const [isListDialogOpen, setListDialogOpen] = useState(false);
-  const [isEmpleadosDialogOpen, setEmpleadosDialogOpen] = useState(false);
   const [listToEdit, setListToEdit] = useState<{ listKey: EditableList, title: string } | null>(null);
 
   const selectedWeek = searchParams.get('week') || '';
@@ -132,9 +129,9 @@ function ExperienciaPageComponent() {
             getDoc(listsRef),
         ]);
         
-        let listData: WeeklyData['listas'];
+        let listData: Omit<WeeklyData['listas'], 'empleados'>;
         if (listsSnap.exists()) {
-            listData = listsSnap.data() as WeeklyData['listas'];
+            listData = listsSnap.data() as Omit<WeeklyData['listas'], 'empleados'>;
         } else {
             listData = getInitialLists();
             if (canEdit) {
@@ -151,7 +148,7 @@ function ExperienciaPageComponent() {
                     title: "Creando nueva semana",
                     description: `El informe para "${weekId}" no existía y se ha creado uno nuevo.`,
                 });
-                reportData = getInitialDataForWeek(weekId, listData);
+                reportData = getInitialDataForWeek(weekId, { ...listData, empleados: [] });
                 await setDoc(reportRef, reportData);
             } else {
                 throw new Error(`No se encontró ningún informe para la semana "${weekId}".`);
@@ -160,7 +157,7 @@ function ExperienciaPageComponent() {
             reportData = reportSnap.data() as WeeklyData;
         }
 
-        reportData.listas = listData;
+        reportData.listas = { ...listData, empleados: reportData.listas.empleados || [] };
         
         if (typeof reportData.focusSemanal === 'string' || !reportData.focusSemanal) {
             reportData.focusSemanal = {
@@ -173,18 +170,9 @@ function ExperienciaPageComponent() {
         }
 
         if (!reportData.pedidos) {
-            reportData.pedidos = getInitialDataForWeek(weekId, listData).pedidos;
+            reportData.pedidos = getInitialDataForWeek(weekId, listData as WeeklyData['listas']).pedidos;
             needsSave = true;
         }
-
-        // Force sync of employees list
-        const masterEmpleadosIds = (listData.empleados || []).map(e => e.id).sort().join(',');
-        const reportEmpleadosIds = (reportData.listas.empleados || []).map(e => e.id).sort().join(',');
-        if (masterEmpleadosIds !== reportEmpleadosIds) {
-            reportData.listas.empleados = listData.empleados;
-            // No need to set needsSave, as this is client-side state for the component
-        }
-
 
         if (needsSave && canEdit) {
             await setDoc(reportRef, reportData, { merge: true });
@@ -237,20 +225,7 @@ function ExperienciaPageComponent() {
         
         if (keys[0] === 'focusSemanal') {
             updatedData.focusSemanal.experiencia = value;
-        } else if (path.startsWith('pedidos.rankingEmpleados')) {
-            const [, , indexStr, field] = keys;
-            const index = parseInt(indexStr, 10);
-            
-            if (field === 'id') {
-                const selectedEmpleado = updatedData.listas.empleados.find((e: Empleado) => e.id === value);
-                updatedData.pedidos.rankingEmpleados[index].id = value;
-                updatedData.pedidos.rankingEmpleados[index].nombre = selectedEmpleado ? selectedEmpleado.nombre : 'No encontrado';
-            } else {
-                const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
-                (updatedData.pedidos.rankingEmpleados[index] as any)[field] = isNaN(numericValue) || value === "" ? 0 : numericValue;
-            }
-        }
-        else {
+        } else {
             const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
             current[finalKey] = isNaN(numericValue) || value === "" ? 0 : numericValue;
         }
@@ -316,28 +291,6 @@ function ExperienciaPageComponent() {
         })
         .catch(async (error: any) => {
             setError(`Error al guardar la lista: ${error.message}`);
-        })
-        .finally(() => {
-            setIsSaving(false);
-        });
-  };
-
-  const handleSaveEmpleados = async (empleados: Empleado[]) => {
-    if (!canEdit) return;
-    setIsSaving(true);
-    const listsRef = doc(db, "configuracion", "listas");
-
-    updateDoc(listsRef, { empleados: empleados })
-        .then(() => {
-            toast({
-                title: "Lista de empleados actualizada",
-                description: `La lista de empleados se ha guardado.`,
-            });
-            setEmpleadosDialogOpen(false);
-            fetchData(selectedWeek); // Refetch data to update the UI
-        })
-        .catch(async (error: any) => {
-            setError(`Error al guardar la lista de empleados: ${error.message}`);
         })
         .finally(() => {
             setIsSaving(false);
@@ -474,10 +427,6 @@ function ExperienciaPageComponent() {
                   <DropdownMenuSeparator />
                   {canEdit && (
                       <>
-                      <DropdownMenuItem onSelect={() => setEmpleadosDialogOpen(true)}>
-                        <Users className="mr-2 h-4 w-4 text-primary" />
-                        <span>Editar Empleados</span>
-                      </DropdownMenuItem>
                       <DropdownMenuSub>
                         <DropdownMenuSubTrigger>
                           <List className="mr-2 h-4 w-4 text-primary" />
@@ -546,13 +495,6 @@ function ExperienciaPageComponent() {
                                         isEditing={isEditing}
                                         onInputChange={handleInputChange}
                                     />
-                                    <RankingEmpleadosCard
-                                        key={JSON.stringify(data.pedidos.rankingEmpleados)}
-                                        ranking={data.pedidos.rankingEmpleados}
-                                        empleados={data.listas.empleados}
-                                        isEditing={isEditing}
-                                        onInputChange={handleInputChange}
-                                    />
                                 </>
                              )}
                         </div>
@@ -588,14 +530,6 @@ function ExperienciaPageComponent() {
           />
         )}
 
-        {canEdit && data?.listas && (
-            <EditEmpleadosDialog
-              isOpen={isEmpleadosDialogOpen}
-              onClose={() => setEmpleadosDialogOpen(false)}
-              empleados={data.listas.empleados || []}
-              onSave={handleSaveEmpleados}
-            />
-        )}
       </div>
     </TooltipProvider>
   );

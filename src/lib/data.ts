@@ -200,30 +200,8 @@ type VentaDiaria = {
 };
 
 // This function now provides only the lists for initial setup.
-export function getInitialLists(): WeeklyData['listas'] {
+export function getInitialLists(): Omit<WeeklyData['listas'], 'empleados'> {
     return {
-       empleados: [
-            { id: "10535", nombre: "MARIA ARANTZAZU VILLACAMPA-GINER GARCIA" },
-            { id: "11449", nombre: "EVA MARIA NUEZ SIERRA" },
-            { id: "11479", nombre: "MARIA ARANTXA GASCA JIMENEZ" },
-            { id: "11496", nombre: "GEMMA RUIZ CEJUDO" },
-            { id: "11501", nombre: "NOELIA LOPEZ PARDO" },
-            { id: "11509", nombre: "NOELIA PARDO CALAVIA" },
-            { id: "11551", nombre: "NOELIA LOPEZ PARDO" },
-            { id: "131951", nombre: "CRISTINA VIDAL CASTIELLO" },
-            { id: "136213", nombre: "CAROLINA PEREZ SANCHEZ" },
-            { id: "136473", nombre: "SUSANA ALVARO NUEZ" },
-            { id: "13884", nombre: "CRISTINA UCHE CHAURE" },
-            { id: "142147", nombre: "ANA GOMEZ ALAMAN" },
-            { id: "1423", nombre: "OBDULIA SANCHEZ DOPICO" },
-            { id: "1443", nombre: "MARIA CIPRIANA MONJE REBENAQUE" },
-            { id: "1449", nombre: "EVA MARIA NUEZ SIERRA" },
-            { id: "14736", nombre: "GEMMA RUIZ CEJUDO" },
-            { id: "14798", nombre: "MARIA ARANTXA GASCA JIMENEZ" },
-            { id: "157207", nombre: "ALBERTO BIEL GAUDES" },
-            { id: "170224", nombre: "PATRICIA MARCO CORVINOS" },
-            { id: "172543", nombre: "IRIS GIMENEZ MUÑOZ" }
-        ],
         compradorMan: ["Comprador A", "Comprador B", "Comprador C"],
         zonaComercialMan: ["Zona 1", "Zona 2", "Zona 3"],
         agrupacionComercialMan: ["Grupo Alpha", "Grupo Beta", "Grupo Gamma"],
@@ -261,7 +239,7 @@ const createInitialPedidosData = (): PedidosData => ({
     pedidosDiaSemanaAnterior: 0,
     pedidosDiaSemanaProxima: 0,
     pedidosIpodExpirados: 0,
-    rankingEmpleados: Array(10).fill(null).map(() => ({ id: '', nombre: '', pedidos: 0, unidades: 0 })),
+    rankingEmpleados: [],
 });
 
 
