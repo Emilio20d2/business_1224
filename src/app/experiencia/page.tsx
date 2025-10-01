@@ -5,7 +5,7 @@ import React, { useState, useContext, useEffect, useCallback, Suspense } from 'r
 import type { WeeklyData, Empleado } from "@/lib/data";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from '@/lib/firebase';
-import { Calendar as CalendarIcon, Settings, LogOut, Loader2, Briefcase, LayoutDashboard, Pencil, Projector, AlertTriangle, Users, List } from 'lucide-react';
+import { Calendar as CalendarIcon, Settings, LogOut, Loader2, Briefcase, LayoutDashboard, Pencil, Projector, AlertTriangle, Users, List, UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -29,11 +29,11 @@ import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { formatWeekIdToDateRange, getCurrentWeekId, getWeekIdFromDate, getPreviousWeekId } from '@/lib/format';
 import { FocusSemanalTab } from '@/components/dashboard/focus-semanal-tab';
-import { KpiCard, DatoDoble, DatoSimple } from '@/components/dashboard/kpi-card';
-import { formatNumber } from '@/lib/format';
 import { EditListDialog } from '@/components/dashboard/edit-list-dialog';
 import { PedidosCard } from '@/components/dashboard/pedidos-card';
 import { Tabs, TabsContent } from "@/components/ui/tabs";
+import { EditEmpleadosDialog } from '@/components/dashboard/edit-empleados-dialog';
+import { RankingEmpleadosCard } from '@/components/dashboard/ranking-empleados-card';
 
 
 type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan' | 'compradorWoman' | 'zonaComercialWoman' | 'agrupacionComercialWoman' | 'compradorNino' | 'zonaComercialNino' | 'agrupacionComercialNino' | 'compradorExperiencia';
@@ -73,6 +73,7 @@ function ExperienciaPageComponent() {
   
   const [isListDialogOpen, setListDialogOpen] = useState(false);
   const [listToEdit, setListToEdit] = useState<{ listKey: EditableList, title: string } | null>(null);
+  const [isEmpleadosDialogOpen, setEmpleadosDialogOpen] = useState(false);
 
   const selectedWeek = searchParams.get('week') || '';
   const activeTab = "experiencia";
@@ -129,9 +130,9 @@ function ExperienciaPageComponent() {
             getDoc(listsRef),
         ]);
         
-        let listData: Omit<WeeklyData['listas'], 'empleados'>;
+        let listData: WeeklyData['listas'];
         if (listsSnap.exists()) {
-            listData = listsSnap.data() as Omit<WeeklyData['listas'], 'empleados'>;
+            listData = listsSnap.data() as WeeklyData['listas'];
         } else {
             listData = getInitialLists();
             if (canEdit) {
@@ -148,7 +149,7 @@ function ExperienciaPageComponent() {
                     title: "Creando nueva semana",
                     description: `El informe para "${weekId}" no existía y se ha creado uno nuevo.`,
                 });
-                reportData = getInitialDataForWeek(weekId, { ...listData, empleados: [] });
+                reportData = getInitialDataForWeek(weekId, listData);
                 await setDoc(reportRef, reportData);
             } else {
                 throw new Error(`No se encontró ningún informe para la semana "${weekId}".`);
@@ -157,7 +158,12 @@ function ExperienciaPageComponent() {
             reportData = reportSnap.data() as WeeklyData;
         }
 
-        reportData.listas = { ...listData, empleados: reportData.listas.empleados || [] };
+        reportData.listas = { ...listData, empleados: reportData.listas.empleados || listData.empleados };
+
+        if (!reportData.listas.empleados || reportData.listas.empleados.length === 0) {
+            reportData.listas.empleados = listData.empleados;
+            needsSave = true;
+        }
         
         if (typeof reportData.focusSemanal === 'string' || !reportData.focusSemanal) {
             reportData.focusSemanal = {
@@ -173,6 +179,12 @@ function ExperienciaPageComponent() {
             reportData.pedidos = getInitialDataForWeek(weekId, listData as WeeklyData['listas']).pedidos;
             needsSave = true;
         }
+
+        if (!reportData.pedidos.rankingEmpleados || reportData.pedidos.rankingEmpleados.length === 0) {
+            reportData.pedidos.rankingEmpleados = Array.from({ length: 10 }, () => ({ id: '', nombre: '', pedidos: 0, unidades: 0 }));
+            needsSave = true;
+        }
+
 
         if (needsSave && canEdit) {
             await setDoc(reportRef, reportData, { merge: true });
@@ -225,6 +237,20 @@ function ExperienciaPageComponent() {
         
         if (keys[0] === 'focusSemanal') {
             updatedData.focusSemanal.experiencia = value;
+        } else if (keys[0] === 'pedidos' && keys[1] === 'rankingEmpleados') {
+            const index = parseInt(keys[2], 10);
+            const field = keys[3];
+            const ranking = updatedData.pedidos.rankingEmpleados;
+
+            if (field === 'id') {
+                const selectedEmployee = updatedData.listas.empleados.find((e: Empleado) => e.id === value);
+                ranking[index].id = value;
+                ranking[index].nombre = selectedEmployee ? selectedEmployee.nombre : '';
+            } else {
+                const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
+                (ranking[index] as any)[field] = isNaN(numericValue) || value === "" ? 0 : numericValue;
+            }
+
         } else {
             const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
             current[finalKey] = isNaN(numericValue) || value === "" ? 0 : numericValue;
@@ -296,6 +322,27 @@ function ExperienciaPageComponent() {
             setIsSaving(false);
         });
   };
+
+    const handleSaveEmpleados = async (newItems: Empleado[]) => {
+      if (!canEdit) return;
+      setIsSaving(true);
+      const listsRef = doc(db, "configuracion", "listas");
+
+      try {
+        await updateDoc(listsRef, { empleados: newItems });
+        toast({
+          title: "Lista de empleados actualizada",
+          description: "La lista de empleados se ha guardado correctamente.",
+        });
+        setEmpleadosDialogOpen(false);
+        await fetchData(selectedWeek);
+      } catch (error: any) {
+        setError(`Error al guardar la lista de empleados: ${error.message}`);
+      } finally {
+        setIsSaving(false);
+      }
+    };
+
 
   
   const tabButtons = [
@@ -427,6 +474,10 @@ function ExperienciaPageComponent() {
                   <DropdownMenuSeparator />
                   {canEdit && (
                       <>
+                      <DropdownMenuItem onSelect={() => setEmpleadosDialogOpen(true)}>
+                        <UserPlus className="mr-2 h-4 w-4 text-primary" />
+                        <span>Editar Empleados</span>
+                      </DropdownMenuItem>
                       <DropdownMenuSub>
                         <DropdownMenuSubTrigger>
                           <List className="mr-2 h-4 w-4 text-primary" />
@@ -495,6 +546,12 @@ function ExperienciaPageComponent() {
                                         isEditing={isEditing}
                                         onInputChange={handleInputChange}
                                     />
+                                    <RankingEmpleadosCard
+                                        ranking={data.pedidos.rankingEmpleados}
+                                        empleados={data.listas.empleados}
+                                        isEditing={isEditing}
+                                        onInputChange={handleInputChange}
+                                    />
                                 </>
                              )}
                         </div>
@@ -529,6 +586,15 @@ function ExperienciaPageComponent() {
             }}
           />
         )}
+        {data && (
+            <EditEmpleadosDialog
+                isOpen={isEmpleadosDialogOpen}
+                onClose={() => setEmpleadosDialogOpen(false)}
+                empleados={data.listas.empleados}
+                onSave={handleSaveEmpleados}
+            />
+        )}
+
 
       </div>
     </TooltipProvider>
