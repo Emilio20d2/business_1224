@@ -26,7 +26,7 @@ export function EditEmpleadosDialog({ isOpen, onClose, empleados, onSave }: Edit
   const [newId, setNewId] = useState('');
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && empleados) {
       const sortedEmpleados = [...(empleados || [])].sort((a, b) => a.nombre.localeCompare(b.nombre));
       setCurrentItems(sortedEmpleados);
     }
@@ -80,13 +80,13 @@ export function EditEmpleadosDialog({ isOpen, onClose, empleados, onSave }: Edit
                     <div></div>
                 </div>
               {currentItems.map((item, index) => (
-                <div key={item.id} className="grid grid-cols-[1fr_2fr_auto] items-center gap-2">
+                <div key={`${item.id}-${index}`} className="grid grid-cols-[1fr_2fr_auto] items-center gap-2">
                   <Input 
-                    value={item.id}
+                    value={item.id || ''}
                     onChange={(e) => handleItemChange(index, 'id', e.target.value)}
                   />
                   <Input 
-                    value={item.nombre}
+                    value={item.nombre || ''}
                     onChange={(e) => handleItemChange(index, 'nombre', e.target.value)}
                   />
                   <Button variant="ghost" size="icon" onClick={() => handleRemoveItem(item.id)}>
