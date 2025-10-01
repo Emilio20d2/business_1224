@@ -119,7 +119,7 @@ export function PedidosCard({ data, isEditing, onInputChange, className }: Pedid
 
                     {/* Right Column */}
                      <div className="flex flex-col items-center justify-between h-full gap-8">
-                        <div className="flex flex-col items-center text-red-500">
+                        <div className="flex flex-col items-center text-gray-800">
                            <AlertTriangle className="h-8 w-8"/>
                            <h3 className="font-bold tracking-wider mt-1">PED. IPOD EXPIRADOS/SEM</h3>
                            {isEditing ? (
