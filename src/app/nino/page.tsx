@@ -593,11 +593,11 @@ function NinoPageComponent() {
             }}
           />
         )}
-        {canEdit && data?.listas?.empleados && (
+        {canEdit && (
             <EditEmpleadosDialog
                 isOpen={isEmpleadosDialogOpen}
                 onClose={() => setEmpleadosDialogOpen(false)}
-                empleados={data.listas.empleados}
+                empleados={data?.listas?.empleados || []}
                 onSave={handleSaveEmpleados}
             />
         )}
@@ -619,3 +619,5 @@ export default function NinoPage() {
         </Suspense>
     );
 }
+
+    

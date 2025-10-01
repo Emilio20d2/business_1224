@@ -614,6 +614,7 @@ function ExperienciaPageComponent() {
                              )}
                              {data.pedidos?.rankingEmpleados && data.listas.empleados && (
                                 <RankingEmpleadosCard
+                                    key={JSON.stringify(data.pedidos.rankingEmpleados)}
                                     ranking={data.pedidos.rankingEmpleados}
                                     isEditing={isEditing}
                                     onInputChange={handleInputChange}
@@ -653,11 +654,11 @@ function ExperienciaPageComponent() {
           />
         )}
 
-        {canEdit && data?.listas?.empleados && (
+        {canEdit && (
             <EditEmpleadosDialog
                 isOpen={isEmpleadosDialogOpen}
                 onClose={() => setEmpleadosDialogOpen(false)}
-                empleados={data.listas.empleados}
+                empleados={data?.listas?.empleados || []}
                 onSave={handleSaveEmpleados}
             />
         )}
@@ -679,5 +680,7 @@ export default function ExperienciaPage() {
         </Suspense>
     );
 }
+
+    
 
     
