@@ -34,11 +34,11 @@ export function PedidosCard({ data, isEditing, onInputChange, className }: Pedid
         pedidosIpodExpirados
     } = data;
     
-    const isObjectiveMet = pedidosDia >= objetivoSemanal;
-    const circleColor = isObjectiveMet ? 'text-green-500' : 'text-red-500';
-    const circleBgColor = isObjectiveMet ? 'bg-green-500/10' : 'bg-red-500/10';
-
-    const progressPercentage = objetivoSemanal > 0 ? (pedidosDia / objetivoSemanal) * 100 : 0;
+    const isObjectiveMet = objetivoSemanal > 0 && pedidosDia >= objetivoSemanal;
+    const progressPercentage = objetivoSemanal > 0 ? Math.min((pedidosDia / objetivoSemanal) * 100, 100) : 0;
+    
+    const fromColor = isObjectiveMet ? '#10B981' : '#EF4444'; // green-500 or red-500
+    const toColor = isObjectiveMet ? '#6EE7B7' : '#F87171'; // green-300 or red-400
 
     const handleChange = (field: keyof PedidosData, value: string) => {
         onInputChange(`pedidos.${field}`, value);
@@ -47,25 +47,10 @@ export function PedidosCard({ data, isEditing, onInputChange, className }: Pedid
     return (
         <Card className={cn("p-4 font-aptos", className)}>
             <CardContent className="p-0">
-                <div className="flex items-center justify-between text-gray-600 text-sm mb-4">
-                    <div className="flex items-center gap-2">
-                       <MapPin className="h-4 w-4" />
-                       <span className="font-bold">01224_ZAR-PUERTO VENECIA</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-red-500 font-semibold">
-                       <span>PED. IPOD EXPIRADOS/SEM</span>
-                       {isEditing ? (
-                         <Input type="number" defaultValue={pedidosIpodExpirados} onBlur={(e) => handleChange('pedidosIpodExpirados', e.target.value)} className="w-16 h-8 text-center" />
-                       ) : (
-                         <span className="text-xl">{pedidosIpodExpirados}</span>
-                       )}
-                    </div>
-                </div>
-
                 <div className="grid grid-cols-3 items-center text-center gap-4">
                     {/* Left Column */}
-                    <div className="flex flex-col items-center justify-around h-full gap-8">
-                        <div className="flex flex-col items-center">
+                    <div className="flex flex-col items-center justify-between h-full gap-8">
+                       <div className="flex flex-col items-center">
                             <RankingIcon />
                             <h3 className="font-bold tracking-wider mt-1">RANKING NACIONAL</h3>
                             {isEditing ? (
@@ -86,22 +71,28 @@ export function PedidosCard({ data, isEditing, onInputChange, className }: Pedid
 
                     {/* Center Column */}
                     <div className="flex flex-col items-center justify-center">
-                        <div className={cn("relative w-48 h-48 rounded-full flex items-center justify-center", circleBgColor)}>
-                            <svg className="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
-                                <circle cx="60" cy="60" r="54" fill="none" stroke="currentColor" strokeWidth="3" className="opacity-20" />
+                         <div className="relative w-48 h-48">
+                           <svg className="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
+                                <defs>
+                                    <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stopColor={fromColor} />
+                                        <stop offset="100%" stopColor={toColor} />
+                                    </linearGradient>
+                                </defs>
+                                <circle cx="60" cy="60" r="54" fill="none" stroke="hsl(var(--muted))" strokeWidth="8" />
                                 <circle
                                     cx="60"
                                     cy="60"
                                     r="54"
                                     fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="6"
+                                    stroke="url(#progressGradient)"
+                                    strokeWidth="8"
                                     strokeDasharray={`${2 * Math.PI * 54}`}
-                                    strokeDashoffset={`${2 * Math.PI * 54 * (1 - Math.min(progressPercentage, 100) / 100)}`}
+                                    strokeDashoffset={`${2 * Math.PI * 54 * (1 - progressPercentage / 100)}`}
                                     strokeLinecap="round"
                                 />
                             </svg>
-                            <div className="absolute flex flex-col items-center text-gray-800">
+                            <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-800">
                                 <div className="text-xs text-gray-500">UNIDADES/DIA</div>
                                 {isEditing ? (
                                     <Input type="number" defaultValue={unidadesDia} onBlur={(e) => handleChange('unidadesDia', e.target.value)} className="w-16 h-8 text-center text-lg -mt-1" />
@@ -127,8 +118,16 @@ export function PedidosCard({ data, isEditing, onInputChange, className }: Pedid
                     </div>
 
                     {/* Right Column */}
-                     <div className="flex flex-col items-center justify-around h-full gap-8">
-                        <div></div>
+                     <div className="flex flex-col items-center justify-between h-full gap-8">
+                        <div className="flex flex-col items-center text-red-500">
+                           <PackageWarning className="h-8 w-8"/>
+                           <h3 className="font-bold tracking-wider mt-1">PED. IPOD EXPIRADOS/SEM</h3>
+                           {isEditing ? (
+                             <Input type="number" defaultValue={pedidosIpodExpirados} onBlur={(e) => handleChange('pedidosIpodExpirados', e.target.value)} className="w-24 h-10 text-3xl text-center mt-1" />
+                           ) : (
+                             <span className="text-4xl font-bold">{pedidosIpodExpirados}</span>
+                           )}
+                        </div>
                         <div className="flex flex-col items-center">
                              {isEditing ? (
                                 <Input type="number" defaultValue={pedidosDiaSemanaProxima} onBlur={(e) => handleChange('pedidosDiaSemanaProxima', e.target.value)} className="w-24 h-10 text-3xl text-center" />
