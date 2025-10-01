@@ -1,5 +1,4 @@
 
-
 "use client"
 import React, { useState, useContext, useEffect, useCallback, Suspense } from 'react';
 import type { WeeklyData, Empleado } from "@/lib/data";
@@ -160,12 +159,20 @@ function ExperienciaPageComponent() {
 
         reportData.listas = listData;
 
+        // --- FORCED INITIALIZATION ---
+        let needsSave = false;
         if (!reportData.pedidos) {
             reportData.pedidos = getInitialDataForWeek(weekId, listData).pedidos;
-             if (canEdit) {
-                await setDoc(reportRef, { pedidos: reportData.pedidos }, { merge: true });
-             }
+            needsSave = true;
         }
+        if (!reportData.pedidos.rankingEmpleados) {
+            reportData.pedidos.rankingEmpleados = getInitialDataForWeek(weekId, listData).pedidos.rankingEmpleados;
+            needsSave = true;
+        }
+        if(needsSave && canEdit) {
+            await updateDoc(reportRef, { pedidos: reportData.pedidos });
+        }
+        // --- END FORCED INITIALIZATION ---
         
         if (typeof reportData.focusSemanal === 'string' || !reportData.focusSemanal) {
             reportData.focusSemanal = {
