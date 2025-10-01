@@ -125,6 +125,8 @@ function ExperienciaPageComponent() {
         const reportRef = doc(db, "informes", weekId);
         const listsRef = doc(db, "configuracion", "listas");
 
+        const masterLists = getInitialLists();
+
         const [reportSnap, listsSnap] = await Promise.all([
             getDoc(reportRef),
             getDoc(listsRef),
@@ -134,7 +136,7 @@ function ExperienciaPageComponent() {
         if (listsSnap.exists()) {
             listData = listsSnap.data() as WeeklyData['listas'];
         } else {
-            listData = getInitialLists();
+            listData = masterLists;
             if (canEdit) {
               await setDoc(listsRef, listData);
             }
@@ -158,13 +160,18 @@ function ExperienciaPageComponent() {
             reportData = reportSnap.data() as WeeklyData;
         }
 
-        reportData.listas = { ...listData, empleados: reportData.listas.empleados || listData.empleados };
+        const reportEmpleadosString = JSON.stringify(reportData.listas?.empleados?.sort((a,b) => a.id.localeCompare(b.id)));
+        const masterEmpleadosString = JSON.stringify(masterLists.empleados.sort((a,b) => a.id.localeCompare(b.id)));
 
-        if (!reportData.listas.empleados || reportData.listas.empleados.length === 0) {
-            reportData.listas.empleados = listData.empleados;
-            needsSave = true;
+        if (reportEmpleadosString !== masterEmpleadosString) {
+            reportData.listas.empleados = masterLists.empleados;
+            if(canEdit) {
+                const docToUpdate = { 'listas.empleados': masterLists.empleados };
+                await updateDoc(reportRef, docToUpdate);
+                needsSave = false;
+            }
         }
-        
+
         if (typeof reportData.focusSemanal === 'string' || !reportData.focusSemanal) {
             reportData.focusSemanal = {
                 man: "",
@@ -614,3 +621,5 @@ export default function ExperienciaPage() {
         </Suspense>
     );
 }
+
+    
