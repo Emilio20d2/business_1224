@@ -38,7 +38,6 @@ export function PedidosCard({ data, isEditing, onInputChange, className }: Pedid
     const progressPercentage = objetivoSemanal > 0 ? Math.min((pedidosDia / objetivoSemanal) * 100, 100) : 0;
     
     const fromColor = isObjectiveMet ? '#10B981' : '#EF4444'; // green-500 or red-500
-    const toColor = isObjectiveMet ? '#6EE7B7' : '#F87171'; // green-300 or red-400
 
     const handleChange = (field: keyof PedidosData, value: string) => {
         onInputChange(`pedidos.${field}`, value);
@@ -74,19 +73,19 @@ export function PedidosCard({ data, isEditing, onInputChange, className }: Pedid
                          <div className="relative w-48 h-48">
                            <svg className="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
                                 <defs>
-                                    <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                        <stop offset="0%" stopColor={fromColor} />
-                                        <stop offset="100%" stopColor={toColor} />
+                                    <linearGradient id="progressGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                        <stop offset="0%" stopColor="#FFFFFF" />
+                                        <stop offset="100%" stopColor={fromColor} />
                                     </linearGradient>
                                 </defs>
-                                <circle cx="60" cy="60" r="54" fill="none" stroke="hsl(var(--muted))" strokeWidth="12" />
+                                <circle cx="60" cy="60" r="54" fill="none" stroke="hsl(var(--muted))" strokeWidth="3" />
                                 <circle
                                     cx="60"
                                     cy="60"
                                     r="54"
                                     fill="none"
                                     stroke="url(#progressGradient)"
-                                    strokeWidth="12"
+                                    strokeWidth="3"
                                     strokeDasharray={`${2 * Math.PI * 54}`}
                                     strokeDashoffset={`${2 * Math.PI * 54 * (1 - progressPercentage / 100)}`}
                                     strokeLinecap="round"
