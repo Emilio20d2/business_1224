@@ -19,7 +19,7 @@ export function CajaCard({ operaciones, isEditing, onInputChange, className }: C
 
     return (
         <KpiCard title="Caja" icon={<Receipt className="h-5 w-5 text-primary" />} className={className}>
-            <div className="grid grid-cols-2 md:grid-cols-5 items-center justify-center gap-4 h-full">
+            <div className="grid grid-cols-2 md:grid-cols-4 items-center justify-center gap-4 h-full">
                 <DatoSimple
                     icon={<Clock className="h-5 w-5 text-primary" />}
                     label="Filas Caja"
@@ -51,15 +51,6 @@ export function CajaCard({ operaciones, isEditing, onInputChange, className }: C
                     onInputChange={onInputChange}
                 />
                 <DatoSimple
-                    icon={<Smartphone className="h-5 w-5 text-primary" />}
-                    label="V. Ipod"
-                    value={operaciones.ventaIpod}
-                    isEditing={isEditing}
-                    align="center"
-                    valueId="general.operaciones.ventaIpod"
-                    onInputChange={onInputChange}
-                />
-                <DatoSimple
                     icon={<Ticket className="h-5 w-5 text-primary" />}
                     label="E-Ticket"
                     value={operaciones.eTicketPorc}
@@ -73,5 +64,3 @@ export function CajaCard({ operaciones, isEditing, onInputChange, className }: C
         </KpiCard>
     );
 }
-
-    
