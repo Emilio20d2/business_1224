@@ -1,4 +1,5 @@
 
+
 "use client"
 import React, { useState, useContext, useEffect, useCallback, Suspense } from 'react';
 import type { WeeklyData, Empleado } from "@/lib/data";
@@ -161,12 +162,18 @@ function ExperienciaPageComponent() {
 
         if (!reportData.pedidos) {
             reportData.pedidos = getInitialDataForWeek(weekId, listData).pedidos;
-             await setDoc(reportRef, { pedidos: reportData.pedidos }, { merge: true });
+             if (canEdit) {
+                await setDoc(reportRef, { pedidos: reportData.pedidos }, { merge: true });
+             }
         }
-
-
-        if (typeof reportData.experiencia !== 'object' || reportData.experiencia === null) {
-            reportData.experiencia = { texto: "", focus: "" };
+        
+        if (typeof reportData.focusSemanal === 'string' || !reportData.focusSemanal) {
+            reportData.focusSemanal = {
+                man: "",
+                woman: "",
+                nino: "",
+                experiencia: typeof reportData.focusSemanal === 'string' ? reportData.focusSemanal : ""
+            };
         }
         
         setData(reportData);
@@ -195,17 +202,14 @@ function ExperienciaPageComponent() {
   }, [user, authLoading, router, fetchData, selectedWeek, canEdit, updateUrl]);
 
 
-  const handleTextChange = (field: 'texto' | 'focus', newValue: string) => {
+  const handleFocusChange = (newValue: string) => {
     if (!canEdit) return;
     setData(prevData => {
       if (!prevData) return null;
-      const updatedExperiencia = { 
-        ...(prevData.experiencia || {texto: "", focus: ""}), 
-        [field]: newValue 
-      };
+       const updatedFocus = { ...(prevData.focusSemanal || { man: "", woman: "", nino: "", experiencia: "" }), experiencia: newValue };
       return {
         ...prevData,
-        experiencia: updatedExperiencia,
+        focusSemanal: updatedFocus,
       };
     });
   };
@@ -242,7 +246,10 @@ function ExperienciaPageComponent() {
                 const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
                 rankingItem[field] = isNaN(numericValue) || value === "" ? 0 : numericValue;
              }
-        } else {
+        } else if (keys[0] === 'focusSemanal') {
+            updatedData.focusSemanal.experiencia = value;
+        }
+        else {
             const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
             current[finalKey] = isNaN(numericValue) || value === "" ? 0 : numericValue;
         }
@@ -257,7 +264,7 @@ function ExperienciaPageComponent() {
     const docRef = doc(db, "informes", selectedWeek);
     
     const dataToSave = {
-        experiencia: data.experiencia,
+        focusSemanal: data.focusSemanal,
         rendimientoTienda: data.rendimientoTienda,
         general: data.general,
         pedidos: data.pedidos,
@@ -605,7 +612,7 @@ function ExperienciaPageComponent() {
                                     onInputChange={handleInputChange}
                                 />
                              )}
-                             {data.pedidos?.rankingEmpleados && (
+                             {data.pedidos?.rankingEmpleados && data.listas.empleados && (
                                 <RankingEmpleadosCard
                                     ranking={data.pedidos.rankingEmpleados}
                                     isEditing={isEditing}
@@ -617,9 +624,9 @@ function ExperienciaPageComponent() {
                     </TabsContent>
                     <TabsContent value="focus" className="mt-0">
                        <FocusSemanalTab 
-                          text={data.experiencia?.focus || ""} 
+                          text={data.focusSemanal?.experiencia || ""} 
                           isEditing={isEditing} 
-                          onTextChange={(val) => handleTextChange('focus', val)} 
+                          onTextChange={(val) => handleInputChange('focusSemanal.experiencia', val)} 
                         />
                     </TabsContent>
                 </Tabs>
@@ -646,7 +653,7 @@ function ExperienciaPageComponent() {
           />
         )}
 
-        {data?.listas?.empleados && (
+        {canEdit && data?.listas?.empleados && (
             <EditEmpleadosDialog
                 isOpen={isEmpleadosDialogOpen}
                 onClose={() => setEmpleadosDialogOpen(false)}

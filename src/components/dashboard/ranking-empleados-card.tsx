@@ -8,6 +8,13 @@ import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Users } from 'lucide-react';
 import { formatNumber } from '@/lib/format';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 
 type RankingEmpleadosCardProps = {
     ranking: PedidosData['rankingEmpleados'];
@@ -46,12 +53,24 @@ export function RankingEmpleadosCard({ ranking, isEditing, onInputChange, emplea
                             <TableRow key={index}>
                                 <TableCell>
                                     {isEditing ? (
-                                        <Input
-                                            type="text"
-                                            defaultValue={empleado.id}
-                                            onBlur={(e) => handleInputChange(index, 'id', e.target.value)}
-                                            className="w-full"
-                                        />
+                                        <Select
+                                            value={empleado.id}
+                                            onValueChange={(value) => handleInputChange(index, 'id', value)}
+                                        >
+                                            <SelectTrigger className="w-full">
+                                                <SelectValue placeholder="Selecciona ID" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="">
+                                                    <span className="text-muted-foreground">-- Vacío --</span>
+                                                </SelectItem>
+                                                {empleados.map((e) => (
+                                                    <SelectItem key={e.id} value={e.id}>
+                                                        {e.id}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
                                     ) : (
                                         empleado.id
                                     )}

@@ -1,4 +1,5 @@
 
+
 "use client"
 import React, { useState, useContext, useEffect, useCallback, Suspense } from 'react';
 import type { WeeklyData, VentasManItem, SectionSpecificData, Empleado } from "@/lib/data";
@@ -592,7 +593,7 @@ function NinoPageComponent() {
             }}
           />
         )}
-        {data?.listas?.empleados && (
+        {canEdit && data?.listas?.empleados && (
             <EditEmpleadosDialog
                 isOpen={isEmpleadosDialogOpen}
                 onClose={() => setEmpleadosDialogOpen(false)}
