@@ -29,6 +29,12 @@ export function RankingEmpleadosCard({ ranking, isEditing, onInputChange, emplea
     const handleInputChange = (index: number, field: 'id' | 'pedidos' | 'unidades', value: string) => {
         onInputChange(`pedidos.rankingEmpleados.${index}.${field}`, value);
     };
+    
+    const sortedEmpleados = React.useMemo(() => {
+        if (!Array.isArray(empleados)) return [];
+        return [...empleados].sort((a, b) => a.nombre.localeCompare(b.nombre));
+    }, [empleados]);
+
 
     return (
         <Card className={className}>
@@ -64,7 +70,7 @@ export function RankingEmpleadosCard({ ranking, isEditing, onInputChange, emplea
                                                 <SelectItem value="">
                                                     <span className="text-muted-foreground">-- Vacío --</span>
                                                 </SelectItem>
-                                                {empleados.sort((a, b) => a.nombre.localeCompare(b.nombre)).map((e) => (
+                                                {sortedEmpleados.map((e) => (
                                                     <SelectItem key={e.id} value={e.id}>
                                                         {e.id} - {e.nombre}
                                                     </SelectItem>

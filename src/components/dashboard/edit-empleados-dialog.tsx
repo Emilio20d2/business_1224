@@ -27,8 +27,10 @@ export function EditEmpleadosDialog({ isOpen, onClose, empleados, onSave }: Edit
   const [editedItem, setEditedItem] = useState<Empleado | null>(null);
 
   useEffect(() => {
-    if (isOpen && empleados) {
+    if (isOpen && Array.isArray(empleados)) {
       setCurrentItems([...empleados].sort((a, b) => a.nombre.localeCompare(b.nombre)));
+    } else if (isOpen) {
+      setCurrentItems([]);
     }
   }, [empleados, isOpen]);
 
