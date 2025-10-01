@@ -1,5 +1,4 @@
 
-
 "use client"
 import React, { useState, useContext, useEffect, useCallback, Suspense } from 'react';
 import type { WeeklyData, Empleado } from "@/lib/data";
@@ -168,7 +167,6 @@ function ExperienciaPageComponent() {
             if(canEdit) {
                 const docToUpdate = { 'listas.empleados': masterLists.empleados };
                 await updateDoc(reportRef, docToUpdate);
-                needsSave = false;
             }
         }
 
@@ -621,5 +619,7 @@ export default function ExperienciaPage() {
         </Suspense>
     );
 }
+
+    
 
     
