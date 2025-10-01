@@ -654,11 +654,11 @@ function ExperienciaPageComponent() {
           />
         )}
 
-        {canEdit && (
+        {canEdit && data?.listas?.empleados && (
             <EditEmpleadosDialog
                 isOpen={isEmpleadosDialogOpen}
                 onClose={() => setEmpleadosDialogOpen(false)}
-                empleados={data?.listas?.empleados || []}
+                empleados={data.listas.empleados}
                 onSave={handleSaveEmpleados}
             />
         )}
@@ -680,6 +680,8 @@ export default function ExperienciaPage() {
         </Suspense>
     );
 }
+
+    
 
     
 

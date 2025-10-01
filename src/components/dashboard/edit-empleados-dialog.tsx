@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import {
   Dialog,
@@ -26,7 +27,7 @@ export function EditEmpleadosDialog({ isOpen, onClose, empleados, onSave }: Edit
   const [editedItem, setEditedItem] = useState<Empleado | null>(null);
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && empleados) {
       setCurrentItems([...empleados].sort((a, b) => a.nombre.localeCompare(b.nombre)));
     }
   }, [empleados, isOpen]);
@@ -73,6 +74,8 @@ export function EditEmpleadosDialog({ isOpen, onClose, empleados, onSave }: Edit
       e.preventDefault();
       if(e.currentTarget.name === 'nombre') {
          handleAddItem();
+         const firstInput = document.querySelector<HTMLInputElement>('input[name="id"]');
+         firstInput?.focus();
       } else {
          const nextInput = document.querySelector<HTMLInputElement>('input[name="nombre"]');
          nextInput?.focus();
@@ -99,10 +102,10 @@ export function EditEmpleadosDialog({ isOpen, onClose, empleados, onSave }: Edit
                    </>
                 ) : (
                   <>
-                    <Input value={item.id} readOnly className="bg-muted" />
-                    <Input value={item.nombre} readOnly className="bg-muted" />
+                    <Input value={item.id} readOnly className="bg-muted flex-1" />
+                    <Input value={item.nombre} readOnly className="bg-muted flex-[2]" />
                     <Button variant="ghost" size="icon" onClick={() => handleEdit(index)}><Edit className="h-4 w-4" /></Button>
-                    <Button variant="ghost" size="icon" onClick={() => handleRemoveItem(item.id)}><X className="h-4 w-4" /></Button>
+                    <Button variant="ghost" size="icon" onClick={() => handleRemoveItem(item.id)}><X className="h-4 w-4 text-red-500" /></Button>
                   </>
                 )}
               </div>
@@ -115,6 +118,7 @@ export function EditEmpleadosDialog({ isOpen, onClose, empleados, onSave }: Edit
               value={newItem.id}
               onChange={(e) => setNewItem({ ...newItem, id: e.target.value })}
               onKeyDown={handleKeyDown}
+              className="flex-1"
             />
              <Input
               name="nombre"
@@ -122,6 +126,7 @@ export function EditEmpleadosDialog({ isOpen, onClose, empleados, onSave }: Edit
               value={newItem.nombre}
               onChange={(e) => setNewItem({ ...newItem, nombre: e.target.value })}
               onKeyDown={handleKeyDown}
+              className="flex-[2]"
             />
             <Button onClick={handleAddItem} size="icon">
               <Plus className="h-4 w-4" />
@@ -142,3 +147,5 @@ export function EditEmpleadosDialog({ isOpen, onClose, empleados, onSave }: Edit
     </Dialog>
   );
 }
+
+    

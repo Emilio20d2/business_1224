@@ -57,7 +57,6 @@ export type PedidosData = {
         nombre: string;
         pedidos: number;
         unidades: number;
-        importe: number;
     }[];
 };
 
@@ -415,7 +414,7 @@ const createInitialPedidosData = (): PedidosData => ({
     pedidosDiaSemanaAnterior: 0,
     pedidosDiaSemanaProxima: 0,
     pedidosIpodExpirados: 0,
-    rankingEmpleados: Array.from({ length: 10 }, () => ({ id: '', nombre: '', pedidos: 0, unidades: 0, importe: 0 }))
+    rankingEmpleados: Array.from({ length: 10 }, () => ({ id: '', nombre: '', pedidos: 0, unidades: 0 }))
 });
 
 
@@ -535,3 +534,5 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
         },
     };
 }
+
+    
