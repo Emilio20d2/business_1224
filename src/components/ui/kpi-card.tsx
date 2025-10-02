@@ -132,8 +132,7 @@ export function DatoSimple({
 }: DatoSimpleProps) {
     const handleValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (onInputChange && valueId) {
-            const numericValue = parseFloat(e.target.value.replace(',', '.'));
-            onInputChange(valueId, isNaN(numericValue) ? "" : numericValue);
+            onInputChange(valueId, e.target.value);
         }
     };
     const handleVariationChange = (e: React.ChangeEvent<HTMLInputElement>) => {

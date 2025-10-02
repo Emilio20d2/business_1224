@@ -93,6 +93,7 @@ function OperacionesPageComponent() {
   const [error, setError] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
   
   const [isListDialogOpen, setListDialogOpen] = useState(false);
   const [listToEdit, setListToEdit] = useState<{ listKey: EditableList, title: string } | null>(null);
@@ -218,6 +219,13 @@ function OperacionesPageComponent() {
     }
   }, [user, authLoading, router, fetchData, selectedWeek, canEdit, updateUrl]);
 
+  useEffect(() => {
+      if(saveSuccess) {
+          fetchData(selectedWeek);
+          setSaveSuccess(false);
+      }
+  }, [saveSuccess, fetchData, selectedWeek])
+
 
   const handleInputChange = (path: string, value: any) => {
     if (!canEdit) return;
@@ -238,7 +246,7 @@ function OperacionesPageComponent() {
         
         const finalKey = keys[keys.length - 1];
         
-        if (finalKey === 'focusOperaciones') {
+        if (keys[0] === 'focusOperaciones') {
             updatedData.focusOperaciones = value;
         } else {
             const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
@@ -252,23 +260,26 @@ function OperacionesPageComponent() {
   const handleSave = async () => {
     if (!data) return;
     setIsSaving(true);
-    const docRef = doc(db, "informes", selectedWeek);
+    const reportDocRef = doc(db, "informes", selectedWeek);
+    const listsDocRef = doc(db, "configuracion", "listas");
+
+    const { listas, ...reportData } = data;
     
-    setDoc(docRef, data, { merge: true })
-        .then(() => {
-            toast({
-                title: "¡Guardado!",
-                description: "Los cambios se han guardado en la base de datos.",
-            });
-            setIsEditing(false);
-            fetchData(selectedWeek);
-        })
-        .catch(async (error: any) => {
-            setError(`Error al guardar: ${error.message}`);
-        })
-        .finally(() => {
-            setIsSaving(false);
+    try {
+        await setDoc(reportDocRef, reportData, { merge: true });
+        await updateDoc(listsDocRef, { mermaTarget: listas.mermaTarget });
+
+        toast({
+            title: "¡Guardado!",
+            description: "Los cambios se han guardado en la base de datos.",
         });
+        setIsEditing(false);
+        setSaveSuccess(true);
+    } catch (error: any) {
+         setError(`Error al guardar: ${error.message}`);
+    } finally {
+        setIsSaving(false);
+    }
   };
   
   const handleCancel = () => {
