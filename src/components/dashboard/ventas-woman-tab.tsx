@@ -157,7 +157,7 @@ export function VentasWomanTab({ data, isEditing, onInputChange, onTextChange }:
     
     if (!data || !data.ventasWoman || !data.listas) return <p>Cargando datos de Ventas Woman...</p>;
 
-    const { ventasWoman, listas, datosPorSeccion, woman, logistica, almacenes, focusSemanal } = data;
+    const { ventasWoman, listas, datosPorSeccion, woman, focusSemanal } = data;
     
     const ropaTotalEuros = ventasWoman.pesoComprador.reduce((sum, item) => sum + (Number(item.totalEuros) || 0), 0);
     const calzadoData = datosPorSeccion.woman.desglose.find(d => d.seccion === 'Calzado');
@@ -277,8 +277,8 @@ export function VentasWomanTab({ data, isEditing, onInputChange, onTextChange }:
                 <OperacionesSubTab 
                     operaciones={woman.operaciones} 
                     perdidas={woman.perdidas}
-                    logistica={logistica}
-                    almacenes={almacenes}
+                    logistica={woman.logistica}
+                    almacenes={woman.almacenes}
                     isEditing={isEditing} 
                     onInputChange={onInputChange}
                     basePath="woman"

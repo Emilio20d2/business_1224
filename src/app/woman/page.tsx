@@ -76,15 +76,22 @@ const synchronizeTableData = (list: string[], oldTableData: VentasManItem[]): Ve
 };
 
 const ensureSectionSpecificData = (data: WeeklyData): WeeklyData => {
-    const defaultSectionData: SectionSpecificData = {
-        operaciones: { filasCajaPorc: 0, scoPorc: 0, dropOffPorc: 0, ventaIpod: 0, eTicketPorc: 0, repoPorc: 0, frescuraPorc: 0 },
-        perdidas: { gap: { euros: 0, unidades: 0 }, merma: { unidades: 0, porcentaje: 0 } }
-    };
+    const defaultSectionData = getInitialDataForWeek('', getInitialLists()).general; // Get a full default structure
 
     if (!data.general) data.general = JSON.parse(JSON.stringify(defaultSectionData));
     if (!data.man) data.man = JSON.parse(JSON.stringify(defaultSectionData));
     if (!data.woman) data.woman = JSON.parse(JSON.stringify(defaultSectionData));
     if (!data.nino) data.nino = JSON.parse(JSON.stringify(defaultSectionData));
+
+    // Ensure nested objects exist
+    if (!data.man.logistica) data.man.logistica = JSON.parse(JSON.stringify(defaultSectionData.logistica));
+    if (!data.man.almacenes) data.man.almacenes = JSON.parse(JSON.stringify(defaultSectionData.almacenes));
+    if (!data.woman.logistica) data.woman.logistica = JSON.parse(JSON.stringify(defaultSectionData.logistica));
+    if (!data.woman.almacenes) data.woman.almacenes = JSON.parse(JSON.stringify(defaultSectionData.almacenes));
+    if (!data.nino.logistica) data.nino.logistica = JSON.parse(JSON.stringify(defaultSectionData.logistica));
+    if (!data.nino.almacenes) data.nino.almacenes = JSON.parse(JSON.stringify(defaultSectionData.almacenes));
+    if (!data.general.logistica) data.general.logistica = JSON.parse(JSON.stringify(defaultSectionData.logistica));
+    if (!data.general.almacenes) data.general.almacenes = JSON.parse(JSON.stringify(defaultSectionData.almacenes));
 
     return data;
 }

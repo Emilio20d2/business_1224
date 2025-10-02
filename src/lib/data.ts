@@ -39,9 +39,29 @@ export type PerdidasData = {
     };
 };
 
+export type Almacen = {
+  ocupacionPorc: number;
+  devolucionUnidades: number | null;
+  entradas: number;
+  salidas: number;
+};
+
+export type LogisticaData = {
+    entradasSemanales: number;
+    salidasSemanales: number;
+    sintSemanales: number;
+};
+
+
 export type SectionSpecificData = {
     operaciones: OperacionesData;
     perdidas: PerdidasData;
+    logistica: LogisticaData;
+    almacenes: {
+        ropa: Almacen;
+        calzado: Almacen;
+        perfumeria: Almacen;
+    };
 }
 
 export type PedidosData = {
@@ -91,16 +111,6 @@ export type WeeklyData = {
     man: SectionSpecificData;
     woman: SectionSpecificData;
     nino: SectionSpecificData;
-    logistica: {
-        entradasSemanales: number;
-        salidasSemanales: number;
-        sintSemanales: number;
-    };
-    almacenes: {
-        ropa: Almacen;
-        calzado: Almacen;
-        perfumeria: Almacen;
-    };
     datosPorSeccion: {
         man: SeccionData;
         woman: SeccionData;
@@ -148,12 +158,7 @@ export type WeeklyData = {
 };
 
 
-export type Almacen = {
-  ocupacionPorc: number;
-  devolucionUnidades: number | null;
-  entradas: number;
-  salidas: number;
-};
+
 
 type SeccionData = {
     pesoPorc: number;
@@ -313,6 +318,12 @@ const createInitialSectionSpecificData = (): SectionSpecificData => ({
     perdidas: {
         gap: { euros: 0, unidades: 0 },
         merma: { unidades: 0, porcentaje: 0 }
+    },
+    logistica: { entradasSemanales: 0, salidasSemanales: 0, sintSemanales: 0 },
+    almacenes: {
+        ropa: { ocupacionPorc: 0, devolucionUnidades: 0, entradas: 0, salidas: 0 },
+        calzado: { ocupacionPorc: 0, devolucionUnidades: 0, entradas: 0, salidas: 0 },
+        perfumeria: { ocupacionPorc: 0, devolucionUnidades: null, entradas: 0, salidas: 0 }
     }
 });
 
@@ -375,12 +386,6 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
         man: createInitialSectionSpecificData(),
         woman: createInitialSectionSpecificData(),
         nino: createInitialSectionSpecificData(),
-        logistica: { entradasSemanales: 0, salidasSemanales: 0, sintSemanales: 0 },
-        almacenes: {
-            ropa: { ocupacionPorc: 0, devolucionUnidades: 0, entradas: 0, salidas: 0 },
-            calzado: { ocupacionPorc: 0, devolucionUnidades: 0, entradas: 0, salidas: 0 },
-            perfumeria: { ocupacionPorc: 0, devolucionUnidades: null, entradas: 0, salidas: 0 }
-        },
         datosPorSeccion: {
             man: createSeccionData(),
             woman: createSeccionData(),
@@ -449,5 +454,3 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
         },
     };
 }
-
-    
