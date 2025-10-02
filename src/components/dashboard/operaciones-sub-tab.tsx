@@ -104,7 +104,7 @@ export function OperacionesSubTab({ operaciones, perdidas, logistica, almacenes,
              <div className="flex flex-row justify-center items-center gap-4">
                 <DatoSimple 
                     label={<Euro className="h-5 w-5 text-primary"/>}
-                    value={isEditing ? perdidas.gap.euros : formatGap(perdidas.gap.euros)} 
+                    value={perdidas.gap.euros} 
                     isEditing={isEditing}
                     valueId={`${basePath}.perdidas.gap.euros`}
                     align="center"
@@ -112,7 +112,7 @@ export function OperacionesSubTab({ operaciones, perdidas, logistica, almacenes,
                 />
                 <DatoSimple 
                     label={<Package className="h-5 w-5 text-primary"/>}
-                    value={isEditing ? perdidas.gap.unidades : formatGap(perdidas.gap.unidades)}
+                    value={perdidas.gap.unidades}
                     isEditing={isEditing}
                     valueId={`${basePath}.perdidas.gap.unidades`}
                     align="center"
@@ -125,7 +125,7 @@ export function OperacionesSubTab({ operaciones, perdidas, logistica, almacenes,
             <div className="flex flex-row justify-center items-center gap-4">
                 <DatoSimple 
                     label={<Package className="h-5 w-5 text-primary"/>}
-                    value={isEditing ? perdidas.merma.unidades : formatNumber(perdidas.merma.unidades)}
+                    value={perdidas.merma.unidades}
                     isEditing={isEditing}
                     valueId={`${basePath}.perdidas.merma.unidades`}
                     align="center"
