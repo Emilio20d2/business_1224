@@ -64,20 +64,17 @@ const SectionMerma = ({
 );
 
 const SectionOperaciones = ({ 
-    sectionName, 
     operaciones, 
     isEditing, 
     onInputChange, 
     basePath 
 }: { 
-    sectionName: string, 
     operaciones: any, 
     isEditing: boolean, 
     onInputChange: any, 
     basePath: string 
 }) => (
      <div>
-        <h2 className="text-xl font-bold mb-2">{sectionName}</h2>
         <KpiCard title="Operaciones" icon={<RefreshCw className="h-5 w-5 text-primary" />}>
             <div className="grid grid-cols-3 gap-4 h-full">
             <DatoSimple 
@@ -162,28 +159,24 @@ export function MermaReposicionTab({ data, isEditing, onInputChange }: MermaRepo
         {/* Columna de Operaciones */}
         <div className="space-y-2">
             <SectionOperaciones
-                sectionName="GENERAL"
                 operaciones={data.general.operaciones}
                 isEditing={isEditing}
                 onInputChange={onInputChange}
                 basePath="general"
             />
             <SectionOperaciones
-                sectionName="WOMAN"
                 operaciones={data.woman.operaciones}
                 isEditing={isEditing}
                 onInputChange={onInputChange}
                 basePath="woman"
             />
             <SectionOperaciones
-                sectionName="MAN"
                 operaciones={data.man.operaciones}
                 isEditing={isEditing}
                 onInputChange={onInputChange}
                 basePath="man"
             />
             <SectionOperaciones
-                sectionName="NIÑO"
                 operaciones={data.nino.operaciones}
                 isEditing={isEditing}
                 onInputChange={onInputChange}
