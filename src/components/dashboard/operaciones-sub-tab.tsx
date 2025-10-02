@@ -144,9 +144,28 @@ export function OperacionesSubTab({ operaciones, perdidas, logistica, almacenes,
             </div>
         </KpiCard>
         
-        <KpiCard title="Reposición" icon={<RefreshCw className="h-5 w-5 text-primary" />}>
-            <div className="flex flex-row justify-center items-center gap-4">
-                <DatoSimple icon={<RefreshCw className="h-5 w-5 text-primary"/>} label="Repo" value={operaciones.repoPorc} isEditing={isEditing} valueId={`${basePath}.operaciones.repoPorc`} align="center" unit="%" onInputChange={onInputChange} />
+        <KpiCard title="Operaciones" icon={<RefreshCw className="h-5 w-5 text-primary" />}>
+             <div className="grid grid-cols-2 gap-4 h-full">
+                <DatoSimple 
+                    icon={<RefreshCw className="h-5 w-5 text-primary"/>} 
+                    label="Repo" 
+                    value={operaciones.repoPorc} 
+                    isEditing={isEditing} 
+                    valueId={`${basePath}.operaciones.repoPorc`} 
+                    align="center" 
+                    unit="%" 
+                    onInputChange={onInputChange} 
+                />
+                <DatoSimple 
+                    icon={<Sparkles className="h-5 w-5 text-primary"/>} 
+                    label="Frescura" 
+                    value={operaciones.frescuraPorc} 
+                    isEditing={isEditing} 
+                    valueId={`${basePath}.operaciones.frescuraPorc`} 
+                    align="center" 
+                    unit="%" 
+                    onInputChange={onInputChange} 
+                />
             </div>
         </KpiCard>
       </div>
