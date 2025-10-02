@@ -40,7 +40,7 @@ type OperacionesSubTabProps = {
 };
 
 
-const ModuloAlmacen = ({ title, children, className }: { title: string, children: React.ReactNode, className?: string }) => (
+export const ModuloAlmacen = ({ title, children, className }: { title: string, children: React.ReactNode, className?: string }) => (
     <div className={cn("flex flex-col text-center gap-2 w-full", className)}>
         <h4 className="text-sm font-semibold text-muted-foreground tracking-wider uppercase">{title}</h4>
         <div className="flex flex-col gap-3">
@@ -49,7 +49,7 @@ const ModuloAlmacen = ({ title, children, className }: { title: string, children
     </div>
 );
 
-const ModuloContenidoGrande = ({ icon, value, isEditing, id, onInputChange }: { icon: React.ReactNode, value: number, isEditing?: boolean, id?:string, onInputChange?: (path: string, value: string | number) => void; }) => (
+export const ModuloContenidoGrande = ({ icon, value, isEditing, id, onInputChange }: { icon: React.ReactNode, value: number, isEditing?: boolean, id?:string, onInputChange?: (path: string, value: string | number) => void; }) => (
     <div className="flex flex-col items-center justify-center gap-2 p-4 rounded-lg bg-background h-full">
        <div className="text-primary">{icon}</div>
        {isEditing && id && onInputChange ? 
@@ -59,7 +59,7 @@ const ModuloContenidoGrande = ({ icon, value, isEditing, id, onInputChange }: { 
     </div>
 );
 
-const FilaModulo = ({ icon, label, value, isEditing, id, onInputChange, unit }: { icon: React.ReactNode, label: string, value: number, isEditing?: boolean, id?: string, onInputChange?: (path: string, value: string | number) => void; unit: string }) => (
+export const FilaModulo = ({ icon, label, value, isEditing, id, onInputChange, unit }: { icon: React.ReactNode, label: string, value: number, isEditing?: boolean, id?: string, onInputChange?: (path: string, value: string | number) => void; unit: string }) => (
      <div className="grid grid-cols-2 items-center gap-4 text-md">
         <div className="flex items-center gap-2 text-primary justify-start">
             {icon}
