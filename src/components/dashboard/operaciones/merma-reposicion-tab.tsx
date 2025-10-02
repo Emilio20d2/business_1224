@@ -27,8 +27,8 @@ const SectionMerma = ({
     onInputChange: any, 
     basePath: string 
 }) => (
-    <div className="space-y-4">
-        <h2 className="text-xl font-bold">{sectionName}</h2>
+    <div>
+        <h2 className="text-xl font-bold mb-2">{sectionName}</h2>
         <KpiCard title="Merma" icon={<Trash2 className="h-5 w-5 text-primary" />}>
             <div className="grid grid-cols-3 justify-center items-center gap-4 h-full">
                 <DatoSimple 
@@ -76,8 +76,8 @@ const SectionOperaciones = ({
     onInputChange: any, 
     basePath: string 
 }) => (
-     <div className="space-y-4">
-        <h2 className="text-xl font-bold">{sectionName}</h2>
+     <div>
+        <h2 className="text-xl font-bold mb-2">{sectionName}</h2>
         <KpiCard title="Operaciones" icon={<RefreshCw className="h-5 w-5 text-primary" />}>
             <div className="grid grid-cols-3 gap-4 h-full">
             <DatoSimple 
@@ -124,7 +124,7 @@ export function MermaReposicionTab({ data, isEditing, onInputChange }: MermaRepo
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Columna de Mermas */}
-        <div className="space-y-4">
+        <div className="space-y-2">
             <SectionMerma
                 sectionName="GENERAL"
                 perdidas={data.general.perdidas}
@@ -160,7 +160,7 @@ export function MermaReposicionTab({ data, isEditing, onInputChange }: MermaRepo
         </div>
 
         {/* Columna de Operaciones */}
-        <div className="space-y-4">
+        <div className="space-y-2">
             <SectionOperaciones
                 sectionName="GENERAL"
                 operaciones={data.general.operaciones}
@@ -193,5 +193,3 @@ export function MermaReposicionTab({ data, isEditing, onInputChange }: MermaRepo
     </div>
   );
 }
-
-    
