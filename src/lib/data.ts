@@ -26,6 +26,7 @@ export type OperacionesData = {
     eTicketPorc: number;
     repoPorc: number;
     frescuraPorc: number;
+    coberturaPorc: number;
 };
 
 export type PerdidasData = {
@@ -335,7 +336,8 @@ const createInitialSectionSpecificData = (): SectionSpecificData => ({
         ventaIpod: 0,
         eTicketPorc: 0,
         repoPorc: 0,
-        frescuraPorc: 0
+        frescuraPorc: 0,
+        coberturaPorc: 0,
     },
     perdidas: {
         gap: { euros: 0, unidades: 0 },
@@ -486,3 +488,5 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
         },
     };
 }
+
+    

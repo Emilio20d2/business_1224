@@ -4,7 +4,7 @@
 import React from 'react';
 import type { WeeklyData } from "@/lib/data";
 import { KpiCard, DatoSimple } from "../kpi-card";
-import { Trash2, RefreshCw, Sparkles, Package, Percent, Target } from 'lucide-react';
+import { Trash2, RefreshCw, Sparkles, Package, Percent, Target, Users } from 'lucide-react';
 
 type MermaReposicionTabProps = {
   data: WeeklyData;
@@ -49,7 +49,7 @@ const SectionMerma = ({
                     unit="%"
                     onInputChange={onInputChange}
                 />
-                <DatoSimple 
+                 <DatoSimple 
                     label={<Target className="h-5 w-5 text-primary"/>}
                     value={target}
                     isEditing={isEditing}
@@ -79,7 +79,7 @@ const SectionOperaciones = ({
      <div className="space-y-4">
         <h2 className="text-xl font-bold">{sectionName}</h2>
         <KpiCard title="Operaciones" icon={<RefreshCw className="h-5 w-5 text-primary" />}>
-            <div className="grid grid-cols-2 gap-4 h-full">
+            <div className="grid grid-cols-3 gap-4 h-full">
             <DatoSimple 
                 icon={<RefreshCw className="h-5 w-5 text-primary"/>} 
                 label="Repo" 
@@ -99,6 +99,16 @@ const SectionOperaciones = ({
                 align="center" 
                 unit="%" 
                 onInputChange={onInputChange} 
+            />
+            <DatoSimple
+                icon={<Users className="h-5 w-5 text-primary"/>}
+                label="Cobertura"
+                value={operaciones.coberturaPorc}
+                isEditing={isEditing}
+                valueId={`${basePath}.operaciones.coberturaPorc`}
+                align="center"
+                unit="%"
+                onInputChange={onInputChange}
             />
             </div>
         </KpiCard>
@@ -183,3 +193,5 @@ export function MermaReposicionTab({ data, isEditing, onInputChange }: MermaRepo
     </div>
   );
 }
+
+    
