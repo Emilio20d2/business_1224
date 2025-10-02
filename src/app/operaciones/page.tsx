@@ -474,8 +474,7 @@ function OperacionesPageComponent() {
                     </TabsContent>
                     <TabsContent value="mermaReposicion" className="mt-0">
                         <MermaReposicionTab 
-                            operaciones={data.general.operaciones}
-                            perdidas={data.general.perdidas}
+                            data={data}
                             isEditing={isEditing}
                             onInputChange={handleInputChange}
                         />
