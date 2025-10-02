@@ -4,7 +4,7 @@
 import React from 'react';
 import type { WeeklyData } from "@/lib/data";
 import { KpiCard, DatoSimple } from "../kpi-card";
-import { Trash2, RefreshCw, Sparkles, Package, Percent } from 'lucide-react';
+import { Trash2, RefreshCw, Sparkles, Package, Percent, Target } from 'lucide-react';
 
 type MermaReposicionTabProps = {
   data: WeeklyData;
@@ -14,13 +14,15 @@ type MermaReposicionTabProps = {
 
 const SectionMerma = ({ 
     sectionName, 
-    perdidas, 
+    perdidas,
+    target,
     isEditing, 
     onInputChange, 
     basePath 
 }: { 
     sectionName: string, 
-    perdidas: any, 
+    perdidas: any,
+    target: number,
     isEditing: boolean, 
     onInputChange: any, 
     basePath: string 
@@ -28,25 +30,34 @@ const SectionMerma = ({
     <div className="space-y-4">
         <h2 className="text-xl font-bold">{sectionName}</h2>
         <KpiCard title="Merma" icon={<Trash2 className="h-5 w-5 text-primary" />}>
-            <div className="flex flex-row justify-center items-center gap-4 h-full">
-            <DatoSimple 
-                label={<Package className="h-5 w-5 text-primary"/>}
-                value={perdidas.merma.unidades}
-                isEditing={isEditing}
-                valueId={`${basePath}.perdidas.merma.unidades`}
-                align="center"
-                unit="Unid."
-                onInputChange={onInputChange}
-            />
-            <DatoSimple 
-                label={<Percent className="h-5 w-5 text-primary"/>}
-                value={perdidas.merma.porcentaje}
-                isEditing={isEditing}
-                valueId={`${basePath}.perdidas.merma.porcentaje`}
-                align="center"
-                unit="%"
-                onInputChange={onInputChange}
-            />
+            <div className="grid grid-cols-3 justify-center items-center gap-4 h-full">
+                <DatoSimple 
+                    label={<Package className="h-5 w-5 text-primary"/>}
+                    value={perdidas.merma.unidades}
+                    isEditing={isEditing}
+                    valueId={`${basePath}.perdidas.merma.unidades`}
+                    align="center"
+                    unit="Unid."
+                    onInputChange={onInputChange}
+                />
+                <DatoSimple 
+                    label={<Percent className="h-5 w-5 text-primary"/>}
+                    value={perdidas.merma.porcentaje}
+                    isEditing={isEditing}
+                    valueId={`${basePath}.perdidas.merma.porcentaje`}
+                    align="center"
+                    unit="%"
+                    onInputChange={onInputChange}
+                />
+                <DatoSimple 
+                    label={<Target className="h-5 w-5 text-primary"/>}
+                    value={target}
+                    isEditing={isEditing}
+                    valueId={`listas.mermaTarget.${basePath.toLowerCase()}`}
+                    align="center"
+                    unit="%"
+                    onInputChange={onInputChange}
+                />
             </div>
         </KpiCard>
     </div>
@@ -95,6 +106,11 @@ const SectionOperaciones = ({
 );
 
 export function MermaReposicionTab({ data, isEditing, onInputChange }: MermaReposicionTabProps) {
+  if (!data.listas.mermaTarget) {
+      data.listas.mermaTarget = { general: 0, woman: 0, man: 0, nino: 0 };
+  }
+  const { mermaTarget } = data.listas;
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Columna de Mermas */}
@@ -102,6 +118,7 @@ export function MermaReposicionTab({ data, isEditing, onInputChange }: MermaRepo
             <SectionMerma
                 sectionName="GENERAL"
                 perdidas={data.general.perdidas}
+                target={mermaTarget.general}
                 isEditing={isEditing}
                 onInputChange={onInputChange}
                 basePath="general"
@@ -109,6 +126,7 @@ export function MermaReposicionTab({ data, isEditing, onInputChange }: MermaRepo
              <SectionMerma
                 sectionName="WOMAN"
                 perdidas={data.woman.perdidas}
+                target={mermaTarget.woman}
                 isEditing={isEditing}
                 onInputChange={onInputChange}
                 basePath="woman"
@@ -116,6 +134,7 @@ export function MermaReposicionTab({ data, isEditing, onInputChange }: MermaRepo
              <SectionMerma
                 sectionName="MAN"
                 perdidas={data.man.perdidas}
+                target={mermaTarget.man}
                 isEditing={isEditing}
                 onInputChange={onInputChange}
                 basePath="man"
@@ -123,6 +142,7 @@ export function MermaReposicionTab({ data, isEditing, onInputChange }: MermaRepo
              <SectionMerma
                 sectionName="NIÑO"
                 perdidas={data.nino.perdidas}
+                target={mermaTarget.nino}
                 isEditing={isEditing}
                 onInputChange={onInputChange}
                 basePath="nino"

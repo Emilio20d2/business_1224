@@ -4,7 +4,7 @@ import React, { useState, useContext, useEffect, useCallback, Suspense } from 'r
 import type { WeeklyData, Empleado } from "@/lib/data";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from '@/lib/firebase';
-import { Calendar as CalendarIcon, Settings, LogOut, Loader2, Briefcase, List, LayoutDashboard, Pencil, Projector } from 'lucide-react';
+import { Calendar as CalendarIcon, Settings, LogOut, Loader2, Briefcase, List, LayoutDashboard, Pencil, Projector, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -145,17 +145,40 @@ function OperacionesPageComponent() {
     setError(null);
     try {
         const reportRef = doc(db, "informes", weekId);
+        const listsRef = doc(db, "configuracion", "listas");
         let reportData: WeeklyData;
 
-        const reportSnap = await getDoc(reportRef);
+        const [reportSnap, listsSnap] = await Promise.all([
+            getDoc(reportRef),
+            getDoc(listsRef),
+        ]);
+
+        let listData: WeeklyData['listas'];
+        if (listsSnap.exists()) {
+            listData = listsSnap.data() as WeeklyData['listas'];
+        } else {
+            listData = getInitialLists();
+            if (canEdit) {
+              await setDoc(listsRef, listData);
+            }
+        }
+        
+        // Ensure Merma Targets exist
+        if (!listData.mermaTarget) {
+            listData.mermaTarget = getInitialLists().mermaTarget;
+            if (canEdit) {
+                await updateDoc(listsRef, { mermaTarget: listData.mermaTarget });
+            }
+        }
+
+
         if (!reportSnap.exists()) {
              if (canEdit) {
                 toast({
                     title: "Creando nueva semana",
                     description: `El informe para "${weekId}" no existía y se ha creado uno nuevo.`,
                 });
-                const lists = await getDoc(doc(db, "configuracion", "listas")).then(snap => snap.exists() ? snap.data() as WeeklyData['listas'] : getInitialLists());
-                reportData = getInitialDataForWeek(weekId, lists);
+                reportData = getInitialDataForWeek(weekId, listData);
                 await setDoc(reportRef, reportData);
             } else {
                 throw new Error(`No se encontró ningún informe para la semana "${weekId}".`);
@@ -163,6 +186,8 @@ function OperacionesPageComponent() {
         } else {
             reportData = reportSnap.data() as WeeklyData;
         }
+
+        reportData.listas = listData;
 
         const checkedData = ensureSectionSpecificData(reportData);
         if (JSON.stringify(reportData) !== JSON.stringify(checkedData) && canEdit) {

@@ -102,6 +102,12 @@ export type WeeklyData = {
         zonaComercialNino: string[];
         agrupacionComercialNino: string[];
         compradorExperiencia: string[];
+        mermaTarget: {
+            general: number;
+            woman: number;
+            man: number;
+            nino: number;
+        };
     };
     ventas: {
         totalEuros: number;
@@ -312,6 +318,12 @@ export function getInitialLists(): WeeklyData['listas'] {
         zonaComercialNino: ["NIÑO FORMAL", "GLB URBAN", "CIRCULAR"],
         agrupacionComercialNino: ["PANTALON", "SASTRERIA", "TEJANO", "CAMISA", "POLO", "ZAPATO", "BERMUDA", "TRICOT", "ACCESORIOS", "BAÑO"],
         compradorExperiencia: ["EXP 1", "EXP 2"],
+        mermaTarget: {
+            general: 0,
+            woman: 0,
+            man: 0,
+            nino: 0,
+        },
     };
 }
 
