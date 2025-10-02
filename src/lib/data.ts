@@ -94,6 +94,7 @@ export type WeeklyData = {
     logistica: {
         entradasSemanales: number;
         salidasSemanales: number;
+        sintSemanales: number;
     };
     almacenes: {
         ropa: Almacen;
@@ -374,7 +375,7 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
         man: createInitialSectionSpecificData(),
         woman: createInitialSectionSpecificData(),
         nino: createInitialSectionSpecificData(),
-        logistica: { entradasSemanales: 0, salidasSemanales: 0 },
+        logistica: { entradasSemanales: 0, salidasSemanales: 0, sintSemanales: 0 },
         almacenes: {
             ropa: { ocupacionPorc: 0, devolucionUnidades: 0, entradas: 0, salidas: 0 },
             calzado: { ocupacionPorc: 0, devolucionUnidades: 0, entradas: 0, salidas: 0 },
