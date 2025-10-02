@@ -39,7 +39,7 @@ export function AlmacenesTab({ data, isEditing, onInputChange }: { data: WeeklyD
   if (!data) return null;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div>
         <h2 className="text-xl font-bold mb-2">WOMAN</h2>
         <AlmacenCard 
