@@ -124,7 +124,7 @@ export function MermaReposicionTab({ data, isEditing, onInputChange }: MermaRepo
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Columna de Mermas */}
-        <div className="space-y-6">
+        <div className="space-y-4">
             <SectionMerma
                 sectionName="GENERAL"
                 perdidas={data.general.perdidas}
@@ -160,7 +160,7 @@ export function MermaReposicionTab({ data, isEditing, onInputChange }: MermaRepo
         </div>
 
         {/* Columna de Operaciones */}
-        <div className="space-y-6">
+        <div className="space-y-4">
             <SectionOperaciones
                 sectionName="GENERAL"
                 operaciones={data.general.operaciones}
