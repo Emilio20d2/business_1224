@@ -52,6 +52,14 @@ export type LogisticaData = {
     sintSemanales: number;
 };
 
+export type ProductividadData = {
+    productividad: number;
+    horasContratadas: number;
+    costeVenta: number;
+    costeReal: number;
+    nominaReal: number;
+};
+
 
 export type SectionSpecificData = {
     operaciones: OperacionesData;
@@ -133,11 +141,13 @@ export type WeeklyData = {
       nino: string;
       experiencia: string;
     };
+    focusOperaciones: string;
     experiencia: {
       texto: string;
       focus: string;
     };
     pedidos: PedidosData;
+    productividad: ProductividadData;
     acumulado: {
         mensual: AcumuladoPeriodo;
         anual: AcumuladoPeriodo;
@@ -343,6 +353,14 @@ const createInitialPedidosData = (): PedidosData => ({
     })),
 });
 
+const createInitialProductividadData = (): ProductividadData => ({
+    productividad: 0,
+    horasContratadas: 0,
+    costeVenta: 0,
+    costeReal: 0,
+    nominaReal: 0,
+});
+
 
 // This function generates a new, blank report structure based on the provided lists.
 export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas']): WeeklyData {
@@ -416,11 +434,13 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
           nino: "",
           experiencia: ""
         },
+        focusOperaciones: "",
         experiencia: {
             texto: "",
             focus: "",
         },
         pedidos: createInitialPedidosData(),
+        productividad: createInitialProductividadData(),
         acumulado: {
             mensual: {
                 totalEuros: 0, varPorcTotal: 0,

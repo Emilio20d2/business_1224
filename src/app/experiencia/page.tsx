@@ -1,4 +1,5 @@
 
+
 "use client"
 import React, { useState, useContext, useEffect, useCallback, Suspense } from 'react';
 import type { WeeklyData, Empleado, SectionSpecificData } from "@/lib/data";
@@ -60,6 +61,7 @@ const tabConfig: Record<string, { label: string; icon?: React.FC<React.SVGProps<
     man: { label: "MAN", text: "M", path: "/man" },
     nino: { label: "NIÑO", path: "/nino", text: "N" },
     experiencia: { label: "EXPERIENCIA", text: "E", path: "/experiencia" },
+    operaciones: { label: "OPERACIONES", text: "O", path: "/operaciones" },
 };
 
 function ExperienciaPageComponent() {
@@ -185,7 +187,13 @@ function ExperienciaPageComponent() {
 
         const defaultSectionData: SectionSpecificData = {
             operaciones: { filasCajaPorc: 0, scoPorc: 0, dropOffPorc: 0, ventaIpod: 0, eTicketPorc: 0, repoPorc: 0, frescuraPorc: 0 },
-            perdidas: { gap: { euros: 0, unidades: 0 }, merma: { unidades: 0, porcentaje: 0 } }
+            perdidas: { gap: { euros: 0, unidades: 0 }, merma: { unidades: 0, porcentaje: 0 } },
+            logistica: { entradasSemanales: 0, salidasSemanales: 0, sintSemanales: 0 },
+            almacenes: {
+              ropa: { ocupacionPorc: 0, devolucionUnidades: 0, entradas: 0, salidas: 0 },
+              calzado: { ocupacionPorc: 0, devolucionUnidades: 0, entradas: 0, salidas: 0 },
+              perfumeria: { ocupacionPorc: 0, devolucionUnidades: null, entradas: 0, salidas: 0 }
+            }
         };
 
         if (!reportData.general) {
@@ -586,17 +594,21 @@ function ExperienciaPageComponent() {
                                 className="md:col-span-2"
                               />
                            </div>
-                            <PedidosCard
-                                data={data.pedidos}
-                                isEditing={isEditing}
-                                onInputChange={handleInputChange}
-                            />
-                            <RankingEmpleadosCard
-                                ranking={data.pedidos.rankingEmpleados}
-                                empleados={data.listas.empleados}
-                                isEditing={isEditing}
-                                onInputChange={handleInputChange}
-                            />
+                           {data.pedidos && (
+                            <div className="space-y-4">
+                                <PedidosCard
+                                    data={data.pedidos}
+                                    isEditing={isEditing}
+                                    onInputChange={handleInputChange}
+                                />
+                                <RankingEmpleadosCard
+                                    ranking={data.pedidos.rankingEmpleados}
+                                    empleados={data.listas.empleados}
+                                    isEditing={isEditing}
+                                    onInputChange={handleInputChange}
+                                />
+                            </div>
+                           )}
                         </div>
                     </TabsContent>
                     <TabsContent value="focus" className="mt-0">
