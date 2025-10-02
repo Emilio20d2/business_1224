@@ -53,7 +53,7 @@ const SectionMerma = ({
                     label={<Target className="h-5 w-5 text-primary"/>}
                     value={target}
                     isEditing={isEditing}
-                    valueId={`listas.mermaTarget.${basePath.toLowerCase()}`}
+                    valueId={`listas.mermaTarget.${basePath}`}
                     align="center"
                     unit="%"
                     onInputChange={onInputChange}
@@ -75,6 +75,7 @@ const SectionOperaciones = ({
     basePath: string 
 }) => (
      <div>
+        <div className="h-8 mb-2"></div>
         <KpiCard title="Operaciones" icon={<RefreshCw className="h-5 w-5 text-primary" />}>
             <div className="grid grid-cols-3 gap-4 h-full">
             <DatoSimple 
@@ -120,7 +121,6 @@ export function MermaReposicionTab({ data, isEditing, onInputChange }: MermaRepo
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Columna de Mermas */}
         <div className="space-y-2">
             <SectionMerma
                 sectionName="GENERAL"
@@ -156,7 +156,6 @@ export function MermaReposicionTab({ data, isEditing, onInputChange }: MermaRepo
             />
         </div>
 
-        {/* Columna de Operaciones */}
         <div className="space-y-2">
             <SectionOperaciones
                 operaciones={data.general.operaciones}
