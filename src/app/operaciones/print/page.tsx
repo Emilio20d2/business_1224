@@ -205,7 +205,6 @@ function PrintPlanificacionPageComponent() {
           <header className="mb-6 flex justify-between items-center">
             <div className="text-left">
                 <h1 className="text-3xl font-bold tracking-tight">PLANIFICACIÓN {day.toUpperCase()}</h1>
-                <p className="text-lg text-gray-500">{formatWeekIdToDateRange(weekId)}</p>
             </div>
             <Image src="/Zara_Logo.svg.png" alt="Zara Logo" width={200} height={44} />
           </header>
