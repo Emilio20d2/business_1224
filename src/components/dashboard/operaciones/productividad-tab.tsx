@@ -21,7 +21,7 @@ type ProductividadTabProps = {
 };
 
 const PaqueteriaRow = ({ label, unidades, productividadRatio, isEditing, onInputChange, unidadesId }: { label: string, unidades: number, productividadRatio: number, isEditing: boolean, onInputChange: any, unidadesId: string }) => {
-    const horas = productividadRatio > 0 ? (unidades || 0) / productividadRatio : 0;
+    const productividad = (unidades || 0) / productividadRatio;
     return (
         <div className="grid grid-cols-3 items-center text-center gap-2">
             <span className="text-sm font-medium text-muted-foreground text-left">{label}</span>
@@ -34,7 +34,7 @@ const PaqueteriaRow = ({ label, unidades, productividadRatio, isEditing, onInput
                 align="right"
             />
             <div className="text-right text-lg font-medium">
-                {(horas || 0).toFixed(2)}h
+                 {productividad.toFixed(2)}h
             </div>
         </div>
     );
@@ -52,9 +52,10 @@ const DayProductividad = ({ dayData, dayKey, isEditing, onInputChange }: { dayDa
 
     const totalUnidadesConfeccion = sections.reduce((sum, sec) => sum + (dayData.productividadPorSeccion[sec.key]?.unidadesConfeccion || 0), 0);
     const totalUnidadesPaqueteria = sections.reduce((sum, sec) => sum + (dayData.productividadPorSeccion[sec.key]?.unidadesPaqueteria || 0), 0);
-    const totalHorasConfeccion = totalUnidadesConfeccion / 120;
-    const totalHorasPaqueteria = totalUnidadesPaqueteria / 80;
-    const horasProductividadRequeridas = totalHorasConfeccion + totalHorasPaqueteria;
+    
+    const horasConfeccionRequeridas = totalUnidadesConfeccion / 120;
+    const horasPaqueteriaRequeridas = totalUnidadesPaqueteria / 80;
+    const horasProductividadRequeridas = horasConfeccionRequeridas + horasPaqueteriaRequeridas;
     
     return (
         <div className="space-y-4">
@@ -69,12 +70,18 @@ const DayProductividad = ({ dayData, dayKey, isEditing, onInputChange }: { dayDa
                      <div className="grid grid-cols-3 items-center text-center gap-2">
                         <span className="text-sm font-medium text-muted-foreground text-left">UN. CONFECCION</span>
                         <span className="text-lg font-medium text-right">{totalUnidadesConfeccion} un.</span>
-                        <span className="text-lg font-medium text-right">{totalHorasConfeccion.toFixed(2)} h</span>
+                        <span className="text-lg font-medium text-right">{horasConfeccionRequeridas.toFixed(2)} h</span>
                     </div>
                      <div className="grid grid-cols-3 items-center text-center gap-2">
                         <span className="text-sm font-medium text-muted-foreground text-left">UN. PAQUETERIA</span>
                         <span className="text-lg font-medium text-right">{totalUnidadesPaqueteria} un.</span>
-                        <span className="text-lg font-medium text-right">{totalHorasPaqueteria.toFixed(2)} h</span>
+                        <span className="text-lg font-medium text-right">{horasPaqueteriaRequeridas.toFixed(2)} h</span>
+                    </div>
+                     <Separator />
+                     <div className="grid grid-cols-3 items-center text-center gap-2">
+                        <span className="text-sm font-bold text-left">TOTAL HORAS</span>
+                        <span></span>
+                        <span className="text-lg font-bold text-right">{horasProductividadRequeridas.toFixed(2)} h</span>
                     </div>
                 </div>
 
@@ -94,10 +101,13 @@ const DayProductividad = ({ dayData, dayKey, isEditing, onInputChange }: { dayDa
                                 {dayData.coberturaPorHoras.map((item, index) => {
                                     const totalPersonasHastaAhora = dayData.coberturaPorHoras.slice(0, index + 1).reduce((sum, current) => sum + (current.personas || 0), 0);
                                     const horasCubiertas = totalPersonasHastaAhora; 
-                                    const necesitaMasHoras = horasCubiertas < horasProductividadRequeridas;
+                                    const objetivoCumplido = horasCubiertas >= horasProductividadRequeridas;
 
                                     return (
-                                        <div key={item.hora} className={cn("p-1 rounded", isEditing && necesitaMasHoras && 'bg-red-100 dark:bg-red-900/30')}>
+                                        <div key={item.hora} className={cn(
+                                            "p-1 rounded", 
+                                            isEditing && (objetivoCumplido ? 'bg-green-100 dark:bg-green-900/30' : 'bg-red-100 dark:bg-red-900/30')
+                                        )}>
                                             <DatoSimple
                                                 value={item.personas}
                                                 isEditing={isEditing}
