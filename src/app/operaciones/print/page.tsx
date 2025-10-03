@@ -34,9 +34,11 @@ const PrintSection = ({
             <h3 className="font-bold text-center text-muted-foreground uppercase text-sm mb-2">{columnTitle}</h3>
             <div className="flex flex-col text-sm min-h-[50px]">
                 {items.length > 0 ? items.map(item => (
-                    <div key={item.id} className="grid grid-cols-[1fr_1.5fr] items-center">
-                        <p className="font-medium text-sm">{(item.nombreEmpleado && item.nombreEmpleado.split(' ')[0]) || '--'}</p>
-                        <p className="text-sm text-muted-foreground">{item.anotaciones || '--'}</p>
+                     <div key={item.id} className="flex flex-col mb-1">
+                        <p className="font-medium text-sm">{item.nombreEmpleado || '--'}</p>
+                        {item.anotaciones && (
+                            <p className="text-sm text-muted-foreground pl-4">{item.anotaciones}</p>
+                        )}
                     </div>
                 )) : <p className="text-xs text-muted-foreground text-center pt-4">No asignado</p>}
             </div>
