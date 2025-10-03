@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import type { ProductividadData } from "@/lib/data";
+import type { ProductividadData, CoberturaHora } from "@/lib/data";
 import { KpiCard, DatoSimple } from "../kpi-card";
 import { Zap, Users } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -10,7 +10,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
-import { CoberturaCard } from './cobertura-card';
 
 type ProductividadTabProps = {
   data: {
@@ -56,17 +55,13 @@ const DayProductividad = ({ dayData, dayKey, isEditing, onInputChange }: { dayDa
     const totalHorasConfeccion = totalUnidadesConfeccion / 120;
     const totalHorasPaqueteria = totalUnidadesPaqueteria / 80;
 
+    const totalPersonas = dayData.coberturaPorHoras.reduce((sum, item) => sum + (item.personas || 0), 0);
+
 
     return (
         <div className="space-y-4">
-             <CoberturaCard 
-                data={dayData.coberturaPorHoras}
-                isEditing={isEditing}
-                onInputChange={onInputChange}
-                basePath={`productividad.${dayKey}.coberturaPorHoras`}
-             />
              <KpiCard title="TOTAL" icon={<Zap className="h-5 w-5 text-primary" />}>
-                <div className="space-y-2 pt-2">
+                <div className="space-y-4 pt-2">
                     <div className="grid grid-cols-3 items-center text-center gap-2">
                         <span className="text-sm font-semibold text-muted-foreground text-left"></span>
                         <span className="text-sm font-semibold text-muted-foreground text-right">Unidades</span>
@@ -82,6 +77,38 @@ const DayProductividad = ({ dayData, dayKey, isEditing, onInputChange }: { dayDa
                         <span className="text-sm font-medium text-muted-foreground text-left">UN. PAQUETERIA</span>
                         <span className="text-lg font-medium text-right">{totalUnidadesPaqueteria} un.</span>
                         <span className="text-lg font-medium text-right">{totalHorasPaqueteria.toFixed(2)} h</span>
+                    </div>
+                </div>
+
+                <Separator className="my-4"/>
+
+                <div>
+                    <h4 className="flex items-center gap-2 text-sm font-semibold text-muted-foreground mb-2">
+                        <Users className="h-4 w-4" />
+                        COBERTURA
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div className="md:col-span-3 space-y-2">
+                            <div className="grid grid-cols-7 text-center text-sm font-semibold text-muted-foreground">
+                                {dayData.coberturaPorHoras.map(item => <div key={item.hora}>{item.hora}</div>)}
+                            </div>
+                            <div className="grid grid-cols-7 text-center">
+                                {dayData.coberturaPorHoras.map((item, index) => (
+                                    <DatoSimple
+                                        key={item.hora}
+                                        value={item.personas}
+                                        isEditing={isEditing}
+                                        onInputChange={onInputChange}
+                                        valueId={`productividad.${dayKey}.coberturaPorHoras.${index}.personas`}
+                                        align="center"
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                        <div className="flex flex-col items-center justify-center space-y-2 border-l pl-4">
+                            <span className="text-sm font-semibold text-muted-foreground">TOTAL</span>
+                            <span className="text-3xl font-bold">{totalPersonas}</span>
+                        </div>
                     </div>
                 </div>
             </KpiCard>
