@@ -53,7 +53,6 @@ function PrintProductividadPageComponent() {
         if (reportSnap.exists()) {
             reportData = reportSnap.data() as WeeklyData;
         } else {
-             // If report doesn't exist, create an initial structure to avoid errors
             console.warn(`No report found for week ${weekId}, using initial data structure for printing.`);
             reportData = getInitialDataForWeek(weekId, getInitialLists());
         }
@@ -144,19 +143,19 @@ function PrintProductividadPageComponent() {
 
   return (
     <div className="bg-gray-100 min-h-screen">
-      <div className="bg-white p-8 w-[210mm] min-h-[297mm] mx-auto my-8 text-zinc-900 font-aptos relative" style={{ fontFamily: "'Aptos', sans-serif"}}>
-          <header className="mb-6 flex justify-between items-center">
+      <div className="bg-white p-4 w-[210mm] min-h-[297mm] mx-auto my-4 text-zinc-900 font-aptos relative" style={{ fontFamily: "'Aptos', sans-serif"}}>
+          <header className="mb-4 flex justify-between items-center">
             <div className="text-left">
-                <h1 className="text-3xl font-bold tracking-tight">PRODUCTIVIDAD {day.toUpperCase()}</h1>
+                <h1 className="text-2xl font-bold tracking-tight">PRODUCTIVIDAD {day.toUpperCase()}</h1>
             </div>
-            <Image src="/Zara_Logo.svg.png" alt="Zara Logo" width={200} height={44} />
+            <Image src="/Zara_Logo.svg.png" alt="Zara Logo" width={180} height={40} />
           </header>
 
-          <main className="space-y-4 font-light">
-             <div className="grid grid-cols-3 gap-4">
+          <main className="space-y-2 font-light">
+             <div className="grid grid-cols-3 gap-2">
                 {productividadData.map(sec => (
-                    <KpiCard key={sec.key} title={sec.title} icon={<Box className="h-5 w-5 text-primary"/>}>
-                        <div className="flex flex-col gap-2 p-2">
+                    <KpiCard key={sec.key} title={sec.title} icon={<Box className="h-4 w-4 text-primary"/>}>
+                        <div className="flex flex-col gap-1 p-1">
                            <DatoDoble 
                              label="Un. Confección"
                              value={formatNumber(sec.unidadesConfeccion)}
@@ -170,44 +169,44 @@ function PrintProductividadPageComponent() {
                 ))}
              </div>
 
-             <KpiCard title="Desglose de Productividad" icon={<Zap className="h-5 w-5 text-primary" />} className="shadow-none border">
+             <KpiCard title="Desglose de Productividad" icon={<Zap className="h-4 w-4 text-primary" />} className="shadow-none border">
                  <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead className="text-left w-[25%] font-bold">Sección</TableHead>
-                            <TableHead className="text-left w-[25%] font-bold">Tarea</TableHead>
-                            <TableHead className="text-center w-[15%] font-bold">Unidades</TableHead>
-                            <TableHead className="text-center w-[15%] font-bold">Productividad</TableHead>
-                            <TableHead className="text-right w-[20%] font-bold">Horas Requeridas</TableHead>
+                            <TableHead className="text-left w-[25%] font-bold text-xs">Sección</TableHead>
+                            <TableHead className="text-left w-[25%] font-bold text-xs">Tarea</TableHead>
+                            <TableHead className="text-center w-[15%] font-bold text-xs">Unidades</TableHead>
+                            <TableHead className="text-center w-[15%] font-bold text-xs">Productividad</TableHead>
+                            <TableHead className="text-right w-[20%] font-bold text-xs">Horas Req.</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {productividadData.map((sec, secIndex) => (
                             <React.Fragment key={sec.key}>
                                 <TableRow>
-                                    <TableCell rowSpan={3} className="font-bold align-top pt-4 text-base">{sec.title}</TableCell>
-                                    <TableCell className="font-medium text-muted-foreground">Confección</TableCell>
-                                    <TableCell className="text-center">{formatNumber(sec.unidadesConfeccion)}</TableCell>
-                                    <TableCell className="text-center text-muted-foreground">{ratioConfeccion} u/h</TableCell>
-                                    <TableCell className="text-right font-medium">{roundToQuarter(sec.horasConfeccion)} h</TableCell>
+                                    <TableCell rowSpan={3} className="font-bold align-top pt-3 text-sm">{sec.title}</TableCell>
+                                    <TableCell className="font-medium text-muted-foreground text-xs">Confección</TableCell>
+                                    <TableCell className="text-center text-xs">{formatNumber(sec.unidadesConfeccion)}</TableCell>
+                                    <TableCell className="text-center text-muted-foreground text-xs">{ratioConfeccion} u/h</TableCell>
+                                    <TableCell className="text-right font-medium text-xs">{roundToQuarter(sec.horasConfeccion)} h</TableCell>
                                 </TableRow>
                                 <TableRow>
-                                    <TableCell className="font-medium text-muted-foreground">Paquetería (Perchado)</TableCell>
-                                     <TableCell className="text-center">{formatNumber(sec.unidadesPerchado)}</TableCell>
-                                    <TableCell className="text-center text-muted-foreground">{ratioPerchado} u/h</TableCell>
-                                    <TableCell className="text-right font-medium">{roundToQuarter(sec.horasPerchado)} h</TableCell>
+                                    <TableCell className="font-medium text-muted-foreground text-xs">Paquetería (Perchado)</TableCell>
+                                     <TableCell className="text-center text-xs">{formatNumber(sec.unidadesPerchado)}</TableCell>
+                                    <TableCell className="text-center text-muted-foreground text-xs">{ratioPerchado} u/h</TableCell>
+                                    <TableCell className="text-right font-medium text-xs">{roundToQuarter(sec.horasPerchado)} h</TableCell>
                                 </TableRow>
-                                <TableRow className={secIndex < sections.length - 1 ? 'border-b-4' : ''}>
-                                    <TableCell className="font-medium text-muted-foreground">Paquetería (Picking)</TableCell>
-                                    <TableCell className="text-center">{formatNumber(sec.unidadesPicking)}</TableCell>
-                                    <TableCell className="text-center text-muted-foreground">{ratioPicking} u/h</TableCell>
-                                    <TableCell className="text-right font-medium">{roundToQuarter(sec.horasPicking)} h</TableCell>
+                                <TableRow className={secIndex < sections.length - 1 ? 'border-b-2' : ''}>
+                                    <TableCell className="font-medium text-muted-foreground text-xs">Paquetería (Picking)</TableCell>
+                                    <TableCell className="text-center text-xs">{formatNumber(sec.unidadesPicking)}</TableCell>
+                                    <TableCell className="text-center text-muted-foreground text-xs">{ratioPicking} u/h</TableCell>
+                                    <TableCell className="text-right font-medium text-xs">{roundToQuarter(sec.horasPicking)} h</TableCell>
                                 </TableRow>
                             </React.Fragment>
                         ))}
-                         <TableRow className="bg-muted/50 font-bold text-base">
-                            <TableCell colSpan={4}>TOTAL HORAS PRODUCTIVIDAD REQUERIDAS</TableCell>
-                            <TableCell className="text-right text-lg">{roundToQuarter(horasProductividadRequeridas)} h</TableCell>
+                         <TableRow className="bg-muted/50 font-bold">
+                            <TableCell colSpan={4} className="text-sm">TOTAL HORAS PRODUCTIVIDAD REQUERIDAS</TableCell>
+                            <TableCell className="text-right text-base">{roundToQuarter(horasProductividadRequeridas)} h</TableCell>
                         </TableRow>
                     </TableBody>
                  </Table>

@@ -12,11 +12,11 @@ type KpiCardProps = {
 
 export function KpiCard({ title, icon, children, className }: KpiCardProps) {
   return (
-    <div className={cn("bg-card text-card-foreground rounded-xl p-3 flex flex-col gap-2 shadow", className)}>
-      <h3 className="flex items-center gap-3 text-base font-light leading-none tracking-tight text-card-foreground/80 -m-3 mb-0 border-b p-3">
+    <div className={cn("bg-card text-card-foreground rounded-xl p-2 flex flex-col gap-1 shadow", className)}>
+      <h3 className="flex items-center gap-2 text-sm font-semibold leading-none tracking-tight text-card-foreground/80 -m-2 mb-0 border-b p-2">
         {icon} {title}
       </h3>
-      <div className="flex flex-col gap-2 h-full">
+      <div className="flex flex-col gap-1 h-full">
         {children}
       </div>
     </div>
@@ -56,8 +56,8 @@ export function DatoDoble({ label, value, variation, unit, isEditing, valueId, v
   const valueColor = typeof rawValue === 'number' && rawValue < 0 ? 'text-red-600' : '';
 
   return (
-    <div className="flex justify-between items-center font-light">
-      {label && <span className="text-sm text-muted-foreground">{label}</span>}
+    <div className="flex justify-between items-center font-light px-1">
+      {label && <span className="text-xs text-muted-foreground">{label}</span>}
       <div className="flex items-baseline gap-2">
         {isEditing && valueId && onInputChange ? (
           <div className="flex items-center gap-1">
@@ -72,7 +72,7 @@ export function DatoDoble({ label, value, variation, unit, isEditing, valueId, v
              {unit && <span className="text-sm text-muted-foreground">{unit}</span>}
            </div>
         ) : (
-           <div className={cn("text-lg font-bold", valueColor)}>{value}{unit}</div>
+           <div className={cn("text-base font-bold", valueColor)}>{value}{unit}</div>
         )}
         {variation !== undefined && (
           isEditing && variationId ? (
@@ -88,7 +88,7 @@ export function DatoDoble({ label, value, variation, unit, isEditing, valueId, v
              <span className="text-sm text-muted-foreground">%</span>
             </div>
           ) : (
-            <span className={cn("rounded-md px-2 py-1 text-sm font-bold", trendColor)}>
+            <span className={cn("rounded-md px-1.5 py-0.5 text-xs font-bold", trendColor)}>
               {variation >= 0 ? '+' : ''}{variation.toLocaleString('es-ES')}%
             </span>
           )
