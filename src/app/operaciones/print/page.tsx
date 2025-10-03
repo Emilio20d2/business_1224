@@ -10,7 +10,6 @@ import { formatNumber } from '@/lib/format';
 import { Loader2, Share } from 'lucide-react';
 import Image from 'next/image';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -57,8 +56,10 @@ const PrintSection = ({
                 </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-                {renderColumn(confeccionItems, 'CONFECCIÓN')}
-                {renderColumn(paqueteriaItems, 'PAQUETERÍA')}
+                 <div className="space-y-6">
+                    {renderColumn(confeccionItems, 'CONFECCIÓN')}
+                    {renderColumn(paqueteriaItems, 'PAQUETERÍA')}
+                </div>
             </CardContent>
         </Card>
     );
@@ -72,7 +73,6 @@ function PrintPlanificacionPageComponent() {
 
   const [data, setData] = useState<WeeklyData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isExporting, setIsExporting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const printRef = useRef<HTMLDivElement>(null);
 
@@ -101,64 +101,6 @@ function PrintPlanificacionPageComponent() {
 
     fetchData();
   }, [weekId]);
-
-  const handleExportPdf = async () => {
-    const element = printRef.current;
-    if (!element) return;
-    
-    setIsExporting(true);
-
-    try {
-        const canvas = await html2canvas(element, {
-            scale: 2, 
-            useCORS: true,
-        });
-        
-        const imgData = canvas.toDataURL('image/png');
-        
-        const pdf = new jsPDF('landscape', 'mm', 'a4');
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = pdf.internal.pageSize.getHeight();
-        
-        const imgProps = pdf.getImageProperties(imgData);
-        const imgWidth = imgProps.width;
-        const imgHeight = imgProps.height;
-        
-        const ratio = imgWidth / imgHeight;
-        
-        let newImgWidth = pdfWidth;
-        let newImgHeight = newImgWidth / ratio;
-        
-        if (newImgHeight > pdfHeight) {
-            newImgHeight = pdfHeight;
-            newImgWidth = newImgHeight * ratio;
-        }
-
-        const xOffset = (pdfWidth - newImgWidth) / 2;
-        const yOffset = (pdfHeight - newImgHeight) / 2;
-
-        pdf.addImage(imgData, 'PNG', xOffset, yOffset, newImgWidth, newImgHeight);
-        
-        const pdfBlob = pdf.output('blob');
-        const pdfFile = new File([pdfBlob], 'planificacion.pdf', { type: 'application/pdf' });
-
-        if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
-             await navigator.share({
-                files: [pdfFile],
-                title: 'Planificación Semanal',
-                text: `Planificación para ${day} de la semana ${weekId}`,
-            });
-        } else {
-            pdf.save('planificacion.pdf');
-        }
-
-    } catch (error) {
-        console.error("Error al generar el PDF:", error);
-        setError("No se pudo generar el PDF. Inténtalo de nuevo.");
-    } finally {
-        setIsExporting(false);
-    }
-  };
 
 
   if (loading) {
@@ -198,21 +140,6 @@ function PrintPlanificacionPageComponent() {
 
   return (
     <div className="bg-gray-100 min-h-screen">
-      <div className="bg-white shadow py-4 px-8 sticky top-0 z-20 flex justify-center items-center">
-        <Button onClick={handleExportPdf} disabled={isExporting}>
-            {isExporting ? (
-                <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Exportando...
-                </>
-            ) : (
-                <>
-                    <Share className="mr-2 h-4 w-4" />
-                    Exportar PDF
-                </>
-            )}
-        </Button>
-      </div>
       <div ref={printRef} className="bg-white p-8 w-[1123px] min-h-[794px] mx-auto my-8 text-zinc-900 font-aptos" style={{ fontFamily: "'Aptos', sans-serif"}}>
           <header className="mb-6 flex justify-between items-center">
             <div className="text-left">

@@ -28,7 +28,6 @@ function PrintProductividadPageComponent() {
 
   const [data, setData] = useState<WeeklyData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isExporting, setIsExporting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const printRef = useRef<HTMLDivElement>(null);
 
@@ -54,9 +53,9 @@ function PrintProductividadPageComponent() {
         if (reportSnap.exists()) {
             reportData = reportSnap.data() as WeeklyData;
         } else {
-            // If report doesn't exist, create a temporary one to avoid errors
-            reportData = getInitialDataForWeek(weekId, getInitialLists());
-            console.warn(`No se encontró informe para la semana ${weekId}. Usando datos iniciales.`);
+            setError(`No se encontró informe para la semana ${weekId}.`);
+            setLoading(false);
+            return;
         }
 
         if (listsSnap.exists()) {
@@ -81,64 +80,6 @@ function PrintProductividadPageComponent() {
 
     fetchData();
   }, [weekId]);
-
-  const handleExportPdf = async () => {
-    const element = printRef.current;
-    if (!element) return;
-    
-    setIsExporting(true);
-
-    try {
-        const canvas = await html2canvas(element, {
-            scale: 2, 
-            useCORS: true,
-        });
-        
-        const imgData = canvas.toDataURL('image/png');
-        
-        const pdf = new jsPDF('p', 'mm', 'a4');
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = pdf.internal.pageSize.getHeight();
-        
-        const imgProps = pdf.getImageProperties(imgData);
-        const imgWidth = imgProps.width;
-        const imgHeight = imgProps.height;
-        
-        const ratio = imgHeight / imgWidth;
-        let newImgWidth = pdfWidth - 20; // margins
-        let newImgHeight = newImgWidth * ratio;
-
-        if (newImgHeight > pdfHeight - 20) {
-            newImgHeight = pdfHeight - 20;
-            newImgWidth = newImgHeight / ratio;
-        }
-
-        const xOffset = (pdfWidth - newImgWidth) / 2;
-        const yOffset = 10;
-
-        pdf.addImage(imgData, 'PNG', xOffset, yOffset, newImgWidth, newImgHeight);
-        
-        const pdfBlob = pdf.output('blob');
-        const pdfFile = new File([pdfBlob], `productividad_${day}.pdf`, { type: 'application/pdf' });
-
-        if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
-            await navigator.share({
-                files: [pdfFile],
-                title: `Productividad ${day.charAt(0).toUpperCase() + day.slice(1)}`,
-                text: `Informe de productividad para ${day} de la semana ${weekId}`,
-            });
-        } else {
-            pdf.save(`productividad_${day}.pdf`);
-        }
-
-    } catch (error) {
-        console.error("Error al generar el PDF:", error);
-        setError("No se pudo generar el PDF. Inténtalo de nuevo.");
-    } finally {
-        setIsExporting(false);
-    }
-  };
-
 
   if (loading) {
     return (
@@ -202,11 +143,6 @@ function PrintProductividadPageComponent() {
 
   return (
     <div className="bg-gray-100 min-h-screen">
-      <div className="bg-white shadow py-4 px-8 sticky top-0 z-20 flex justify-center items-center">
-        <Button onClick={handleExportPdf} disabled={isExporting}>
-            {isExporting ? ( <> <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Exportando... </> ) : ( <> <Share className="mr-2 h-4 w-4" /> Exportar PDF </> )}
-        </Button>
-      </div>
       <div ref={printRef} className="bg-white p-8 w-[210mm] min-h-[297mm] mx-auto my-8 text-zinc-900 font-aptos" style={{ fontFamily: "'Aptos', sans-serif"}}>
           <header className="mb-6 flex justify-between items-center">
             <div className="text-left">
