@@ -17,7 +17,10 @@ type ProductividadTabProps = {
   onInputChange: (path: string, value: any, reorder?: boolean) => void;
 };
 
-const DayProductividad = ({ dayData, dayKey, isEditing, onInputChange }: { dayData: ProductividadData, dayKey: 'lunes' | 'jueves', isEditing: boolean, onInputChange: any }) => (
+const DayProductividad = ({ dayData, dayKey, isEditing, onInputChange }: { dayData: ProductividadData, dayKey: 'lunes' | 'jueves', isEditing: boolean, onInputChange: any }) => {
+    if (!dayData) return null;
+    
+    return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       <KpiCard title="Productividad General" icon={<Zap className="h-5 w-5 text-primary" />}>
         <div className="space-y-4">
@@ -75,7 +78,8 @@ const DayProductividad = ({ dayData, dayKey, isEditing, onInputChange }: { dayDa
             />
       </KpiCard>
     </div>
-);
+  );
+}
 
 
 export function ProductividadTab({ data, isEditing, onInputChange }: ProductividadTabProps) {

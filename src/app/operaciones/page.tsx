@@ -59,7 +59,8 @@ const tabConfig: Record<string, { label: string; icon?: React.FC<React.SVGProps<
 };
 
 const ensureSectionSpecificData = (data: WeeklyData): WeeklyData => {
-    const defaultSectionData = getInitialDataForWeek('', getInitialLists()).general; // Get a full default structure
+    const defaultData = getInitialDataForWeek('', getInitialLists());
+    const defaultSectionData = defaultData.general;
 
     if (!data.general) data.general = JSON.parse(JSON.stringify(defaultSectionData));
     if (!data.man) data.man = JSON.parse(JSON.stringify(defaultSectionData));
@@ -76,7 +77,10 @@ const ensureSectionSpecificData = (data: WeeklyData): WeeklyData => {
     if (!data.general.logistica) data.general.logistica = JSON.parse(JSON.stringify(defaultSectionData.logistica));
     if (!data.general.almacenes) data.general.almacenes = JSON.parse(JSON.stringify(defaultSectionData.almacenes));
 
-    if (!data.productividad) data.productividad = getInitialDataForWeek('', getInitialLists()).productividad;
+    if (!data.productividad) data.productividad = defaultData.productividad;
+    if (!data.productividad.lunes) data.productividad.lunes = defaultData.productividad.lunes;
+    if (!data.productividad.jueves) data.productividad.jueves = defaultData.productividad.jueves;
+
     if (data.focusOperaciones === undefined) data.focusOperaciones = '';
 
 
