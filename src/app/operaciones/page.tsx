@@ -250,15 +250,10 @@ function OperacionesPageComponent() {
         const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
         const cleanValue = isNaN(numericValue) || value === "" ? 0 : numericValue;
 
-        if (keys[0] === 'focusOperaciones') {
-            updatedData.focusOperaciones = value;
-        } else if (keys[0] === 'productividad' && keys.length === 5) {
-            const day = keys[1] as 'lunes' | 'jueves';
-            const section = keys[3] as 'woman' | 'man' | 'nino';
-            const field = keys[4];
-
-            if (updatedData.productividad?.[day]?.productividadPorSeccion?.[section]) {
-                const prodSection = updatedData.productividad[day].productividadPorSeccion[section];
+        if (path.startsWith('productividad.')) {
+            const [, day, , section, field] = keys;
+            if (day && section && field && updatedData.productividad?.[day as 'lunes' | 'jueves']?.productividadPorSeccion?.[section as 'woman' | 'man' | 'nino']) {
+                const prodSection = updatedData.productividad[day as 'lunes' | 'jueves'].productividadPorSeccion[section as 'woman' | 'man' | 'nino'];
                 
                 if (field === 'unidadesConfeccion') {
                     prodSection.unidadesConfeccion = cleanValue;
@@ -266,8 +261,12 @@ function OperacionesPageComponent() {
                 } else if (field === 'unidadesPaqueteria') {
                     prodSection.unidadesPaqueteria = cleanValue;
                     prodSection.horasPaqueteria = cleanValue / 80;
+                } else {
+                    current[finalKey] = cleanValue;
                 }
             }
+        } else if (keys[0] === 'focusOperaciones') {
+            updatedData.focusOperaciones = value;
         } else {
             current[finalKey] = cleanValue;
         }
