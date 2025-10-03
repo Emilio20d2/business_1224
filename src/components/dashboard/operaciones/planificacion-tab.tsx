@@ -45,12 +45,14 @@ const SectionPlanificacion = ({
 }) => {
     const { confeccion, perchado, picking, porcentajePerchado, porcentajePicking } = ratios;
     
-    const horasConfeccion = (dayData.productividadPorSeccion[sectionKey]?.unidadesConfeccion || 0) / confeccion;
-    const horasPerchado = ((dayData.productividadPorSeccion[sectionKey]?.unidadesPaqueteria || 0) * (porcentajePerchado / 100)) / perchado;
-    const horasPicking = ((dayData.productividadPorSeccion[sectionKey]?.unidadesPaqueteria || 0) * (porcentajePicking / 100)) / picking;
-    const horasRequeridasSeccion = horasConfeccion + horasPerchado + horasPicking;
+    const horasConfeccionRequeridas = (dayData.productividadPorSeccion[sectionKey]?.unidadesConfeccion || 0) / confeccion;
+    const horasPaqueteriaRequeridas = 
+        (((dayData.productividadPorSeccion[sectionKey]?.unidadesPaqueteria || 0) * (porcentajePerchado / 100)) / perchado) +
+        (((dayData.productividadPorSeccion[sectionKey]?.unidadesPaqueteria || 0) * (porcentajePicking / 100)) / picking);
 
-    const planificacionSeccion = dayData.planificacion.filter(p => p.tarea.includes(title));
+    const horasRequeridasSeccion = horasConfeccionRequeridas + horasPaqueteriaRequeridas;
+
+    const planificacionSeccion = dayData.planificacion.filter(p => p.seccion === sectionKey);
 
     const handlePlanChange = (itemId: string, field: keyof PlanificacionItem, value: any) => {
         onDataChange(prevData => {
@@ -64,10 +66,8 @@ const SectionPlanificacion = ({
                     const empleado = empleados.find(e => e.id === value);
                     plan[itemIndex].idEmpleado = value;
                     plan[itemIndex].nombreEmpleado = empleado?.nombre || '';
-                } else if (field === 'horasAsignadas') {
-                    plan[itemIndex].horasAsignadas = Number(value) || 0;
-                } else {
-                    (plan[itemIndex] as any)[field] = value;
+                } else if (field === 'horasConfeccion' || field === 'horasPaqueteria') {
+                    (plan[itemIndex] as any)[field] = Number(value) || 0;
                 }
             }
             return newData;
@@ -82,8 +82,9 @@ const SectionPlanificacion = ({
                 id: uuidv4(),
                 idEmpleado: '',
                 nombreEmpleado: '',
-                tarea: '',
-                horasAsignadas: 0,
+                seccion: sectionKey,
+                horasConfeccion: 0,
+                horasPaqueteria: 0,
             };
             newData.productividad[dayKey].planificacion.push(newItem);
             return newData;
@@ -100,18 +101,35 @@ const SectionPlanificacion = ({
     };
 
     return (
-        <KpiCard title={`PLANIFICACIÓN ${title} (${roundToQuarter(horasRequeridasSeccion).toFixed(2)}h requeridas)`} icon={<Users/>}>
+        <KpiCard title={`PLANIFICACIÓN ${title}`} icon={<Users/>}>
+            <div className="grid grid-cols-3 gap-2 text-center text-sm font-light mb-2">
+                <div>
+                    <p className="text-muted-foreground">H. Confección Req.</p>
+                    <p className="font-bold text-lg">{roundToQuarter(horasConfeccionRequeridas).toFixed(2)}h</p>
+                </div>
+                <div>
+                    <p className="text-muted-foreground">H. Paquetería Req.</p>
+                    <p className="font-bold text-lg">{roundToQuarter(horasPaqueteriaRequeridas).toFixed(2)}h</p>
+                </div>
+                <div>
+                    <p className="text-muted-foreground">H. Totales Req.</p>
+                    <p className="font-bold text-lg">{roundToQuarter(horasRequeridasSeccion).toFixed(2)}h</p>
+                </div>
+            </div>
             <Table>
                 <TableHeader>
                     <TableRow>
                         <TableHead className="font-bold w-[40%]">Empleado</TableHead>
-                        <TableHead className="font-bold w-[40%]">Tarea</TableHead>
-                        <TableHead className="text-right font-bold">Horas</TableHead>
+                        <TableHead className="text-right font-bold">H. Confección</TableHead>
+                        <TableHead className="text-right font-bold">H. Paquetería</TableHead>
+                        <TableHead className="text-right font-bold">H. Total</TableHead>
                         {isEditing && <TableHead className="w-[50px]"></TableHead>}
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {planificacionSeccion.map((item: PlanificacionItem) => (
+                    {planificacionSeccion.map((item: PlanificacionItem) => {
+                        const totalHoras = item.horasConfeccion + item.horasPaqueteria;
+                        return (
                         <TableRow key={item.id}>
                             <TableCell>
                                 {isEditing ? (
@@ -125,32 +143,33 @@ const SectionPlanificacion = ({
                                     item.nombreEmpleado
                                 )}
                             </TableCell>
-                            <TableCell>
-                                 {isEditing ? (
-                                    <Select value={item.tarea} onValueChange={(value) => handlePlanChange(item.id, 'tarea', value)}>
-                                        <SelectTrigger><SelectValue placeholder="Seleccionar..." /></SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value={`Confección ${title}`}>Confección</SelectItem>
-                                            <SelectItem value={`Paquetería ${title}`}>Paquetería</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                ) : (
-                                    item.tarea.replace(`${title}`, '').trim()
-                                )}
-                            </TableCell>
                             <TableCell className="text-right">
                                 {isEditing ? (
                                     <Input 
                                         type="number" 
                                         step="0.25"
-                                        value={item.horasAsignadas} 
-                                        onChange={(e) => handlePlanChange(item.id, 'horasAsignadas', e.target.value)} 
+                                        value={item.horasConfeccion} 
+                                        onChange={(e) => handlePlanChange(item.id, 'horasConfeccion', e.target.value)} 
                                         className="w-24 ml-auto text-right"
                                     />
                                 ) : (
-                                    `${item.horasAsignadas.toFixed(2)} h`
+                                    `${item.horasConfeccion.toFixed(2)} h`
                                 )}
                             </TableCell>
+                             <TableCell className="text-right">
+                                {isEditing ? (
+                                    <Input 
+                                        type="number" 
+                                        step="0.25"
+                                        value={item.horasPaqueteria} 
+                                        onChange={(e) => handlePlanChange(item.id, 'horasPaqueteria', e.target.value)} 
+                                        className="w-24 ml-auto text-right"
+                                    />
+                                ) : (
+                                    `${item.horasPaqueteria.toFixed(2)} h`
+                                )}
+                            </TableCell>
+                            <TableCell className="text-right font-bold">{totalHoras.toFixed(2)} h</TableCell>
                             {isEditing && (
                                 <TableCell>
                                     <Button variant="ghost" size="icon" onClick={() => handleRemoveItem(item.id)}>
@@ -159,7 +178,7 @@ const SectionPlanificacion = ({
                                 </TableCell>
                             )}
                         </TableRow>
-                    ))}
+                    )})}
                 </TableBody>
             </Table>
             {isEditing && (
@@ -196,14 +215,15 @@ const DayPlanificacion = ({
         (['woman', 'man', 'nino'] as const).forEach(seccionKey => {
             const seccionData = dayData.productividadPorSeccion[seccionKey];
             const horasConfeccion = (seccionData.unidadesConfeccion || 0) / confeccion;
-            const horasPerchado = ((seccionData.unidadesPaqueteria || 0) * (porcentajePerchado / 100)) / perchado;
-            const horasPicking = ((seccionData.unidadesPaqueteria || 0) * (porcentajePicking / 100)) / picking;
-            totalHoras += horasConfeccion + horasPerchado + horasPicking;
+            const horasPaqueteria = 
+                (((seccionData.unidadesPaqueteria || 0) * (porcentajePerchado / 100)) / perchado) +
+                (((seccionData.unidadesPaqueteria || 0) * (porcentajePicking / 100)) / picking);
+            totalHoras += horasConfeccion + horasPaqueteria;
         });
         return totalHoras;
     }, [dayData, ratios]);
 
-    const horasAsignadas = useMemo(() => dayData.planificacion.reduce((acc, item) => acc + item.horasAsignadas, 0), [dayData.planificacion]);
+    const horasAsignadas = useMemo(() => dayData.planificacion.reduce((acc, item) => acc + item.horasConfeccion + item.horasPaqueteria, 0), [dayData.planificacion]);
     const horasPendientes = horasRequeridas - horasAsignadas;
 
     return (
