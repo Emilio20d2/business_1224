@@ -38,32 +38,12 @@ export function EditRatiosDialog({ isOpen, onClose, ratios, onSave }: EditRatios
     }
   }, [ratios, isOpen]);
   
-  const handleRatioChange = (field: 'picking' | 'perchado' | 'confeccion', value: string) => {
+  const handleRatioChange = (field: keyof WeeklyData['listas']['productividadRatio'], value: string) => {
     const numericValue = parseInt(value, 10);
     if (!isNaN(numericValue)) {
         setCurrentRatios(prev => ({ ...prev, [field]: numericValue }));
     }
   };
-
-  const handlePercentageChange = (field: 'porcentajePerchado' | 'porcentajePicking', value: string) => {
-    const numericValue = parseInt(value, 10);
-    if (!isNaN(numericValue) && numericValue >= 0 && numericValue <= 100) {
-      if (field === 'porcentajePerchado') {
-        setCurrentRatios({
-          ...currentRatios,
-          porcentajePerchado: numericValue,
-          porcentajePicking: 100 - numericValue,
-        });
-      } else {
-        setCurrentRatios({
-          ...currentRatios,
-          porcentajePicking: numericValue,
-          porcentajePerchado: 100 - numericValue,
-        });
-      }
-    }
-  };
-
 
   const handleSave = () => {
     onSave(currentRatios);
@@ -109,7 +89,7 @@ export function EditRatiosDialog({ isOpen, onClose, ratios, onSave }: EditRatios
               id="porcentaje-perchado"
               type="number"
               value={currentRatios.porcentajePerchado}
-              onChange={(e) => handlePercentageChange('porcentajePerchado', e.target.value)}
+              onChange={(e) => handleRatioChange('porcentajePerchado', e.target.value)}
               className="col-span-1"
             />
           </div>
@@ -133,7 +113,7 @@ export function EditRatiosDialog({ isOpen, onClose, ratios, onSave }: EditRatios
               id="porcentaje-picking"
               type="number"
               value={currentRatios.porcentajePicking}
-              onChange={(e) => handlePercentageChange('porcentajePicking', e.target.value)}
+              onChange={(e) => handleRatioChange('porcentajePicking', e.target.value)}
               className="col-span-1"
             />
           </div>
