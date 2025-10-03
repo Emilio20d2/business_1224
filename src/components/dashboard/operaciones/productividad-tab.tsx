@@ -62,80 +62,33 @@ const DayProductividad = ({ dayData, dayKey, isEditing, onInputChange }: { dayDa
                 
                 return (
                     <KpiCard key={section.key} title={section.title} icon={<Users className="h-5 w-5 text-primary" />}>
-                        <div className="space-y-4">
-                            <DatoSimple
-                                label="Productividad"
-                                value={sectionData.productividad}
-                                isEditing={isEditing}
-                                valueId={`productividad.${dayKey}.productividadPorSeccion.${section.key}.productividad`}
-                                onInputChange={onInputChange}
-                                unit="€/h"
-                                align="center"
-                            />
-                            <DatoSimple
-                                label="Horas contratadas"
-                                value={sectionData.horasContratadas}
-                                isEditing={isEditing}
-                                valueId={`productividad.${dayKey}.productividadPorSeccion.${section.key}.horasContratadas`}
-                                onInputChange={onInputChange}
-                                unit="h"
-                                align="center"
-                            />
-                            <DatoSimple
-                                label="Coste / Venta"
-                                value={sectionData.costeVenta}
-                                isEditing={isEditing}
-                                valueId={`productividad.${dayKey}.productividadPorSeccion.${section.key}.costeVenta`}
-                                onInputChange={onInputChange}
-                                unit="%"
-                                align="center"
-                            />
-                             <DatoSimple
-                                label="Coste Real"
-                                value={sectionData.costeReal}
-                                isEditing={isEditing}
-                                valueId={`productividad.${dayKey}.productividadPorSeccion.${section.key}.costeReal`}
-                                onInputChange={onInputChange}
-                                unit="€"
-                                align="center"
-                            />
-                            <DatoSimple
-                                label="Nómina Real"
-                                value={sectionData.nominaReal}
-                                isEditing={isEditing}
-                                valueId={`productividad.${dayKey}.productividadPorSeccion.${section.key}.nominaReal`}
-                                onInputChange={onInputChange}
-                                unit="€"
-                                align="center"
-                            />
-                            <Separator />
-                             <div className="space-y-2 pt-2">
-                                <div className="grid grid-cols-3 items-center text-center gap-2">
-                                    <span className="text-sm font-semibold text-muted-foreground text-left"></span>
-                                    <span className="text-sm font-semibold text-muted-foreground">Unidades</span>
-                                    <span className="text-sm font-semibold text-muted-foreground">Horas</span>
-                                </div>
-                                <PaqueteriaRow
-                                    label="UN. CONFECCION"
-                                    unidades={sectionData.unidadesConfeccion}
-                                    horas={sectionData.horasConfeccion}
-                                    isEditing={isEditing}
-                                    onInputChange={onInputChange}
-                                    basePath={`productividad.${dayKey}.productividadPorSeccion.${section.key}`}
-                                    unidadesId={`productividad.${dayKey}.productividadPorSeccion.${section.key}.unidadesConfeccion`}
-                                    horasId={`productividad.${dayKey}.productividadPorSeccion.${section.key}.horasConfeccion`}
-                                />
-                                <PaqueteriaRow
-                                    label="UN. PAQUETERIA"
-                                    unidades={sectionData.unidadesPaqueteria}
-                                    horas={sectionData.horasPaqueteria}
-                                    isEditing={isEditing}
-                                    onInputChange={onInputChange}
-                                    basePath={`productividad.${dayKey}.productividadPorSeccion.${section.key}`}
-                                    unidadesId={`productividad.${dayKey}.productividadPorSeccion.${section.key}.unidadesPaqueteria`}
-                                    horasId={`productividad.${dayKey}.productividadPorSeccion.${section.key}.horasPaqueteria`}
-                                />
+                        <div className="space-y-2 pt-2">
+                            <div className="grid grid-cols-3 items-center text-center gap-2">
+                                <span className="text-sm font-semibold text-muted-foreground text-left"></span>
+                                <span className="text-sm font-semibold text-muted-foreground">Unidades</span>
+                                <span className="text-sm font-semibold text-muted-foreground">Horas</span>
                             </div>
+                            <Separator />
+                            <PaqueteriaRow
+                                label="UN. CONFECCION"
+                                unidades={sectionData.unidadesConfeccion}
+                                horas={sectionData.horasConfeccion}
+                                isEditing={isEditing}
+                                onInputChange={onInputChange}
+                                basePath={`productividad.${dayKey}.productividadPorSeccion.${section.key}`}
+                                unidadesId={`productividad.${dayKey}.productividadPorSeccion.${section.key}.unidadesConfeccion`}
+                                horasId={`productividad.${dayKey}.productividadPorSeccion.${section.key}.horasConfeccion`}
+                            />
+                            <PaqueteriaRow
+                                label="UN. PAQUETERIA"
+                                unidades={sectionData.unidadesPaqueteria}
+                                horas={sectionData.horasPaqueteria}
+                                isEditing={isEditing}
+                                onInputChange={onInputChange}
+                                basePath={`productividad.${dayKey}.productividadPorSeccion.${section.key}`}
+                                unidadesId={`productividad.${dayKey}.productividadPorSeccion.${section.key}.unidadesPaqueteria`}
+                                horasId={`productividad.${dayKey}.productividadPorSeccion.${section.key}.horasPaqueteria`}
+                            />
                         </div>
                     </KpiCard>
                 );

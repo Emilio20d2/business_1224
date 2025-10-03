@@ -54,11 +54,6 @@ export type LogisticaData = {
 };
 
 export type ProductividadSeccion = {
-    productividad: number;
-    horasContratadas: number;
-    costeVenta: number;
-    costeReal: number;
-    nominaReal: number;
     unidadesConfeccion: number;
     horasConfeccion: number;
     unidadesPaqueteria: number;
@@ -383,11 +378,6 @@ const createInitialPedidosData = (): PedidosData => ({
 });
 
 const createInitialProductividadSeccion = (): ProductividadSeccion => ({
-    productividad: 0,
-    horasContratadas: 0,
-    costeVenta: 0,
-    costeReal: 0,
-    nominaReal: 0,
     unidadesConfeccion: 0,
     horasConfeccion: 0,
     unidadesPaqueteria: 0,
