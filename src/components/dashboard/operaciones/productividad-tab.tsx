@@ -151,7 +151,8 @@ export function ProductividadTab({ data, isEditing, onInputChange }: Productivid
   ];
   
   const handlePrint = () => {
-    const url = `/operaciones/productividad/print?week=${data.periodo}&day=${activeSubTab}`;
+    const weekId = data.periodo.replace(' ', '-');
+    const url = `/operaciones/productividad/print?week=${weekId}&day=${activeSubTab}`;
     window.open(url, '_blank');
   };
 
@@ -170,7 +171,7 @@ export function ProductividadTab({ data, isEditing, onInputChange }: Productivid
                     </Button>
                 ))}
             </div>
-             <Button onClick={handlePrint} variant="outline">
+             <Button onClick={handlePrint} variant="outline" disabled={!data || !data.periodo}>
                 <Printer className="mr-2 h-4 w-4" />
                 Crear PDF
             </Button>

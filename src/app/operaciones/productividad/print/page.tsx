@@ -48,28 +48,24 @@ function PrintProductividadPageComponent() {
             getDoc(reportRef),
             getDoc(listsRef),
         ]);
-
+        
         let reportData: WeeklyData;
-        let listData: WeeklyData['listas'];
-
-        if (listsSnap.exists()) {
-            listData = listsSnap.data() as WeeklyData['listas'];
-        } else {
-            listData = getInitialLists();
-        }
-
+        
         if (reportSnap.exists()) {
             reportData = reportSnap.data() as WeeklyData;
+            if (listsSnap.exists()) {
+                reportData.listas = listsSnap.data() as WeeklyData['listas'];
+            } else {
+                reportData.listas = getInitialLists();
+            }
+             if (!reportData.listas.productividadRatio) {
+                reportData.listas.productividadRatio = getInitialLists().productividadRatio;
+            }
+
+            setData(reportData);
         } else {
-            reportData = getInitialDataForWeek(weekId, listData);
+           setError(`No se encontró ningún informe para la semana "${weekId}".`);
         }
-
-        reportData.listas = listData;
-
-        if (!reportData.listas.productividadRatio) {
-            reportData.listas.productividadRatio = getInitialLists().productividadRatio;
-        }
-        setData(reportData);
 
       } catch (err: any) {
         setError(`Error al cargar el informe: ${err.message}.`);
