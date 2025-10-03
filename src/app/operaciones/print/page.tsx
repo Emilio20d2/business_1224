@@ -5,11 +5,14 @@ import React, { useState, useEffect, Suspense, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import type { WeeklyData, Empleado, PlanificacionItem } from '@/lib/data';
+import type { WeeklyData, PlanificacionItem } from '@/lib/data';
 import { formatWeekIdToDateRange } from '@/lib/format';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Download } from 'lucide-react';
 import Image from 'next/image';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 const PrintSection = ({
     title,
@@ -58,8 +61,10 @@ function PrintPlanificacionPageComponent() {
 
   const [data, setData] = useState<WeeklyData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isDownloading, setIsDownloading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const hasPrinted = useRef(false);
+  const printRef = useRef<HTMLDivElement>(null);
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -86,15 +91,52 @@ function PrintPlanificacionPageComponent() {
     fetchData();
   }, [weekId]);
 
-  useEffect(() => {
-    if (!loading && data && !hasPrinted.current) {
-        // Use a small timeout to ensure all content is rendered
-        setTimeout(() => {
-            window.print();
-            hasPrinted.current = true;
-        }, 500);
+  const handleDownloadPdf = async () => {
+    const element = printRef.current;
+    if (!element) return;
+    
+    setIsDownloading(true);
+
+    try {
+        const canvas = await html2canvas(element, {
+            scale: 2, // Aumenta la resolución
+            useCORS: true,
+        });
+        
+        const imgData = canvas.toDataURL('image/png');
+        
+        // A4 landscape dimensions in mm: 297 x 210
+        const pdf = new jsPDF('landscape', 'mm', 'a4');
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+        
+        const imgProps = pdf.getImageProperties(imgData);
+        const imgWidth = imgProps.width;
+        const imgHeight = imgProps.height;
+        
+        const ratio = imgWidth / imgHeight;
+        
+        let newImgWidth = pdfWidth;
+        let newImgHeight = newImgWidth / ratio;
+        
+        if (newImgHeight > pdfHeight) {
+            newImgHeight = pdfHeight;
+            newImgWidth = newImgHeight * ratio;
+        }
+
+        const xOffset = (pdfWidth - newImgWidth) / 2;
+        const yOffset = (pdfHeight - newImgHeight) / 2;
+
+        pdf.addImage(imgData, 'PNG', xOffset, yOffset, newImgWidth, newImgHeight);
+        pdf.save('planificacion.pdf');
+    } catch (error) {
+        console.error("Error al generar el PDF:", error);
+        setError("No se pudo generar el PDF. Inténtalo de nuevo.");
+    } finally {
+        setIsDownloading(false);
     }
-  }, [loading, data]);
+  };
+
 
   if (loading) {
     return (
@@ -132,39 +174,41 @@ function PrintPlanificacionPageComponent() {
   
 
   return (
-    <div className="bg-white p-8 w-full min-h-screen text-zinc-900 font-aptos" style={{ fontFamily: "'Aptos', sans-serif"}}>
-      <style>
-        {`
-          @media print {
-            body {
-              -webkit-print-color-adjust: exact;
-              print-color-adjust: exact;
-            }
-             @page {
-                size: landscape;
-                margin: 1cm;
-            }
-          }
-        `}
-      </style>
+    <div className="bg-gray-100 min-h-screen">
+      <div className="bg-white shadow py-4 px-8 sticky top-0 z-20 flex justify-center items-center">
+        <Button onClick={handleDownloadPdf} disabled={isDownloading}>
+            {isDownloading ? (
+                <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Generando...
+                </>
+            ) : (
+                <>
+                    <Download className="mr-2 h-4 w-4" />
+                    Descargar PDF
+                </>
+            )}
+        </Button>
+      </div>
+      <div ref={printRef} className="bg-white p-8 w-[1123px] min-h-[794px] mx-auto my-8 text-zinc-900 font-aptos" style={{ fontFamily: "'Aptos', sans-serif"}}>
+          <header className="mb-6 flex justify-between items-center">
+            <div className="text-left">
+                <h1 className="text-3xl font-bold tracking-tight">PLANIFICACIÓN {day.toUpperCase()}</h1>
+                <p className="text-lg text-gray-500">{formatWeekIdToDateRange(weekId)}</p>
+            </div>
+            <Image src="/Zara_Logo.svg.png" alt="Zara Logo" width={200} height={44} />
+          </header>
 
-      <header className="mb-6 flex justify-between items-center">
-         <div className="text-left">
-            <h1 className="text-3xl font-bold tracking-tight">PLANIFICACIÓN {day.toUpperCase()}</h1>
-            <p className="text-lg text-gray-500">{formatWeekIdToDateRange(weekId)}</p>
-         </div>
-         <Image src="/Zara_Logo.svg.png" alt="Zara Logo" width={200} height={44} />
-      </header>
+          <main className="grid grid-cols-3 gap-6">
+            <PrintSection title="WOMAN" planificacion={womanPlanificacion} />
+            <PrintSection title="MAN" planificacion={manPlanificacion} />
+            <PrintSection title="NIÑO" planificacion={ninoPlanificacion} />
+          </main>
 
-      <main className="grid grid-cols-3 gap-6">
-        <PrintSection title="WOMAN" planificacion={womanPlanificacion} />
-        <PrintSection title="MAN" planificacion={manPlanificacion} />
-        <PrintSection title="NIÑO" planificacion={ninoPlanificacion} />
-      </main>
-
-      <footer className="absolute bottom-4 right-8 text-right w-full">
-        <p className="text-xs">ZARA 1224 - PUERTO VENECIA</p>
-      </footer>
+          <footer className="absolute bottom-4 right-8 text-right">
+            <p className="text-xs">ZARA 1224 - PUERTO VENECIA</p>
+          </footer>
+      </div>
     </div>
   );
 }
@@ -180,5 +224,3 @@ export default function PrintPlanificacionPage() {
         </Suspense>
     );
 }
-
-    

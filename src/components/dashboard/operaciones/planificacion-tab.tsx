@@ -230,7 +230,7 @@ export function PlanificacionTab({ data, empleados, isEditing, onDataChange, wee
             </div>
              <Button onClick={handlePrint} variant="outline">
                 <Printer className="mr-2 h-4 w-4" />
-                GENERAR PDF
+                Crear PDF
             </Button>
         </div>
 
