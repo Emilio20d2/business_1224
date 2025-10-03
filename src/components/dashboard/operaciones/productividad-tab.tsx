@@ -54,10 +54,8 @@ const DayProductividad = ({ dayData, dayKey, isEditing, onInputChange }: { dayDa
     const totalUnidadesPaqueteria = sections.reduce((sum, sec) => sum + (dayData.productividadPorSeccion[sec.key]?.unidadesPaqueteria || 0), 0);
     const totalHorasConfeccion = totalUnidadesConfeccion / 120;
     const totalHorasPaqueteria = totalUnidadesPaqueteria / 80;
-
-    const totalPersonas = dayData.coberturaPorHoras.reduce((sum, item) => sum + (item.personas || 0), 0);
-
-
+    const horasProductividadRequeridas = totalHorasConfeccion + totalHorasPaqueteria;
+    
     return (
         <div className="space-y-4">
              <KpiCard title="TOTAL" icon={<Zap className="h-5 w-5 text-primary" />}>
@@ -88,26 +86,29 @@ const DayProductividad = ({ dayData, dayKey, isEditing, onInputChange }: { dayDa
                         COBERTURA
                     </h4>
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <div className="md:col-span-3 space-y-2">
-                            <div className="grid grid-cols-7 text-center text-sm font-semibold text-muted-foreground">
+                        <div className="md:col-span-4 space-y-2">
+                            <div className="grid grid-cols-8 text-center text-sm font-semibold text-muted-foreground">
                                 {dayData.coberturaPorHoras.map(item => <div key={item.hora}>{item.hora}</div>)}
                             </div>
-                            <div className="grid grid-cols-7 text-center">
-                                {dayData.coberturaPorHoras.map((item, index) => (
-                                    <DatoSimple
-                                        key={item.hora}
-                                        value={item.personas}
-                                        isEditing={isEditing}
-                                        onInputChange={onInputChange}
-                                        valueId={`productividad.${dayKey}.coberturaPorHoras.${index}.personas`}
-                                        align="center"
-                                    />
-                                ))}
+                            <div className="grid grid-cols-8 text-center">
+                                {dayData.coberturaPorHoras.map((item, index) => {
+                                    const totalPersonasHastaAhora = dayData.coberturaPorHoras.slice(0, index + 1).reduce((sum, current) => sum + (current.personas || 0), 0);
+                                    const horasCubiertas = totalPersonasHastaAhora; 
+                                    const necesitaMasHoras = horasCubiertas < horasProductividadRequeridas;
+
+                                    return (
+                                        <div key={item.hora} className={cn("p-1 rounded", isEditing && necesitaMasHoras && 'bg-red-100 dark:bg-red-900/30')}>
+                                            <DatoSimple
+                                                value={item.personas}
+                                                isEditing={isEditing}
+                                                onInputChange={onInputChange}
+                                                valueId={`productividad.${dayKey}.coberturaPorHoras.${index}.personas`}
+                                                align="center"
+                                            />
+                                        </div>
+                                    )
+                                })}
                             </div>
-                        </div>
-                        <div className="flex flex-col items-center justify-center space-y-2 border-l pl-4">
-                            <span className="text-sm font-semibold text-muted-foreground">TOTAL</span>
-                            <span className="text-3xl font-bold">{totalPersonas}</span>
                         </div>
                     </div>
                 </div>

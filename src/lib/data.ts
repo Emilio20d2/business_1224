@@ -392,13 +392,14 @@ const createInitialProductividadData = (): ProductividadData => ({
         nino: createInitialProductividadSeccion(),
     },
     coberturaPorHoras: [
-        { hora: "07:00-08:00", personas: 0 },
-        { hora: "08:00-09:00", personas: 0 },
-        { hora: "09:00-10:00", personas: 0 },
-        { hora: "10:00-11:00", personas: 0 },
-        { hora: "11:00-12:00", personas: 0 },
-        { hora: "12:00-13:00", personas: 0 },
-        { hora: "13:00-14:00", personas: 0 },
+        { hora: "07-08", personas: 0 },
+        { hora: "08-09", personas: 0 },
+        { hora: "09-10", personas: 0 },
+        { hora: "10-11", personas: 0 },
+        { hora: "11-12", personas: 0 },
+        { hora: "12-13", personas: 0 },
+        { hora: "13-14", personas: 0 },
+        { hora: "14-15", personas: 0 },
     ],
 });
 
