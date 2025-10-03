@@ -10,8 +10,7 @@ import { formatNumber } from '@/lib/format';
 import { Loader2, Share } from 'lucide-react';
 import Image from 'next/image';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
+import { Button } from '@/components/ui/button';
 
 const PrintSection = ({
     title,
@@ -74,8 +73,10 @@ function PrintPlanificacionPageComponent() {
   const [data, setData] = useState<WeeklyData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const printRef = useRef<HTMLDivElement>(null);
-
+  
+  const handlePrint = () => {
+    window.print();
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -140,7 +141,7 @@ function PrintPlanificacionPageComponent() {
 
   return (
     <div className="bg-gray-100 min-h-screen">
-      <div ref={printRef} className="bg-white p-8 w-[1123px] min-h-[794px] mx-auto my-8 text-zinc-900 font-aptos" style={{ fontFamily: "'Aptos', sans-serif"}}>
+      <div className="bg-white p-8 w-[1123px] min-h-[794px] mx-auto my-8 text-zinc-900 font-aptos relative" style={{ fontFamily: "'Aptos', sans-serif"}}>
           <header className="mb-6 flex justify-between items-center">
             <div className="text-left">
                 <h1 className="text-3xl font-bold tracking-tight">PLANIFICACIÓN {day.toUpperCase()}</h1>
@@ -168,6 +169,14 @@ function PrintPlanificacionPageComponent() {
                 unidadesPaqueteria={dayData.productividadPorSeccion?.nino?.unidadesPaqueteria || 0}
             />
           </main>
+          
+           <Button
+            onClick={handlePrint}
+            size="icon"
+            className="fixed bottom-8 right-8 h-14 w-14 rounded-full shadow-lg print:hidden"
+          >
+            <Share className="h-6 w-6" />
+          </Button>
 
           <footer className="absolute bottom-4 right-8 text-right">
             <p className="text-xs">ZARA 1224 - PUERTO VENECIA</p>

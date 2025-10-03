@@ -11,8 +11,6 @@ import { Loader2, Share, Box, Zap } from 'lucide-react';
 import Image from 'next/image';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { KpiCard, DatoDoble } from '@/components/dashboard/kpi-card';
 
@@ -29,8 +27,10 @@ function PrintProductividadPageComponent() {
   const [data, setData] = useState<WeeklyData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const printRef = useRef<HTMLDivElement>(null);
-
+  
+  const handlePrint = () => {
+    window.print();
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -53,14 +53,15 @@ function PrintProductividadPageComponent() {
         if (reportSnap.exists()) {
             reportData = reportSnap.data() as WeeklyData;
         } else {
-            setError(`No se encontró informe para la semana ${weekId}.`);
-            setLoading(false);
-            return;
+             // If report doesn't exist, create an initial structure to avoid errors
+            console.warn(`No report found for week ${weekId}, using initial data structure for printing.`);
+            reportData = getInitialDataForWeek(weekId, getInitialLists());
         }
 
         if (listsSnap.exists()) {
             reportData.listas = listsSnap.data() as WeeklyData['listas'];
         } else {
+            console.warn(`No lists config found, using initial data structure for printing.`);
             reportData.listas = getInitialLists();
         }
 
@@ -143,7 +144,7 @@ function PrintProductividadPageComponent() {
 
   return (
     <div className="bg-gray-100 min-h-screen">
-      <div ref={printRef} className="bg-white p-8 w-[210mm] min-h-[297mm] mx-auto my-8 text-zinc-900 font-aptos" style={{ fontFamily: "'Aptos', sans-serif"}}>
+      <div className="bg-white p-8 w-[210mm] min-h-[297mm] mx-auto my-8 text-zinc-900 font-aptos relative" style={{ fontFamily: "'Aptos', sans-serif"}}>
           <header className="mb-6 flex justify-between items-center">
             <div className="text-left">
                 <h1 className="text-3xl font-bold tracking-tight">PRODUCTIVIDAD {day.toUpperCase()}</h1>
@@ -212,6 +213,13 @@ function PrintProductividadPageComponent() {
                  </Table>
             </KpiCard>
           </main>
+           <Button
+            onClick={handlePrint}
+            size="icon"
+            className="fixed bottom-8 right-8 h-14 w-14 rounded-full shadow-lg print:hidden"
+          >
+            <Share className="h-6 w-6" />
+          </Button>
       </div>
     </div>
   );
