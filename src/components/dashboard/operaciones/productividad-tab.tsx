@@ -1,7 +1,7 @@
 
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import type { ProductividadData } from "@/lib/data";
 import { KpiCard, DatoSimple } from "../kpi-card";
 import { Zap, Users, Euro } from 'lucide-react';
