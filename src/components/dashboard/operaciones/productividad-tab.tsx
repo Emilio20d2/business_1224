@@ -136,32 +136,6 @@ const DayProductividad = ({ dayData, dayKey, ratios, isEditing, onInputChange }:
                     </TableBody>
                  </Table>
             </KpiCard>
-            
-            <KpiCard title="Cobertura de Personal" icon={<Users className="h-5 w-5 text-primary" />} >
-                 <div className="space-y-2 pt-2">
-                    <div className="grid grid-cols-8 text-center text-sm font-semibold text-muted-foreground">
-                        {dayData.coberturaPorHoras.map(item => <div key={item.hora}>{item.hora}</div>)}
-                    </div>
-                     <div className="grid grid-cols-8 text-center">
-                        {dayData.coberturaPorHoras.map((item, index) => {
-                           const horasAcumuladas = dayData.coberturaPorHoras.slice(0, index + 1).reduce((acc, curr) => acc + (curr.personas || 0), 0);
-                           const objetivoCumplido = horasAcumuladas >= horasProductividadRequeridas;
-                           
-                            return (
-                                <div key={item.hora} className={cn("p-2 rounded-md border", objetivoCumplido ? 'bg-green-100/60 border-green-200' : 'bg-red-100/60 border-red-200' )}>
-                                    <DatoSimple
-                                        value={formatNumber(item.personas)}
-                                        isEditing={isEditing}
-                                        onInputChange={onInputChange}
-                                        valueId={`productividad.${dayKey}.coberturaPorHoras.${index}.personas`}
-                                        align='center'
-                                    />
-                                </div>
-                            )
-                        })}
-                    </div>
-                </div>
-            </KpiCard>
         </div>
     );
 }
