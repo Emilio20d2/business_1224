@@ -2,9 +2,10 @@
 "use client";
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import type { WeeklyData, CoberturaHora, ProductividadData } from "@/lib/data";
 import { KpiCard, DatoDoble, DatoSimple } from "../kpi-card";
-import { Zap, Users, Box } from 'lucide-react';
+import { Zap, Users, Box, Printer } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -142,26 +143,39 @@ const DayProductividad = ({ dayData, dayKey, ratios, isEditing, onInputChange }:
 
 export function ProductividadTab({ data, isEditing, onInputChange }: ProductividadTabProps) {
   const [activeSubTab, setActiveSubTab] = useState('lunes');
+  const router = useRouter();
   
   const subTabButtons = [
     { value: 'lunes', label: 'LUNES' },
     { value: 'jueves', label: 'JUEVES' },
   ];
+  
+  const handlePrint = () => {
+    const url = `/operaciones/productividad/print?week=${data.periodo}&day=${activeSubTab}`;
+    window.open(url, '_blank');
+  };
 
   return (
      <Tabs value={activeSubTab} onValueChange={setActiveSubTab} className="w-full font-light">
-        <div className="mb-4 grid w-full grid-cols-2 gap-2">
-            {subTabButtons.map(tab => (
-                <Button
-                    key={tab.value}
-                    variant={activeSubTab === tab.value ? 'default' : 'outline'}
-                    onClick={() => setActiveSubTab(tab.value)}
-                    className="w-full"
-                >
-                    {tab.label}
-                </Button>
-            ))}
+        <div className="flex justify-between items-center mb-4">
+            <div className="grid w-full max-w-sm grid-cols-2 gap-2">
+                {subTabButtons.map(tab => (
+                    <Button
+                        key={tab.value}
+                        variant={activeSubTab === tab.value ? 'default' : 'outline'}
+                        onClick={() => setActiveSubTab(tab.value)}
+                        className="w-full"
+                    >
+                        {tab.label}
+                    </Button>
+                ))}
+            </div>
+             <Button onClick={handlePrint} variant="outline">
+                <Printer className="mr-2 h-4 w-4" />
+                Crear PDF
+            </Button>
         </div>
+
 
         <TabsContent value="lunes" className="mt-0">
            {data && data.productividad.lunes && <DayProductividad dayData={data.productividad.lunes} dayKey="lunes" ratios={data.listas.productividadRatio} isEditing={isEditing} onInputChange={onInputChange} />}
