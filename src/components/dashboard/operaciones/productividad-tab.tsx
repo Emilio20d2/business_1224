@@ -4,11 +4,12 @@
 import React, { useState } from 'react';
 import type { ProductividadData, ProductividadSeccion } from "@/lib/data";
 import { KpiCard, DatoSimple } from "../kpi-card";
-import { Zap, Users, Euro, Package, Clock, Separator } from 'lucide-react';
+import { Zap, Users, Euro, Package, Clock } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import { Separator } from '@/components/ui/separator';
 
 type ProductividadTabProps = {
   data: {
