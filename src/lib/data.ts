@@ -122,6 +122,8 @@ export type WeeklyData = {
             picking: number;
             perchado: number;
             confeccion: number;
+            porcentajePerchado: number;
+            porcentajePicking: number;
         };
     };
     ventas: {
@@ -345,6 +347,8 @@ export function getInitialLists(): WeeklyData['listas'] {
             picking: 400,
             perchado: 80,
             confeccion: 120,
+            porcentajePerchado: 40,
+            porcentajePicking: 60,
         },
     };
 }
@@ -527,5 +531,3 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
         },
     };
 }
-
-    

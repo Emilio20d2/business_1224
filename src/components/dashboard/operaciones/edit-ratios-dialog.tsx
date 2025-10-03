@@ -24,20 +24,46 @@ type EditRatiosDialogProps = {
 };
 
 export function EditRatiosDialog({ isOpen, onClose, ratios, onSave }: EditRatiosDialogProps) {
-  const [currentRatios, setCurrentRatios] = useState({ picking: 400, perchado: 80, confeccion: 120 });
+  const [currentRatios, setCurrentRatios] = useState({ picking: 400, perchado: 80, confeccion: 120, porcentajePerchado: 40, porcentajePicking: 60 });
 
   useEffect(() => {
     if (isOpen && ratios) {
-      setCurrentRatios(ratios);
+      setCurrentRatios({
+        picking: ratios.picking || 400,
+        perchado: ratios.perchado || 80,
+        confeccion: ratios.confeccion || 120,
+        porcentajePerchado: ratios.porcentajePerchado || 40,
+        porcentajePicking: ratios.porcentajePicking || 60,
+      });
     }
   }, [ratios, isOpen]);
   
-  const handleChange = (field: 'picking' | 'perchado' | 'confeccion', value: string) => {
+  const handleRatioChange = (field: 'picking' | 'perchado' | 'confeccion', value: string) => {
     const numericValue = parseInt(value, 10);
     if (!isNaN(numericValue)) {
         setCurrentRatios(prev => ({ ...prev, [field]: numericValue }));
     }
   };
+
+  const handlePercentageChange = (field: 'porcentajePerchado' | 'porcentajePicking', value: string) => {
+    const numericValue = parseInt(value, 10);
+    if (!isNaN(numericValue) && numericValue >= 0 && numericValue <= 100) {
+      if (field === 'porcentajePerchado') {
+        setCurrentRatios({
+          ...currentRatios,
+          porcentajePerchado: numericValue,
+          porcentajePicking: 100 - numericValue,
+        });
+      } else {
+        setCurrentRatios({
+          ...currentRatios,
+          porcentajePicking: numericValue,
+          porcentajePerchado: 100 - numericValue,
+        });
+      }
+    }
+  };
+
 
   const handleSave = () => {
     onSave(currentRatios);
@@ -59,7 +85,7 @@ export function EditRatiosDialog({ isOpen, onClose, ratios, onSave }: EditRatios
               id="ratio-confeccion"
               type="number"
               value={currentRatios.confeccion}
-              onChange={(e) => handleChange('confeccion', e.target.value)}
+              onChange={(e) => handleRatioChange('confeccion', e.target.value)}
               className="col-span-1"
             />
           </div>
@@ -71,7 +97,19 @@ export function EditRatiosDialog({ isOpen, onClose, ratios, onSave }: EditRatios
               id="ratio-perchado"
               type="number"
               value={currentRatios.perchado}
-              onChange={(e) => handleChange('perchado', e.target.value)}
+              onChange={(e) => handleRatioChange('perchado', e.target.value)}
+              className="col-span-1"
+            />
+          </div>
+           <div className="grid grid-cols-2 items-center gap-4">
+            <Label htmlFor="porcentaje-perchado" className="text-right">
+              Porcentaje Perchado (%)
+            </Label>
+            <Input
+              id="porcentaje-perchado"
+              type="number"
+              value={currentRatios.porcentajePerchado}
+              onChange={(e) => handlePercentageChange('porcentajePerchado', e.target.value)}
               className="col-span-1"
             />
           </div>
@@ -83,7 +121,19 @@ export function EditRatiosDialog({ isOpen, onClose, ratios, onSave }: EditRatios
               id="ratio-picking"
               type="number"
               value={currentRatios.picking}
-              onChange={(e) => handleChange('picking', e.target.value)}
+              onChange={(e) => handleRatioChange('picking', e.target.value)}
+              className="col-span-1"
+            />
+          </div>
+           <div className="grid grid-cols-2 items-center gap-4">
+            <Label htmlFor="porcentaje-picking" className="text-right">
+              Porcentaje Picking (%)
+            </Label>
+            <Input
+              id="porcentaje-picking"
+              type="number"
+              value={currentRatios.porcentajePicking}
+              onChange={(e) => handlePercentageChange('porcentajePicking', e.target.value)}
               className="col-span-1"
             />
           </div>

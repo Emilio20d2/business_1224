@@ -3,7 +3,7 @@
 
 import React, { useState } from 'react';
 import type { WeeklyData, CoberturaHora, ProductividadData } from "@/lib/data";
-import { KpiCard, DatoDoble } from "../kpi-card";
+import { KpiCard, DatoDoble, DatoSimple } from "../kpi-card";
 import { Zap, Users, Box } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from '@/components/ui/button';
@@ -30,6 +30,8 @@ const DayProductividad = ({ dayData, dayKey, ratios, isEditing, onInputChange }:
     const ratioConfeccion = ratios?.confeccion || 120;
     const ratioPerchado = ratios?.perchado || 80;
     const ratioPicking = ratios?.picking || 400;
+    const porcentajePerchado = (ratios?.porcentajePerchado || 40) / 100;
+    const porcentajePicking = (ratios?.porcentajePicking || 60) / 100;
 
     const sections = [
         { key: 'woman', title: 'WOMAN' },
@@ -43,10 +45,10 @@ const DayProductividad = ({ dayData, dayKey, ratios, isEditing, onInputChange }:
 
         const horasConfeccion = unidadesConfeccion / ratioConfeccion;
         
-        const unidadesPerchado = unidadesPaqueteria * 0.4;
+        const unidadesPerchado = unidadesPaqueteria * porcentajePerchado;
         const horasPerchado = unidadesPerchado / ratioPerchado;
         
-        const unidadesPicking = unidadesPaqueteria * 0.6;
+        const unidadesPicking = unidadesPaqueteria * porcentajePicking;
         const horasPicking = unidadesPicking / ratioPicking;
         
         return {
@@ -147,11 +149,12 @@ const DayProductividad = ({ dayData, dayKey, ratios, isEditing, onInputChange }:
                            
                             return (
                                 <div key={item.hora} className={cn("p-2 rounded-md border", objetivoCumplido ? 'bg-green-100/60 border-green-200' : 'bg-red-100/60 border-red-200' )}>
-                                    <DatoDoble 
+                                    <DatoSimple
                                         value={formatNumber(item.personas)}
                                         isEditing={isEditing}
                                         onInputChange={onInputChange}
                                         valueId={`productividad.${dayKey}.coberturaPorHoras.${index}.personas`}
+                                        align='center'
                                     />
                                 </div>
                             )
