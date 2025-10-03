@@ -20,6 +20,11 @@ type ProductividadTabProps = {
   onInputChange: (path: string, value: any, reorder?: boolean) => void;
 };
 
+const roundToQuarter = (value: number) => {
+    return (Math.round(value * 4) / 4).toFixed(2);
+}
+
+
 const PaqueteriaRow = ({ label, unidades, productividadRatio, isEditing, onInputChange, unidadesId }: { label: string, unidades: number, productividadRatio: number, isEditing: boolean, onInputChange: any, unidadesId: string }) => {
     const productividad = (unidades || 0) / productividadRatio;
     return (
@@ -34,7 +39,7 @@ const PaqueteriaRow = ({ label, unidades, productividadRatio, isEditing, onInput
                 align="right"
             />
             <div className="text-right text-lg font-medium">
-                 {productividad.toFixed(2)}h
+                 {roundToQuarter(productividad)}h
             </div>
         </div>
     );
@@ -70,18 +75,18 @@ const DayProductividad = ({ dayData, dayKey, isEditing, onInputChange }: { dayDa
                      <div className="grid grid-cols-3 items-center text-center gap-2">
                         <span className="text-sm font-medium text-muted-foreground text-left">UN. CONFECCION</span>
                         <span className="text-lg font-medium text-right">{totalUnidadesConfeccion} un.</span>
-                        <span className="text-lg font-medium text-right">{horasConfeccionRequeridas.toFixed(2)} h</span>
+                        <span className="text-lg font-medium text-right">{roundToQuarter(horasConfeccionRequeridas)} h</span>
                     </div>
                      <div className="grid grid-cols-3 items-center text-center gap-2">
                         <span className="text-sm font-medium text-muted-foreground text-left">UN. PAQUETERIA</span>
                         <span className="text-lg font-medium text-right">{totalUnidadesPaqueteria} un.</span>
-                        <span className="text-lg font-medium text-right">{horasPaqueteriaRequeridas.toFixed(2)} h</span>
+                        <span className="text-lg font-medium text-right">{roundToQuarter(horasPaqueteriaRequeridas)} h</span>
                     </div>
                      <Separator />
                      <div className="grid grid-cols-3 items-center text-center gap-2">
                         <span className="text-sm font-bold text-left">TOTAL HORAS</span>
                         <span></span>
-                        <span className="text-lg font-bold text-right">{horasProductividadRequeridas.toFixed(2)} h</span>
+                        <span className="text-lg font-bold text-right">{roundToQuarter(horasProductividadRequeridas)} h</span>
                     </div>
                 </div>
 
