@@ -178,6 +178,12 @@ function OperacionesPageComponent() {
         let listData: WeeklyData['listas'];
         if (listsSnap.exists()) {
             listData = listsSnap.data() as WeeklyData['listas'];
+            if (!listData.empleados || listData.empleados.length === 0) {
+                listData.empleados = getInitialLists().empleados;
+                if (canEdit) {
+                  await updateDoc(listsRef, { empleados: listData.empleados });
+                }
+            }
         } else {
             listData = getInitialLists();
             if (canEdit) {
@@ -666,7 +672,7 @@ function OperacionesPageComponent() {
             <EditEmpleadosDialog
                 isOpen={isEmpleadosDialogOpen}
                 onClose={() => setEmpleadosDialogOpen(false)}
-                empleados={data.listas.empleados}
+                empleados={data.listas.empleados || []}
                 onSave={handleSaveEmpleados}
             />
         )}

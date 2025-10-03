@@ -137,6 +137,12 @@ function ExperienciaPageComponent() {
         
         if (listsSnap.exists()) {
             masterLists = listsSnap.data() as WeeklyData['listas'];
+             if (!masterLists.empleados || masterLists.empleados.length === 0) {
+                masterLists.empleados = getInitialLists().empleados;
+                if (canEdit) {
+                  await updateDoc(listsRef, { empleados: masterLists.empleados });
+                }
+            }
         } else {
             masterLists = getInitialLists();
             if (canEdit) {
@@ -635,7 +641,7 @@ function ExperienciaPageComponent() {
             <EditEmpleadosDialog
                 isOpen={isEmpleadosDialogOpen}
                 onClose={() => setEmpleadosDialogOpen(false)}
-                empleados={data.listas.empleados}
+                empleados={data.listas.empleados || []}
                 onSave={handleSaveEmpleados}
             />
         )}
