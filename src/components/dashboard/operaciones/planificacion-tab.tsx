@@ -4,14 +4,13 @@
 import React, { useState, useMemo } from 'react';
 import type { WeeklyData, Empleado, PlanificacionItem, ProductividadData } from "@/lib/data";
 import { KpiCard, DatoSimple } from "../kpi-card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Plus, Trash2, Users, Box, Shirt } from 'lucide-react';
+import { Plus, Trash2, Users } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
-import { formatNumber } from '@/lib/format';
 
 type PlanificacionTabProps = {
   data: WeeklyData;
@@ -25,59 +24,33 @@ const roundToQuarter = (value: number) => {
     return Math.round(value * 4) / 4;
 }
 
-const DayPlanificacion = ({ 
-    dayKey, 
-    dayData, 
-    empleados, 
-    isEditing, 
-    onDataChange, 
-    ratios 
-}: { 
-    dayKey: 'lunes' | 'jueves', 
-    dayData: ProductividadData, 
-    empleados: Empleado[], 
-    isEditing: boolean, 
+const SectionPlanificacion = ({
+    sectionKey,
+    title,
+    dayKey,
+    dayData,
+    empleados,
+    isEditing,
+    onDataChange,
+    ratios
+}: {
+    sectionKey: 'woman' | 'man' | 'nino',
+    title: string,
+    dayKey: 'lunes' | 'jueves',
+    dayData: ProductividadData,
+    empleados: Empleado[],
+    isEditing: boolean,
     onDataChange: PlanificacionTabProps['onDataChange'],
     ratios: WeeklyData['listas']['productividadRatio']
 }) => {
+    const { confeccion, perchado, picking, porcentajePerchado, porcentajePicking } = ratios;
+    
+    const horasConfeccion = (dayData.productividadPorSeccion[sectionKey]?.unidadesConfeccion || 0) / confeccion;
+    const horasPerchado = ((dayData.productividadPorSeccion[sectionKey]?.unidadesPaqueteria || 0) * (porcentajePerchado / 100)) / perchado;
+    const horasPicking = ((dayData.productividadPorSeccion[sectionKey]?.unidadesPaqueteria || 0) * (porcentajePicking / 100)) / picking;
+    const horasRequeridasSeccion = horasConfeccion + horasPerchado + horasPicking;
 
-    const { horasRequeridas, horasPorSeccion } = useMemo(() => {
-        if (!dayData || !dayData.productividadPorSeccion || !ratios) {
-            return { horasRequeridas: 0, horasPorSeccion: {} };
-        }
-
-        const { confeccion, perchado, picking, porcentajePerchado, porcentajePicking } = ratios;
-        
-        const secciones = ['woman', 'man', 'nino'] as const;
-        let totalHoras = 0;
-
-        const horasPorSeccion = secciones.reduce((acc, seccionKey) => {
-            const seccionData = dayData.productividadPorSeccion[seccionKey];
-            const horasConfeccion = (seccionData.unidadesConfeccion || 0) / confeccion;
-            const horasPerchado = ((seccionData.unidadesPaqueteria || 0) * (porcentajePerchado / 100)) / perchado;
-            const horasPicking = ((seccionData.unidadesPaqueteria || 0) * (porcentajePicking / 100)) / picking;
-            const totalSeccion = horasConfeccion + horasPerchado + horasPicking;
-
-            totalHoras += totalSeccion;
-            acc[seccionKey] = {
-                confeccion: horasConfeccion,
-                paqueteria: horasPerchado + horasPicking,
-                total: totalSeccion
-            };
-            return acc;
-        }, {} as Record<'woman' | 'man' | 'nino', { confeccion: number; paqueteria: number; total: number }>);
-        
-        return { horasRequeridas: totalHoras, horasPorSeccion };
-    }, [dayData, ratios]);
-
-    const horasAsignadas = useMemo(() => dayData.planificacion.reduce((acc, item) => acc + item.horasAsignadas, 0), [dayData.planificacion]);
-    const horasPendientes = horasRequeridas - horasAsignadas;
-
-    const tareas = [
-        "Confección WOMAN", "Paquetería WOMAN",
-        "Confección MAN", "Paquetería MAN",
-        "Confección NIÑO", "Paquetería NIÑO",
-    ];
+    const planificacionSeccion = dayData.planificacion.filter(p => p.tarea.includes(title));
 
     const handlePlanChange = (itemId: string, field: keyof PlanificacionItem, value: any) => {
         onDataChange(prevData => {
@@ -100,7 +73,7 @@ const DayPlanificacion = ({
             return newData;
         });
     };
-    
+
     const handleAddItem = () => {
         onDataChange(prevData => {
             if (!prevData) return null;
@@ -116,7 +89,7 @@ const DayPlanificacion = ({
             return newData;
         });
     };
-
+    
     const handleRemoveItem = (itemId: string) => {
          onDataChange(prevData => {
             if (!prevData) return null;
@@ -127,27 +100,115 @@ const DayPlanificacion = ({
     };
 
     return (
+        <KpiCard title={`PLANIFICACIÓN ${title} (${roundToQuarter(horasRequeridasSeccion).toFixed(2)}h requeridas)`} icon={<Users/>}>
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead className="font-bold w-[40%]">Empleado</TableHead>
+                        <TableHead className="font-bold w-[40%]">Tarea</TableHead>
+                        <TableHead className="text-right font-bold">Horas</TableHead>
+                        {isEditing && <TableHead className="w-[50px]"></TableHead>}
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {planificacionSeccion.map((item: PlanificacionItem) => (
+                        <TableRow key={item.id}>
+                            <TableCell>
+                                {isEditing ? (
+                                    <Select value={item.idEmpleado} onValueChange={(value) => handlePlanChange(item.id, 'idEmpleado', value)}>
+                                        <SelectTrigger><SelectValue placeholder="Seleccionar..." /></SelectTrigger>
+                                        <SelectContent>
+                                            {empleados.map(e => <SelectItem key={e.id} value={e.id}>{e.nombre}</SelectItem>)}
+                                        </SelectContent>
+                                    </Select>
+                                ) : (
+                                    item.nombreEmpleado
+                                )}
+                            </TableCell>
+                            <TableCell>
+                                 {isEditing ? (
+                                    <Select value={item.tarea} onValueChange={(value) => handlePlanChange(item.id, 'tarea', value)}>
+                                        <SelectTrigger><SelectValue placeholder="Seleccionar..." /></SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value={`Confección ${title}`}>Confección</SelectItem>
+                                            <SelectItem value={`Paquetería ${title}`}>Paquetería</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                ) : (
+                                    item.tarea.replace(`${title}`, '').trim()
+                                )}
+                            </TableCell>
+                            <TableCell className="text-right">
+                                {isEditing ? (
+                                    <Input 
+                                        type="number" 
+                                        step="0.25"
+                                        value={item.horasAsignadas} 
+                                        onChange={(e) => handlePlanChange(item.id, 'horasAsignadas', e.target.value)} 
+                                        className="w-24 ml-auto text-right"
+                                    />
+                                ) : (
+                                    `${item.horasAsignadas.toFixed(2)} h`
+                                )}
+                            </TableCell>
+                            {isEditing && (
+                                <TableCell>
+                                    <Button variant="ghost" size="icon" onClick={() => handleRemoveItem(item.id)}>
+                                        <Trash2 className="h-4 w-4 text-destructive" />
+                                    </Button>
+                                </TableCell>
+                            )}
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+            {isEditing && (
+                <div className="pt-4">
+                    <Button onClick={handleAddItem}><Plus className="mr-2 h-4 w-4" /> Añadir Fila</Button>
+                </div>
+            )}
+        </KpiCard>
+    );
+};
+
+
+const DayPlanificacion = ({ 
+    dayKey, 
+    dayData, 
+    empleados, 
+    isEditing, 
+    onDataChange, 
+    ratios 
+}: { 
+    dayKey: 'lunes' | 'jueves', 
+    dayData: ProductividadData, 
+    empleados: Empleado[], 
+    isEditing: boolean, 
+    onDataChange: PlanificacionTabProps['onDataChange'],
+    ratios: WeeklyData['listas']['productividadRatio']
+}) => {
+
+    const horasRequeridas = useMemo(() => {
+        if (!dayData || !dayData.productividadPorSeccion || !ratios) return 0;
+        
+        const { confeccion, perchado, picking, porcentajePerchado, porcentajePicking } = ratios;
+        let totalHoras = 0;
+        (['woman', 'man', 'nino'] as const).forEach(seccionKey => {
+            const seccionData = dayData.productividadPorSeccion[seccionKey];
+            const horasConfeccion = (seccionData.unidadesConfeccion || 0) / confeccion;
+            const horasPerchado = ((seccionData.unidadesPaqueteria || 0) * (porcentajePerchado / 100)) / perchado;
+            const horasPicking = ((seccionData.unidadesPaqueteria || 0) * (porcentajePicking / 100)) / picking;
+            totalHoras += horasConfeccion + horasPerchado + horasPicking;
+        });
+        return totalHoras;
+    }, [dayData, ratios]);
+
+    const horasAsignadas = useMemo(() => dayData.planificacion.reduce((acc, item) => acc + item.horasAsignadas, 0), [dayData.planificacion]);
+    const horasPendientes = horasRequeridas - horasAsignadas;
+
+    return (
         <div className="space-y-4 font-light">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                 <KpiCard title="Horas Requeridas por Sección" icon={<Users />} className="md:col-span-3">
-                    <div className="grid grid-cols-3 gap-4 text-center">
-                        <div>
-                            <h4 className="font-bold text-lg">WOMAN</h4>
-                            <p><strong className="text-xl">{roundToQuarter(horasPorSeccion.woman?.total || 0).toFixed(2)}</strong> h</p>
-                            <p className="text-xs text-muted-foreground">Confe: {roundToQuarter(horasPorSeccion.woman?.confeccion || 0).toFixed(2)}h | Paque: {roundToQuarter(horasPorSeccion.woman?.paqueteria || 0).toFixed(2)}h</p>
-                        </div>
-                        <div>
-                            <h4 className="font-bold text-lg">MAN</h4>
-                            <p><strong className="text-xl">{roundToQuarter(horasPorSeccion.man?.total || 0).toFixed(2)}</strong> h</p>
-                            <p className="text-xs text-muted-foreground">Confe: {roundToQuarter(horasPorSeccion.man?.confeccion || 0).toFixed(2)}h | Paque: {roundToQuarter(horasPorSeccion.man?.paqueteria || 0).toFixed(2)}h</p>
-                        </div>
-                        <div>
-                            <h4 className="font-bold text-lg">NIÑO</h4>
-                            <p><strong className="text-xl">{roundToQuarter(horasPorSeccion.nino?.total || 0).toFixed(2)}</strong> h</p>
-                            <p className="text-xs text-muted-foreground">Confe: {roundToQuarter(horasPorSeccion.nino?.confeccion || 0).toFixed(2)}h | Paque: {roundToQuarter(horasPorSeccion.nino?.paqueteria || 0).toFixed(2)}h</p>
-                        </div>
-                    </div>
-                </KpiCard>
+             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <KpiCard title="Total Horas Requeridas" icon={<Users />}>
                     <DatoSimple value={roundToQuarter(horasRequeridas).toFixed(2)} align="center" unit="h" />
                 </KpiCard>
@@ -159,78 +220,38 @@ const DayPlanificacion = ({
                 </KpiCard>
             </div>
             
-            <KpiCard title="Planificación de Personal" icon={<Users/>}>
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead className="font-bold">Empleado</TableHead>
-                            <TableHead className="font-bold">Tarea</TableHead>
-                            <TableHead className="text-right font-bold">Horas</TableHead>
-                            {isEditing && <TableHead className="w-[50px]"></TableHead>}
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {dayData.planificacion.map((item: PlanificacionItem) => (
-                            <TableRow key={item.id}>
-                                <TableCell className="w-[40%]">
-                                    {isEditing ? (
-                                        <Select value={item.idEmpleado} onValueChange={(value) => handlePlanChange(item.id, 'idEmpleado', value)}>
-                                            <SelectTrigger><SelectValue placeholder="Seleccionar empleado..." /></SelectTrigger>
-                                            <SelectContent>
-                                                {empleados.map(e => <SelectItem key={e.id} value={e.id}>{e.nombre}</SelectItem>)}
-                                            </SelectContent>
-                                        </Select>
-                                    ) : (
-                                        item.nombreEmpleado
-                                    )}
-                                </TableCell>
-                                <TableCell className="w-[40%]">
-                                     {isEditing ? (
-                                        <Select value={item.tarea} onValueChange={(value) => handlePlanChange(item.id, 'tarea', value)}>
-                                            <SelectTrigger><SelectValue placeholder="Seleccionar tarea..." /></SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="Confección WOMAN">Confección WOMAN</SelectItem>
-                                                <SelectItem value="Paquetería WOMAN">Paquetería WOMAN</SelectItem>
-                                                <SelectItem value="Confección MAN">Confección MAN</SelectItem>
-                                                <SelectItem value="Paquetería MAN">Paquetería MAN</SelectItem>
-                                                <SelectItem value="Confección NIÑO">Confección NIÑO</SelectItem>
-                                                <SelectItem value="Paquetería NIÑO">Paquetería NIÑO</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    ) : (
-                                        item.tarea
-                                    )}
-                                </TableCell>
-                                <TableCell className="text-right">
-                                    {isEditing ? (
-                                        <Input 
-                                            type="number" 
-                                            step="0.25"
-                                            value={item.horasAsignadas} 
-                                            onChange={(e) => handlePlanChange(item.id, 'horasAsignadas', e.target.value)} 
-                                            className="w-24 ml-auto text-right"
-                                        />
-                                    ) : (
-                                        `${item.horasAsignadas.toFixed(2)} h`
-                                    )}
-                                </TableCell>
-                                {isEditing && (
-                                    <TableCell>
-                                        <Button variant="ghost" size="icon" onClick={() => handleRemoveItem(item.id)}>
-                                            <Trash2 className="h-4 w-4 text-destructive" />
-                                        </Button>
-                                    </TableCell>
-                                )}
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-                {isEditing && (
-                    <div className="pt-4">
-                        <Button onClick={handleAddItem}><Plus className="mr-2 h-4 w-4" /> Añadir Fila</Button>
-                    </div>
-                )}
-            </KpiCard>
+            <div className="space-y-6">
+                <SectionPlanificacion
+                    sectionKey="woman"
+                    title="WOMAN"
+                    dayKey={dayKey}
+                    dayData={dayData}
+                    empleados={empleados}
+                    isEditing={isEditing}
+                    onDataChange={onDataChange}
+                    ratios={ratios}
+                />
+                <SectionPlanificacion
+                    sectionKey="man"
+                    title="MAN"
+                    dayKey={dayKey}
+                    dayData={dayData}
+                    empleados={empleados}
+                    isEditing={isEditing}
+                    onDataChange={onDataChange}
+                    ratios={ratios}
+                />
+                <SectionPlanificacion
+                    sectionKey="nino"
+                    title="NIÑO"
+                    dayKey={dayKey}
+                    dayData={dayData}
+                    empleados={empleados}
+                    isEditing={isEditing}
+                    onDataChange={onDataChange}
+                    ratios={ratios}
+                />
+            </div>
         </div>
     );
 };
