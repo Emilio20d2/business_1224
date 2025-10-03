@@ -21,8 +21,9 @@ const PrintSection = ({
     title: string;
     planificacion: PlanificacionItem[];
 }) => {
-    const confeccionItems = planificacion.filter(p => p.tarea === 'confeccion');
-    const paqueteriaItems = planificacion.filter(p => p.tarea === 'paqueteria');
+    const safePlanificacion = Array.isArray(planificacion) ? planificacion : [];
+    const confeccionItems = safePlanificacion.filter(p => p.tarea === 'confeccion');
+    const paqueteriaItems = safePlanificacion.filter(p => p.tarea === 'paqueteria');
 
     const renderColumn = (items: PlanificacionItem[], columnTitle: string) => (
         <div className="flex flex-col gap-2">
@@ -168,9 +169,9 @@ function PrintPlanificacionPageComponent() {
       )
   }
 
-  const womanPlanificacion = dayData.planificacion.filter(p => p.seccion === 'woman');
-  const manPlanificacion = dayData.planificacion.filter(p => p.seccion === 'man');
-  const ninoPlanificacion = dayData.planificacion.filter(p => p.seccion === 'nino');
+  const womanPlanificacion = dayData.planificacion?.filter(p => p.seccion === 'woman') || [];
+  const manPlanificacion = dayData.planificacion?.filter(p => p.seccion === 'man') || [];
+  const ninoPlanificacion = dayData.planificacion?.filter(p => p.seccion === 'nino') || [];
   
 
   return (
