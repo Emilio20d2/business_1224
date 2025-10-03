@@ -9,9 +9,9 @@ import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Plus, Trash2, Users } from 'lucide-react';
+import { Plus, Trash2, Users, Box, Shirt } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
-
+import { formatNumber } from '@/lib/format';
 
 type PlanificacionTabProps = {
   data: WeeklyData;
@@ -20,20 +20,10 @@ type PlanificacionTabProps = {
   onDataChange: React.Dispatch<React.SetStateAction<WeeklyData | null>>;
 };
 
-const calculateHorasRequeridas = (dayData: ProductividadData, ratios: WeeklyData['listas']['productividadRatio']) => {
-    if (!dayData || !dayData.productividadPorSeccion) return 0;
-
-    const { woman, man, nino } = dayData.productividadPorSeccion;
-    const { confeccion, perchado, picking, porcentajePerchado, porcentajePicking } = ratios;
-
-    const horasConfeccion = (woman.unidadesConfeccion + man.unidadesConfeccion + nino.unidadesConfeccion) / confeccion;
-    
-    const totalUnidadesPaqueteria = woman.unidadesPaqueteria + man.unidadesPaqueteria + nino.unidadesPaqueteria;
-    const horasPerchado = (totalUnidadesPaqueteria * (porcentajePerchado / 100)) / perchado;
-    const horasPicking = (totalUnidadesPaqueteria * (porcentajePicking / 100)) / picking;
-
-    return horasConfeccion + horasPerchado + horasPicking;
-};
+const roundToQuarter = (value: number) => {
+    if (isNaN(value) || !isFinite(value)) return 0;
+    return Math.round(value * 4) / 4;
+}
 
 const DayPlanificacion = ({ 
     dayKey, 
@@ -51,7 +41,35 @@ const DayPlanificacion = ({
     ratios: WeeklyData['listas']['productividadRatio']
 }) => {
 
-    const horasRequeridas = useMemo(() => calculateHorasRequeridas(dayData, ratios), [dayData, ratios]);
+    const { horasRequeridas, horasPorSeccion } = useMemo(() => {
+        if (!dayData || !dayData.productividadPorSeccion || !ratios) {
+            return { horasRequeridas: 0, horasPorSeccion: {} };
+        }
+
+        const { confeccion, perchado, picking, porcentajePerchado, porcentajePicking } = ratios;
+        
+        const secciones = ['woman', 'man', 'nino'] as const;
+        let totalHoras = 0;
+
+        const horasPorSeccion = secciones.reduce((acc, seccionKey) => {
+            const seccionData = dayData.productividadPorSeccion[seccionKey];
+            const horasConfeccion = (seccionData.unidadesConfeccion || 0) / confeccion;
+            const horasPerchado = ((seccionData.unidadesPaqueteria || 0) * (porcentajePerchado / 100)) / perchado;
+            const horasPicking = ((seccionData.unidadesPaqueteria || 0) * (porcentajePicking / 100)) / picking;
+            const totalSeccion = horasConfeccion + horasPerchado + horasPicking;
+
+            totalHoras += totalSeccion;
+            acc[seccionKey] = {
+                confeccion: horasConfeccion,
+                paqueteria: horasPerchado + horasPicking,
+                total: totalSeccion
+            };
+            return acc;
+        }, {} as Record<'woman' | 'man' | 'nino', { confeccion: number; paqueteria: number; total: number }>);
+        
+        return { horasRequeridas: totalHoras, horasPorSeccion };
+    }, [dayData, ratios]);
+
     const horasAsignadas = useMemo(() => dayData.planificacion.reduce((acc, item) => acc + item.horasAsignadas, 0), [dayData.planificacion]);
     const horasPendientes = horasRequeridas - horasAsignadas;
 
@@ -64,9 +82,9 @@ const DayPlanificacion = ({
     const handlePlanChange = (itemId: string, field: keyof PlanificacionItem, value: any) => {
         onDataChange(prevData => {
             if (!prevData) return null;
-            const newData = { ...prevData };
+            const newData = JSON.parse(JSON.stringify(prevData));
             const plan = newData.productividad[dayKey].planificacion;
-            const itemIndex = plan.findIndex(p => p.id === itemId);
+            const itemIndex = plan.findIndex((p: PlanificacionItem) => p.id === itemId);
 
             if (itemIndex > -1) {
                 if (field === 'idEmpleado') {
@@ -103,22 +121,41 @@ const DayPlanificacion = ({
          onDataChange(prevData => {
             if (!prevData) return null;
             const newData = { ...prevData };
-            newData.productividad[dayKey].planificacion = newData.productividad[dayKey].planificacion.filter(p => p.id !== itemId);
+            newData.productividad[dayKey].planificacion = newData.productividad[dayKey].planificacion.filter((p: PlanificacionItem) => p.id !== itemId);
             return newData;
         });
     };
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-4 font-light">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <KpiCard title="Horas Requeridas" icon={<Users />}>
-                    <DatoSimple value={horasRequeridas.toFixed(2)} align="center" unit="h" />
+                 <KpiCard title="Horas Requeridas por Sección" icon={<Users />} className="md:col-span-3">
+                    <div className="grid grid-cols-3 gap-4 text-center">
+                        <div>
+                            <h4 className="font-bold text-lg">WOMAN</h4>
+                            <p><strong className="text-xl">{roundToQuarter(horasPorSeccion.woman?.total || 0).toFixed(2)}</strong> h</p>
+                            <p className="text-xs text-muted-foreground">Confe: {roundToQuarter(horasPorSeccion.woman?.confeccion || 0).toFixed(2)}h | Paque: {roundToQuarter(horasPorSeccion.woman?.paqueteria || 0).toFixed(2)}h</p>
+                        </div>
+                        <div>
+                            <h4 className="font-bold text-lg">MAN</h4>
+                            <p><strong className="text-xl">{roundToQuarter(horasPorSeccion.man?.total || 0).toFixed(2)}</strong> h</p>
+                            <p className="text-xs text-muted-foreground">Confe: {roundToQuarter(horasPorSeccion.man?.confeccion || 0).toFixed(2)}h | Paque: {roundToQuarter(horasPorSeccion.man?.paqueteria || 0).toFixed(2)}h</p>
+                        </div>
+                        <div>
+                            <h4 className="font-bold text-lg">NIÑO</h4>
+                            <p><strong className="text-xl">{roundToQuarter(horasPorSeccion.nino?.total || 0).toFixed(2)}</strong> h</p>
+                            <p className="text-xs text-muted-foreground">Confe: {roundToQuarter(horasPorSeccion.nino?.confeccion || 0).toFixed(2)}h | Paque: {roundToQuarter(horasPorSeccion.nino?.paqueteria || 0).toFixed(2)}h</p>
+                        </div>
+                    </div>
                 </KpiCard>
-                <KpiCard title="Horas Asignadas" icon={<Users />}>
-                    <DatoSimple value={horasAsignadas.toFixed(2)} align="center" unit="h" />
+                <KpiCard title="Total Horas Requeridas" icon={<Users />}>
+                    <DatoSimple value={roundToQuarter(horasRequeridas).toFixed(2)} align="center" unit="h" />
+                </KpiCard>
+                <KpiCard title="Total Horas Asignadas" icon={<Users />}>
+                    <DatoSimple value={roundToQuarter(horasAsignadas).toFixed(2)} align="center" unit="h" />
                 </KpiCard>
                 <KpiCard title="Horas Pendientes" icon={<Users />}>
-                    <DatoSimple value={horasPendientes.toFixed(2)} align="center" unit="h" />
+                    <DatoSimple value={roundToQuarter(horasPendientes).toFixed(2)} align="center" unit="h" />
                 </KpiCard>
             </div>
             
@@ -126,14 +163,14 @@ const DayPlanificacion = ({
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>Empleado</TableHead>
-                            <TableHead>Tarea</TableHead>
-                            <TableHead className="text-right">Horas</TableHead>
+                            <TableHead className="font-bold">Empleado</TableHead>
+                            <TableHead className="font-bold">Tarea</TableHead>
+                            <TableHead className="text-right font-bold">Horas</TableHead>
                             {isEditing && <TableHead className="w-[50px]"></TableHead>}
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {dayData.planificacion.map(item => (
+                        {dayData.planificacion.map((item: PlanificacionItem) => (
                             <TableRow key={item.id}>
                                 <TableCell className="w-[40%]">
                                     {isEditing ? (
@@ -152,7 +189,12 @@ const DayPlanificacion = ({
                                         <Select value={item.tarea} onValueChange={(value) => handlePlanChange(item.id, 'tarea', value)}>
                                             <SelectTrigger><SelectValue placeholder="Seleccionar tarea..." /></SelectTrigger>
                                             <SelectContent>
-                                                {tareas.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                                                <SelectItem value="Confección WOMAN">Confección WOMAN</SelectItem>
+                                                <SelectItem value="Paquetería WOMAN">Paquetería WOMAN</SelectItem>
+                                                <SelectItem value="Confección MAN">Confección MAN</SelectItem>
+                                                <SelectItem value="Paquetería MAN">Paquetería MAN</SelectItem>
+                                                <SelectItem value="Confección NIÑO">Confección NIÑO</SelectItem>
+                                                <SelectItem value="Paquetería NIÑO">Paquetería NIÑO</SelectItem>
                                             </SelectContent>
                                         </Select>
                                     ) : (
