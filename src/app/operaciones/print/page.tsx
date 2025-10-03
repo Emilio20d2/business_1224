@@ -7,10 +7,11 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { WeeklyData, Empleado, PlanificacionItem } from '@/lib/data';
 import { formatWeekIdToDateRange } from '@/lib/format';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Info } from 'lucide-react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const PrintSection = ({
     title,
@@ -90,6 +91,7 @@ function PrintPlanificacionPageComponent() {
   useEffect(() => {
     if (!loading && data && !hasPrinted.current) {
       hasPrinted.current = true;
+      // This will open the print dialog. On iPad/iPhone, the user can then use the share icon to "Save to Files" as a PDF.
       window.print();
     }
   }, [loading, data]);
@@ -142,9 +144,20 @@ function PrintPlanificacionPageComponent() {
                 size: landscape;
                 margin: 1cm;
             }
+            .no-print {
+                display: none !important;
+            }
           }
         `}
       </style>
+
+      <Alert className="no-print mb-4 border-blue-300 bg-blue-50 text-blue-800">
+        <Info className="h-4 w-4 !text-blue-800" />
+        <AlertDescription>
+          El diálogo de impresión se abrirá automáticamente. Para guardar como PDF en iPad, pulsa el botón de Compartir (cuadrado con flecha) y selecciona "Guardar en Archivos".
+        </AlertDescription>
+      </Alert>
+
       <header className="mb-6 flex justify-between items-center">
          <div className="text-left">
             <h1 className="text-3xl font-bold tracking-tight">PLANIFICACIÓN {day.toUpperCase()}</h1>
