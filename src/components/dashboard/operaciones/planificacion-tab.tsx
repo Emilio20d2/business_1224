@@ -255,3 +255,5 @@ export function PlanificacionTab({ data, empleados, isEditing, onDataChange, wee
     </Tabs>
   );
 }
+
+    
