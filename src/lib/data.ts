@@ -59,6 +59,10 @@ export type ProductividadSeccion = {
     costeVenta: number;
     costeReal: number;
     nominaReal: number;
+    unidadesConfeccion: number;
+    horasConfeccion: number;
+    unidadesPaqueteria: number;
+    horasPaqueteria: number;
 };
 
 export type ProductividadData = {
@@ -384,6 +388,10 @@ const createInitialProductividadSeccion = (): ProductividadSeccion => ({
     costeVenta: 0,
     costeReal: 0,
     nominaReal: 0,
+    unidadesConfeccion: 0,
+    horasConfeccion: 0,
+    unidadesPaqueteria: 0,
+    horasPaqueteria: 0,
 });
 
 const createInitialProductividadData = (): ProductividadData => ({
