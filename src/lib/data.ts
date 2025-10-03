@@ -1,5 +1,4 @@
 
-
 export type Empleado = {
     id: string;
     nombre: string;
@@ -58,12 +57,18 @@ export type ProductividadSeccion = {
     unidadesPaqueteria: number;
 };
 
+export type CoberturaHora = {
+    hora: string;
+    personas: number;
+};
+
 export type ProductividadData = {
     productividadPorSeccion: {
         woman: ProductividadSeccion;
         man: ProductividadSeccion;
         nino: ProductividadSeccion;
     };
+    coberturaPorHoras: CoberturaHora[];
 };
 
 
@@ -385,7 +390,16 @@ const createInitialProductividadData = (): ProductividadData => ({
         woman: createInitialProductividadSeccion(),
         man: createInitialProductividadSeccion(),
         nino: createInitialProductividadSeccion(),
-    }
+    },
+    coberturaPorHoras: [
+        { hora: "07:00-08:00", personas: 0 },
+        { hora: "08:00-09:00", personas: 0 },
+        { hora: "09:00-10:00", personas: 0 },
+        { hora: "10:00-11:00", personas: 0 },
+        { hora: "11:00-12:00", personas: 0 },
+        { hora: "12:00-13:00", personas: 0 },
+        { hora: "13:00-14:00", personas: 0 },
+    ],
 });
 
 

@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import type { ProductividadData, ProductividadSeccion } from "@/lib/data";
+import type { ProductividadData } from "@/lib/data";
 import { KpiCard, DatoSimple } from "../kpi-card";
 import { Zap, Users } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
+import { CoberturaCard } from './cobertura-card';
 
 type ProductividadTabProps = {
   data: {
@@ -58,6 +59,12 @@ const DayProductividad = ({ dayData, dayKey, isEditing, onInputChange }: { dayDa
 
     return (
         <div className="space-y-4">
+             <CoberturaCard 
+                data={dayData.coberturaPorHoras}
+                isEditing={isEditing}
+                onInputChange={onInputChange}
+                basePath={`productividad.${dayKey}.coberturaPorHoras`}
+             />
              <KpiCard title="TOTAL" icon={<Zap className="h-5 w-5 text-primary" />}>
                 <div className="space-y-2 pt-2">
                     <div className="grid grid-cols-3 items-center text-center gap-2">

@@ -241,9 +241,10 @@ function OperacionesPageComponent() {
         let current: any = updatedData;
         const keys = path.split('.');
 
-        const finalKey = keys[keys.length - 1];
-        let cleanValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
-        if (isNaN(cleanValue) || value === "") cleanValue = 0;
+        let cleanValue = value;
+        if (typeof value === 'string' && keys[0] !== 'focusOperaciones') {
+            cleanValue = parseFloat(value.replace(',', '.')) || 0;
+        }
 
         // Navigate to the parent object
         for (let i = 0; i < keys.length - 1; i++) {
@@ -251,22 +252,8 @@ function OperacionesPageComponent() {
             current = current[keys[i]];
         }
         
+        const finalKey = keys[keys.length - 1];
         current[finalKey] = cleanValue;
-        
-        if (path.startsWith('productividad.')) {
-            const [, day, , section] = keys;
-             if (day && section && updatedData.productividad?.[day as 'lunes' | 'jueves']?.productividadPorSeccion?.[section as 'woman' | 'man' | 'nino']) {
-                const prodSection = updatedData.productividad[day as 'lunes' | 'jueves'].productividadPorSeccion[section as 'woman' | 'man' | 'nino'];
-                
-                if(finalKey === 'unidadesConfeccion') {
-                    prodSection.unidadesConfeccion = cleanValue;
-                } else if (finalKey === 'unidadesPaqueteria') {
-                    prodSection.unidadesPaqueteria = cleanValue;
-                }
-            }
-        } else if (keys[0] === 'focusOperaciones') {
-            updatedData.focusOperaciones = value;
-        }
         
         return updatedData;
     });
