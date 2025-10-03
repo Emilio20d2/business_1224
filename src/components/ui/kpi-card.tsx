@@ -59,7 +59,7 @@ export function DatoDoble({ label, value, variation, unit, isEditing, valueId, v
     <div className="flex justify-between items-center font-light">
       {label && <span className="text-sm text-muted-foreground">{label}</span>}
       <div className="flex items-baseline gap-2">
-        {isEditing && valueId ? (
+        {isEditing && valueId && onInputChange ? (
           <div className="flex items-center gap-1">
              <Input 
                type="number" 
@@ -244,3 +244,5 @@ export function DatoSimple({
         </div>
     );
 }
+
+    

@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { KpiCard } from '@/components/dashboard/kpi-card';
+import { KpiCard, DatoDoble } from '@/components/dashboard/kpi-card';
 
 const roundToQuarter = (value: number) => {
     if (isNaN(value) || !isFinite(value)) return '0.00';
@@ -52,6 +52,9 @@ function PrintProductividadPageComponent() {
         if (reportSnap.exists() && listsSnap.exists()) {
           const reportData = reportSnap.data() as WeeklyData;
           reportData.listas = listsSnap.data() as WeeklyData['listas'];
+          if (!reportData.listas.productividadRatio) {
+            reportData.listas.productividadRatio = { picking: 400, perchado: 80, confeccion: 120, porcentajePerchado: 40, porcentajePicking: 60 };
+          }
           setData(reportData);
         } else {
           setError(`No se encontró ningún informe o configuración para la semana "${weekId}".`);
@@ -129,12 +132,16 @@ function PrintProductividadPageComponent() {
   }
 
   if (!data || !data.productividad || !data.listas || !data.listas.productividadRatio) {
-    return null;
+    return (
+         <div className="flex h-screen w-screen items-center justify-center bg-white text-zinc-900" >
+            <p className="text-xl text-red-500">Faltan datos de productividad o ratios para generar el informe.</p>
+        </div>
+    );
   }
   
   const dayData = data.productividad[day as 'lunes' | 'jueves'];
   const ratios = data.listas.productividadRatio;
-  if (!dayData) {
+  if (!dayData || !ratios) {
       return (
           <div className="flex h-screen w-screen items-center justify-center bg-white text-zinc-900" >
              <p className="text-xl text-red-500">No se encontraron datos para el día seleccionado.</p>
@@ -142,11 +149,11 @@ function PrintProductividadPageComponent() {
       )
   }
 
-  const ratioConfeccion = ratios?.confeccion || 120;
-  const ratioPerchado = ratios?.perchado || 80;
-  const ratioPicking = ratios?.picking || 400;
-  const porcentajePerchado = (ratios?.porcentajePerchado || 40) / 100;
-  const porcentajePicking = (ratios?.porcentajePicking || 60) / 100;
+  const ratioConfeccion = ratios.confeccion || 120;
+  const ratioPerchado = ratios.perchado || 80;
+  const ratioPicking = ratios.picking || 400;
+  const porcentajePerchado = (ratios.porcentajePerchado || 40) / 100;
+  const porcentajePicking = (ratios.porcentajePicking || 60) / 100;
 
   const sections = [
       { key: 'woman', title: 'WOMAN' },
@@ -185,17 +192,18 @@ function PrintProductividadPageComponent() {
           <main className="space-y-4 font-light">
              <div className="grid grid-cols-3 gap-4">
                 {productividadData.map(sec => (
-                    <Card key={sec.key} className="shadow-none border">
-                        <CardHeader>
-                            <CardTitle className="text-center">{sec.title}</CardTitle>
-                        </CardHeader>
-                        <CardContent className="text-center">
-                           <p className="text-sm text-muted-foreground">Un. Confección</p>
-                           <p className="text-2xl font-bold">{formatNumber(sec.unidadesConfeccion)}</p>
-                           <p className="text-sm text-muted-foreground mt-2">Un. Paquetería</p>
-                           <p className="text-2xl font-bold">{formatNumber(sec.unidadesPaqueteria)}</p>
-                        </CardContent>
-                    </Card>
+                    <KpiCard key={sec.key} title={sec.title} icon={<Box className="h-5 w-5 text-primary"/>}>
+                        <div className="flex flex-col gap-2 p-2">
+                           <DatoDoble 
+                             label="Un. Confección"
+                             value={formatNumber(sec.unidadesConfeccion)}
+                           />
+                           <DatoDoble 
+                             label="Un. Paquetería"
+                             value={formatNumber(sec.unidadesPaqueteria)}
+                           />
+                        </div>
+                    </KpiCard>
                 ))}
              </div>
 
@@ -258,3 +266,5 @@ export default function PrintProductividadPage() {
         </Suspense>
     );
 }
+
+    
