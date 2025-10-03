@@ -238,37 +238,34 @@ function OperacionesPageComponent() {
         if (!prevData) return null;
 
         const updatedData = JSON.parse(JSON.stringify(prevData));
-        const keys = path.split('.');
-        
         let current: any = updatedData;
+        const keys = path.split('.');
+
+        const finalKey = keys[keys.length - 1];
+        let cleanValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
+        if (isNaN(cleanValue) || value === "") cleanValue = 0;
+
+        // Navigate to the parent object
         for (let i = 0; i < keys.length - 1; i++) {
             if (current[keys[i]] === undefined) current[keys[i]] = {};
             current = current[keys[i]];
         }
         
-        const finalKey = keys[keys.length - 1];
-        const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
-        const cleanValue = isNaN(numericValue) || value === "" ? 0 : numericValue;
-
+        current[finalKey] = cleanValue;
+        
         if (path.startsWith('productividad.')) {
-            const [, day, , section, field] = keys;
-            if (day && section && field && updatedData.productividad?.[day as 'lunes' | 'jueves']?.productividadPorSeccion?.[section as 'woman' | 'man' | 'nino']) {
+            const [, day, , section] = keys;
+             if (day && section && updatedData.productividad?.[day as 'lunes' | 'jueves']?.productividadPorSeccion?.[section as 'woman' | 'man' | 'nino']) {
                 const prodSection = updatedData.productividad[day as 'lunes' | 'jueves'].productividadPorSeccion[section as 'woman' | 'man' | 'nino'];
                 
-                if (field === 'unidadesConfeccion') {
+                if(finalKey === 'unidadesConfeccion') {
                     prodSection.unidadesConfeccion = cleanValue;
-                    prodSection.horasConfeccion = cleanValue / 120;
-                } else if (field === 'unidadesPaqueteria') {
+                } else if (finalKey === 'unidadesPaqueteria') {
                     prodSection.unidadesPaqueteria = cleanValue;
-                    prodSection.horasPaqueteria = cleanValue / 80;
-                } else {
-                    current[finalKey] = cleanValue;
                 }
             }
         } else if (keys[0] === 'focusOperaciones') {
             updatedData.focusOperaciones = value;
-        } else {
-            current[finalKey] = cleanValue;
         }
         
         return updatedData;

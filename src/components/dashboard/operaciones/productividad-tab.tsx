@@ -20,7 +20,7 @@ type ProductividadTabProps = {
   onInputChange: (path: string, value: any, reorder?: boolean) => void;
 };
 
-const PaqueteriaRow = ({ label, unidades, horas, isEditing, onInputChange, unidadesId }: { label: string, unidades: number, horas: number, isEditing: boolean, onInputChange: any, unidadesId: string }) => {
+const PaqueteriaRow = ({ label, unidades, productividad, isEditing, onInputChange, unidadesId }: { label: string, unidades: number, productividad: number, isEditing: boolean, onInputChange: any, unidadesId: string }) => {
     return (
         <div className="grid grid-cols-3 items-center text-center gap-2">
             <span className="text-sm font-medium text-muted-foreground text-left">{label}</span>
@@ -33,7 +33,7 @@ const PaqueteriaRow = ({ label, unidades, horas, isEditing, onInputChange, unida
                 align="right"
             />
             <div className="text-right text-lg font-medium">
-                {(horas || 0).toFixed(2)}h
+                {productividad} un/h
             </div>
         </div>
     );
@@ -50,9 +50,10 @@ const DayProductividad = ({ dayData, dayKey, isEditing, onInputChange }: { dayDa
     ] as const;
 
     const totalUnidadesConfeccion = sections.reduce((sum, sec) => sum + (dayData.productividadPorSeccion[sec.key]?.unidadesConfeccion || 0), 0);
-    const totalHorasConfeccion = sections.reduce((sum, sec) => sum + (dayData.productividadPorSeccion[sec.key]?.horasConfeccion || 0), 0);
     const totalUnidadesPaqueteria = sections.reduce((sum, sec) => sum + (dayData.productividadPorSeccion[sec.key]?.unidadesPaqueteria || 0), 0);
-    const totalHorasPaqueteria = sections.reduce((sum, sec) => sum + (dayData.productividadPorSeccion[sec.key]?.horasPaqueteria || 0), 0);
+    const totalProductividadConfeccion = totalUnidadesConfeccion / 120;
+    const totalProductividadPaqueteria = totalUnidadesPaqueteria / 80;
+
 
     return (
         <div className="space-y-4">
@@ -61,18 +62,18 @@ const DayProductividad = ({ dayData, dayKey, isEditing, onInputChange }: { dayDa
                     <div className="grid grid-cols-3 items-center text-center gap-2">
                         <span className="text-sm font-semibold text-muted-foreground text-left"></span>
                         <span className="text-sm font-semibold text-muted-foreground text-right">Unidades</span>
-                        <span className="text-sm font-semibold text-muted-foreground text-right">Horas</span>
+                        <span className="text-sm font-semibold text-muted-foreground text-right">Productividad</span>
                     </div>
                     <Separator />
                      <div className="grid grid-cols-3 items-center text-center gap-2">
                         <span className="text-sm font-medium text-muted-foreground text-left">UN. CONFECCION</span>
                         <span className="text-lg font-medium text-right">{totalUnidadesConfeccion} un.</span>
-                        <span className="text-lg font-medium text-right">{totalHorasConfeccion.toFixed(2)} h</span>
+                        <span className="text-lg font-medium text-right">{totalProductividadConfeccion.toFixed(2)} h</span>
                     </div>
                      <div className="grid grid-cols-3 items-center text-center gap-2">
                         <span className="text-sm font-medium text-muted-foreground text-left">UN. PAQUETERIA</span>
                         <span className="text-lg font-medium text-right">{totalUnidadesPaqueteria} un.</span>
-                        <span className="text-lg font-medium text-right">{totalHorasPaqueteria.toFixed(2)} h</span>
+                        <span className="text-lg font-medium text-right">{totalProductividadPaqueteria.toFixed(2)} h</span>
                     </div>
                 </div>
             </KpiCard>
@@ -87,13 +88,13 @@ const DayProductividad = ({ dayData, dayKey, isEditing, onInputChange }: { dayDa
                                 <div className="grid grid-cols-3 items-center text-center gap-2">
                                     <span className="text-sm font-semibold text-muted-foreground text-left"></span>
                                     <span className="text-sm font-semibold text-muted-foreground text-right">Unidades</span>
-                                    <span className="text-sm font-semibold text-muted-foreground text-right">Horas</span>
+                                    <span className="text-sm font-semibold text-muted-foreground text-right">Productividad</span>
                                 </div>
                                 <Separator />
                                 <PaqueteriaRow
                                     label="UN. CONFECCION"
                                     unidades={sectionData.unidadesConfeccion}
-                                    horas={sectionData.horasConfeccion}
+                                    productividad={120}
                                     isEditing={isEditing}
                                     onInputChange={onInputChange}
                                     unidadesId={`productividad.${dayKey}.productividadPorSeccion.${section.key}.unidadesConfeccion`}
@@ -101,7 +102,7 @@ const DayProductividad = ({ dayData, dayKey, isEditing, onInputChange }: { dayDa
                                 <PaqueteriaRow
                                     label="UN. PAQUETERIA"
                                     unidades={sectionData.unidadesPaqueteria}
-                                    horas={sectionData.horasPaqueteria}
+                                    productividad={80}
                                     isEditing={isEditing}
                                     onInputChange={onInputChange}
                                     unidadesId={`productividad.${dayKey}.productividadPorSeccion.${section.key}.unidadesPaqueteria`}
