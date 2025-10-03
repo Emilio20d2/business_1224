@@ -343,7 +343,7 @@ export function getInitialLists(): WeeklyData['listas'] {
         productividadRatio: {
             paqueteria: 80,
             confeccion: 120,
-        }
+        },
     };
 }
 
@@ -525,3 +525,5 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
         },
     };
 }
+
+    
