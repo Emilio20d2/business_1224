@@ -24,7 +24,7 @@ type EditRatiosDialogProps = {
 };
 
 export function EditRatiosDialog({ isOpen, onClose, ratios, onSave }: EditRatiosDialogProps) {
-  const [currentRatios, setCurrentRatios] = useState({ paqueteria: 80, confeccion: 120 });
+  const [currentRatios, setCurrentRatios] = useState({ picking: 400, perchado: 80, confeccion: 120 });
 
   useEffect(() => {
     if (isOpen && ratios) {
@@ -32,7 +32,7 @@ export function EditRatiosDialog({ isOpen, onClose, ratios, onSave }: EditRatios
     }
   }, [ratios, isOpen]);
   
-  const handleChange = (field: 'paqueteria' | 'confeccion', value: string) => {
+  const handleChange = (field: 'picking' | 'perchado' | 'confeccion', value: string) => {
     const numericValue = parseInt(value, 10);
     if (!isNaN(numericValue)) {
         setCurrentRatios(prev => ({ ...prev, [field]: numericValue }));
@@ -51,19 +51,7 @@ export function EditRatiosDialog({ isOpen, onClose, ratios, onSave }: EditRatios
           <DialogTitle>Editar Ratios de Productividad</DialogTitle>
         </DialogHeader>
         <div className="py-4 space-y-4">
-          <div className="grid grid-cols-2 items-center gap-4">
-            <Label htmlFor="ratio-paqueteria" className="text-right">
-              Ratio Paquetería (un/h)
-            </Label>
-            <Input
-              id="ratio-paqueteria"
-              type="number"
-              value={currentRatios.paqueteria}
-              onChange={(e) => handleChange('paqueteria', e.target.value)}
-              className="col-span-1"
-            />
-          </div>
-          <div className="grid grid-cols-2 items-center gap-4">
+           <div className="grid grid-cols-2 items-center gap-4">
             <Label htmlFor="ratio-confeccion" className="text-right">
               Ratio Confección (un/h)
             </Label>
@@ -72,6 +60,30 @@ export function EditRatiosDialog({ isOpen, onClose, ratios, onSave }: EditRatios
               type="number"
               value={currentRatios.confeccion}
               onChange={(e) => handleChange('confeccion', e.target.value)}
+              className="col-span-1"
+            />
+          </div>
+          <div className="grid grid-cols-2 items-center gap-4">
+            <Label htmlFor="ratio-perchado" className="text-right">
+              Ratio Perchado/Pelado (un/h)
+            </Label>
+            <Input
+              id="ratio-perchado"
+              type="number"
+              value={currentRatios.perchado}
+              onChange={(e) => handleChange('perchado', e.target.value)}
+              className="col-span-1"
+            />
+          </div>
+          <div className="grid grid-cols-2 items-center gap-4">
+            <Label htmlFor="ratio-picking" className="text-right">
+              Ratio Picking por bulto (un/h)
+            </Label>
+            <Input
+              id="ratio-picking"
+              type="number"
+              value={currentRatios.picking}
+              onChange={(e) => handleChange('picking', e.target.value)}
               className="col-span-1"
             />
           </div>
@@ -91,5 +103,3 @@ export function EditRatiosDialog({ isOpen, onClose, ratios, onSave }: EditRatios
     </Dialog>
   );
 }
-
-    

@@ -4,7 +4,7 @@
 import React, { useState } from 'react';
 import type { WeeklyData, CoberturaHora, ProductividadData } from "@/lib/data";
 import { KpiCard, DatoSimple } from "../kpi-card";
-import { Zap, Users, Scissors, Package } from 'lucide-react';
+import { Zap, Users, Scissors, Package, PackageOpen } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,10 +24,10 @@ const roundToQuarter = (value: number) => {
 }
 
 
-const PaqueteriaRow = ({ label, unidades, productividad, isEditing, onInputChange, unidadesId }: { label: string, unidades: number, productividad: number, isEditing: boolean, onInputChange: any, unidadesId: string }) => {
+const PaqueteriaRow = ({ label, unidades, productividad, isEditing, onInputChange, unidadesId, icon }: { label: string, unidades: number, productividad: number, isEditing: boolean, onInputChange: any, unidadesId: string, icon?: React.ReactNode }) => {
     return (
         <div className="grid grid-cols-3 items-center text-center gap-2">
-            <span className="text-sm font-medium text-muted-foreground text-left">{label}</span>
+            <span className="text-sm font-medium text-muted-foreground text-left flex items-center gap-2">{icon}{label}</span>
             <DatoSimple
                 value={unidades}
                 isEditing={isEditing}
@@ -48,7 +48,8 @@ const DayProductividad = ({ dayData, dayKey, ratios, isEditing, onInputChange }:
     if (!dayData || !dayData.productividadPorSeccion) return null;
 
     const ratioConfeccion = ratios?.confeccion || 120;
-    const ratioPaqueteria = ratios?.paqueteria || 80;
+    const ratioPerchado = ratios?.perchado || 80;
+    const ratioPicking = ratios?.picking || 400;
 
     const sections = [
         { key: 'woman', title: 'WOMAN' },
@@ -60,8 +61,9 @@ const DayProductividad = ({ dayData, dayKey, ratios, isEditing, onInputChange }:
     const totalUnidadesPaqueteria = sections.reduce((sum, sec) => sum + (dayData.productividadPorSeccion[sec.key]?.unidadesPaqueteria || 0), 0);
     
     const horasConfeccionRequeridas = totalUnidadesConfeccion / ratioConfeccion;
-    const horasPaqueteriaRequeridas = totalUnidadesPaqueteria / ratioPaqueteria;
-    const horasProductividadRequeridas = horasConfeccionRequeridas + horasPaqueteriaRequeridas;
+    const horasPerchadoRequeridas = (totalUnidadesPaqueteria * 0.4) / ratioPerchado;
+    const horasPickingRequeridas = (totalUnidadesPaqueteria * 0.6) / ratioPicking;
+    const horasProductividadRequeridas = horasConfeccionRequeridas + horasPerchadoRequeridas + horasPickingRequeridas;
 
     const confeccionData = sections.map(sec => ({
       title: sec.title,
@@ -69,10 +71,16 @@ const DayProductividad = ({ dayData, dayKey, ratios, isEditing, onInputChange }:
       horas: (dayData.productividadPorSeccion[sec.key]?.unidadesConfeccion || 0) / ratioConfeccion,
     }));
 
-    const paqueteriaData = sections.map(sec => ({
-      title: sec.title,
-      unidades: dayData.productividadPorSeccion[sec.key]?.unidadesPaqueteria || 0,
-      horas: (dayData.productividadPorSeccion[sec.key]?.unidadesPaqueteria || 0) / ratioPaqueteria,
+    const perchadoData = sections.map(sec => ({
+        title: sec.title,
+        unidades: (dayData.productividadPorSeccion[sec.key]?.unidadesPaqueteria || 0) * 0.4,
+        horas: ((dayData.productividadPorSeccion[sec.key]?.unidadesPaqueteria || 0) * 0.4) / ratioPerchado,
+    }));
+    
+    const pickingData = sections.map(sec => ({
+        title: sec.title,
+        unidades: (dayData.productividadPorSeccion[sec.key]?.unidadesPaqueteria || 0) * 0.6,
+        horas: ((dayData.productividadPorSeccion[sec.key]?.unidadesPaqueteria || 0) * 0.6) / ratioPicking,
     }));
     
     return (
@@ -82,6 +90,9 @@ const DayProductividad = ({ dayData, dayKey, ratios, isEditing, onInputChange }:
                     const sectionData = dayData.productividadPorSeccion[section.key];
                     if (!sectionData) return null;
                     
+                    const horasPaqueteriaPerchado = (sectionData.unidadesPaqueteria * 0.4) / ratioPerchado;
+                    const horasPaqueteriaPicking = (sectionData.unidadesPaqueteria * 0.6) / ratioPicking;
+
                     return (
                         <KpiCard key={section.key} title={section.title} icon={<Users className="h-5 w-5 text-primary" />}>
                            <div className="space-y-2 pt-2">
@@ -93,20 +104,24 @@ const DayProductividad = ({ dayData, dayKey, ratios, isEditing, onInputChange }:
                                 <Separator />
                                 <PaqueteriaRow
                                     label="UN. CONFECCION"
+                                    icon={<Scissors className="h-4 w-4" />}
                                     unidades={sectionData.unidadesConfeccion}
                                     productividad={(sectionData.unidadesConfeccion || 0) / ratioConfeccion}
                                     isEditing={isEditing}
                                     onInputChange={onInputChange}
                                     unidadesId={`productividad.${dayKey}.productividadPorSeccion.${section.key}.unidadesConfeccion`}
                                 />
-                                <PaqueteriaRow
-                                    label="UN. PAQUETERIA"
-                                    unidades={sectionData.unidadesPaqueteria}
-                                    productividad={(sectionData.unidadesPaqueteria || 0) / ratioPaqueteria}
+                                <DatoSimple
+                                    label="PAQUETERIA"
+                                    value={sectionData.unidadesPaqueteria}
                                     isEditing={isEditing}
                                     onInputChange={onInputChange}
-                                    unidadesId={`productividad.${dayKey}.productividadPorSeccion.${section.key}.unidadesPaqueteria`}
+                                    valueId={`productividad.${dayKey}.productividadPorSeccion.${section.key}.unidadesPaqueteria`}
+                                    align="center"
+                                    icon={<Package className="h-4 w-4" />}
+                                    unit="un."
                                 />
+                                <div className="text-right text-lg font-bold">{roundToQuarter(horasPaqueteriaPerchado + horasPaqueteriaPicking)}h</div>
                             </div>
                         </KpiCard>
                     );
@@ -122,14 +137,19 @@ const DayProductividad = ({ dayData, dayKey, ratios, isEditing, onInputChange }:
                     </div>
                     <Separator />
                      <div className="grid grid-cols-3 items-center text-center gap-2">
-                        <span className="text-sm font-medium text-muted-foreground text-left">UN. CONFECCION</span>
+                        <span className="text-sm font-medium text-muted-foreground text-left flex items-center gap-2"><Scissors className="h-4 w-4" />UN. CONFECCION</span>
                         <span className="text-lg font-medium text-right">{totalUnidadesConfeccion} un.</span>
                         <span className="text-lg font-medium text-right">{roundToQuarter(horasConfeccionRequeridas)} h</span>
                     </div>
                      <div className="grid grid-cols-3 items-center text-center gap-2">
-                        <span className="text-sm font-medium text-muted-foreground text-left">UN. PAQUETERIA</span>
-                        <span className="text-lg font-medium text-right">{totalUnidadesPaqueteria} un.</span>
-                        <span className="text-lg font-medium text-right">{roundToQuarter(horasPaqueteriaRequeridas)} h</span>
+                        <span className="text-sm font-medium text-muted-foreground text-left flex items-center gap-2"><PackageOpen className="h-4 w-4" />PAQUETERIA (PERCHADO)</span>
+                        <span className="text-lg font-medium text-right">{(totalUnidadesPaqueteria * 0.4).toFixed(0)} un.</span>
+                        <span className="text-lg font-medium text-right">{roundToQuarter(horasPerchadoRequeridas)} h</span>
+                    </div>
+                     <div className="grid grid-cols-3 items-center text-center gap-2">
+                        <span className="text-sm font-medium text-muted-foreground text-left flex items-center gap-2"><Package className="h-4 w-4" />PAQUETERIA (PICKING)</span>
+                        <span className="text-lg font-medium text-right">{(totalUnidadesPaqueteria * 0.6).toFixed(0)} un.</span>
+                        <span className="text-lg font-medium text-right">{roundToQuarter(horasPickingRequeridas)} h</span>
                     </div>
                      <Separator />
                      <div className="grid grid-cols-3 items-center text-center gap-2">
@@ -142,7 +162,7 @@ const DayProductividad = ({ dayData, dayKey, ratios, isEditing, onInputChange }:
                 <Separator className="my-4"/>
                 
                 <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="space-y-2">
                         <h4 className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
                             <Scissors className="h-4 w-4" />
@@ -169,8 +189,8 @@ const DayProductividad = ({ dayData, dayKey, ratios, isEditing, onInputChange }:
                       </div>
                     <div className="space-y-2">
                         <h4 className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
-                        <Package className="h-4 w-4" />
-                        PAQUETERÍA
+                        <PackageOpen className="h-4 w-4" />
+                        PAQUETERÍA (PERCHADO)
                         </h4>
                         <Table>
                             <TableHeader>
@@ -181,10 +201,34 @@ const DayProductividad = ({ dayData, dayKey, ratios, isEditing, onInputChange }:
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {paqueteriaData.map(item => (
+                                {perchadoData.map(item => (
                                     <TableRow key={item.title}>
                                         <TableCell>{item.title}</TableCell>
-                                        <TableCell className="text-right">{item.unidades}</TableCell>
+                                        <TableCell className="text-right">{item.unidades.toFixed(0)}</TableCell>
+                                        <TableCell className="text-right">{roundToQuarter(item.horas)}h</TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </div>
+                     <div className="space-y-2">
+                        <h4 className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
+                        <Package className="h-4 w-4" />
+                        PAQUETERÍA (PICKING)
+                        </h4>
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Sección</TableHead>
+                                    <TableHead className="text-right">Unidades</TableHead>
+                                    <TableHead className="text-right">Horas</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {pickingData.map(item => (
+                                    <TableRow key={item.title}>
+                                        <TableCell>{item.title}</TableCell>
+                                        <TableCell className="text-right">{item.unidades.toFixed(0)}</TableCell>
                                         <TableCell className="text-right">{roundToQuarter(item.horas)}h</TableCell>
                                     </TableRow>
                                 ))}

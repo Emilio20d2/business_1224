@@ -119,7 +119,8 @@ export type WeeklyData = {
             nino: number;
         };
         productividadRatio: {
-            paqueteria: number;
+            picking: number;
+            perchado: number;
             confeccion: number;
         };
     };
@@ -341,7 +342,8 @@ export function getInitialLists(): WeeklyData['listas'] {
             nino: 0,
         },
         productividadRatio: {
-            paqueteria: 80,
+            picking: 400,
+            perchado: 80,
             confeccion: 120,
         },
     };
