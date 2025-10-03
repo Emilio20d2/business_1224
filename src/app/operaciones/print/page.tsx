@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, Suspense, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
@@ -59,6 +59,7 @@ function PrintPlanificacionPageComponent() {
   const [data, setData] = useState<WeeklyData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const hasPrinted = useRef(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -85,17 +86,28 @@ function PrintPlanificacionPageComponent() {
     fetchData();
   }, [weekId]);
 
+  useEffect(() => {
+    if (!loading && data && !hasPrinted.current) {
+        // Use a small timeout to ensure all content is rendered
+        setTimeout(() => {
+            window.print();
+            hasPrinted.current = true;
+        }, 500);
+    }
+  }, [loading, data]);
+
   if (loading) {
     return (
-      <div className="flex h-screen w-screen items-center justify-center bg-gray-100 text-zinc-900">
+      <div className="flex h-screen w-screen items-center justify-center bg-white text-zinc-900">
         <Loader2 className="h-16 w-16 animate-spin" />
+        <p className="ml-4 text-lg">Cargando informe...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex h-screen w-screen items-center justify-center bg-gray-100 text-zinc-900" >
+      <div className="flex h-screen w-screen items-center justify-center bg-white text-zinc-900" >
         <p className="text-xl text-red-500">{error}</p>
       </div>
     );
@@ -108,7 +120,7 @@ function PrintPlanificacionPageComponent() {
   const dayData = data.productividad[day as 'lunes' | 'jueves'];
   if (!dayData) {
       return (
-          <div className="flex h-screen w-screen items-center justify-center bg-gray-100 text-zinc-900" >
+          <div className="flex h-screen w-screen items-center justify-center bg-white text-zinc-900" >
              <p className="text-xl text-red-500">No se encontraron datos para el día seleccionado.</p>
           </div>
       )
