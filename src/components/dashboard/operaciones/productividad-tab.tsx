@@ -3,13 +3,11 @@
 
 import React, { useState } from 'react';
 import type { WeeklyData, CoberturaHora, ProductividadData } from "@/lib/data";
-import { KpiCard, DatoSimple } from "../kpi-card";
-import { Zap, Users, Scissors, Package, PackageOpen, Tag, Box } from 'lucide-react';
+import { KpiCard, DatoDoble } from "../kpi-card";
+import { Zap, Users, Box } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { Separator } from '@/components/ui/separator';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatNumber } from '@/lib/format';
 
@@ -73,24 +71,20 @@ const DayProductividad = ({ dayData, dayKey, ratios, isEditing, onInputChange }:
              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {productividadData.map(sec => (
                     <KpiCard key={sec.key} title={sec.title} icon={<Box className="h-5 w-5 text-primary"/>}>
-                        <div className="flex flex-col gap-4 p-2">
-                           <DatoSimple 
-                             label="Unidades Confección"
-                             value={sec.unidadesConfeccion}
+                        <div className="flex flex-col gap-2 p-2">
+                           <DatoDoble 
+                             label="Un. Confección"
+                             value={formatNumber(sec.unidadesConfeccion)}
                              isEditing={isEditing}
                              onInputChange={onInputChange}
                              valueId={`productividad.${dayKey}.productividadPorSeccion.${sec.key}.unidadesConfeccion`}
-                             align="left"
-                             unit="un."
                            />
-                           <DatoSimple 
-                             label="Unidades Paquetería"
-                             value={sec.unidadesPaqueteria}
+                           <DatoDoble 
+                             label="Un. Paquetería"
+                             value={formatNumber(sec.unidadesPaqueteria)}
                              isEditing={isEditing}
                              onInputChange={onInputChange}
                              valueId={`productividad.${dayKey}.productividadPorSeccion.${sec.key}.unidadesPaqueteria`}
-                             align="left"
-                             unit="un."
                            />
                         </div>
                     </KpiCard>
@@ -146,64 +140,18 @@ const DayProductividad = ({ dayData, dayKey, ratios, isEditing, onInputChange }:
                     <div className="grid grid-cols-8 text-center text-sm font-semibold text-muted-foreground">
                         {dayData.coberturaPorHoras.map(item => <div key={item.hora}>{item.hora}</div>)}
                     </div>
-                    <div className="grid grid-cols-8 text-center">
+                     <div className="grid grid-cols-8 text-center">
                         {dayData.coberturaPorHoras.map((item, index) => {
                            const horasAcumuladas = dayData.coberturaPorHoras.slice(0, index + 1).reduce((acc, curr) => acc + (curr.personas || 0), 0);
                            const objetivoCumplido = horasAcumuladas >= horasProductividadRequeridas;
                            
-                            let personasNecesariasEnFranja = 0;
-                            if(index > 0) {
-                               const horasAcumuladasAnterior = dayData.coberturaPorHoras.slice(0, index).reduce((acc, curr) => acc + (curr.personas || 0), 0);
-                               personasNecesariasEnFranja = Math.max(0, horasProductividadRequeridas - horasAcumuladasAnterior);
-                            } else {
-                               personasNecesariasEnFranja = horasProductividadRequeridas;
-                            }
-                            
-                            const personasDisponiblesEnFranja = item.personas || 0;
-                            const tareasRestantes = dayData.coberturaPorHoras.length - (index + 1);
-
-                            let distribucion: { [key: string]: number } = {
-                                confeccion: 0,
-                                perchado: 0,
-                                picking: 0
-                            };
-                            
-                            let horasConfeccionRestantes = Math.max(0, totalHorasConfeccion - dayData.coberturaPorHoras.slice(0, index).reduce((acc, curr, i) => acc + (distribucionAcumulada[i]?.confeccion || 0), 0));
-                            let horasPerchadoRestantes = Math.max(0, totalHorasPerchado - dayData.coberturaPorHoras.slice(0, index).reduce((acc, curr, i) => acc + (distribucionAcumulada[i]?.perchado || 0), 0));
-                            let horasPickingRestantes = Math.max(0, totalHorasPicking - dayData.coberturaPorHoras.slice(0, index).reduce((acc, curr, i) => acc + (distribucionAcumulada[i]?.picking || 0), 0));
-
-
-                            let personalAsignable = personasDisponiblesEnFranja;
-
-                            if (horasConfeccionRestantes > 0) {
-                                const aAsignar = Math.min(personalAsignable, horasConfeccionRestantes);
-                                distribucion.confeccion = aAsignar;
-                                personalAsignable -= aAsignar;
-                                horasConfeccionRestantes -= aAsignar;
-                            }
-                            if (personalAsignable > 0 && horasPerchadoRestantes > 0) {
-                                const aAsignar = Math.min(personalAsignable, horasPerchadoRestantes);
-                                distribucion.perchado = aAsignar;
-                                personalAsignable -= aAsignar;
-                                horasPerchadoRestantes -= aAsignar;
-                            }
-                             if (personalAsignable > 0 && horasPickingRestantes > 0) {
-                                const aAsignar = Math.min(personalAsignable, horasPickingRestantes);
-                                distribucion.picking = aAsignar;
-                                personalAsignable -= aAsignar;
-                                horasPickingRestantes -= aAsignar;
-                            }
-
-                            distribucionAcumulada.push(distribucion);
-                            
                             return (
                                 <div key={item.hora} className={cn("p-2 rounded-md border", objetivoCumplido ? 'bg-green-100/60 border-green-200' : 'bg-red-100/60 border-red-200' )}>
-                                    <DatoSimple
-                                        value={item.personas}
+                                    <DatoDoble 
+                                        value={formatNumber(item.personas)}
                                         isEditing={isEditing}
                                         onInputChange={onInputChange}
                                         valueId={`productividad.${dayKey}.coberturaPorHoras.${index}.personas`}
-                                        align="center"
                                     />
                                 </div>
                             )
@@ -215,9 +163,6 @@ const DayProductividad = ({ dayData, dayKey, ratios, isEditing, onInputChange }:
     );
 }
 
-const distribucionAcumulada: any[] = [];
-
-
 export function ProductividadTab({ data, isEditing, onInputChange }: ProductividadTabProps) {
   const [activeSubTab, setActiveSubTab] = useState('lunes');
   
@@ -225,8 +170,6 @@ export function ProductividadTab({ data, isEditing, onInputChange }: Productivid
     { value: 'lunes', label: 'LUNES' },
     { value: 'jueves', label: 'JUEVES' },
   ];
-
-  distribucionAcumulada.length = 0;
 
   return (
      <Tabs value={activeSubTab} onValueChange={setActiveSubTab} className="w-full font-light">

@@ -56,8 +56,8 @@ export function DatoDoble({ label, value, variation, unit, isEditing, valueId, v
   const valueColor = typeof rawValue === 'number' && rawValue < 0 ? 'text-red-600' : '';
 
   return (
-    <div className="flex justify-between items-baseline font-light">
-      {label && <span className="text-lg text-muted-foreground">{label}</span>}
+    <div className="flex justify-between items-center font-light">
+      {label && <span className="text-sm text-muted-foreground">{label}</span>}
       <div className="flex items-baseline gap-2">
         {isEditing && valueId ? (
           <div className="flex items-center gap-1">
@@ -65,14 +65,14 @@ export function DatoDoble({ label, value, variation, unit, isEditing, valueId, v
                type="number" 
                inputMode="decimal" 
                defaultValue={Number.isNaN(rawValue) ? '' : rawValue}
-               className="w-24 h-8" 
+               className="w-24 h-8 text-right" 
                id={valueId}
                onChange={handleValueChange}
              />
              {unit && <span className="text-sm text-muted-foreground">{unit}</span>}
            </div>
         ) : (
-           <div className={cn("text-xl font-bold", valueColor)}>{value}{unit}</div>
+           <div className={cn("text-lg font-bold", valueColor)}>{value}{unit}</div>
         )}
         {variation !== undefined && (
           isEditing && variationId ? (
