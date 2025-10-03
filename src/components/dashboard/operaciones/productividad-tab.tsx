@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import type { ProductividadData, CoberturaHora } from "@/lib/data";
+import type { WeeklyData, CoberturaHora, ProductividadData } from "@/lib/data";
 import { KpiCard, DatoSimple } from "../kpi-card";
 import { Zap, Users, Scissors, Package } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -14,10 +14,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 
 
 type ProductividadTabProps = {
-  data: {
-    lunes: ProductividadData;
-    jueves: ProductividadData;
-  };
+  data: WeeklyData;
   isEditing: boolean;
   onInputChange: (path: string, value: any, reorder?: boolean) => void;
 };
@@ -47,8 +44,11 @@ const PaqueteriaRow = ({ label, unidades, productividad, isEditing, onInputChang
 };
 
 
-const DayProductividad = ({ dayData, dayKey, isEditing, onInputChange }: { dayData: ProductividadData, dayKey: 'lunes' | 'jueves', isEditing: boolean, onInputChange: any }) => {
+const DayProductividad = ({ dayData, dayKey, ratios, isEditing, onInputChange }: { dayData: ProductividadData, dayKey: 'lunes' | 'jueves', ratios: WeeklyData['listas']['productividadRatio'], isEditing: boolean, onInputChange: any }) => {
     if (!dayData || !dayData.productividadPorSeccion) return null;
+
+    const ratioConfeccion = ratios?.confeccion || 120;
+    const ratioPaqueteria = ratios?.paqueteria || 80;
 
     const sections = [
         { key: 'woman', title: 'WOMAN' },
@@ -59,20 +59,20 @@ const DayProductividad = ({ dayData, dayKey, isEditing, onInputChange }: { dayDa
     const totalUnidadesConfeccion = sections.reduce((sum, sec) => sum + (dayData.productividadPorSeccion[sec.key]?.unidadesConfeccion || 0), 0);
     const totalUnidadesPaqueteria = sections.reduce((sum, sec) => sum + (dayData.productividadPorSeccion[sec.key]?.unidadesPaqueteria || 0), 0);
     
-    const horasConfeccionRequeridas = totalUnidadesConfeccion / 120;
-    const horasPaqueteriaRequeridas = totalUnidadesPaqueteria / 80;
+    const horasConfeccionRequeridas = totalUnidadesConfeccion / ratioConfeccion;
+    const horasPaqueteriaRequeridas = totalUnidadesPaqueteria / ratioPaqueteria;
     const horasProductividadRequeridas = horasConfeccionRequeridas + horasPaqueteriaRequeridas;
 
     const confeccionData = sections.map(sec => ({
       title: sec.title,
       unidades: dayData.productividadPorSeccion[sec.key]?.unidadesConfeccion || 0,
-      horas: (dayData.productividadPorSeccion[sec.key]?.unidadesConfeccion || 0) / 120,
+      horas: (dayData.productividadPorSeccion[sec.key]?.unidadesConfeccion || 0) / ratioConfeccion,
     }));
 
     const paqueteriaData = sections.map(sec => ({
       title: sec.title,
       unidades: dayData.productividadPorSeccion[sec.key]?.unidadesPaqueteria || 0,
-      horas: (dayData.productividadPorSeccion[sec.key]?.unidadesPaqueteria || 0) / 80,
+      horas: (dayData.productividadPorSeccion[sec.key]?.unidadesPaqueteria || 0) / ratioPaqueteria,
     }));
     
     return (
@@ -94,7 +94,7 @@ const DayProductividad = ({ dayData, dayKey, isEditing, onInputChange }: { dayDa
                                 <PaqueteriaRow
                                     label="UN. CONFECCION"
                                     unidades={sectionData.unidadesConfeccion}
-                                    productividad={(sectionData.unidadesConfeccion || 0) / 120}
+                                    productividad={(sectionData.unidadesConfeccion || 0) / ratioConfeccion}
                                     isEditing={isEditing}
                                     onInputChange={onInputChange}
                                     unidadesId={`productividad.${dayKey}.productividadPorSeccion.${section.key}.unidadesConfeccion`}
@@ -102,7 +102,7 @@ const DayProductividad = ({ dayData, dayKey, isEditing, onInputChange }: { dayDa
                                 <PaqueteriaRow
                                     label="UN. PAQUETERIA"
                                     unidades={sectionData.unidadesPaqueteria}
-                                    productividad={(sectionData.unidadesPaqueteria || 0) / 80}
+                                    productividad={(sectionData.unidadesPaqueteria || 0) / ratioPaqueteria}
                                     isEditing={isEditing}
                                     onInputChange={onInputChange}
                                     unidadesId={`productividad.${dayKey}.productividadPorSeccion.${section.key}.unidadesPaqueteria`}
@@ -263,10 +263,10 @@ export function ProductividadTab({ data, isEditing, onInputChange }: Productivid
         </div>
 
         <TabsContent value="lunes" className="mt-0">
-           {data && data.lunes && <DayProductividad dayData={data.lunes} dayKey="lunes" isEditing={isEditing} onInputChange={onInputChange} />}
+           {data && data.productividad.lunes && <DayProductividad dayData={data.productividad.lunes} dayKey="lunes" ratios={data.listas.productividadRatio} isEditing={isEditing} onInputChange={onInputChange} />}
         </TabsContent>
         <TabsContent value="jueves" className="mt-0">
-           {data && data.jueves && <DayProductividad dayData={data.jueves} dayKey="jueves" isEditing={isEditing} onInputChange={onInputChange} />}
+           {data && data.productividad.jueves && <DayProductividad dayData={data.productividad.jueves} dayKey="jueves" ratios={data.listas.productividadRatio} isEditing={isEditing} onInputChange={onInputChange} />}
         </TabsContent>
     </Tabs>
   );

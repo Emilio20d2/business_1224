@@ -4,7 +4,7 @@ import React, { useState, useContext, useEffect, useCallback, Suspense } from 'r
 import type { WeeklyData, Empleado } from "@/lib/data";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from '@/lib/firebase';
-import { Calendar as CalendarIcon, Settings, LogOut, Loader2, Briefcase, List, LayoutDashboard, Pencil, Projector, Target } from 'lucide-react';
+import { Calendar as CalendarIcon, Settings, LogOut, Loader2, Briefcase, List, LayoutDashboard, Pencil, Projector, Target, SlidersHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -33,6 +33,7 @@ import { AlmacenesTab } from '@/components/dashboard/operaciones/almacenes-tab';
 import { MermaReposicionTab } from '@/components/dashboard/operaciones/merma-reposicion-tab';
 import { ProductividadTab } from '@/components/dashboard/operaciones/productividad-tab';
 import { FocusOperacionesTab } from '@/components/dashboard/operaciones/focus-operaciones-tab';
+import { EditRatiosDialog } from '@/components/dashboard/operaciones/edit-ratios-dialog';
 
 type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan' | 'compradorWoman' | 'zonaComercialWoman' | 'agrupacionComercialWoman' | 'compradorNino' | 'zonaComercialNino' | 'agrupacionComercialNino' | 'compradorExperiencia';
 
@@ -89,6 +90,10 @@ const ensureSectionSpecificData = (data: WeeklyData): WeeklyData => {
 
     if (data.focusOperaciones === undefined) data.focusOperaciones = '';
 
+    if (!data.listas.productividadRatio) {
+        data.listas.productividadRatio = getInitialLists().listas.productividadRatio;
+    }
+
 
     return data;
 }
@@ -107,6 +112,7 @@ function OperacionesPageComponent() {
   
   const [isListDialogOpen, setListDialogOpen] = useState(false);
   const [listToEdit, setListToEdit] = useState<{ listKey: EditableList, title: string } | null>(null);
+  const [isRatiosDialogOpen, setRatiosDialogOpen] = useState(false);
 
   const selectedWeek = searchParams.get('week') || '';
   const activeTab = "operaciones";
@@ -179,6 +185,13 @@ function OperacionesPageComponent() {
             listData.mermaTarget = getInitialLists().mermaTarget;
             if (canEdit) {
                 await updateDoc(listsRef, { mermaTarget: listData.mermaTarget });
+            }
+        }
+        
+        if (!listData.productividadRatio) {
+            listData.productividadRatio = getInitialLists().productividadRatio;
+            if (canEdit) {
+                await updateDoc(listsRef, { productividadRatio: listData.productividadRatio });
             }
         }
 
@@ -264,13 +277,15 @@ function OperacionesPageComponent() {
         if (keys[0] === 'productividad' && (keys.includes('unidadesConfeccion') || keys.includes('unidadesPaqueteria'))) {
             const dayKey = keys[1] as 'lunes' | 'jueves';
             const dayData = updatedData.productividad[dayKey];
-            
+            const ratioConfeccion = updatedData.listas.productividadRatio.confeccion || 120;
+            const ratioPaqueteria = updatedData.listas.productividadRatio.paqueteria || 80;
+
             const sections = ['woman', 'man', 'nino'] as const;
             const totalUnidadesConfeccion = sections.reduce((sum, sec) => sum + (dayData.productividadPorSeccion[sec]?.unidadesConfeccion || 0), 0);
             const totalUnidadesPaqueteria = sections.reduce((sum, sec) => sum + (dayData.productividadPorSeccion[sec]?.unidadesPaqueteria || 0), 0);
 
-            const horasConfeccionRequeridas = totalUnidadesConfeccion / 120;
-            const horasPaqueteriaRequeridas = totalUnidadesPaqueteria / 80;
+            const horasConfeccionRequeridas = totalUnidadesConfeccion / ratioConfeccion;
+            const horasPaqueteriaRequeridas = totalUnidadesPaqueteria / ratioPaqueteria;
             const horasProductividadRequeridas = horasConfeccionRequeridas + horasPaqueteriaRequeridas;
 
             const personasPorHora = Math.ceil(horasProductividadRequeridas / 3);
@@ -279,8 +294,8 @@ function OperacionesPageComponent() {
                 dayData.coberturaPorHoras[i].personas = personasPorHora;
             }
             for (let i = 3; i < dayData.coberturaPorHoras.length; i++) { // Reset rest
-                if (dayData.coberturaPorHoras[i].personas === personasPorHora) {
-                    dayData.coberturaPorHoras[i].personas = 0;
+                if (dayData.coberturaPorHoras[i].personas === personasPorHora && personasPorHora > 0) {
+                     dayData.coberturaPorHoras[i].personas = 0;
                 }
             }
         }
@@ -299,8 +314,16 @@ function OperacionesPageComponent() {
     
     try {
         await setDoc(reportDocRef, reportData, { merge: true });
-        if (listas && listas.mermaTarget) {
-            await updateDoc(listsDocRef, { mermaTarget: listas.mermaTarget });
+        
+        const listUpdates: Partial<WeeklyData['listas']> = {};
+        if (listas.mermaTarget) {
+            listUpdates.mermaTarget = listas.mermaTarget;
+        }
+        if (listas.productividadRatio) {
+            listUpdates.productividadRatio = listas.productividadRatio;
+        }
+        if (Object.keys(listUpdates).length > 0) {
+            await updateDoc(listsDocRef, listUpdates);
         }
 
         toast({
@@ -326,6 +349,11 @@ function OperacionesPageComponent() {
       setListToEdit({ listKey, title });
       setListDialogOpen(true);
   };
+  
+  const handleOpenRatiosDialog = () => {
+    if (!canEdit) return;
+    setRatiosDialogOpen(true);
+  }
 
   const handleSaveList = async (listKey: EditableList, newItems: string[]) => {
     if (!listKey || !canEdit) return;
@@ -349,6 +377,27 @@ function OperacionesPageComponent() {
             setIsSaving(false);
         });
   };
+  
+    const handleSaveRatios = async (newRatios: { paqueteria: number, confeccion: number }) => {
+        if (!canEdit) return;
+        setIsSaving(true);
+        const listsRef = doc(db, "configuracion", "listas");
+
+        try {
+            await updateDoc(listsRef, { productividadRatio: newRatios });
+            toast({
+                title: "Ratios actualizados",
+                description: "Los nuevos ratios de productividad se han guardado.",
+            });
+            setRatiosDialogOpen(false);
+            setSaveSuccess(true); // Trigger re-fetch
+        } catch (error: any) {
+            setError(`Error al guardar los ratios: ${error.message}`);
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
 
   
   const tabButtons = [
@@ -481,6 +530,11 @@ function OperacionesPageComponent() {
                   <DropdownMenuLabel>Opciones</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   {canEdit && (
+                    <>
+                      <DropdownMenuItem onSelect={handleOpenRatiosDialog}>
+                          <SlidersHorizontal className="mr-2 h-4 w-4 text-primary" />
+                          <span>Editar Ratios Prod.</span>
+                      </DropdownMenuItem>
                       <DropdownMenuSub>
                         <DropdownMenuSubTrigger>
                           <List className="mr-2 h-4 w-4 text-primary" />
@@ -508,6 +562,7 @@ function OperacionesPageComponent() {
                           </DropdownMenuSubContent>
                         </DropdownMenuPortal>
                       </DropdownMenuSub>
+                    </>
                     )}
                   {canEdit && <DropdownMenuSeparator />}
                   <DropdownMenuItem onSelect={() => {
@@ -551,7 +606,7 @@ function OperacionesPageComponent() {
                     </TabsContent>
                      <TabsContent value="productividad" className="mt-0">
                         <ProductividadTab 
-                            data={data.productividad}
+                            data={data}
                             isEditing={isEditing}
                             onInputChange={handleInputChange}
                         />
@@ -585,6 +640,14 @@ function OperacionesPageComponent() {
               }
             }}
           />
+        )}
+        {data && data.listas && (
+            <EditRatiosDialog
+                isOpen={isRatiosDialogOpen}
+                onClose={() => setRatiosDialogOpen(false)}
+                ratios={data.listas.productividadRatio}
+                onSave={handleSaveRatios}
+            />
         )}
       </div>
     </TooltipProvider>

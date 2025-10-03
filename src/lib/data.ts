@@ -119,6 +119,10 @@ export type WeeklyData = {
             man: number;
             nino: number;
         };
+        productividadRatio: {
+            paqueteria: number;
+            confeccion: number;
+        };
     };
     ventas: {
         totalEuros: number;
@@ -338,6 +342,10 @@ export function getInitialLists(): WeeklyData['listas'] {
             man: 0,
             nino: 0,
         },
+        productividadRatio: {
+            paqueteria: 80,
+            confeccion: 120,
+        }
     };
 }
 
