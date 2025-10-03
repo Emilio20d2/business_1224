@@ -1,14 +1,15 @@
 
 "use client";
 
-import React, { useState, useMemo } from 'react';
-import type { WeeklyData, Empleado, PlanificacionItem, ProductividadData } from "@/lib/data";
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import type { WeeklyData, Empleado, PlanificacionItem } from "@/lib/data";
 import { DatoSimple } from "../kpi-card";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, Printer } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 
@@ -17,6 +18,7 @@ type PlanificacionTabProps = {
   empleados: Empleado[];
   isEditing: boolean;
   onDataChange: React.Dispatch<React.SetStateAction<WeeklyData | null>>;
+  weekId: string;
 };
 
 const SectionPlanificacion = ({
@@ -31,7 +33,7 @@ const SectionPlanificacion = ({
     sectionKey: 'woman' | 'man' | 'nino',
     title: string,
     dayKey: 'lunes' | 'jueves',
-    dayData: ProductividadData,
+    dayData: WeeklyData['productividad']['lunes'] | WeeklyData['productividad']['jueves'],
     empleados: Empleado[],
     isEditing: boolean,
     onDataChange: PlanificacionTabProps['onDataChange'],
@@ -93,9 +95,10 @@ const SectionPlanificacion = ({
                 <div key={item.id} className="grid grid-cols-[1fr_1fr_auto] gap-2 items-center">
                     {isEditing ? (
                         <>
-                            <Select value={item.idEmpleado || ''} onValueChange={(value) => handlePlanChange(item.id, 'idEmpleado', value)}>
+                            <Select value={item.idEmpleado || 'VACIO'} onValueChange={(value) => handlePlanChange(item.id, 'idEmpleado', value === 'VACIO' ? '' : value)}>
                                 <SelectTrigger><SelectValue placeholder="Seleccionar..." /></SelectTrigger>
                                 <SelectContent>
+                                    <SelectItem value="VACIO">-- Vacío --</SelectItem>
                                     {empleados.map(e => <SelectItem key={e.id} value={e.id}>{e.nombre}</SelectItem>)}
                                 </SelectContent>
                             </Select>
@@ -131,14 +134,8 @@ const SectionPlanificacion = ({
             </CardHeader>
             <CardContent className="space-y-4">
                  <div className="flex justify-around items-center gap-4">
-                     <div className="flex items-center gap-4">
-                        <span className="font-semibold text-muted-foreground">Unidades Confección:</span>
-                        <span className="font-bold text-lg">{dayData.productividadPorSeccion[sectionKey]?.unidadesConfeccion || 0}</span>
-                    </div>
-                     <div className="flex items-center gap-4">
-                        <span className="font-semibold text-muted-foreground">Unidades Paquetería:</span>
-                        <span className="font-bold text-lg">{dayData.productividadPorSeccion[sectionKey]?.unidadesPaqueteria || 0}</span>
-                    </div>
+                    <DatoSimple label="Unidades Confección:" value={dayData.productividadPorSeccion[sectionKey]?.unidadesConfeccion || 0} />
+                    <DatoSimple label="Unidades Paquetería:" value={dayData.productividadPorSeccion[sectionKey]?.unidadesPaqueteria || 0} />
                 </div>
                 <div className="grid grid-cols-2 gap-6">
                     {renderColumn(confeccionItems, 'confeccion', 'CONFECCIÓN')}
@@ -158,7 +155,7 @@ const DayPlanificacion = ({
     onDataChange,
 }: { 
     dayKey: 'lunes' | 'jueves', 
-    dayData: ProductividadData, 
+    dayData: WeeklyData['productividad']['lunes'] | WeeklyData['productividad']['jueves'], 
     empleados: Empleado[], 
     isEditing: boolean, 
     onDataChange: PlanificacionTabProps['onDataChange'],
@@ -196,25 +193,37 @@ const DayPlanificacion = ({
     );
 };
 
-export function PlanificacionTab({ data, empleados, isEditing, onDataChange }: PlanificacionTabProps) {
+export function PlanificacionTab({ data, empleados, isEditing, onDataChange, weekId }: PlanificacionTabProps) {
   const [activeSubTab, setActiveSubTab] = useState('lunes');
-  
+  const router = useRouter();
+
   if (!data.productividad) return null;
+  
+  const handlePrint = () => {
+    const url = `/operaciones/print?week=${weekId}&day=${activeSubTab}`;
+    window.open(url, '_blank');
+  };
 
   return (
     <Tabs value={activeSubTab} onValueChange={setActiveSubTab} className="w-full font-light">
-        <div className="mb-4 grid w-full grid-cols-2 gap-2">
-            <Button
-                variant={activeSubTab === 'lunes' ? 'default' : 'outline'}
-                onClick={() => setActiveSubTab('lunes')}
-            >
-                LUNES
-            </Button>
-            <Button
-                variant={activeSubTab === 'jueves' ? 'default' : 'outline'}
-                onClick={() => setActiveSubTab('jueves')}
-            >
-                JUEVES
+        <div className="flex justify-between items-center mb-4">
+            <div className="grid w-full max-w-sm grid-cols-2 gap-2">
+                <Button
+                    variant={activeSubTab === 'lunes' ? 'default' : 'outline'}
+                    onClick={() => setActiveSubTab('lunes')}
+                >
+                    LUNES
+                </Button>
+                <Button
+                    variant={activeSubTab === 'jueves' ? 'default' : 'outline'}
+                    onClick={() => setActiveSubTab('jueves')}
+                >
+                    JUEVES
+                </Button>
+            </div>
+             <Button onClick={handlePrint} variant="outline">
+                <Printer className="mr-2 h-4 w-4" />
+                GENERAR PDF
             </Button>
         </div>
 

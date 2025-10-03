@@ -1,11 +1,10 @@
 
-
 "use client"
 import React, { useState, useContext, useEffect, useCallback, Suspense } from 'react';
 import type { WeeklyData, Empleado } from "@/lib/data";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from '@/lib/firebase';
-import { Calendar as CalendarIcon, Settings, LogOut, Loader2, Briefcase, List, LayoutDashboard, Pencil, Projector, Target, SlidersHorizontal, UserPlus } from 'lucide-react';
+import { Calendar as CalendarIcon, Settings, LogOut, Loader2, Briefcase, List, LayoutDashboard, Pencil, Projector, Target, SlidersHorizontal, UserPlus, Printer } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -628,6 +627,7 @@ function OperacionesPageComponent() {
                             isEditing={isEditing}
                             onDataChange={setData}
                             empleados={data.listas.empleados || []}
+                            weekId={selectedWeek}
                         />
                     </TabsContent>
                     <TabsContent value="focus" className="mt-0">
@@ -694,5 +694,3 @@ export default function OperacionesPage() {
         </Suspense>
     );
 }
-
-    
