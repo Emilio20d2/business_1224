@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Plus, Trash2, Printer } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { formatNumber } from '@/lib/format';
 
 type PlanificacionTabProps = {
   data: WeeklyData;
@@ -133,9 +134,15 @@ const SectionPlanificacion = ({
                 <CardTitle className="flex justify-between items-center">{title}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-                 <div className="flex justify-around items-center gap-4">
-                    <DatoSimple label="Unidades Confección:" value={dayData.productividadPorSeccion[sectionKey]?.unidadesConfeccion || 0} />
-                    <DatoSimple label="Unidades Paquetería:" value={dayData.productividadPorSeccion[sectionKey]?.unidadesPaqueteria || 0} />
+                 <div className="flex justify-around items-center gap-4 text-sm">
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-muted-foreground">Unidades Confección:</span>
+                      <span className="font-bold">{formatNumber(dayData.productividadPorSeccion[sectionKey]?.unidadesConfeccion) || 0}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-muted-foreground">Unidades Paquetería:</span>
+                      <span className="font-bold">{formatNumber(dayData.productividadPorSeccion[sectionKey]?.unidadesPaqueteria) || 0}</span>
+                    </div>
                 </div>
                 <div className="grid grid-cols-2 gap-6">
                     {renderColumn(confeccionItems, 'confeccion', 'CONFECCIÓN')}
