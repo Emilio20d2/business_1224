@@ -32,11 +32,11 @@ const PrintSection = ({
     const renderColumn = (items: PlanificacionItem[], columnTitle: string) => (
         <div className="flex flex-col gap-2">
             <h3 className="font-bold text-center text-muted-foreground uppercase text-sm">{columnTitle}</h3>
-            <div className="flex flex-col gap-1 text-sm border p-2 rounded-lg min-h-[100px]">
+            <div className="flex flex-col gap-2 text-sm min-h-[100px]">
                 {items.length > 0 ? items.map(item => (
-                    <div key={item.id} className="grid grid-cols-[1fr_1fr] gap-2 items-center">
-                        <p className="font-medium p-1 bg-gray-50 rounded text-xs">{item.nombreEmpleado || '--'}</p>
-                        <p className="text-xs text-muted-foreground p-1">{item.anotaciones || '--'}</p>
+                    <div key={item.id} className="grid grid-cols-[1fr_1fr] gap-4 items-center">
+                        <p className="font-medium text-sm">{item.nombreEmpleado || '--'}</p>
+                        <p className="text-sm text-muted-foreground">{item.anotaciones || '--'}</p>
                     </div>
                 )) : <p className="text-xs text-muted-foreground text-center pt-4">No asignado</p>}
             </div>
@@ -44,7 +44,7 @@ const PrintSection = ({
     );
 
     return (
-        <Card className="font-light break-inside-avoid">
+        <Card className="font-light break-inside-avoid shadow-none border-none">
             <CardHeader>
                 <CardTitle className="flex flex-col justify-center items-center text-base">
                     <span>{title}</span>
