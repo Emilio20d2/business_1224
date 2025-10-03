@@ -128,20 +128,19 @@ function ExperienciaPageComponent() {
         const reportRef = doc(db, "informes", weekId);
         const listsRef = doc(db, "configuracion", "listas");
 
-        const masterLists = getInitialLists();
+        let masterLists: WeeklyData['listas'];
 
         const [reportSnap, listsSnap] = await Promise.all([
             getDoc(reportRef),
             getDoc(listsRef),
         ]);
         
-        let listData: WeeklyData['listas'];
         if (listsSnap.exists()) {
-            listData = listsSnap.data() as WeeklyData['listas'];
+            masterLists = listsSnap.data() as WeeklyData['listas'];
         } else {
-            listData = masterLists;
+            masterLists = getInitialLists();
             if (canEdit) {
-              await setDoc(listsRef, listData);
+              await setDoc(listsRef, masterLists);
             }
         }
 
@@ -154,7 +153,7 @@ function ExperienciaPageComponent() {
                     title: "Creando nueva semana",
                     description: `El informe para "${weekId}" no existía y se ha creado uno nuevo.`,
                 });
-                reportData = getInitialDataForWeek(weekId, listData);
+                reportData = getInitialDataForWeek(weekId, masterLists);
                 await setDoc(reportRef, reportData);
             } else {
                 throw new Error(`No se encontró ningún informe para la semana "${weekId}".`);
@@ -163,16 +162,7 @@ function ExperienciaPageComponent() {
             reportData = reportSnap.data() as WeeklyData;
         }
 
-        const reportEmpleadosString = JSON.stringify(reportData.listas?.empleados?.sort((a,b) => a.id.localeCompare(b.id)));
-        const masterEmpleadosString = JSON.stringify(masterLists.empleados.sort((a,b) => a.id.localeCompare(b.id)));
-
-        if (reportEmpleadosString !== masterEmpleadosString) {
-            reportData.listas.empleados = masterLists.empleados;
-            if(canEdit) {
-                const docToUpdate = { 'listas.empleados': masterLists.empleados };
-                await updateDoc(reportRef, docToUpdate);
-            }
-        }
+        reportData.listas = masterLists;
 
         if (typeof reportData.focusSemanal === 'string' || !reportData.focusSemanal) {
             reportData.focusSemanal = {
@@ -202,7 +192,7 @@ function ExperienciaPageComponent() {
 
 
         if (!reportData.pedidos) {
-            reportData.pedidos = getInitialDataForWeek(weekId, listData as WeeklyData['listas']).pedidos;
+            reportData.pedidos = getInitialDataForWeek(weekId, masterLists).pedidos;
             needsSave = true;
         }
 
@@ -243,7 +233,7 @@ function ExperienciaPageComponent() {
 
 
   const handleInputChange = (path: string, value: any) => {
-    if (!canEdit) return;
+    if (!canEdit || !data) return;
 
     setData(prevData => {
         if (!prevData) return null;
@@ -291,14 +281,16 @@ function ExperienciaPageComponent() {
     setIsSaving(true);
     const docRef = doc(db, "informes", selectedWeek);
     
-    const dataToSave = {
-        focusSemanal: data.focusSemanal,
-        rendimientoTienda: data.rendimientoTienda,
-        general: data.general,
-        pedidos: data.pedidos,
+    // We only want to save specific parts of the data from this page
+    const {listas, ...dataToSave} = data;
+    const relevantData = {
+        focusSemanal: dataToSave.focusSemanal,
+        rendimientoTienda: dataToSave.rendimientoTienda,
+        general: dataToSave.general,
+        pedidos: dataToSave.pedidos,
     };
 
-    setDoc(docRef, dataToSave, { merge: true })
+    setDoc(docRef, relevantData, { merge: true })
         .then(() => {
             toast({
                 title: "¡Guardado!",
@@ -639,7 +631,7 @@ function ExperienciaPageComponent() {
             }}
           />
         )}
-        {data && (
+        {data && data.listas && (
             <EditEmpleadosDialog
                 isOpen={isEmpleadosDialogOpen}
                 onClose={() => setEmpleadosDialogOpen(false)}
