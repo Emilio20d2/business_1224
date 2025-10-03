@@ -30,7 +30,7 @@ const PaqueteriaRow = ({ label, unidades, horas, isEditing, onInputChange, baseP
                 valueId={unidadesId}
                 onInputChange={onInputChange}
                 unit="un."
-                align="center"
+                align="right"
             />
             <DatoSimple
                 value={horas}
@@ -38,7 +38,7 @@ const PaqueteriaRow = ({ label, unidades, horas, isEditing, onInputChange, baseP
                 valueId={horasId}
                 onInputChange={onInputChange}
                 unit="h"
-                align="center"
+                align="right"
             />
         </div>
     );
@@ -65,8 +65,8 @@ const DayProductividad = ({ dayData, dayKey, isEditing, onInputChange }: { dayDa
                         <div className="space-y-2 pt-2">
                             <div className="grid grid-cols-3 items-center text-center gap-2">
                                 <span className="text-sm font-semibold text-muted-foreground text-left"></span>
-                                <span className="text-sm font-semibold text-muted-foreground">Unidades</span>
-                                <span className="text-sm font-semibold text-muted-foreground">Horas</span>
+                                <span className="text-sm font-semibold text-muted-foreground text-right">Unidades</span>
+                                <span className="text-sm font-semibold text-muted-foreground text-right">Horas</span>
                             </div>
                             <Separator />
                             <PaqueteriaRow
