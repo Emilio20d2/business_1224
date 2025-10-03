@@ -13,7 +13,7 @@ type KpiCardProps = {
 export function KpiCard({ title, icon, children, className }: KpiCardProps) {
   return (
     <div className={cn("bg-card text-card-foreground rounded-xl p-3 flex flex-col gap-2 shadow", className)}>
-      <h3 className="flex items-center gap-3 text-base font-normal leading-none tracking-tight text-card-foreground/80 -m-3 mb-0 border-b p-3">
+      <h3 className="flex items-center gap-3 text-base font-light leading-none tracking-tight text-card-foreground/80 -m-3 mb-0 border-b p-3">
         {icon} {title}
       </h3>
       <div className="flex flex-col gap-2 h-full">
@@ -56,7 +56,7 @@ export function DatoDoble({ label, value, variation, unit, isEditing, valueId, v
   const valueColor = typeof rawValue === 'number' && rawValue < 0 ? 'text-red-600' : '';
 
   return (
-    <div className="flex justify-between items-baseline">
+    <div className="flex justify-between items-baseline font-light">
       {label && <span className="text-lg text-muted-foreground">{label}</span>}
       <div className="flex items-baseline gap-2">
         {isEditing && valueId ? (
@@ -171,7 +171,7 @@ export function DatoSimple({
                       inputMode="decimal" 
                       step="any" 
                       defaultValue={numericValue === 0 ? '0' : numericValue} 
-                      className={cn("text-lg w-16", align === 'right' ? 'text-right' : 'text-center')} 
+                      className={cn("text-lg w-24", align === 'right' ? 'text-right' : 'text-center')} 
                       id={valueId}
                       onChange={handleValueChange}
                     />
@@ -228,7 +228,7 @@ export function DatoSimple({
 
 
     return (
-        <div className={cn("flex w-full", alignmentClasses[align], className)}>
+        <div className={cn("flex w-full font-light", alignmentClasses[align], className)}>
             <div className={cn("flex flex-col gap-1 w-full", `items-${align}`)}>
               {(textLabel || iconToShow) && 
                 <span className="flex items-center gap-2 text-muted-foreground justify-center text-sm font-normal">
