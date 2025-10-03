@@ -238,23 +238,38 @@ function OperacionesPageComponent() {
         if (!prevData) return null;
 
         const updatedData = JSON.parse(JSON.stringify(prevData));
-        let current: any = updatedData;
+        
         const keys = path.split('.');
-
+        let current: any = updatedData;
         for (let i = 0; i < keys.length - 1; i++) {
             if (current[keys[i]] === undefined) {
                 current[keys[i]] = {};
             }
             current = current[keys[i]];
         }
-        
         const finalKey = keys[keys.length - 1];
         
+        const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
+        const cleanValue = isNaN(numericValue) || value === "" ? 0 : numericValue;
+
         if (keys[0] === 'focusOperaciones') {
             updatedData.focusOperaciones = value;
+        } else if (keys[0] === 'productividad' && keys.length === 4) {
+            const day = keys[1];
+            const section = keys[2];
+            const field = keys[3];
+            
+            const prodSection = updatedData.productividad[day].productividadPorSeccion[section];
+            prodSection[field] = cleanValue;
+
+            if (field === 'unidadesConfeccion') {
+                prodSection.horasConfeccion = cleanValue / 120;
+            } else if (field === 'unidadesPaqueteria') {
+                prodSection.horasPaqueteria = cleanValue / 80;
+            }
+
         } else {
-            const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
-            current[finalKey] = isNaN(numericValue) || value === "" ? 0 : numericValue;
+            current[finalKey] = cleanValue;
         }
         
         return updatedData;

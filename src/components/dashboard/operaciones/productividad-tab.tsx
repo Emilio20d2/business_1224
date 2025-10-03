@@ -4,7 +4,7 @@
 import React, { useState } from 'react';
 import type { ProductividadData, ProductividadSeccion } from "@/lib/data";
 import { KpiCard, DatoSimple } from "../kpi-card";
-import { Zap, Users, Euro, Package, Clock } from 'lucide-react';
+import { Zap, Users } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,7 +20,7 @@ type ProductividadTabProps = {
   onInputChange: (path: string, value: any, reorder?: boolean) => void;
 };
 
-const PaqueteriaRow = ({ label, unidades, horas, isEditing, onInputChange, basePath, unidadesId, horasId }: { label: string, unidades: number, horas: number, isEditing: boolean, onInputChange: any, basePath: string, unidadesId: string, horasId: string }) => {
+const PaqueteriaRow = ({ label, unidades, horas, isEditing, onInputChange, unidadesId }: { label: string, unidades: number, horas: number, isEditing: boolean, onInputChange: any, unidadesId: string }) => {
     return (
         <div className="grid grid-cols-3 items-center text-center gap-2">
             <span className="text-sm font-medium text-muted-foreground text-left">{label}</span>
@@ -32,14 +32,9 @@ const PaqueteriaRow = ({ label, unidades, horas, isEditing, onInputChange, baseP
                 unit="un."
                 align="right"
             />
-            <DatoSimple
-                value={horas}
-                isEditing={isEditing}
-                valueId={horasId}
-                onInputChange={onInputChange}
-                unit="h"
-                align="right"
-            />
+            <div className="text-right text-lg font-medium">
+                {(horas || 0).toFixed(2)}h
+            </div>
         </div>
     );
 };
@@ -71,13 +66,13 @@ const DayProductividad = ({ dayData, dayKey, isEditing, onInputChange }: { dayDa
                     <Separator />
                      <div className="grid grid-cols-3 items-center text-center gap-2">
                         <span className="text-sm font-medium text-muted-foreground text-left">UN. CONFECCION</span>
-                        <span className="text-lg font-medium text-right">{totalUnidadesConfeccion}un.</span>
-                        <span className="text-lg font-medium text-right">{totalHorasConfeccion}h</span>
+                        <span className="text-lg font-medium text-right">{totalUnidadesConfeccion} un.</span>
+                        <span className="text-lg font-medium text-right">{totalHorasConfeccion.toFixed(2)} h</span>
                     </div>
                      <div className="grid grid-cols-3 items-center text-center gap-2">
                         <span className="text-sm font-medium text-muted-foreground text-left">UN. PAQUETERIA</span>
-                        <span className="text-lg font-medium text-right">{totalUnidadesPaqueteria}un.</span>
-                        <span className="text-lg font-medium text-right">{totalHorasPaqueteria}h</span>
+                        <span className="text-lg font-medium text-right">{totalUnidadesPaqueteria} un.</span>
+                        <span className="text-lg font-medium text-right">{totalHorasPaqueteria.toFixed(2)} h</span>
                     </div>
                 </div>
             </KpiCard>
@@ -88,7 +83,7 @@ const DayProductividad = ({ dayData, dayKey, isEditing, onInputChange }: { dayDa
                     
                     return (
                         <KpiCard key={section.key} title={section.title} icon={<Users className="h-5 w-5 text-primary" />}>
-                            <div className="space-y-2 pt-2">
+                           <div className="space-y-2 pt-2">
                                 <div className="grid grid-cols-3 items-center text-center gap-2">
                                     <span className="text-sm font-semibold text-muted-foreground text-left"></span>
                                     <span className="text-sm font-semibold text-muted-foreground text-right">Unidades</span>
@@ -101,9 +96,7 @@ const DayProductividad = ({ dayData, dayKey, isEditing, onInputChange }: { dayDa
                                     horas={sectionData.horasConfeccion}
                                     isEditing={isEditing}
                                     onInputChange={onInputChange}
-                                    basePath={`productividad.${dayKey}.productividadPorSeccion.${section.key}`}
                                     unidadesId={`productividad.${dayKey}.productividadPorSeccion.${section.key}.unidadesConfeccion`}
-                                    horasId={`productividad.${dayKey}.productividadPorSeccion.${section.key}.horasConfeccion`}
                                 />
                                 <PaqueteriaRow
                                     label="UN. PAQUETERIA"
@@ -111,9 +104,7 @@ const DayProductividad = ({ dayData, dayKey, isEditing, onInputChange }: { dayDa
                                     horas={sectionData.horasPaqueteria}
                                     isEditing={isEditing}
                                     onInputChange={onInputChange}
-                                    basePath={`productividad.${dayKey}.productividadPorSeccion.${section.key}`}
                                     unidadesId={`productividad.${dayKey}.productividadPorSeccion.${section.key}.unidadesPaqueteria`}
-                                    horasId={`productividad.${dayKey}.productividadPorSeccion.${section.key}.horasPaqueteria`}
                                 />
                             </div>
                         </KpiCard>
@@ -149,10 +140,10 @@ export function ProductividadTab({ data, isEditing, onInputChange }: Productivid
         </div>
 
         <TabsContent value="lunes" className="mt-0">
-           {data && <DayProductividad dayData={data.lunes} dayKey="lunes" isEditing={isEditing} onInputChange={onInputChange} />}
+           {data && data.lunes && <DayProductividad dayData={data.lunes} dayKey="lunes" isEditing={isEditing} onInputChange={onInputChange} />}
         </TabsContent>
         <TabsContent value="jueves" className="mt-0">
-           {data && <DayProductividad dayData={data.jueves} dayKey="jueves" isEditing={isEditing} onInputChange={onInputChange} />}
+           {data && data.jueves && <DayProductividad dayData={data.jueves} dayKey="jueves" isEditing={isEditing} onInputChange={onInputChange} />}
         </TabsContent>
     </Tabs>
   );
