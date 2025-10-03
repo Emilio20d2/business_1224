@@ -62,18 +62,6 @@ const DayProductividad = ({ dayData, dayKey, isEditing, onInputChange }: { dayDa
     const horasPaqueteriaRequeridas = totalUnidadesPaqueteria / 80;
     const horasProductividadRequeridas = horasConfeccionRequeridas + horasPaqueteriaRequeridas;
 
-    const handleDistribute = () => {
-        const totalHoras = horasProductividadRequeridas;
-        const personasPorHora = Math.ceil(totalHoras / 3); // Distribute over 3 hours (7-10)
-
-        for (let i = 0; i < 3; i++) { // For 07-08, 08-09, 09-10
-            onInputChange(`productividad.${dayKey}.coberturaPorHoras.${i}.personas`, personasPorHora);
-        }
-        // Reset the rest
-        for (let i = 3; i < dayData.coberturaPorHoras.length; i++) {
-             onInputChange(`productividad.${dayKey}.coberturaPorHoras.${i}.personas`, 0);
-        }
-    };
     
     return (
         <div className="space-y-4">
@@ -111,9 +99,6 @@ const DayProductividad = ({ dayData, dayKey, isEditing, onInputChange }: { dayDa
                             <Users className="h-4 w-4" />
                             COBERTURA
                         </h4>
-                        {isEditing && (
-                            <Button size="sm" onClick={handleDistribute}>Distribuir Recursos</Button>
-                        )}
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div className="md:col-span-4 space-y-2">
@@ -218,4 +203,3 @@ export function ProductividadTab({ data, isEditing, onInputChange }: Productivid
     </Tabs>
   );
 }
-

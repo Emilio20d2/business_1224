@@ -260,6 +260,30 @@ function OperacionesPageComponent() {
         
         const finalKey = keys[keys.length - 1];
         current[finalKey] = cleanValue;
+
+        if (keys[0] === 'productividad' && (keys.includes('unidadesConfeccion') || keys.includes('unidadesPaqueteria'))) {
+            const dayKey = keys[1] as 'lunes' | 'jueves';
+            const dayData = updatedData.productividad[dayKey];
+            
+            const sections = ['woman', 'man', 'nino'] as const;
+            const totalUnidadesConfeccion = sections.reduce((sum, sec) => sum + (dayData.productividadPorSeccion[sec]?.unidadesConfeccion || 0), 0);
+            const totalUnidadesPaqueteria = sections.reduce((sum, sec) => sum + (dayData.productividadPorSeccion[sec]?.unidadesPaqueteria || 0), 0);
+
+            const horasConfeccionRequeridas = totalUnidadesConfeccion / 120;
+            const horasPaqueteriaRequeridas = totalUnidadesPaqueteria / 80;
+            const horasProductividadRequeridas = horasConfeccionRequeridas + horasPaqueteriaRequeridas;
+
+            const personasPorHora = Math.ceil(horasProductividadRequeridas / 3);
+
+            for (let i = 0; i < 3; i++) { // 7-10
+                dayData.coberturaPorHoras[i].personas = personasPorHora;
+            }
+            for (let i = 3; i < dayData.coberturaPorHoras.length; i++) { // Reset rest
+                if (dayData.coberturaPorHoras[i].personas === personasPorHora) {
+                    dayData.coberturaPorHoras[i].personas = 0;
+                }
+            }
+        }
         
         return updatedData;
     });
