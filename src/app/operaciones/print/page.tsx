@@ -6,7 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { WeeklyData, PlanificacionItem } from '@/lib/data';
-import { formatWeekIdToDateRange, formatNumber } from '@/lib/format';
+import { formatNumber } from '@/lib/format';
 import { Loader2, Share } from 'lucide-react';
 import Image from 'next/image';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -46,7 +46,7 @@ const PrintSection = ({
     );
 
     return (
-        <Card className="font-light break-inside-avoid shadow-none border-none">
+        <Card className="font-light break-inside-avoid">
             <CardHeader className="pb-2">
                 <CardTitle className="flex flex-col justify-center items-center text-base">
                     <span>{title}</span>
@@ -221,7 +221,7 @@ function PrintPlanificacionPageComponent() {
             <Image src="/Zara_Logo.svg.png" alt="Zara Logo" width={200} height={44} />
           </header>
 
-          <main className="grid grid-cols-3">
+          <main className="grid grid-cols-3 gap-4">
              <PrintSection 
                 title="WOMAN" 
                 planificacion={womanPlanificacion}
