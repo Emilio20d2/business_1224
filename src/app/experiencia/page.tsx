@@ -498,7 +498,7 @@ function ExperienciaPageComponent() {
                 <DropdownMenuContent className="w-56 z-50">
                   <DropdownMenuLabel>Opciones</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  {canEdit && (
+                   {canEdit && (
                       <>
                       <DropdownMenuItem onSelect={() => setEmpleadosDialogOpen(true)}>
                         <UserPlus className="mr-2 h-4 w-4 text-primary" />
