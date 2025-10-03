@@ -5,7 +5,7 @@ import React, { useState, useEffect, Suspense, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import type { WeeklyData, ProductividadData } from '@/lib/data';
+import { getInitialDataForWeek, getInitialLists, type WeeklyData, type ProductividadData } from '@/lib/data';
 import { formatNumber } from '@/lib/format';
 import { Loader2, Download, Box, Zap } from 'lucide-react';
 import Image from 'next/image';
@@ -49,16 +49,28 @@ function PrintProductividadPageComponent() {
             getDoc(listsRef),
         ]);
 
-        if (reportSnap.exists() && listsSnap.exists()) {
-          const reportData = reportSnap.data() as WeeklyData;
-          reportData.listas = listsSnap.data() as WeeklyData['listas'];
-          if (!reportData.listas.productividadRatio) {
-            reportData.listas.productividadRatio = { picking: 400, perchado: 80, confeccion: 120, porcentajePerchado: 40, porcentajePicking: 60 };
-          }
-          setData(reportData);
+        let reportData: WeeklyData;
+        let listData: WeeklyData['listas'];
+
+        if (listsSnap.exists()) {
+            listData = listsSnap.data() as WeeklyData['listas'];
         } else {
-          setError(`No se encontró ningún informe o configuración para la semana "${weekId}".`);
+            listData = getInitialLists();
         }
+
+        if (reportSnap.exists()) {
+            reportData = reportSnap.data() as WeeklyData;
+        } else {
+            reportData = getInitialDataForWeek(weekId, listData);
+        }
+
+        reportData.listas = listData;
+
+        if (!reportData.listas.productividadRatio) {
+            reportData.listas.productividadRatio = getInitialLists().productividadRatio;
+        }
+        setData(reportData);
+
       } catch (err: any) {
         setError(`Error al cargar el informe: ${err.message}.`);
       } finally {
@@ -266,5 +278,3 @@ export default function PrintProductividadPage() {
         </Suspense>
     );
 }
-
-    
