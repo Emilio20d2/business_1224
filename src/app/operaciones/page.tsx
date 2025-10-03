@@ -77,9 +77,15 @@ const ensureSectionSpecificData = (data: WeeklyData): WeeklyData => {
     if (!data.general.logistica) data.general.logistica = JSON.parse(JSON.stringify(defaultSectionData.logistica));
     if (!data.general.almacenes) data.general.almacenes = JSON.parse(JSON.stringify(defaultSectionData.almacenes));
 
-    if (!data.productividad) data.productividad = defaultData.productividad;
-    if (!data.productividad.lunes) data.productividad.lunes = defaultData.productividad.lunes;
-    if (!data.productividad.jueves) data.productividad.jueves = defaultData.productividad.jueves;
+    if (!data.productividad) {
+        data.productividad = defaultData.productividad;
+    } else {
+        if (!data.productividad.lunes) data.productividad.lunes = defaultData.productividad.lunes;
+        if (!data.productividad.jueves) data.productividad.jueves = defaultData.productividad.jueves;
+        if (!data.productividad.lunes.coberturaPorHoras) data.productividad.lunes.coberturaPorHoras = defaultData.productividad.lunes.coberturaPorHoras;
+        if (!data.productividad.jueves.coberturaPorHoras) data.productividad.jueves.coberturaPorHoras = defaultData.productividad.jueves.coberturaPorHoras;
+    }
+
 
     if (data.focusOperaciones === undefined) data.focusOperaciones = '';
 
