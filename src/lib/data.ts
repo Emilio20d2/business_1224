@@ -62,6 +62,14 @@ export type CoberturaHora = {
     personas: number;
 };
 
+export type PlanificacionItem = {
+    id: string; // uuid
+    idEmpleado: string;
+    nombreEmpleado: string;
+    tarea: string;
+    horasAsignadas: number;
+};
+
 export type ProductividadData = {
     productividadPorSeccion: {
         woman: ProductividadSeccion;
@@ -69,6 +77,7 @@ export type ProductividadData = {
         nino: ProductividadSeccion;
     };
     coberturaPorHoras: CoberturaHora[];
+    planificacion: PlanificacionItem[];
 };
 
 
@@ -413,6 +422,7 @@ const createInitialProductividadData = (): ProductividadData => ({
         { hora: "13-14", personas: 0 },
         { hora: "14-15", personas: 0 },
     ],
+    planificacion: [],
 });
 
 

@@ -36,6 +36,7 @@ import { ProductividadTab } from '@/components/dashboard/operaciones/productivid
 import { FocusOperacionesTab } from '@/components/dashboard/operaciones/focus-operaciones-tab';
 import { EditRatiosDialog } from '@/components/dashboard/operaciones/edit-ratios-dialog';
 import { EditEmpleadosDialog } from '@/components/dashboard/edit-empleados-dialog';
+import { PlanificacionTab } from '@/components/dashboard/operaciones/planificacion-tab';
 
 
 type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan' | 'compradorWoman' | 'zonaComercialWoman' | 'agrupacionComercialWoman' | 'compradorNino' | 'zonaComercialNino' | 'agrupacionComercialNino';
@@ -87,13 +88,15 @@ const ensureSectionSpecificData = (data: WeeklyData): WeeklyData => {
         if (!data.productividad.jueves) data.productividad.jueves = defaultData.productividad.jueves;
         if (!data.productividad.lunes.coberturaPorHoras) data.productividad.lunes.coberturaPorHoras = defaultData.productividad.lunes.coberturaPorHoras;
         if (!data.productividad.jueves.coberturaPorHoras) data.productividad.jueves.coberturaPorHoras = defaultData.productividad.jueves.coberturaPorHoras;
+        if (!data.productividad.lunes.planificacion) data.productividad.lunes.planificacion = [];
+        if (!data.productividad.jueves.planificacion) data.productividad.jueves.planificacion = [];
     }
 
 
     if (data.focusOperaciones === undefined) data.focusOperaciones = '';
 
     if (!data.listas.productividadRatio) {
-        data.listas.productividadRatio = getInitialLists().listas.productividadRatio;
+        data.listas.productividadRatio = getInitialLists().productividadRatio;
     }
 
     return data;
@@ -358,7 +361,7 @@ function OperacionesPageComponent() {
         });
   };
   
-    const handleSaveRatios = async (newRatios: { paqueteria: number, confeccion: number }) => {
+    const handleSaveRatios = async (newRatios: WeeklyData['listas']['productividadRatio']) => {
         if (!canEdit) return;
         setIsSaving(true);
         const listsRef = doc(db, "configuracion", "listas");
@@ -404,6 +407,7 @@ function OperacionesPageComponent() {
     { value: 'almacenes', label: 'ALMACENES' },
     { value: 'mermaReposicion', label: 'MERMA Y REPOSICIÓN' },
     { value: 'productividad', label: 'PRODUCTIVIDAD' },
+    { value: 'planificacion', label: 'PLANIFICACIÓN' },
     { value: 'focus', label: 'FOCUS' },
   ];
 
@@ -582,7 +586,7 @@ function OperacionesPageComponent() {
         <main>
            {data ? (
                 <Tabs value={activeSubTab} onValueChange={setActiveSubTab} className="w-full">
-                    <div className="mb-4 grid w-full grid-cols-2 md:grid-cols-4 gap-2">
+                    <div className="mb-4 grid w-full grid-cols-2 md:grid-cols-5 gap-2">
                         {tabButtons.map(tab => (
                             <Button
                                 key={tab.value}
@@ -610,6 +614,14 @@ function OperacionesPageComponent() {
                             data={data}
                             isEditing={isEditing}
                             onInputChange={handleInputChange}
+                        />
+                    </TabsContent>
+                    <TabsContent value="planificacion" className="mt-0">
+                        <PlanificacionTab
+                            data={data}
+                            isEditing={isEditing}
+                            onDataChange={setData}
+                            empleados={data.listas.empleados}
                         />
                     </TabsContent>
                     <TabsContent value="focus" className="mt-0">
