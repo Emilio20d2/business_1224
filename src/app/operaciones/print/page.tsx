@@ -35,7 +35,7 @@ const PrintSection = ({
             <div className="flex flex-col text-sm min-h-[100px]">
                 {items.length > 0 ? items.map(item => (
                     <div key={item.id} className="grid grid-cols-[1fr_1.5fr] items-center">
-                        <p className="font-medium text-sm">{item.nombreEmpleado || '--'}</p>
+                        <p className="font-medium text-sm">{(item.nombreEmpleado && item.nombreEmpleado.split(' ')[0]) || '--'}</p>
                         <p className="text-sm text-muted-foreground">{item.anotaciones || '--'}</p>
                     </div>
                 )) : <p className="text-xs text-muted-foreground text-center pt-4">No asignado</p>}
@@ -210,7 +210,7 @@ function PrintPlanificacionPageComponent() {
             <Image src="/Zara_Logo.svg.png" alt="Zara Logo" width={200} height={44} />
           </header>
 
-          <main className="grid grid-cols-3 gap-6">
+          <main className="grid grid-cols-3">
              <PrintSection 
                 title="WOMAN" 
                 planificacion={womanPlanificacion}
