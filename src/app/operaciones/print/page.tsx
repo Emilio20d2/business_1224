@@ -6,7 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { WeeklyData, PlanificacionItem } from '@/lib/data';
-import { formatWeekIdToDateRange } from '@/lib/format';
+import { formatWeekIdToDateRange, formatNumber } from '@/lib/format';
 import { Loader2, Download } from 'lucide-react';
 import Image from 'next/image';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -16,10 +16,14 @@ import html2canvas from 'html2canvas';
 
 const PrintSection = ({
     title,
-    planificacion
+    planificacion,
+    unidadesConfeccion,
+    unidadesPaqueteria,
 }: {
     title: string;
     planificacion: PlanificacionItem[];
+    unidadesConfeccion: number;
+    unidadesPaqueteria: number;
 }) => {
     const safePlanificacion = Array.isArray(planificacion) ? planificacion : [];
     const confeccionItems = safePlanificacion.filter(p => p.tarea === 'confeccion');
@@ -42,7 +46,13 @@ const PrintSection = ({
     return (
         <Card className="font-light break-inside-avoid">
             <CardHeader>
-                <CardTitle className="flex justify-center items-center text-base">{title}</CardTitle>
+                <CardTitle className="flex flex-col justify-center items-center text-base">
+                    <span>{title}</span>
+                    <div className="flex justify-around items-center gap-4 text-xs font-normal text-muted-foreground mt-2">
+                        <span>Un. Confección: <strong className="text-foreground">{formatNumber(unidadesConfeccion)}</strong></span>
+                        <span>Un. Paquetería: <strong className="text-foreground">{formatNumber(unidadesPaqueteria)}</strong></span>
+                    </div>
+                </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
@@ -201,9 +211,24 @@ function PrintPlanificacionPageComponent() {
           </header>
 
           <main className="grid grid-cols-3 gap-6">
-            <PrintSection title="WOMAN" planificacion={womanPlanificacion} />
-            <PrintSection title="MAN" planificacion={manPlanificacion} />
-            <PrintSection title="NIÑO" planificacion={ninoPlanificacion} />
+             <PrintSection 
+                title="WOMAN" 
+                planificacion={womanPlanificacion}
+                unidadesConfeccion={dayData.productividadPorSeccion?.woman?.unidadesConfeccion || 0}
+                unidadesPaqueteria={dayData.productividadPorSeccion?.woman?.unidadesPaqueteria || 0}
+            />
+            <PrintSection 
+                title="MAN" 
+                planificacion={manPlanificacion}
+                unidadesConfeccion={dayData.productividadPorSeccion?.man?.unidadesConfeccion || 0}
+                unidadesPaqueteria={dayData.productividadPorSeccion?.man?.unidadesPaqueteria || 0}
+            />
+            <PrintSection 
+                title="NIÑO" 
+                planificacion={ninoPlanificacion} 
+                unidadesConfeccion={dayData.productividadPorSeccion?.nino?.unidadesConfeccion || 0}
+                unidadesPaqueteria={dayData.productividadPorSeccion?.nino?.unidadesPaqueteria || 0}
+            />
           </main>
 
           <footer className="absolute bottom-4 right-8 text-right">
