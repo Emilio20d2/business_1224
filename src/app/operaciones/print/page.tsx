@@ -1,13 +1,13 @@
 
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, Suspense, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { WeeklyData, Empleado, PlanificacionItem } from '@/lib/data';
 import { formatWeekIdToDateRange } from '@/lib/format';
-import { Loader2, Printer } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -53,7 +53,6 @@ const PrintSection = ({
 
 
 function PrintPlanificacionPageComponent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const weekId = searchParams.get('week') || '';
   const day = searchParams.get('day') || 'lunes';
@@ -61,6 +60,7 @@ function PrintPlanificacionPageComponent() {
   const [data, setData] = useState<WeeklyData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const hasPrinted = useRef(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -86,6 +86,13 @@ function PrintPlanificacionPageComponent() {
 
     fetchData();
   }, [weekId]);
+
+  useEffect(() => {
+    if (!loading && data && !hasPrinted.current) {
+      hasPrinted.current = true;
+      window.print();
+    }
+  }, [loading, data]);
 
 
   if (loading) {
@@ -131,9 +138,6 @@ function PrintPlanificacionPageComponent() {
               -webkit-print-color-adjust: exact;
               print-color-adjust: exact;
             }
-            .no-print {
-              display: none;
-            }
              @page {
                 size: landscape;
                 margin: 1cm;
@@ -147,10 +151,6 @@ function PrintPlanificacionPageComponent() {
             <p className="text-lg text-gray-500">{formatWeekIdToDateRange(weekId)}</p>
          </div>
          <Image src="/Zara_Logo.svg.png" alt="Zara Logo" width={200} height={44} />
-         <Button onClick={() => window.print()} className="no-print">
-            <Printer className="mr-2 h-4 w-4"/>
-            GENERAR PDF
-        </Button>
       </header>
 
       <main className="grid grid-cols-3 gap-6">
