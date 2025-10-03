@@ -217,7 +217,7 @@ const DayProductividad = ({ dayData, dayKey, ratios, isEditing, onInputChange }:
                                     return (
                                         <div key={item.hora} className={cn(
                                             "p-1 rounded", 
-                                            isEditing && (objetivoCumplido ? 'bg-green-100 dark:bg-green-900/30' : 'bg-red-100 dark:bg-red-900/30')
+                                            (objetivoCumplido ? 'bg-green-100 dark:bg-green-900/30' : 'bg-red-100 dark:bg-red-900/30')
                                         )}>
                                             <DatoSimple
                                                 value={item.personas}
