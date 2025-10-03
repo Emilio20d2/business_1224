@@ -4,13 +4,13 @@
 import React, { useState } from 'react';
 import type { ProductividadData, CoberturaHora } from "@/lib/data";
 import { KpiCard, DatoSimple } from "../kpi-card";
-import { Zap, Users } from 'lucide-react';
+import { Zap, Users, Scissors, Package } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
-import { DistribucionRecursosCard } from './distribucion-recursos-card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 
 type ProductividadTabProps = {
@@ -63,10 +63,57 @@ const DayProductividad = ({ dayData, dayKey, isEditing, onInputChange }: { dayDa
     const horasPaqueteriaRequeridas = totalUnidadesPaqueteria / 80;
     const horasProductividadRequeridas = horasConfeccionRequeridas + horasPaqueteriaRequeridas;
 
+    const confeccionData = sections.map(sec => ({
+      title: sec.title,
+      unidades: dayData.productividadPorSeccion[sec.key]?.unidadesConfeccion || 0,
+      horas: (dayData.productividadPorSeccion[sec.key]?.unidadesConfeccion || 0) / 120,
+    }));
+
+    const paqueteriaData = sections.map(sec => ({
+      title: sec.title,
+      unidades: dayData.productividadPorSeccion[sec.key]?.unidadesPaqueteria || 0,
+      horas: (dayData.productividadPorSeccion[sec.key]?.unidadesPaqueteria || 0) / 80,
+    }));
     
     return (
         <div className="space-y-4">
-             <KpiCard title="TOTAL" icon={<Zap className="h-5 w-5 text-primary" />}>
+             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {sections.map(section => {
+                    const sectionData = dayData.productividadPorSeccion[section.key];
+                    if (!sectionData) return null;
+                    
+                    return (
+                        <KpiCard key={section.key} title={section.title} icon={<Users className="h-5 w-5 text-primary" />}>
+                           <div className="space-y-2 pt-2">
+                                <div className="grid grid-cols-3 items-center text-center gap-2">
+                                    <span className="text-sm font-semibold text-muted-foreground text-left"></span>
+                                    <span className="text-sm font-semibold text-muted-foreground text-right">Unidades</span>
+                                    <span className="text-sm font-semibold text-muted-foreground text-right">Productividad</span>
+                                </div>
+                                <Separator />
+                                <PaqueteriaRow
+                                    label="UN. CONFECCION"
+                                    unidades={sectionData.unidadesConfeccion}
+                                    productividad={(sectionData.unidadesConfeccion || 0) / 120}
+                                    isEditing={isEditing}
+                                    onInputChange={onInputChange}
+                                    unidadesId={`productividad.${dayKey}.productividadPorSeccion.${section.key}.unidadesConfeccion`}
+                                />
+                                <PaqueteriaRow
+                                    label="UN. PAQUETERIA"
+                                    unidades={sectionData.unidadesPaqueteria}
+                                    productividad={(sectionData.unidadesPaqueteria || 0) / 80}
+                                    isEditing={isEditing}
+                                    onInputChange={onInputChange}
+                                    unidadesId={`productividad.${dayKey}.productividadPorSeccion.${section.key}.unidadesPaqueteria`}
+                                />
+                            </div>
+                        </KpiCard>
+                    );
+                })}
+            </div>
+
+            <KpiCard title="TOTAL" icon={<Zap className="h-5 w-5 text-primary" />}>
                 <div className="space-y-4 pt-2">
                     <div className="grid grid-cols-3 items-center text-center gap-2">
                         <span className="text-sm font-semibold text-muted-foreground text-left"></span>
@@ -90,6 +137,61 @@ const DayProductividad = ({ dayData, dayKey, isEditing, onInputChange }: { dayDa
                         <span></span>
                         <span className="text-lg font-bold text-right">{roundToQuarter(horasProductividadRequeridas)} h</span>
                     </div>
+                </div>
+
+                <Separator className="my-4"/>
+                
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                        <h4 className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
+                            <Scissors className="h-4 w-4" />
+                            CONFECCIÓN
+                        </h4>
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Sección</TableHead>
+                                    <TableHead className="text-right">Unidades</TableHead>
+                                    <TableHead className="text-right">Horas</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {confeccionData.map(item => (
+                                    <TableRow key={item.title}>
+                                        <TableCell>{item.title}</TableCell>
+                                        <TableCell className="text-right">{item.unidades}</TableCell>
+                                        <TableCell className="text-right">{roundToQuarter(item.horas)}h</TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                      </div>
+                    <div className="space-y-2">
+                        <h4 className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
+                        <Package className="h-4 w-4" />
+                        PAQUETERÍA
+                        </h4>
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Sección</TableHead>
+                                    <TableHead className="text-right">Unidades</TableHead>
+                                    <TableHead className="text-right">Horas</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {paqueteriaData.map(item => (
+                                    <TableRow key={item.title}>
+                                        <TableCell>{item.title}</TableCell>
+                                        <TableCell className="text-right">{item.unidades}</TableCell>
+                                        <TableCell className="text-right">{roundToQuarter(item.horas)}h</TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </div>
+                  </div>
                 </div>
 
                 <Separator className="my-4"/>
@@ -132,44 +234,6 @@ const DayProductividad = ({ dayData, dayKey, isEditing, onInputChange }: { dayDa
                     </div>
                 </div>
             </KpiCard>
-            
-            <DistribucionRecursosCard dayData={dayData} />
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {sections.map(section => {
-                    const sectionData = dayData.productividadPorSeccion[section.key];
-                    if (!sectionData) return null;
-                    
-                    return (
-                        <KpiCard key={section.key} title={section.title} icon={<Users className="h-5 w-5 text-primary" />}>
-                           <div className="space-y-2 pt-2">
-                                <div className="grid grid-cols-3 items-center text-center gap-2">
-                                    <span className="text-sm font-semibold text-muted-foreground text-left"></span>
-                                    <span className="text-sm font-semibold text-muted-foreground text-right">Unidades</span>
-                                    <span className="text-sm font-semibold text-muted-foreground text-right">Productividad</span>
-                                </div>
-                                <Separator />
-                                <PaqueteriaRow
-                                    label="UN. CONFECCION"
-                                    unidades={sectionData.unidadesConfeccion}
-                                    productividad={(sectionData.unidadesConfeccion || 0) / 120}
-                                    isEditing={isEditing}
-                                    onInputChange={onInputChange}
-                                    unidadesId={`productividad.${dayKey}.productividadPorSeccion.${section.key}.unidadesConfeccion`}
-                                />
-                                <PaqueteriaRow
-                                    label="UN. PAQUETERIA"
-                                    unidades={sectionData.unidadesPaqueteria}
-                                    productividad={(sectionData.unidadesPaqueteria || 0) / 80}
-                                    isEditing={isEditing}
-                                    onInputChange={onInputChange}
-                                    unidadesId={`productividad.${dayKey}.productividadPorSeccion.${section.key}.unidadesPaqueteria`}
-                                />
-                            </div>
-                        </KpiCard>
-                    );
-                })}
-            </div>
         </div>
     );
 }
