@@ -4,17 +4,20 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Trophy, User, Hash, Package, Boxes } from 'lucide-react';
+import { Trophy, User, Hash, Package, Boxes, Pencil } from 'lucide-react';
 import { formatNumber } from '@/lib/format';
+import { Button } from '../ui/button';
 
 type RankingEmpleadosCardProps = {
     ranking: PedidosData['rankingEmpleados'];
     empleados: Empleado[];
     isEditing: boolean;
+    canEdit: boolean;
+    onEditEmpleados: () => void;
     onInputChange: (path: string, value: string | number) => void;
 };
 
-export function RankingEmpleadosCard({ ranking, empleados, isEditing, onInputChange }: RankingEmpleadosCardProps) {
+export function RankingEmpleadosCard({ ranking, empleados, isEditing, canEdit, onEditEmpleados, onInputChange }: RankingEmpleadosCardProps) {
     
     const handleSelectChange = (rowIndex: number, employeeId: string) => {
         const valueToSave = employeeId === 'VACIO' ? '' : employeeId;
@@ -29,9 +32,16 @@ export function RankingEmpleadosCard({ ranking, empleados, isEditing, onInputCha
     return (
         <Card>
             <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                    <Trophy className="h-5 w-5 text-yellow-500" />
-                    Ranking de Empleados
+                <CardTitle className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                        <Trophy className="h-5 w-5 text-yellow-500" />
+                        Ranking de Empleados
+                    </div>
+                     {canEdit && (
+                        <Button variant="ghost" size="icon" onClick={onEditEmpleados}>
+                            <Pencil className="h-4 w-4" />
+                        </Button>
+                    )}
                 </CardTitle>
             </CardHeader>
             <CardContent>
