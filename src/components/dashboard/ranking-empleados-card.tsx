@@ -48,7 +48,6 @@ export function RankingEmpleadosCard({ ranking, empleados, isEditing, canEdit, o
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead className="w-[120px]"><Hash className="h-4 w-4 inline-block mr-1"/>ID Empleado</TableHead>
                             <TableHead><User className="h-4 w-4 inline-block mr-1"/>Empleado</TableHead>
                             <TableHead className="text-right"><Package className="h-4 w-4 inline-block mr-1"/>Pedidos</TableHead>
                             <TableHead className="text-right"><Boxes className="h-4 w-4 inline-block mr-1"/>Unidades</TableHead>
@@ -78,10 +77,9 @@ export function RankingEmpleadosCard({ ranking, empleados, isEditing, canEdit, o
                                             </SelectContent>
                                         </Select>
                                     ) : (
-                                        item.id || <span className="text-muted-foreground">N/A</span>
+                                        item.nombre || <span className="text-muted-foreground">N/A</span>
                                     )}
                                 </TableCell>
-                                <TableCell>{item.nombre || <span className="text-muted-foreground">--</span>}</TableCell>
                                 <TableCell className="text-right">
                                     {isEditing ? (
                                         <Input

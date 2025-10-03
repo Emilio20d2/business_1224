@@ -133,7 +133,7 @@ const SectionPlanificacion = ({
                         <TableRow key={item.id}>
                             <TableCell>
                                 {isEditing ? (
-                                    <Select value={item.idEmpleado} onValueChange={(value) => handlePlanChange(item.id, 'idEmpleado', value)}>
+                                    <Select value={item.idEmpleado || ''} onValueChange={(value) => handlePlanChange(item.id, 'idEmpleado', value)}>
                                         <SelectTrigger><SelectValue placeholder="Seleccionar..." /></SelectTrigger>
                                         <SelectContent>
                                             {empleados.map(e => <SelectItem key={e.id} value={e.id}>{e.nombre}</SelectItem>)}
