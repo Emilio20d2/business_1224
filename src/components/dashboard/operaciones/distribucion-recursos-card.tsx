@@ -1,9 +1,10 @@
+
 "use client";
 
 import React from 'react';
 import type { ProductividadData } from "@/lib/data";
 import { KpiCard } from "../kpi-card";
-import { Users, SewingPin, Package } from 'lucide-react';
+import { Users, Scissors, Package } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
@@ -48,7 +49,7 @@ export function DistribucionRecursosCard({ dayData }: DistribucionRecursosCardPr
           {/* Confección */}
           <div className="space-y-2">
             <h4 className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
-              <SewingPin className="h-4 w-4" />
+              <Scissors className="h-4 w-4" />
               CONFECCIÓN
             </h4>
             <Table>
