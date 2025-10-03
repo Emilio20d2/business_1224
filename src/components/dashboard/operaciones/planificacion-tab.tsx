@@ -3,12 +3,12 @@
 
 import React, { useState, useMemo } from 'react';
 import type { WeeklyData, Empleado, PlanificacionItem, ProductividadData } from "@/lib/data";
-import { KpiCard, DatoSimple } from "../kpi-card";
+import { DatoSimple } from "../kpi-card";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Plus, Trash2, Users, Box, Shirt } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 
@@ -27,7 +27,6 @@ const SectionPlanificacion = ({
     empleados,
     isEditing,
     onDataChange,
-    onInputChange
 }: {
     sectionKey: 'woman' | 'man' | 'nino',
     title: string,
@@ -36,7 +35,6 @@ const SectionPlanificacion = ({
     empleados: Empleado[],
     isEditing: boolean,
     onDataChange: PlanificacionTabProps['onDataChange'],
-    onInputChange: (path: string, value: any) => void;
 }) => {
     const planificacionSeccion = dayData.planificacion.filter(p => p.seccion === sectionKey);
     const confeccionItems = planificacionSeccion.filter(p => p.tarea === 'confeccion');
@@ -132,23 +130,15 @@ const SectionPlanificacion = ({
                 <CardTitle className="flex justify-between items-center">{title}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-                 <div className="grid grid-cols-2 gap-4 items-center">
-                     <DatoSimple
-                        label="Unidades Confección"
-                        value={dayData.productividadPorSeccion[sectionKey]?.unidadesConfeccion || 0}
-                        isEditing={isEditing}
-                        onInputChange={(path, val) => onInputChange(path, val)}
-                        valueId={`productividad.${dayKey}.productividadPorSeccion.${sectionKey}.unidadesConfeccion`}
-                        align="left"
-                    />
-                    <DatoSimple
-                        label="Unidades Paquetería"
-                        value={dayData.productividadPorSeccion[sectionKey]?.unidadesPaqueteria || 0}
-                        isEditing={isEditing}
-                        onInputChange={(path, val) => onInputChange(path, val)}
-                        valueId={`productividad.${dayKey}.productividadPorSeccion.${sectionKey}.unidadesPaqueteria`}
-                        align="left"
-                    />
+                 <div className="flex justify-around items-center gap-4">
+                     <div className="flex items-center gap-4">
+                        <span className="font-semibold text-muted-foreground">Unidades Confección:</span>
+                        <span className="font-bold text-lg">{dayData.productividadPorSeccion[sectionKey]?.unidadesConfeccion || 0}</span>
+                    </div>
+                     <div className="flex items-center gap-4">
+                        <span className="font-semibold text-muted-foreground">Unidades Paquetería:</span>
+                        <span className="font-bold text-lg">{dayData.productividadPorSeccion[sectionKey]?.unidadesPaqueteria || 0}</span>
+                    </div>
                 </div>
                 <div className="grid grid-cols-2 gap-6">
                     {renderColumn(confeccionItems, 'confeccion', 'CONFECCIÓN')}
@@ -166,14 +156,12 @@ const DayPlanificacion = ({
     empleados, 
     isEditing, 
     onDataChange,
-    onInputChange
 }: { 
     dayKey: 'lunes' | 'jueves', 
     dayData: ProductividadData, 
     empleados: Empleado[], 
     isEditing: boolean, 
     onDataChange: PlanificacionTabProps['onDataChange'],
-    onInputChange: (path: string, value: any) => void;
 }) => {
     return (
         <div className="space-y-6 font-light">
@@ -185,7 +173,6 @@ const DayPlanificacion = ({
                 empleados={empleados}
                 isEditing={isEditing}
                 onDataChange={onDataChange}
-                onInputChange={onInputChange}
             />
             <SectionPlanificacion
                 sectionKey="man"
@@ -195,7 +182,6 @@ const DayPlanificacion = ({
                 empleados={empleados}
                 isEditing={isEditing}
                 onDataChange={onDataChange}
-                onInputChange={onInputChange}
             />
             <SectionPlanificacion
                 sectionKey="nino"
@@ -205,7 +191,6 @@ const DayPlanificacion = ({
                 empleados={empleados}
                 isEditing={isEditing}
                 onDataChange={onDataChange}
-                onInputChange={onInputChange}
             />
         </div>
     );
@@ -215,21 +200,6 @@ export function PlanificacionTab({ data, empleados, isEditing, onDataChange }: P
   const [activeSubTab, setActiveSubTab] = useState('lunes');
   
   if (!data.productividad) return null;
-
-  const handleDayInputChange = (path: string, value: any) => {
-    onDataChange(prevData => {
-        if (!prevData) return null;
-        const newData = JSON.parse(JSON.stringify(prevData));
-        let current: any = newData;
-        const keys = path.split('.');
-        for (let i = 0; i < keys.length - 1; i++) {
-            if (current[keys[i]] === undefined) current[keys[i]] = {};
-            current = current[keys[i]];
-        }
-        current[keys[keys.length-1]] = Number(value) || 0;
-        return newData;
-    });
-  }
 
   return (
     <Tabs value={activeSubTab} onValueChange={setActiveSubTab} className="w-full font-light">
@@ -255,7 +225,6 @@ export function PlanificacionTab({ data, empleados, isEditing, onDataChange }: P
                 empleados={empleados} 
                 isEditing={isEditing} 
                 onDataChange={onDataChange}
-                onInputChange={handleDayInputChange}
             />
         </TabsContent>
         <TabsContent value="jueves" className="mt-0">
@@ -265,7 +234,6 @@ export function PlanificacionTab({ data, empleados, isEditing, onDataChange }: P
                 empleados={empleados} 
                 isEditing={isEditing} 
                 onDataChange={onDataChange}
-                onInputChange={handleDayInputChange}
             />
         </TabsContent>
     </Tabs>
