@@ -1,4 +1,5 @@
 
+
 "use client"
 import React, { useState, useContext, useEffect, useCallback, Suspense } from 'react';
 import type { WeeklyData, Empleado } from "@/lib/data";
@@ -35,7 +36,7 @@ import { ProductividadTab } from '@/components/dashboard/operaciones/productivid
 import { FocusOperacionesTab } from '@/components/dashboard/operaciones/focus-operaciones-tab';
 import { EditRatiosDialog } from '@/components/dashboard/operaciones/edit-ratios-dialog';
 
-type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan' | 'compradorWoman' | 'zonaComercialWoman' | 'agrupacionComercialWoman' | 'compradorNino' | 'zonaComercialNino' | 'agrupacionComercialNino' | 'compradorExperiencia';
+type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan' | 'compradorWoman' | 'zonaComercialWoman' | 'agrupacionComercialWoman' | 'compradorNino' | 'zonaComercialNino' | 'agrupacionComercialNino';
 
 const listLabels: Record<EditableList, string> = {
     compradorMan: 'Comprador MAN',
@@ -47,7 +48,6 @@ const listLabels: Record<EditableList, string> = {
     compradorNino: 'Comprador NIÑO',
     zonaComercialNino: 'Zona Comercial NIÑO',
     agrupacionComercialNino: 'Agrupación Comercial NIÑO',
-    compradorExperiencia: 'Comprador EXPERIENCIA',
 };
 
 const tabConfig: Record<string, { label: string; icon?: React.FC<React.SVGProps<SVGSVGElement>>, text?: string, path?: string }> = {
@@ -556,9 +556,6 @@ function OperacionesPageComponent() {
                             <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorNino', 'Editar Lista: Comprador NIÑO')}>Comprador</DropdownMenuItem>
                             <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialNino', 'Editar Lista: Zona Comercial NIÑO')}>Zona Comercial</DropdownMenuItem>
                             <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercialNino', 'Editar Lista: Agrupación Comercial NIÑO')}>Agrupación Comercial</DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuLabel>EXPERIENCIA</DropdownMenuLabel>
-                            <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorExperiencia', 'Editar Lista: Comprador EXPERIENCIA')}>Comprador</DropdownMenuItem>
                           </DropdownMenuSubContent>
                         </DropdownMenuPortal>
                       </DropdownMenuSub>

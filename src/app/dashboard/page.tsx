@@ -34,7 +34,7 @@ import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { formatWeekIdToDateRange, getCurrentWeekId, getWeekIdFromDate, getPreviousWeekId } from '@/lib/format';
 
-type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan' | 'compradorWoman' | 'zonaComercialWoman' | 'agrupacionComercialWoman' | 'compradorNino' | 'zonaComercialNino' | 'agrupacionComercialNino' | 'compradorExperiencia';
+type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan' | 'compradorWoman' | 'zonaComercialWoman' | 'agrupacionComercialWoman' | 'compradorNino' | 'zonaComercialNino' | 'agrupacionComercialNino';
 
 const tabConfig: Record<string, { label: string; icon?: React.FC<React.SVGProps<SVGSVGElement>>, text?: string, path?: string }> = {
     datosSemanales: { label: "GENERAL", icon: LayoutDashboard, path: "/dashboard?tab=ventas" },
@@ -55,7 +55,6 @@ const listLabels: Record<EditableList, string> = {
     compradorNino: 'Comprador NIÑO',
     zonaComercialNino: 'Zona Comercial NIÑO',
     agrupacionComercialNino: 'Agrupación Comercial NIÑO',
-    compradorExperiencia: 'Comprador EXPERIENCIA',
 };
 
 const synchronizeTableData = (list: string[], oldTableData: VentasManItem[]): VentasManItem[] => {
@@ -245,11 +244,6 @@ function DashboardPageComponent() {
         [reportData.ventasNino.agrupacionComercial, changed] = syncAndCheck(reportData.ventasNino.agrupacionComercial, listData.agrupacionComercialNino);
         if (changed) needsSave = true;
         
-        if (!reportData.ventasExperiencia) reportData.ventasExperiencia = { pesoComprador: []};
-
-        [reportData.ventasExperiencia.pesoComprador, changed] = syncAndCheck(reportData.ventasExperiencia.pesoComprador, listData.compradorExperiencia);
-        if (changed) needsSave = true;
-
         if (needsSave && canEdit) {
             await setDoc(reportRef, reportData, { merge: true });
         }
@@ -615,9 +609,6 @@ function DashboardPageComponent() {
                             <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorNino', 'Editar Lista: Comprador NIÑO')}>Comprador</DropdownMenuItem>
                             <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialNino', 'Editar Lista: Zona Comercial NIÑO')}>Zona Comercial</DropdownMenuItem>
                             <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercialNino', 'Editar Lista: Agrupación Comercial NIÑO')}>Agrupación Comercial</DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuLabel>EXPERIENCIA</DropdownMenuLabel>
-                            <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorExperiencia', 'Editar Lista: Comprador EXPERIENCIA')}>Comprador</DropdownMenuItem>
                           </DropdownMenuSubContent>
                         </DropdownMenuPortal>
                       </DropdownMenuSub>

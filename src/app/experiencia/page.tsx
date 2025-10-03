@@ -39,7 +39,7 @@ import { formatNumber, formatPercentage } from '@/lib/format';
 import { CajaCard } from '@/components/dashboard/caja-card';
 
 
-type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan' | 'compradorWoman' | 'zonaComercialWoman' | 'agrupacionComercialWoman' | 'compradorNino' | 'zonaComercialNino' | 'agrupacionComercialNino' | 'compradorExperiencia';
+type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan' | 'compradorWoman' | 'zonaComercialWoman' | 'agrupacionComercialWoman' | 'compradorNino' | 'zonaComercialNino' | 'agrupacionComercialNino';
 
 const listLabels: Record<EditableList, string> = {
     compradorMan: 'Comprador MAN',
@@ -51,7 +51,6 @@ const listLabels: Record<EditableList, string> = {
     compradorNino: 'Comprador NIÑO',
     zonaComercialNino: 'Zona Comercial NIÑO',
     agrupacionComercialNino: 'Agrupación Comercial NIÑO',
-    compradorExperiencia: 'Comprador EXPERIENCIA',
 };
 
 
@@ -186,7 +185,7 @@ function ExperienciaPageComponent() {
         }
 
         const defaultSectionData: SectionSpecificData = {
-            operaciones: { filasCajaPorc: 0, scoPorc: 0, dropOffPorc: 0, ventaIpod: 0, eTicketPorc: 0, repoPorc: 0, frescuraPorc: 0 },
+            operaciones: { filasCajaPorc: 0, scoPorc: 0, dropOffPorc: 0, ventaIpod: 0, eTicketPorc: 0, repoPorc: 0, frescuraPorc: 0, coberturaPorc: 0 },
             perdidas: { gap: { euros: 0, unidades: 0 }, merma: { unidades: 0, porcentaje: 0 } },
             logistica: { entradasSemanales: 0, salidasSemanales: 0, sintSemanales: 0 },
             almacenes: {
@@ -526,9 +525,6 @@ function ExperienciaPageComponent() {
                             <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorNino', 'Editar Lista: Comprador NIÑO')}>Comprador</DropdownMenuItem>
                             <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialNino', 'Editar Lista: Zona Comercial NIÑO')}>Zona Comercial</DropdownMenuItem>
                             <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercialNino', 'Editar Lista: Agrupación Comercial NIÑO')}>Agrupación Comercial</DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuLabel>EXPERIENCIA</DropdownMenuLabel>
-                            <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorExperiencia', 'Editar Lista: Comprador EXPERIENCIA')}>Comprador</DropdownMenuItem>
                           </DropdownMenuSubContent>
                         </DropdownMenuPortal>
                       </DropdownMenuSub>
