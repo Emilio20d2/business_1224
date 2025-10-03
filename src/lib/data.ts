@@ -53,12 +53,20 @@ export type LogisticaData = {
     sintSemanales: number;
 };
 
-export type ProductividadData = {
+export type ProductividadSeccion = {
     productividad: number;
     horasContratadas: number;
     costeVenta: number;
     costeReal: number;
     nominaReal: number;
+};
+
+export type ProductividadData = {
+    productividadPorSeccion: {
+        woman: ProductividadSeccion;
+        man: ProductividadSeccion;
+        nino: ProductividadSeccion;
+    };
 };
 
 
@@ -370,12 +378,20 @@ const createInitialPedidosData = (): PedidosData => ({
     })),
 });
 
-const createInitialProductividadData = (): ProductividadData => ({
+const createInitialProductividadSeccion = (): ProductividadSeccion => ({
     productividad: 0,
     horasContratadas: 0,
     costeVenta: 0,
     costeReal: 0,
     nominaReal: 0,
+});
+
+const createInitialProductividadData = (): ProductividadData => ({
+    productividadPorSeccion: {
+        woman: createInitialProductividadSeccion(),
+        man: createInitialProductividadSeccion(),
+        nino: createInitialProductividadSeccion(),
+    }
 });
 
 
