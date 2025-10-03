@@ -30,11 +30,11 @@ const PrintSection = ({
     const paqueteriaItems = safePlanificacion.filter(p => p.tarea === 'paqueteria');
 
     const renderColumn = (items: PlanificacionItem[], columnTitle: string) => (
-        <div className="flex flex-col gap-2 px-2">
+        <div className="flex flex-col px-2">
             <h3 className="font-bold text-center text-muted-foreground uppercase text-sm">{columnTitle}</h3>
-            <div className="flex flex-col gap-2 text-sm min-h-[100px]">
+            <div className="flex flex-col text-sm min-h-[100px]">
                 {items.length > 0 ? items.map(item => (
-                    <div key={item.id} className="grid grid-cols-[1fr_1fr] items-center">
+                    <div key={item.id} className="grid grid-cols-[1fr_1.5fr] items-center">
                         <p className="font-medium text-sm">{item.nombreEmpleado || '--'}</p>
                         <p className="text-sm text-muted-foreground">{item.anotaciones || '--'}</p>
                     </div>
@@ -48,13 +48,13 @@ const PrintSection = ({
             <CardHeader>
                 <CardTitle className="flex flex-col justify-center items-center text-base">
                     <span>{title}</span>
-                    <div className="flex justify-around items-center gap-4 text-xs font-normal text-muted-foreground mt-2">
+                    <div className="flex justify-around items-center w-full text-xs font-normal text-muted-foreground mt-2">
                         <span>Un. Confección: <strong className="text-foreground">{formatNumber(unidadesConfeccion)}</strong></span>
                         <span>Un. Paquetería: <strong className="text-foreground">{formatNumber(unidadesPaqueteria)}</strong></span>
                     </div>
                 </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent>
                 <div className="grid grid-cols-2">
                     {renderColumn(confeccionItems, 'CONFECCIÓN')}
                     {renderColumn(paqueteriaItems, 'PAQUETERÍA')}
