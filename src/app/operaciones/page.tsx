@@ -5,7 +5,7 @@ import React, { useState, useContext, useEffect, useCallback, Suspense } from 'r
 import type { WeeklyData, Empleado } from "@/lib/data";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from '@/lib/firebase';
-import { Calendar as CalendarIcon, Settings, LogOut, Loader2, Briefcase, List, LayoutDashboard, Pencil, Projector, Target, SlidersHorizontal } from 'lucide-react';
+import { Calendar as CalendarIcon, Settings, LogOut, Loader2, Briefcase, List, LayoutDashboard, Pencil, Projector, Target, SlidersHorizontal, UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -35,6 +35,8 @@ import { MermaReposicionTab } from '@/components/dashboard/operaciones/merma-rep
 import { ProductividadTab } from '@/components/dashboard/operaciones/productividad-tab';
 import { FocusOperacionesTab } from '@/components/dashboard/operaciones/focus-operaciones-tab';
 import { EditRatiosDialog } from '@/components/dashboard/operaciones/edit-ratios-dialog';
+import { EditEmpleadosDialog } from '@/components/dashboard/edit-empleados-dialog';
+
 
 type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan' | 'compradorWoman' | 'zonaComercialWoman' | 'agrupacionComercialWoman' | 'compradorNino' | 'zonaComercialNino' | 'agrupacionComercialNino';
 
@@ -94,7 +96,6 @@ const ensureSectionSpecificData = (data: WeeklyData): WeeklyData => {
         data.listas.productividadRatio = getInitialLists().listas.productividadRatio;
     }
 
-
     return data;
 }
 
@@ -113,6 +114,7 @@ function OperacionesPageComponent() {
   const [isListDialogOpen, setListDialogOpen] = useState(false);
   const [listToEdit, setListToEdit] = useState<{ listKey: EditableList, title: string } | null>(null);
   const [isRatiosDialogOpen, setRatiosDialogOpen] = useState(false);
+  const [isEmpleadosDialogOpen, setEmpleadosDialogOpen] = useState(false);
 
   const selectedWeek = searchParams.get('week') || '';
   const activeTab = "operaciones";
@@ -296,6 +298,10 @@ function OperacionesPageComponent() {
         if (listas.productividadRatio) {
             listUpdates.productividadRatio = listas.productividadRatio;
         }
+        if (listas.empleados) {
+            listUpdates.empleados = listas.empleados;
+        }
+
         if (Object.keys(listUpdates).length > 0) {
             await updateDoc(listsDocRef, listUpdates);
         }
@@ -370,6 +376,26 @@ function OperacionesPageComponent() {
         } finally {
             setIsSaving(false);
         }
+    };
+
+    const handleSaveEmpleados = async (newItems: Empleado[]) => {
+      if (!canEdit) return;
+      setIsSaving(true);
+      const listsRef = doc(db, "configuracion", "listas");
+
+      try {
+        await updateDoc(listsRef, { empleados: newItems });
+        toast({
+          title: "Lista de empleados actualizada",
+          description: "La lista de empleados se ha guardado correctamente.",
+        });
+        setEmpleadosDialogOpen(false);
+        await fetchData(selectedWeek);
+      } catch (error: any) {
+        setError(`Error al guardar la lista de empleados: ${error.message}`);
+      } finally {
+        setIsSaving(false);
+      }
     };
 
 
@@ -509,6 +535,10 @@ function OperacionesPageComponent() {
                           <SlidersHorizontal className="mr-2 h-4 w-4 text-primary" />
                           <span>Editar Ratios Prod.</span>
                       </DropdownMenuItem>
+                       <DropdownMenuItem onSelect={() => setEmpleadosDialogOpen(true)}>
+                          <UserPlus className="mr-2 h-4 w-4 text-primary" />
+                          <span>Editar Empleados</span>
+                      </DropdownMenuItem>
                       <DropdownMenuSub>
                         <DropdownMenuSubTrigger>
                           <List className="mr-2 h-4 w-4 text-primary" />
@@ -618,6 +648,14 @@ function OperacionesPageComponent() {
                 onClose={() => setRatiosDialogOpen(false)}
                 ratios={data.listas.productividadRatio}
                 onSave={handleSaveRatios}
+            />
+        )}
+        {data && data.listas && (
+            <EditEmpleadosDialog
+                isOpen={isEmpleadosDialogOpen}
+                onClose={() => setEmpleadosDialogOpen(false)}
+                empleados={data.listas.empleados}
+                onSave={handleSaveEmpleados}
             />
         )}
       </div>

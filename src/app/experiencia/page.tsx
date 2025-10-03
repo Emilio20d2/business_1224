@@ -499,6 +499,11 @@ function ExperienciaPageComponent() {
                   <DropdownMenuLabel>Opciones</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                    {canEdit && (
+                     <>
+                      <DropdownMenuItem onSelect={() => setEmpleadosDialogOpen(true)}>
+                        <UserPlus className="mr-2 h-4 w-4 text-primary" />
+                        <span>Editar Empleados</span>
+                      </DropdownMenuItem>
                       <DropdownMenuSub>
                         <DropdownMenuSubTrigger>
                           <List className="mr-2 h-4 w-4 text-primary" />
@@ -523,6 +528,7 @@ function ExperienciaPageComponent() {
                           </DropdownMenuSubContent>
                         </DropdownMenuPortal>
                       </DropdownMenuSub>
+                     </>
                     )}
                   {canEdit && <DropdownMenuSeparator />}
                   <DropdownMenuItem onSelect={() => {
