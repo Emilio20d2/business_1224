@@ -253,7 +253,7 @@ function OperacionesPageComponent() {
         if (keys[0] === 'focusOperaciones') {
             updatedData.focusOperaciones = value;
         } else if (keys[0] === 'productividad' && keys.length === 5) {
-             const day = keys[1] as 'lunes' | 'jueves';
+            const day = keys[1] as 'lunes' | 'jueves';
             const section = keys[3] as 'woman' | 'man' | 'nino';
             const field = keys[4];
 
