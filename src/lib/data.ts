@@ -154,7 +154,10 @@ export type WeeklyData = {
       focus: string;
     };
     pedidos: PedidosData;
-    productividad: ProductividadData;
+    productividad: {
+        lunes: ProductividadData;
+        jueves: ProductividadData;
+    };
     acumulado: {
         mensual: AcumuladoPeriodo;
         anual: AcumuladoPeriodo;
@@ -454,7 +457,10 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
             focus: "",
         },
         pedidos: createInitialPedidosData(),
-        productividad: createInitialProductividadData(),
+        productividad: {
+            lunes: createInitialProductividadData(),
+            jueves: createInitialProductividadData(),
+        },
         acumulado: {
             mensual: {
                 totalEuros: 0, varPorcTotal: 0,
@@ -488,5 +494,3 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
         },
     };
 }
-
-    

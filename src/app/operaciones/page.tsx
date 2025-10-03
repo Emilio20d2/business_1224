@@ -267,7 +267,9 @@ function OperacionesPageComponent() {
     
     try {
         await setDoc(reportDocRef, reportData, { merge: true });
-        await updateDoc(listsDocRef, { mermaTarget: listas.mermaTarget });
+        if (listas && listas.mermaTarget) {
+            await updateDoc(listsDocRef, { mermaTarget: listas.mermaTarget });
+        }
 
         toast({
             title: "¡Guardado!",
