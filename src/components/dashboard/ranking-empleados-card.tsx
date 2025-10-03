@@ -64,15 +64,15 @@ export function RankingEmpleadosCard({ ranking, empleados, isEditing, canEdit, o
                                             onValueChange={(value) => handleSelectChange(index, value)}
                                         >
                                             <SelectTrigger>
-                                                <SelectValue placeholder="Seleccionar ID" />
+                                                <SelectValue placeholder="Seleccionar" />
                                             </SelectTrigger>
                                             <SelectContent>
                                                  <SelectItem value="VACIO">
                                                     <span className="text-muted-foreground">-- Vacío --</span>
                                                 </SelectItem>
-                                                {empleados && empleados.sort((a, b) => Number(a.id) - Number(b.id)).map((e) => (
+                                                {empleados && empleados.sort((a, b) => a.nombre.localeCompare(b.nombre)).map((e) => (
                                                     <SelectItem key={e.id} value={e.id}>
-                                                        {e.id} - {e.nombre}
+                                                        {e.nombre}
                                                     </SelectItem>
                                                 ))}
                                             </SelectContent>
