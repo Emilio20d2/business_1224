@@ -10,6 +10,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
+import { DistribucionRecursosCard } from './distribucion-recursos-card';
+
 
 type ProductividadTabProps = {
   data: {
@@ -25,8 +27,7 @@ const roundToQuarter = (value: number) => {
 }
 
 
-const PaqueteriaRow = ({ label, unidades, productividadRatio, isEditing, onInputChange, unidadesId }: { label: string, unidades: number, productividadRatio: number, isEditing: boolean, onInputChange: any, unidadesId: string }) => {
-    const productividad = (unidades || 0) / productividadRatio;
+const PaqueteriaRow = ({ label, unidades, productividad, isEditing, onInputChange, unidadesId }: { label: string, unidades: number, productividad: number, isEditing: boolean, onInputChange: any, unidadesId: string }) => {
     return (
         <div className="grid grid-cols-3 items-center text-center gap-2">
             <span className="text-sm font-medium text-muted-foreground text-left">{label}</span>
@@ -131,6 +132,9 @@ const DayProductividad = ({ dayData, dayKey, isEditing, onInputChange }: { dayDa
                     </div>
                 </div>
             </KpiCard>
+            
+            <DistribucionRecursosCard dayData={dayData} />
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {sections.map(section => {
                     const sectionData = dayData.productividadPorSeccion[section.key];
@@ -148,7 +152,7 @@ const DayProductividad = ({ dayData, dayKey, isEditing, onInputChange }: { dayDa
                                 <PaqueteriaRow
                                     label="UN. CONFECCION"
                                     unidades={sectionData.unidadesConfeccion}
-                                    productividadRatio={120}
+                                    productividad={(sectionData.unidadesConfeccion || 0) / 120}
                                     isEditing={isEditing}
                                     onInputChange={onInputChange}
                                     unidadesId={`productividad.${dayKey}.productividadPorSeccion.${section.key}.unidadesConfeccion`}
@@ -156,7 +160,7 @@ const DayProductividad = ({ dayData, dayKey, isEditing, onInputChange }: { dayDa
                                 <PaqueteriaRow
                                     label="UN. PAQUETERIA"
                                     unidades={sectionData.unidadesPaqueteria}
-                                    productividadRatio={80}
+                                    productividad={(sectionData.unidadesPaqueteria || 0) / 80}
                                     isEditing={isEditing}
                                     onInputChange={onInputChange}
                                     unidadesId={`productividad.${dayKey}.productividadPorSeccion.${section.key}.unidadesPaqueteria`}
