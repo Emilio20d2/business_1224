@@ -171,7 +171,7 @@ export function DatoSimple({
                       inputMode="decimal" 
                       step="any" 
                       defaultValue={numericValue === 0 ? '0' : numericValue} 
-                      className={cn("text-lg w-24", align === 'right' ? 'text-right' : 'text-center')} 
+                      className={cn("text-lg w-16", align === 'right' ? 'text-right' : 'text-center')} 
                       id={valueId}
                       onChange={handleValueChange}
                     />
@@ -196,7 +196,7 @@ export function DatoSimple({
                   type="number" 
                   inputMode="decimal" 
                   defaultValue={variation} 
-                  className="w-16 h-7 text-xs text-right" 
+                  className="w-14 h-7 text-xs text-right" 
                   id={variationId}
                   onChange={handleVariationChange}
               />
