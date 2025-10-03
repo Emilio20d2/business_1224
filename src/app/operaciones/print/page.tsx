@@ -7,7 +7,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { WeeklyData, PlanificacionItem } from '@/lib/data';
 import { formatWeekIdToDateRange, formatNumber } from '@/lib/format';
-import { Loader2, Download } from 'lucide-react';
+import { Loader2, Share } from 'lucide-react';
 import Image from 'next/image';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -30,9 +30,9 @@ const PrintSection = ({
     const paqueteriaItems = safePlanificacion.filter(p => p.tarea === 'paqueteria');
 
     const renderColumn = (items: PlanificacionItem[], columnTitle: string) => (
-        <div className="flex flex-col">
+        <div className="flex flex-col space-y-4">
             <h3 className="font-bold text-center text-muted-foreground uppercase text-sm mb-2">{columnTitle}</h3>
-            <div className="flex flex-col text-sm min-h-[50px]">
+            <div className="flex flex-col text-sm">
                 {items.length > 0 ? items.map(item => (
                      <div key={item.id} className="flex flex-col mb-1">
                         <p className="font-medium text-sm">{item.nombreEmpleado || '--'}</p>
@@ -72,7 +72,7 @@ function PrintPlanificacionPageComponent() {
 
   const [data, setData] = useState<WeeklyData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isDownloading, setIsDownloading] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const printRef = useRef<HTMLDivElement>(null);
 
@@ -102,21 +102,20 @@ function PrintPlanificacionPageComponent() {
     fetchData();
   }, [weekId]);
 
-  const handleDownloadPdf = async () => {
+  const handleExportPdf = async () => {
     const element = printRef.current;
     if (!element) return;
     
-    setIsDownloading(true);
+    setIsExporting(true);
 
     try {
         const canvas = await html2canvas(element, {
-            scale: 2, // Aumenta la resolución
+            scale: 2, 
             useCORS: true,
         });
         
         const imgData = canvas.toDataURL('image/png');
         
-        // A4 landscape dimensions in mm: 297 x 210
         const pdf = new jsPDF('landscape', 'mm', 'a4');
         const pdfWidth = pdf.internal.pageSize.getWidth();
         const pdfHeight = pdf.internal.pageSize.getHeight();
@@ -139,12 +138,25 @@ function PrintPlanificacionPageComponent() {
         const yOffset = (pdfHeight - newImgHeight) / 2;
 
         pdf.addImage(imgData, 'PNG', xOffset, yOffset, newImgWidth, newImgHeight);
-        pdf.save('planificacion.pdf');
+        
+        const pdfBlob = pdf.output('blob');
+        const pdfFile = new File([pdfBlob], 'planificacion.pdf', { type: 'application/pdf' });
+
+        if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+             await navigator.share({
+                files: [pdfFile],
+                title: 'Planificación Semanal',
+                text: `Planificación para ${day} de la semana ${weekId}`,
+            });
+        } else {
+            pdf.save('planificacion.pdf');
+        }
+
     } catch (error) {
         console.error("Error al generar el PDF:", error);
         setError("No se pudo generar el PDF. Inténtalo de nuevo.");
     } finally {
-        setIsDownloading(false);
+        setIsExporting(false);
     }
   };
 
@@ -187,16 +199,16 @@ function PrintPlanificacionPageComponent() {
   return (
     <div className="bg-gray-100 min-h-screen">
       <div className="bg-white shadow py-4 px-8 sticky top-0 z-20 flex justify-center items-center">
-        <Button onClick={handleDownloadPdf} disabled={isDownloading}>
-            {isDownloading ? (
+        <Button onClick={handleExportPdf} disabled={isExporting}>
+            {isExporting ? (
                 <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Generando...
+                    Exportando...
                 </>
             ) : (
                 <>
-                    <Download className="mr-2 h-4 w-4" />
-                    Descargar PDF
+                    <Share className="mr-2 h-4 w-4" />
+                    Exportar PDF
                 </>
             )}
         </Button>

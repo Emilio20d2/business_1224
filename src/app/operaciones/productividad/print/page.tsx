@@ -7,7 +7,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { getInitialDataForWeek, getInitialLists, type WeeklyData, type ProductividadData } from '@/lib/data';
 import { formatNumber } from '@/lib/format';
-import { Loader2, Download, Box, Zap } from 'lucide-react';
+import { Loader2, Share, Box, Zap } from 'lucide-react';
 import Image from 'next/image';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -28,7 +28,7 @@ function PrintProductividadPageComponent() {
 
   const [data, setData] = useState<WeeklyData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isDownloading, setIsDownloading] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const printRef = useRef<HTMLDivElement>(null);
 
@@ -53,19 +53,24 @@ function PrintProductividadPageComponent() {
         
         if (reportSnap.exists()) {
             reportData = reportSnap.data() as WeeklyData;
-            if (listsSnap.exists()) {
-                reportData.listas = listsSnap.data() as WeeklyData['listas'];
-            } else {
-                reportData.listas = getInitialLists();
-            }
-             if (!reportData.listas.productividadRatio) {
-                reportData.listas.productividadRatio = getInitialLists().productividadRatio;
-            }
-
-            setData(reportData);
         } else {
-           setError(`No se encontró ningún informe para la semana "${weekId}".`);
+            // If report doesn't exist, create a temporary one to avoid errors
+            reportData = getInitialDataForWeek(weekId, getInitialLists());
+            console.warn(`No se encontró informe para la semana ${weekId}. Usando datos iniciales.`);
         }
+
+        if (listsSnap.exists()) {
+            reportData.listas = listsSnap.data() as WeeklyData['listas'];
+        } else {
+            reportData.listas = getInitialLists();
+        }
+
+        if (!reportData.listas.productividadRatio) {
+            reportData.listas.productividadRatio = getInitialLists().productividadRatio;
+        }
+
+        setData(reportData);
+
 
       } catch (err: any) {
         setError(`Error al cargar el informe: ${err.message}.`);
@@ -77,11 +82,11 @@ function PrintProductividadPageComponent() {
     fetchData();
   }, [weekId]);
 
-  const handleDownloadPdf = async () => {
+  const handleExportPdf = async () => {
     const element = printRef.current;
     if (!element) return;
     
-    setIsDownloading(true);
+    setIsExporting(true);
 
     try {
         const canvas = await html2canvas(element, {
@@ -112,12 +117,25 @@ function PrintProductividadPageComponent() {
         const yOffset = 10;
 
         pdf.addImage(imgData, 'PNG', xOffset, yOffset, newImgWidth, newImgHeight);
-        pdf.save(`productividad_${day}.pdf`);
+        
+        const pdfBlob = pdf.output('blob');
+        const pdfFile = new File([pdfBlob], `productividad_${day}.pdf`, { type: 'application/pdf' });
+
+        if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+            await navigator.share({
+                files: [pdfFile],
+                title: `Productividad ${day.charAt(0).toUpperCase() + day.slice(1)}`,
+                text: `Informe de productividad para ${day} de la semana ${weekId}`,
+            });
+        } else {
+            pdf.save(`productividad_${day}.pdf`);
+        }
+
     } catch (error) {
         console.error("Error al generar el PDF:", error);
         setError("No se pudo generar el PDF. Inténtalo de nuevo.");
     } finally {
-        setIsDownloading(false);
+        setIsExporting(false);
     }
   };
 
@@ -185,8 +203,8 @@ function PrintProductividadPageComponent() {
   return (
     <div className="bg-gray-100 min-h-screen">
       <div className="bg-white shadow py-4 px-8 sticky top-0 z-20 flex justify-center items-center">
-        <Button onClick={handleDownloadPdf} disabled={isDownloading}>
-            {isDownloading ? ( <> <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generando... </> ) : ( <> <Download className="mr-2 h-4 w-4" /> Descargar PDF </> )}
+        <Button onClick={handleExportPdf} disabled={isExporting}>
+            {isExporting ? ( <> <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Exportando... </> ) : ( <> <Share className="mr-2 h-4 w-4" /> Exportar PDF </> )}
         </Button>
       </div>
       <div ref={printRef} className="bg-white p-8 w-[210mm] min-h-[297mm] mx-auto my-8 text-zinc-900 font-aptos" style={{ fontFamily: "'Aptos', sans-serif"}}>
