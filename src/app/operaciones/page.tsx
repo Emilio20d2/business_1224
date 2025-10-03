@@ -627,7 +627,7 @@ function OperacionesPageComponent() {
                             data={data}
                             isEditing={isEditing}
                             onDataChange={setData}
-                            empleados={data.listas.empleados}
+                            empleados={data.listas.empleados || []}
                         />
                     </TabsContent>
                     <TabsContent value="focus" className="mt-0">

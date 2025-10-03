@@ -67,8 +67,8 @@ export type PlanificacionItem = {
     idEmpleado: string;
     nombreEmpleado: string;
     seccion: 'woman' | 'man' | 'nino' | '';
-    horasConfeccion: number;
-    horasPaqueteria: number;
+    tarea: 'confeccion' | 'paqueteria';
+    anotaciones: string;
 };
 
 export type ProductividadData = {
@@ -542,4 +542,5 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
         },
     };
 }
+
 

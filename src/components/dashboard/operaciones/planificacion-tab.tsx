@@ -6,11 +6,11 @@ import type { WeeklyData, Empleado, PlanificacionItem, ProductividadData } from 
 import { KpiCard, DatoSimple } from "../kpi-card";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Plus, Trash2, Users } from 'lucide-react';
+import { Plus, Trash2, Users, Box, Shirt } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 
 type PlanificacionTabProps = {
   data: WeeklyData;
@@ -18,11 +18,6 @@ type PlanificacionTabProps = {
   isEditing: boolean;
   onDataChange: React.Dispatch<React.SetStateAction<WeeklyData | null>>;
 };
-
-const roundToQuarter = (value: number) => {
-    if (isNaN(value) || !isFinite(value)) return 0;
-    return Math.round(value * 4) / 4;
-}
 
 const SectionPlanificacion = ({
     sectionKey,
@@ -32,7 +27,7 @@ const SectionPlanificacion = ({
     empleados,
     isEditing,
     onDataChange,
-    ratios
+    onInputChange
 }: {
     sectionKey: 'woman' | 'man' | 'nino',
     title: string,
@@ -41,18 +36,11 @@ const SectionPlanificacion = ({
     empleados: Empleado[],
     isEditing: boolean,
     onDataChange: PlanificacionTabProps['onDataChange'],
-    ratios: WeeklyData['listas']['productividadRatio']
+    onInputChange: (path: string, value: any) => void;
 }) => {
-    const { confeccion, perchado, picking, porcentajePerchado, porcentajePicking } = ratios;
-    
-    const horasConfeccionRequeridas = (dayData.productividadPorSeccion[sectionKey]?.unidadesConfeccion || 0) / confeccion;
-    const horasPaqueteriaRequeridas = 
-        (((dayData.productividadPorSeccion[sectionKey]?.unidadesPaqueteria || 0) * (porcentajePerchado / 100)) / perchado) +
-        (((dayData.productividadPorSeccion[sectionKey]?.unidadesPaqueteria || 0) * (porcentajePicking / 100)) / picking);
-
-    const horasRequeridasSeccion = horasConfeccionRequeridas + horasPaqueteriaRequeridas;
-
     const planificacionSeccion = dayData.planificacion.filter(p => p.seccion === sectionKey);
+    const confeccionItems = planificacionSeccion.filter(p => p.tarea === 'confeccion');
+    const paqueteriaItems = planificacionSeccion.filter(p => p.tarea === 'paqueteria');
 
     const handlePlanChange = (itemId: string, field: keyof PlanificacionItem, value: any) => {
         onDataChange(prevData => {
@@ -66,15 +54,15 @@ const SectionPlanificacion = ({
                     const empleado = empleados.find(e => e.id === value);
                     plan[itemIndex].idEmpleado = value;
                     plan[itemIndex].nombreEmpleado = empleado?.nombre || '';
-                } else if (field === 'horasConfeccion' || field === 'horasPaqueteria') {
-                    (plan[itemIndex] as any)[field] = Number(value) || 0;
+                } else {
+                    (plan[itemIndex] as any)[field] = value;
                 }
             }
             return newData;
         });
     };
 
-    const handleAddItem = () => {
+    const handleAddItem = (tarea: 'confeccion' | 'paqueteria') => {
         onDataChange(prevData => {
             if (!prevData) return null;
             const newData = { ...prevData };
@@ -83,14 +71,14 @@ const SectionPlanificacion = ({
                 idEmpleado: '',
                 nombreEmpleado: '',
                 seccion: sectionKey,
-                horasConfeccion: 0,
-                horasPaqueteria: 0,
+                tarea,
+                anotaciones: '',
             };
             newData.productividad[dayKey].planificacion.push(newItem);
             return newData;
         });
     };
-    
+
     const handleRemoveItem = (itemId: string) => {
          onDataChange(prevData => {
             if (!prevData) return null;
@@ -100,93 +88,74 @@ const SectionPlanificacion = ({
         });
     };
 
-    return (
-        <KpiCard title={`PLANIFICACIÓN ${title}`} icon={<Users/>}>
-            <div className="grid grid-cols-3 gap-2 text-center text-sm font-light mb-2">
-                <div>
-                    <p className="text-muted-foreground">H. Confección Req.</p>
-                    <p className="font-bold text-lg">{roundToQuarter(horasConfeccionRequeridas).toFixed(2)}h</p>
+    const renderColumn = (items: PlanificacionItem[], tarea: 'confeccion' | 'paqueteria', columnTitle: string) => (
+        <div className="flex flex-col gap-2">
+            <h3 className="font-bold text-center text-muted-foreground">{columnTitle}</h3>
+            {items.map(item => (
+                <div key={item.id} className="grid grid-cols-[1fr_1fr_auto] gap-2 items-center">
+                    {isEditing ? (
+                        <>
+                            <Select value={item.idEmpleado || ''} onValueChange={(value) => handlePlanChange(item.id, 'idEmpleado', value)}>
+                                <SelectTrigger><SelectValue placeholder="Seleccionar..." /></SelectTrigger>
+                                <SelectContent>
+                                    {empleados.map(e => <SelectItem key={e.id} value={e.id}>{e.nombre}</SelectItem>)}
+                                </SelectContent>
+                            </Select>
+                            <Input
+                                value={item.anotaciones}
+                                onChange={(e) => handlePlanChange(item.id, 'anotaciones', e.target.value)}
+                                placeholder="Anotaciones..."
+                            />
+                            <Button variant="ghost" size="icon" onClick={() => handleRemoveItem(item.id)}>
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                        </>
+                    ) : (
+                        <>
+                            <p className="font-medium p-2">{item.nombreEmpleado || <span className="text-muted-foreground">--</span>}</p>
+                            <p className="text-sm text-muted-foreground p-2">{item.anotaciones || <span className="text-muted-foreground">--</span>}</p>
+                        </>
+                    )}
                 </div>
-                <div>
-                    <p className="text-muted-foreground">H. Paquetería Req.</p>
-                    <p className="font-bold text-lg">{roundToQuarter(horasPaqueteriaRequeridas).toFixed(2)}h</p>
-                </div>
-                <div>
-                    <p className="text-muted-foreground">H. Totales Req.</p>
-                    <p className="font-bold text-lg">{roundToQuarter(horasRequeridasSeccion).toFixed(2)}h</p>
-                </div>
-            </div>
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead className="font-bold w-[40%]">Empleado</TableHead>
-                        <TableHead className="text-right font-bold">H. Confección</TableHead>
-                        <TableHead className="text-right font-bold">H. Paquetería</TableHead>
-                        <TableHead className="text-right font-bold">H. Total</TableHead>
-                        {isEditing && <TableHead className="w-[50px]"></TableHead>}
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {planificacionSeccion.map((item: PlanificacionItem) => {
-                        const totalHoras = item.horasConfeccion + item.horasPaqueteria;
-                        return (
-                        <TableRow key={item.id}>
-                            <TableCell>
-                                {isEditing ? (
-                                    <Select value={item.idEmpleado || ''} onValueChange={(value) => handlePlanChange(item.id, 'idEmpleado', value)}>
-                                        <SelectTrigger><SelectValue placeholder="Seleccionar..." /></SelectTrigger>
-                                        <SelectContent>
-                                            {empleados.map(e => <SelectItem key={e.id} value={e.id}>{e.nombre}</SelectItem>)}
-                                        </SelectContent>
-                                    </Select>
-                                ) : (
-                                    item.nombreEmpleado
-                                )}
-                            </TableCell>
-                            <TableCell className="text-right">
-                                {isEditing ? (
-                                    <Input 
-                                        type="number" 
-                                        step="0.25"
-                                        value={item.horasConfeccion} 
-                                        onChange={(e) => handlePlanChange(item.id, 'horasConfeccion', e.target.value)} 
-                                        className="w-24 ml-auto text-right"
-                                    />
-                                ) : (
-                                    `${item.horasConfeccion.toFixed(2)} h`
-                                )}
-                            </TableCell>
-                             <TableCell className="text-right">
-                                {isEditing ? (
-                                    <Input 
-                                        type="number" 
-                                        step="0.25"
-                                        value={item.horasPaqueteria} 
-                                        onChange={(e) => handlePlanChange(item.id, 'horasPaqueteria', e.target.value)} 
-                                        className="w-24 ml-auto text-right"
-                                    />
-                                ) : (
-                                    `${item.horasPaqueteria.toFixed(2)} h`
-                                )}
-                            </TableCell>
-                            <TableCell className="text-right font-bold">{totalHoras.toFixed(2)} h</TableCell>
-                            {isEditing && (
-                                <TableCell>
-                                    <Button variant="ghost" size="icon" onClick={() => handleRemoveItem(item.id)}>
-                                        <Trash2 className="h-4 w-4 text-destructive" />
-                                    </Button>
-                                </TableCell>
-                            )}
-                        </TableRow>
-                    )})}
-                </TableBody>
-            </Table>
+            ))}
             {isEditing && (
-                <div className="pt-4">
-                    <Button onClick={handleAddItem}><Plus className="mr-2 h-4 w-4" /> Añadir Fila</Button>
-                </div>
+                <Button variant="outline" onClick={() => handleAddItem(tarea)}>
+                    <Plus className="mr-2 h-4 w-4" /> Añadir Empleado
+                </Button>
             )}
-        </KpiCard>
+        </div>
+    );
+
+    return (
+        <Card className="font-light">
+            <CardHeader>
+                <CardTitle className="flex justify-between items-center">{title}</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                 <div className="grid grid-cols-2 gap-4 items-center">
+                     <DatoSimple
+                        label="Unidades Confección"
+                        value={dayData.productividadPorSeccion[sectionKey]?.unidadesConfeccion || 0}
+                        isEditing={isEditing}
+                        onInputChange={(path, val) => onInputChange(path, val)}
+                        valueId={`productividad.${dayKey}.productividadPorSeccion.${sectionKey}.unidadesConfeccion`}
+                        align="left"
+                    />
+                    <DatoSimple
+                        label="Unidades Paquetería"
+                        value={dayData.productividadPorSeccion[sectionKey]?.unidadesPaqueteria || 0}
+                        isEditing={isEditing}
+                        onInputChange={(path, val) => onInputChange(path, val)}
+                        valueId={`productividad.${dayKey}.productividadPorSeccion.${sectionKey}.unidadesPaqueteria`}
+                        align="left"
+                    />
+                </div>
+                <div className="grid grid-cols-2 gap-6">
+                    {renderColumn(confeccionItems, 'confeccion', 'CONFECCIÓN')}
+                    {renderColumn(paqueteriaItems, 'paqueteria', 'PAQUETERÍA')}
+                </div>
+            </CardContent>
+        </Card>
     );
 };
 
@@ -196,82 +165,48 @@ const DayPlanificacion = ({
     dayData, 
     empleados, 
     isEditing, 
-    onDataChange, 
-    ratios 
+    onDataChange,
+    onInputChange
 }: { 
     dayKey: 'lunes' | 'jueves', 
     dayData: ProductividadData, 
     empleados: Empleado[], 
     isEditing: boolean, 
     onDataChange: PlanificacionTabProps['onDataChange'],
-    ratios: WeeklyData['listas']['productividadRatio']
+    onInputChange: (path: string, value: any) => void;
 }) => {
-
-    const horasRequeridas = useMemo(() => {
-        if (!dayData || !dayData.productividadPorSeccion || !ratios) return 0;
-        
-        const { confeccion, perchado, picking, porcentajePerchado, porcentajePicking } = ratios;
-        let totalHoras = 0;
-        (['woman', 'man', 'nino'] as const).forEach(seccionKey => {
-            const seccionData = dayData.productividadPorSeccion[seccionKey];
-            const horasConfeccion = (seccionData.unidadesConfeccion || 0) / confeccion;
-            const horasPaqueteria = 
-                (((seccionData.unidadesPaqueteria || 0) * (porcentajePerchado / 100)) / perchado) +
-                (((seccionData.unidadesPaqueteria || 0) * (porcentajePicking / 100)) / picking);
-            totalHoras += horasConfeccion + horasPaqueteria;
-        });
-        return totalHoras;
-    }, [dayData, ratios]);
-
-    const horasAsignadas = useMemo(() => dayData.planificacion.reduce((acc, item) => acc + item.horasConfeccion + item.horasPaqueteria, 0), [dayData.planificacion]);
-    const horasPendientes = horasRequeridas - horasAsignadas;
-
     return (
-        <div className="space-y-4 font-light">
-             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <KpiCard title="Total Horas Requeridas" icon={<Users />}>
-                    <DatoSimple value={roundToQuarter(horasRequeridas).toFixed(2)} align="center" unit="h" />
-                </KpiCard>
-                <KpiCard title="Total Horas Asignadas" icon={<Users />}>
-                    <DatoSimple value={roundToQuarter(horasAsignadas).toFixed(2)} align="center" unit="h" />
-                </KpiCard>
-                <KpiCard title="Horas Pendientes" icon={<Users />}>
-                    <DatoSimple value={roundToQuarter(horasPendientes).toFixed(2)} align="center" unit="h" />
-                </KpiCard>
-            </div>
-            
-            <div className="space-y-6">
-                <SectionPlanificacion
-                    sectionKey="woman"
-                    title="WOMAN"
-                    dayKey={dayKey}
-                    dayData={dayData}
-                    empleados={empleados}
-                    isEditing={isEditing}
-                    onDataChange={onDataChange}
-                    ratios={ratios}
-                />
-                <SectionPlanificacion
-                    sectionKey="man"
-                    title="MAN"
-                    dayKey={dayKey}
-                    dayData={dayData}
-                    empleados={empleados}
-                    isEditing={isEditing}
-                    onDataChange={onDataChange}
-                    ratios={ratios}
-                />
-                <SectionPlanificacion
-                    sectionKey="nino"
-                    title="NIÑO"
-                    dayKey={dayKey}
-                    dayData={dayData}
-                    empleados={empleados}
-                    isEditing={isEditing}
-                    onDataChange={onDataChange}
-                    ratios={ratios}
-                />
-            </div>
+        <div className="space-y-6 font-light">
+            <SectionPlanificacion
+                sectionKey="woman"
+                title="WOMAN"
+                dayKey={dayKey}
+                dayData={dayData}
+                empleados={empleados}
+                isEditing={isEditing}
+                onDataChange={onDataChange}
+                onInputChange={onInputChange}
+            />
+            <SectionPlanificacion
+                sectionKey="man"
+                title="MAN"
+                dayKey={dayKey}
+                dayData={dayData}
+                empleados={empleados}
+                isEditing={isEditing}
+                onDataChange={onDataChange}
+                onInputChange={onInputChange}
+            />
+            <SectionPlanificacion
+                sectionKey="nino"
+                title="NIÑO"
+                dayKey={dayKey}
+                dayData={dayData}
+                empleados={empleados}
+                isEditing={isEditing}
+                onDataChange={onDataChange}
+                onInputChange={onInputChange}
+            />
         </div>
     );
 };
@@ -280,6 +215,21 @@ export function PlanificacionTab({ data, empleados, isEditing, onDataChange }: P
   const [activeSubTab, setActiveSubTab] = useState('lunes');
   
   if (!data.productividad) return null;
+
+  const handleDayInputChange = (path: string, value: any) => {
+    onDataChange(prevData => {
+        if (!prevData) return null;
+        const newData = JSON.parse(JSON.stringify(prevData));
+        let current: any = newData;
+        const keys = path.split('.');
+        for (let i = 0; i < keys.length - 1; i++) {
+            if (current[keys[i]] === undefined) current[keys[i]] = {};
+            current = current[keys[i]];
+        }
+        current[keys[keys.length-1]] = Number(value) || 0;
+        return newData;
+    });
+  }
 
   return (
     <Tabs value={activeSubTab} onValueChange={setActiveSubTab} className="w-full font-light">
@@ -305,7 +255,7 @@ export function PlanificacionTab({ data, empleados, isEditing, onDataChange }: P
                 empleados={empleados} 
                 isEditing={isEditing} 
                 onDataChange={onDataChange}
-                ratios={data.listas.productividadRatio}
+                onInputChange={handleDayInputChange}
             />
         </TabsContent>
         <TabsContent value="jueves" className="mt-0">
@@ -315,7 +265,7 @@ export function PlanificacionTab({ data, empleados, isEditing, onDataChange }: P
                 empleados={empleados} 
                 isEditing={isEditing} 
                 onDataChange={onDataChange}
-                ratios={data.listas.productividadRatio}
+                onInputChange={handleDayInputChange}
             />
         </TabsContent>
     </Tabs>
