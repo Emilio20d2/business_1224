@@ -54,45 +54,72 @@ const DayProductividad = ({ dayData, dayKey, isEditing, onInputChange }: { dayDa
         { key: 'nino', title: 'NIÑO' },
     ] as const;
 
+    const totalUnidadesConfeccion = sections.reduce((sum, sec) => sum + (dayData.productividadPorSeccion[sec.key]?.unidadesConfeccion || 0), 0);
+    const totalHorasConfeccion = sections.reduce((sum, sec) => sum + (dayData.productividadPorSeccion[sec.key]?.horasConfeccion || 0), 0);
+    const totalUnidadesPaqueteria = sections.reduce((sum, sec) => sum + (dayData.productividadPorSeccion[sec.key]?.unidadesPaqueteria || 0), 0);
+    const totalHorasPaqueteria = sections.reduce((sum, sec) => sum + (dayData.productividadPorSeccion[sec.key]?.horasPaqueteria || 0), 0);
+
     return (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {sections.map(section => {
-                const sectionData = dayData.productividadPorSeccion[section.key];
-                if (!sectionData) return null;
-                
-                return (
-                    <KpiCard key={section.key} title={section.title} icon={<Users className="h-5 w-5 text-primary" />}>
-                        <div className="space-y-2 pt-2">
-                            <div className="grid grid-cols-3 items-center text-center gap-2">
-                                <span className="text-sm font-semibold text-muted-foreground text-left"></span>
-                                <span className="text-sm font-semibold text-muted-foreground text-right">Unidades</span>
-                                <span className="text-sm font-semibold text-muted-foreground text-right">Horas</span>
+        <div className="space-y-4">
+             <KpiCard title="TOTAL" icon={<Zap className="h-5 w-5 text-primary" />}>
+                <div className="space-y-2 pt-2">
+                    <div className="grid grid-cols-3 items-center text-center gap-2">
+                        <span className="text-sm font-semibold text-muted-foreground text-left"></span>
+                        <span className="text-sm font-semibold text-muted-foreground text-right">Unidades</span>
+                        <span className="text-sm font-semibold text-muted-foreground text-right">Horas</span>
+                    </div>
+                    <Separator />
+                     <div className="grid grid-cols-3 items-center text-center gap-2">
+                        <span className="text-sm font-medium text-muted-foreground text-left">UN. CONFECCION</span>
+                        <span className="text-lg font-medium text-right">{totalUnidadesConfeccion}un.</span>
+                        <span className="text-lg font-medium text-right">{totalHorasConfeccion}h</span>
+                    </div>
+                     <div className="grid grid-cols-3 items-center text-center gap-2">
+                        <span className="text-sm font-medium text-muted-foreground text-left">UN. PAQUETERIA</span>
+                        <span className="text-lg font-medium text-right">{totalUnidadesPaqueteria}un.</span>
+                        <span className="text-lg font-medium text-right">{totalHorasPaqueteria}h</span>
+                    </div>
+                </div>
+            </KpiCard>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {sections.map(section => {
+                    const sectionData = dayData.productividadPorSeccion[section.key];
+                    if (!sectionData) return null;
+                    
+                    return (
+                        <KpiCard key={section.key} title={section.title} icon={<Users className="h-5 w-5 text-primary" />}>
+                            <div className="space-y-2 pt-2">
+                                <div className="grid grid-cols-3 items-center text-center gap-2">
+                                    <span className="text-sm font-semibold text-muted-foreground text-left"></span>
+                                    <span className="text-sm font-semibold text-muted-foreground text-right">Unidades</span>
+                                    <span className="text-sm font-semibold text-muted-foreground text-right">Horas</span>
+                                </div>
+                                <Separator />
+                                <PaqueteriaRow
+                                    label="UN. CONFECCION"
+                                    unidades={sectionData.unidadesConfeccion}
+                                    horas={sectionData.horasConfeccion}
+                                    isEditing={isEditing}
+                                    onInputChange={onInputChange}
+                                    basePath={`productividad.${dayKey}.productividadPorSeccion.${section.key}`}
+                                    unidadesId={`productividad.${dayKey}.productividadPorSeccion.${section.key}.unidadesConfeccion`}
+                                    horasId={`productividad.${dayKey}.productividadPorSeccion.${section.key}.horasConfeccion`}
+                                />
+                                <PaqueteriaRow
+                                    label="UN. PAQUETERIA"
+                                    unidades={sectionData.unidadesPaqueteria}
+                                    horas={sectionData.horasPaqueteria}
+                                    isEditing={isEditing}
+                                    onInputChange={onInputChange}
+                                    basePath={`productividad.${dayKey}.productividadPorSeccion.${section.key}`}
+                                    unidadesId={`productividad.${dayKey}.productividadPorSeccion.${section.key}.unidadesPaqueteria`}
+                                    horasId={`productividad.${dayKey}.productividadPorSeccion.${section.key}.horasPaqueteria`}
+                                />
                             </div>
-                            <Separator />
-                            <PaqueteriaRow
-                                label="UN. CONFECCION"
-                                unidades={sectionData.unidadesConfeccion}
-                                horas={sectionData.horasConfeccion}
-                                isEditing={isEditing}
-                                onInputChange={onInputChange}
-                                basePath={`productividad.${dayKey}.productividadPorSeccion.${section.key}`}
-                                unidadesId={`productividad.${dayKey}.productividadPorSeccion.${section.key}.unidadesConfeccion`}
-                                horasId={`productividad.${dayKey}.productividadPorSeccion.${section.key}.horasConfeccion`}
-                            />
-                            <PaqueteriaRow
-                                label="UN. PAQUETERIA"
-                                unidades={sectionData.unidadesPaqueteria}
-                                horas={sectionData.horasPaqueteria}
-                                isEditing={isEditing}
-                                onInputChange={onInputChange}
-                                basePath={`productividad.${dayKey}.productividadPorSeccion.${section.key}`}
-                                unidadesId={`productividad.${dayKey}.productividadPorSeccion.${section.key}.unidadesPaqueteria`}
-                                horasId={`productividad.${dayKey}.productividadPorSeccion.${section.key}.horasPaqueteria`}
-                            />
-                        </div>
-                    </KpiCard>
-                );
-            })}
+                        </KpiCard>
+                    );
+                })}
+            </div>
         </div>
     );
 }
