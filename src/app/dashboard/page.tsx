@@ -515,8 +515,8 @@ const handleSaveEmpleados = async (newItems: Empleado[]) => {
 };
 
 const handleCopyWeek = async () => {
-    const fromWeek = '2023-39';
-    const toWeek = '2023-40';
+    const fromWeek = '2025-39';
+    const toWeek = '2025-40';
     
     setIsSaving(true);
     toast({ title: 'Copiando datos...', description: `De la semana ${fromWeek} a la ${toWeek}` });
@@ -525,11 +525,22 @@ const handleCopyWeek = async () => {
         const fromDocRef = doc(db, "informes", fromWeek);
         const fromDocSnap = await getDoc(fromDocRef);
 
-        if (!fromDocSnap.exists()) {
-            throw new Error(`El informe de la semana ${fromWeek} no existe.`);
-        }
+        let dataToCopy;
 
-        const dataToCopy = fromDocSnap.data() as WeeklyData;
+        if (fromDocSnap.exists()) {
+            dataToCopy = fromDocSnap.data() as WeeklyData;
+        } else {
+             toast({
+                title: "Semana de origen no encontrada",
+                description: `Creando informe en blanco para la semana ${toWeek}.`,
+                variant: "default",
+            });
+            const listsRef = doc(db, "configuracion", "listas");
+            const listsSnap = await getDoc(listsRef);
+            const listData = listsSnap.exists() ? (listsSnap.data() as WeeklyData['listas']) : getInitialLists();
+            dataToCopy = getInitialDataForWeek(fromWeek, listData);
+        }
+        
         dataToCopy.periodo = toWeek.replace('-', ' ');
 
         const toDocRef = doc(db, "informes", toWeek);
@@ -833,6 +844,8 @@ export default function DashboardPage() {
         </Suspense>
     );
 }
+
+    
 
     
 
