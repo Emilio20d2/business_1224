@@ -100,7 +100,7 @@ export function OperacionesSubTab({ operaciones, perdidas, logistica, almacenes,
                <strong className="text-3xl font-bold">{formatNumber(balance)}</strong>
             </div>
           </ModuloAlmacen>
-          <ModuloAlmacen title="SINT">
+          <ModuloAlmacen title="DEVOS.">
             <ModuloContenidoGrande icon={<FileInput className="h-8 w-8 text-primary"/>} value={logistica.salidasSemanales} isEditing={isEditing} id={`${basePath}.logistica.salidasSemanales`} onInputChange={onInputChange} />
           </ModuloAlmacen>
           <ModuloAlmacen title="Ocupación" className="w-full">
