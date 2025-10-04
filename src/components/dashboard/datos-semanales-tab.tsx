@@ -250,7 +250,7 @@ const AlmacenesGeneralCard = ({ data, isEditing, onInputChange }: { data: Weekly
           </div>
         </div>
         <div className="flex flex-col text-center gap-2 w-full">
-          <h4 className="text-sm font-semibold text-muted-foreground tracking-wider uppercase">Propuesta Destocaje</h4>
+          <h4 className="text-sm font-semibold text-muted-foreground tracking-wider uppercase">Destocaje</h4>
           <div className="flex flex-col gap-3">
              <FilaModulo icon={<Archive className="h-5 w-5"/>} label="Paque." value={totalAlmacenes.paqueteria.devolucionUnidades as number} unit="Unid."/>
              <FilaModulo icon={<Box className="h-5 w-5"/>} label="Confe." value={totalAlmacenes.confeccion.devolucionUnidades as number} unit="Unid."/>
@@ -284,7 +284,7 @@ export function DatosSemanalesTab({ data, ventas, rendimientoTienda, operaciones
         <SectionCard name="nino" data={datosPorSeccion.nino} isEditing={isEditing} onInputChange={onInputChange} />
       </div>
 
-       <div className="grid grid-cols-1 md:grid-cols-6 gap-2">
+       <div className="grid grid-cols-1 md:grid-cols-8 gap-2">
         <KpiCard title="Ventas" icon={<Euro className="h-5 w-5 text-primary" />} className="md:col-span-3">
            <DatoDoble 
             label="Importes"
@@ -306,7 +306,7 @@ export function DatosSemanalesTab({ data, ventas, rendimientoTienda, operaciones
           />
         </KpiCard>
 
-        <KpiCard title="Rendimiento de Tienda" icon={<ChartLine className="h-5 w-5 text-primary" />} className="md:col-span-3">
+        <KpiCard title="Rendimiento de Tienda" icon={<ChartLine className="h-5 w-5 text-primary" />} className="md:col-span-5">
           <DatoDoble 
             label="Tráfico" 
             value={formatNumber(rendimientoTienda.trafico)} 
@@ -330,7 +330,7 @@ export function DatosSemanalesTab({ data, ventas, rendimientoTienda, operaciones
       
       <div className="grid grid-cols-1 md:grid-cols-8 gap-2">
          <KpiCard title="GAP" icon={<ClipboardX className="h-5 w-5 text-primary" />} className="md:col-span-2">
-          <div className="flex flex-col justify-around items-center gap-4 h-full">
+          <div className="flex flex-row justify-around items-center gap-4 h-full">
             <DatoSimple 
               label={<Euro className="h-5 w-5 text-primary"/>}
               value={perdidas.gap.euros} 
@@ -349,8 +349,10 @@ export function DatosSemanalesTab({ data, ventas, rendimientoTienda, operaciones
             />
           </div>
         </KpiCard>
-        <KpiCard title="V. Ipod" icon={<Smartphone className="h-5 w-5 text-primary" />} className="md:col-span-1">
-          <DatoSimple 
+         <KpiCard title="V. Ipod" icon={<Smartphone className="h-5 w-5 text-primary" />} className="md:col-span-1">
+          <DatoSimple
+            icon={<Package className="h-5 w-5 text-primary" />}
+            label="Pedidos"
             value={operaciones.ventaIpod} 
             isEditing={isEditing}
             align="center"
