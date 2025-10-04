@@ -2,10 +2,10 @@
 
 "use client"
 import React, { useState, useContext, useEffect, useCallback, Suspense } from 'react';
-import type { WeeklyData, VentasManItem, SectionSpecificData } from "@/lib/data";
+import type { WeeklyData, VentasManItem, SectionSpecificData, Empleado } from "@/lib/data";
 import { doc, getDoc, setDoc, updateDoc, collection, getDocs } from "firebase/firestore";
 import { db } from '@/lib/firebase';
-import { Calendar as CalendarIcon, Settings, LogOut, Loader2, Briefcase, List, LayoutDashboard, Pencil, Projector, Users } from 'lucide-react';
+import { Calendar as CalendarIcon, Settings, LogOut, Loader2, Briefcase, List, LayoutDashboard, Pencil, Projector, Users, UserPlus, SlidersHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -30,6 +30,8 @@ import { EditListDialog } from '@/components/dashboard/edit-list-dialog';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { formatWeekIdToDateRange, getCurrentWeekId, getWeekIdFromDate, getPreviousWeekId } from '@/lib/format';
+import { EditEmpleadosDialog } from '@/components/dashboard/edit-empleados-dialog';
+import { EditRatiosDialog } from '@/components/dashboard/operaciones/edit-ratios-dialog';
 
 type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan' | 'compradorWoman' | 'zonaComercialWoman' | 'agrupacionComercialWoman' | 'compradorNino' | 'zonaComercialNino' | 'agrupacionComercialNino';
 
@@ -106,9 +108,12 @@ function ManPageComponent() {
   const [error, setError] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
   
   const [isListDialogOpen, setListDialogOpen] = useState(false);
   const [listToEdit, setListToEdit] = useState<{ listKey: EditableList, title: string } | null>(null);
+  const [isEmpleadosDialogOpen, setEmpleadosDialogOpen] = useState(false);
+  const [isRatiosDialogOpen, setRatiosDialogOpen] = useState(false);
 
   const selectedWeek = searchParams.get('week') || '';
   const activeTab = "man";
@@ -261,6 +266,13 @@ function ManPageComponent() {
     }
   }, [user, authLoading, router, fetchData, selectedWeek, canEdit, updateUrl]);
 
+  useEffect(() => {
+      if(saveSuccess) {
+          fetchData(selectedWeek);
+          setSaveSuccess(false);
+      }
+  }, [saveSuccess, fetchData, selectedWeek])
+
 
   const handleInputChange = (path: string, value: any, reorder = false) => {
     if (!canEdit) return;
@@ -349,6 +361,11 @@ function ManPageComponent() {
       setListToEdit({ listKey, title });
       setListDialogOpen(true);
   };
+
+  const handleOpenRatiosDialog = () => {
+    if (!canEdit) return;
+    setRatiosDialogOpen(true);
+  }
   
  const handleSaveList = async (listKey: EditableList, newItems: string[]) => {
     if (!listKey || !canEdit) return;
@@ -371,6 +388,46 @@ function ManPageComponent() {
         .finally(() => {
             setIsSaving(false);
         });
+};
+
+const handleSaveRatios = async (newRatios: WeeklyData['listas']['productividadRatio']) => {
+    if (!canEdit) return;
+    setIsSaving(true);
+    const listsRef = doc(db, "configuracion", "listas");
+
+    try {
+        await updateDoc(listsRef, { productividadRatio: newRatios });
+        toast({
+            title: "Ratios actualizados",
+            description: "Los nuevos ratios de productividad se han guardado.",
+        });
+        setRatiosDialogOpen(false);
+        setSaveSuccess(true); // Trigger re-fetch
+    } catch (error: any) {
+        setError(`Error al guardar los ratios: ${error.message}`);
+    } finally {
+        setIsSaving(false);
+    }
+};
+
+const handleSaveEmpleados = async (newItems: Empleado[]) => {
+  if (!canEdit) return;
+  setIsSaving(true);
+  const listsRef = doc(db, "configuracion", "listas");
+
+  try {
+    await updateDoc(listsRef, { empleados: newItems });
+    toast({
+      title: "Lista de empleados actualizada",
+      description: "La lista de empleados se ha guardado correctamente.",
+    });
+    setEmpleadosDialogOpen(false);
+    await fetchData(selectedWeek);
+  } catch (error: any) {
+    setError(`Error al guardar la lista de empleados: ${error.message}`);
+  } finally {
+    setIsSaving(false);
+  }
 };
 
 
@@ -499,30 +556,38 @@ function ManPageComponent() {
                   <DropdownMenuSeparator />
                   {canEdit && (
                      <>
-                    <DropdownMenuSub>
-                      <DropdownMenuSubTrigger>
-                        <List className="mr-2 h-4 w-4 text-primary" />
-                        <span>Editar Listas</span>
-                      </DropdownMenuSubTrigger>
-                      <DropdownMenuPortal>
-                        <DropdownMenuSubContent>
-                          <DropdownMenuLabel>MAN</DropdownMenuLabel>
-                          <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorMan', 'Editar Lista: Comprador MAN')}>Comprador</DropdownMenuItem>
-                          <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialMan', 'Editar Lista: Zona Comercial MAN')}>Zona Comercial</DropdownMenuItem>
-                          <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercialMan', 'Editar Lista: Agrupación Comercial MAN')}>Agrupación Comercial</DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuLabel>WOMAN</DropdownMenuLabel>
-                          <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorWoman', 'Editar Lista: Comprador WOMAN')}>Comprador</DropdownMenuItem>
-                          <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialWoman', 'Editar Lista: Zona Comercial WOMAN')}>Zona Comercial</DropdownMenuItem>
-                          <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercialWoman', 'Editar Lista: Agrupación Comercial WOMAN')}>Agrupación Comercial</DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuLabel>NIÑO</DropdownMenuLabel>
-                          <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorNino', 'Editar Lista: Comprador NIÑO')}>Comprador</DropdownMenuItem>
-                          <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialNino', 'Editar Lista: Zona Comercial NIÑO')}>Zona Comercial</DropdownMenuItem>
-                          <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercialNino', 'Editar Lista: Agrupación Comercial NIÑO')}>Agrupación Comercial</DropdownMenuItem>
-                        </DropdownMenuSubContent>
-                      </DropdownMenuPortal>
-                    </DropdownMenuSub>
+                        <DropdownMenuItem onSelect={handleOpenRatiosDialog}>
+                            <SlidersHorizontal className="mr-2 h-4 w-4 text-primary" />
+                            <span>Editar Ratios Prod.</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onSelect={() => setEmpleadosDialogOpen(true)}>
+                            <UserPlus className="mr-2 h-4 w-4 text-primary" />
+                            <span>Editar Empleados</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuSub>
+                          <DropdownMenuSubTrigger>
+                            <List className="mr-2 h-4 w-4 text-primary" />
+                            <span>Editar Listas</span>
+                          </DropdownMenuSubTrigger>
+                          <DropdownMenuPortal>
+                            <DropdownMenuSubContent>
+                              <DropdownMenuLabel>MAN</DropdownMenuLabel>
+                              <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorMan', 'Editar Lista: Comprador MAN')}>Comprador</DropdownMenuItem>
+                              <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialMan', 'Editar Lista: Zona Comercial MAN')}>Zona Comercial</DropdownMenuItem>
+                              <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercialMan', 'Editar Lista: Agrupación Comercial MAN')}>Agrupación Comercial</DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuLabel>WOMAN</DropdownMenuLabel>
+                              <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorWoman', 'Editar Lista: Comprador WOMAN')}>Comprador</DropdownMenuItem>
+                              <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialWoman', 'Editar Lista: Zona Comercial WOMAN')}>Zona Comercial</DropdownMenuItem>
+                              <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercialWoman', 'Editar Lista: Agrupación Comercial WOMAN')}>Agrupación Comercial</DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuLabel>NIÑO</DropdownMenuLabel>
+                              <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorNino', 'Editar Lista: Comprador NIÑO')}>Comprador</DropdownMenuItem>
+                              <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialNino', 'Editar Lista: Zona Comercial NIÑO')}>Zona Comercial</DropdownMenuItem>
+                              <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercialNino', 'Editar Lista: Agrupación Comercial NIÑO')}>Agrupación Comercial</DropdownMenuItem>
+                            </DropdownMenuSubContent>
+                          </DropdownMenuPortal>
+                        </DropdownMenuSub>
                    </>
                   )}
                   {canEdit && <DropdownMenuSeparator />}
@@ -569,6 +634,22 @@ function ManPageComponent() {
               }
             }}
           />
+        )}
+        {data && data.listas && (
+            <EditRatiosDialog
+                isOpen={isRatiosDialogOpen}
+                onClose={() => setRatiosDialogOpen(false)}
+                ratios={data.listas.productividadRatio}
+                onSave={handleSaveRatios}
+            />
+        )}
+        {data && data.listas && (
+            <EditEmpleadosDialog
+                isOpen={isEmpleadosDialogOpen}
+                onClose={() => setEmpleadosDialogOpen(false)}
+                empleados={data.listas.empleados || []}
+                onSave={handleSaveEmpleados}
+            />
         )}
       </div>
     </TooltipProvider>
