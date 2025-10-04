@@ -27,7 +27,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { EditListDialog } from '@/components/dashboard/edit-list-dialog';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { formatWeekIdToDateRange, getCurrentWeekId, getWeekIdFromDate, getPreviousWeekId } from '@/lib/format';
+import { formatWeekIdToDateRange, getCurrentWeekId, getWeekIdFromDate } from '@/lib/format';
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { AlmacenesTab } from '@/components/dashboard/operaciones/almacenes-tab';
 import { MermaReposicionTab } from '@/components/dashboard/operaciones/merma-reposicion-tab';
@@ -154,11 +154,17 @@ function OperacionesPageComponent() {
   };
 
   useEffect(() => {
-    if (!searchParams.has('week') && user) {
+    if (!authLoading && !user) {
+      router.push('/');
+    } else if (!authLoading && user) {
+      if (selectedWeek) {
+        fetchData(selectedWeek);
+      } else {
         const currentWeekId = getCurrentWeekId();
         updateUrl(currentWeekId);
+      }
     }
-  }, [user, searchParams, updateUrl]);
+  }, [user, authLoading, selectedWeek, router]);
 
 
  const fetchData = useCallback(async (weekId: string) => {
@@ -237,22 +243,6 @@ function OperacionesPageComponent() {
         setDataLoading(false);
     }
   }, [user, canEdit, toast]);
-
-  useEffect(() => {
-    if (!authLoading && !user) {
-      router.push('/');
-    } else if (!authLoading && user && selectedWeek) {
-      fetchData(selectedWeek);
-    } else if (!authLoading && user && !selectedWeek) {
-      setDataLoading(false);
-        if(canEdit) {
-            const newWeekId = getCurrentWeekId();
-            updateUrl(newWeekId);
-        } else {
-            setError("No hay informes disponibles. Contacta al administrador.");
-        }
-    }
-  }, [user, authLoading, router, fetchData, selectedWeek, canEdit, updateUrl]);
 
   useEffect(() => {
       if(saveSuccess) {

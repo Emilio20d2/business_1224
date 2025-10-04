@@ -152,13 +152,19 @@ function DashboardPageComponent() {
         updateUrl(selectedWeek, newTabKey);
     }
   };
-  
-  useEffect(() => {
-    if (!searchParams.has('week') && user) {
+
+ useEffect(() => {
+    if (!authLoading && !user) {
+      router.push('/');
+    } else if (!authLoading && user) {
+      if (selectedWeek) {
+        fetchData(selectedWeek);
+      } else {
         const currentWeekId = getCurrentWeekId();
-        updateUrl(currentWeekId, 'ventas');
+        updateUrl(currentWeekId, activeSubTab);
+      }
     }
-  }, [user, searchParams, updateUrl]);
+  }, [user, authLoading, selectedWeek, router]);
 
 
  const fetchData = useCallback(async (weekId: string) => {
@@ -263,22 +269,6 @@ function DashboardPageComponent() {
         setDataLoading(false);
     }
   }, [user, canEdit, toast]);
-
-  useEffect(() => {
-    if (!authLoading && !user) {
-      router.push('/');
-    } else if (!authLoading && user && selectedWeek) {
-      fetchData(selectedWeek);
-    } else if (!authLoading && user && !selectedWeek) {
-       setDataLoading(false);
-        if(canEdit) {
-            const newWeekId = getCurrentWeekId();
-            updateUrl(newWeekId, 'ventas');
-        } else {
-            setError("No hay informes disponibles. Contacta al administrador.");
-        }
-    }
-  }, [user, authLoading, router, fetchData, selectedWeek, canEdit, updateUrl]);
   
   useEffect(() => {
       if(saveSuccess) {

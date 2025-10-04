@@ -29,7 +29,7 @@ import { EditListDialog } from '@/components/dashboard/edit-list-dialog';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { VentasWomanTab } from '@/components/dashboard/ventas-woman-tab';
-import { formatWeekIdToDateRange, getCurrentWeekId, getWeekIdFromDate, getPreviousWeekId } from '@/lib/format';
+import { formatWeekIdToDateRange, getCurrentWeekId, getWeekIdFromDate } from '@/lib/format';
 import { EditEmpleadosDialog } from '@/components/dashboard/edit-empleados-dialog';
 import { EditRatiosDialog } from '@/components/dashboard/operaciones/edit-ratios-dialog';
 
@@ -147,11 +147,17 @@ function WomanPageComponent() {
   };
 
   useEffect(() => {
-    if (!searchParams.has('week') && user) {
+    if (!authLoading && !user) {
+      router.push('/');
+    } else if (!authLoading && user) {
+      if (selectedWeek) {
+        fetchData(selectedWeek);
+      } else {
         const currentWeekId = getCurrentWeekId();
         updateUrl(currentWeekId);
+      }
     }
-  }, [user, searchParams, updateUrl]);
+  }, [user, authLoading, selectedWeek, router]);
 
 
  const fetchData = useCallback(async (weekId: string) => {
@@ -248,22 +254,6 @@ function WomanPageComponent() {
         setDataLoading(false);
     }
   }, [user, canEdit, toast]);
-
-  useEffect(() => {
-    if (!authLoading && !user) {
-      router.push('/');
-    } else if (!authLoading && user && selectedWeek) {
-      fetchData(selectedWeek);
-    } else if (!authLoading && user && !selectedWeek) {
-      setDataLoading(false);
-        if(canEdit) {
-            const newWeekId = getCurrentWeekId();
-            updateUrl(newWeekId);
-        } else {
-            setError("No hay informes disponibles. Contacta al administrador.");
-        }
-    }
-  }, [user, authLoading, router, fetchData, selectedWeek, canEdit, updateUrl]);
 
   useEffect(() => {
       if(saveSuccess) {
