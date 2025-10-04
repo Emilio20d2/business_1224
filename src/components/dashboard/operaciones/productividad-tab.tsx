@@ -2,7 +2,6 @@
 "use client";
 
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import type { WeeklyData, CoberturaHora, ProductividadData } from "@/lib/data";
 import { KpiCard, DatoDoble, DatoSimple } from "../kpi-card";
 import { Zap, Users, Box, Printer } from 'lucide-react';
@@ -11,6 +10,8 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatNumber } from '@/lib/format';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 
 type ProductividadTabProps = {
@@ -143,18 +144,74 @@ const DayProductividad = ({ dayData, dayKey, ratios, isEditing, onInputChange }:
 
 export function ProductividadTab({ data, isEditing, onInputChange }: ProductividadTabProps) {
   const [activeSubTab, setActiveSubTab] = useState('lunes');
-  const router = useRouter();
   
   const subTabButtons = [
     { value: 'lunes', label: 'LUNES' },
     { value: 'jueves', label: 'JUEVES' },
   ];
   
-  const handlePrint = () => {
-    const weekId = data.periodo.replace(' ', '-');
-    const url = `/operaciones/productividad/print?week=${weekId}&day=${activeSubTab}`;
-    window.open(url, '_blank');
+  const handleGeneratePDF = () => {
+    if (!data || !data.productividad || !data.listas || !data.listas.productividadRatio) return;
+
+    const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+    const dayKey = activeSubTab as 'lunes' | 'jueves';
+    const dayData = data.productividad[dayKey];
+    const ratios = data.listas.productividadRatio;
+    
+    // Header
+    doc.setFontSize(18);
+    doc.text(`PRODUCTIVIDAD ${dayKey.toUpperCase()}`, 105, 20, { align: 'center' });
+    doc.setFontSize(10);
+    doc.text(`ZARA 1224 - PUERTO VENECIA`, 105, 26, { align: 'center' });
+    
+    const ratioConfeccion = ratios.confeccion || 120;
+    const ratioPerchado = ratios.perchado || 80;
+    const ratioPicking = ratios.picking || 400;
+    const porcentajePerchado = (ratios.porcentajePerchado || 40) / 100;
+    const porcentajePicking = (ratios.porcentajePicking || 60) / 100;
+
+    const sections = ['woman', 'man', 'nino'] as const;
+
+    const productividadData = sections.map(sec => {
+        const unidadesConfeccion = dayData.productividadPorSeccion[sec]?.unidadesConfeccion || 0;
+        const unidadesPaqueteria = dayData.productividadPorSeccion[sec]?.unidadesPaqueteria || 0;
+        const horasConfeccion = unidadesConfeccion / ratioConfeccion;
+        const unidadesPerchado = unidadesPaqueteria * porcentajePerchado;
+        const horasPerchado = unidadesPerchado / ratioPerchado;
+        const unidadesPicking = unidadesPaqueteria * porcentajePicking;
+        const horasPicking = unidadesPicking / ratioPicking;
+        return { 
+            title: sec.toUpperCase(),
+            unidadesConfeccion, horasConfeccion, unidadesPaqueteria, unidadesPerchado, horasPerchado, unidadesPicking, horasPicking 
+        };
+    });
+
+    const bodyData = productividadData.flatMap(sec => [
+        { section: sec.title, tarea: 'Confección', unidades: formatNumber(sec.unidadesConfeccion), ratio: `${ratioConfeccion} u/h`, horas: `${roundToQuarter(sec.horasConfeccion)} h` },
+        { section: '', tarea: 'Paquetería (Perchado)', unidades: formatNumber(sec.unidadesPerchado), ratio: `${ratioPerchado} u/h`, horas: `${roundToQuarter(sec.horasPerchado)} h` },
+        { section: '', tarea: 'Paquetería (Picking)', unidades: formatNumber(sec.unidadesPicking), ratio: `${ratioPicking} u/h`, horas: `${roundToQuarter(sec.horasPicking)} h` },
+    ]);
+
+    const horasProductividadRequeridas = productividadData.reduce((sum, d) => sum + d.horasConfeccion + d.horasPerchado + d.horasPicking, 0);
+
+    autoTable(doc, {
+        startY: 35,
+        head: [['Sección', 'Tarea', 'Unidades', 'Productividad', 'Horas Req.']],
+        body: bodyData.map(d => [d.section, d.tarea, d.unidades, d.ratio, d.horas]),
+        theme: 'grid',
+        headStyles: { fillColor: [73, 175, 165] },
+        didDrawCell: (data) => {
+            if (data.row.index % 3 === 0 && data.section === 'body') {
+                doc.line(data.cell.x, data.cell.y, data.cell.x + data.cell.width, data.cell.y);
+            }
+        },
+        foot: [['TOTAL HORAS PRODUCTIVIDAD REQUERIDAS', '', '', '', `${roundToQuarter(horasProductividadRequeridas)} h`]],
+        footStyles: { fillColor: [230, 230, 230], textColor: 20, fontStyle: 'bold' }
+    });
+
+    doc.save(`productividad_${dayKey}.pdf`);
   };
+
 
   return (
      <Tabs value={activeSubTab} onValueChange={setActiveSubTab} className="w-full font-light">
@@ -171,7 +228,7 @@ export function ProductividadTab({ data, isEditing, onInputChange }: Productivid
                     </Button>
                 ))}
             </div>
-             <Button onClick={handlePrint} variant="outline" disabled={!data || !data.periodo}>
+             <Button onClick={handleGeneratePDF} variant="outline" disabled={!data || !data.periodo}>
                 <Printer className="mr-2 h-4 w-4" />
                 Crear PDF
             </Button>

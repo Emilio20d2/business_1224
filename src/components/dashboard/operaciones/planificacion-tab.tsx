@@ -2,7 +2,6 @@
 "use client";
 
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import type { WeeklyData, Empleado, PlanificacionItem } from "@/lib/data";
 import { DatoSimple } from "../kpi-card";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
@@ -13,6 +12,9 @@ import { Plus, Trash2, Printer } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { formatNumber } from '@/lib/format';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+
 
 type PlanificacionTabProps = {
   data: WeeklyData;
@@ -202,14 +204,75 @@ const DayPlanificacion = ({
 
 export function PlanificacionTab({ data, empleados, isEditing, onDataChange, weekId }: PlanificacionTabProps) {
   const [activeSubTab, setActiveSubTab] = useState('lunes');
-  const router = useRouter();
 
   if (!data.productividad) return null;
   
-  const handlePrint = () => {
-    const url = `/operaciones/print?week=${weekId}&day=${activeSubTab}`;
-    window.open(url, '_blank');
+  const handleGeneratePDF = () => {
+    if (!data || !data.productividad) return;
+    
+    const dayKey = activeSubTab as 'lunes' | 'jueves';
+    const dayData = data.productividad[dayKey];
+    const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+    
+    // Header
+    doc.setFontSize(18);
+    doc.text(`PLANIFICACIÓN ${dayKey.toUpperCase()}`, 105, 20, { align: 'center' });
+    doc.setFontSize(10);
+    doc.text(`ZARA 1224 - PUERTO VENECIA`, 105, 26, { align: 'center' });
+    
+    let lastY = 35;
+
+    ['woman', 'man', 'nino'].forEach(section => {
+        const sectionData = dayData.productividadPorSeccion[section as keyof typeof dayData.productividadPorSeccion];
+        const planificacionSeccion = dayData.planificacion.filter(p => p.seccion === section);
+        
+        const confeccionItems = planificacionSeccion.filter(p => p.tarea === 'confeccion');
+        const paqueteriaItems = planificacionSeccion.filter(p => p.tarea === 'paqueteria');
+
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.text(section.toUpperCase(), 15, lastY);
+
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`Un. Confección: ${formatNumber(sectionData?.unidadesConfeccion) || 0}`, 15, lastY + 5);
+        doc.text(`Un. Paquetería: ${formatNumber(sectionData?.unidadesPaqueteria) || 0}`, 60, lastY + 5);
+        
+        lastY += 10;
+
+        autoTable(doc, {
+            startY: lastY,
+            head: [['CONFECCIÓN']],
+            body: confeccionItems.map(item => [`${item.nombreEmpleado || '--'}\n  ${item.anotaciones || ''}`]),
+            theme: 'striped',
+            headStyles: { fillColor: [73, 175, 165] }, // Teal color
+            styles: { cellPadding: 2, fontSize: 8 },
+            columnStyles: { 0: { cellWidth: 88 } },
+            margin: { left: 15 },
+            tableWidth: 'wrap'
+        });
+
+        autoTable(doc, {
+            startY: lastY,
+            head: [['PAQUETERÍA']],
+            body: paqueteriaItems.map(item => [`${item.nombreEmpleado || '--'}\n  ${item.anotaciones || ''}`]),
+            theme: 'striped',
+            headStyles: { fillColor: [73, 175, 165] },
+            styles: { cellPadding: 2, fontSize: 8 },
+            columnStyles: { 0: { cellWidth: 88 } },
+            margin: { left: 107 },
+            tableWidth: 'wrap'
+        });
+
+        const confeccionTableHeight = (doc as any).lastAutoTable.finalY;
+        const paqueteriaTableHeight = (doc as any).lastAutoTable.finalY;
+
+        lastY = Math.max(confeccionTableHeight, paqueteriaTableHeight) + 10;
+    });
+
+    doc.save(`planificacion_${dayKey}.pdf`);
   };
+
 
   return (
     <Tabs value={activeSubTab} onValueChange={setActiveSubTab} className="w-full font-light">
@@ -228,7 +291,7 @@ export function PlanificacionTab({ data, empleados, isEditing, onDataChange, wee
                     JUEVES
                 </Button>
             </div>
-             <Button onClick={handlePrint} variant="outline">
+             <Button onClick={handleGeneratePDF} variant="outline">
                 <Printer className="mr-2 h-4 w-4" />
                 Crear PDF
             </Button>
