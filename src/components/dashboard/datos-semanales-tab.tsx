@@ -237,7 +237,7 @@ const AlmacenesGeneralCard = ({ data, isEditing, onInputChange }: { data: Weekly
           <h4 className="text-sm font-semibold text-muted-foreground tracking-wider uppercase">Destocaje</h4>
           <div className="flex flex-col items-center justify-center gap-2 p-4 rounded-lg bg-background h-full">
             <div className="text-primary"><FileInput className="h-8 w-8 text-primary"/></div>
-            <strong className="text-3xl font-bold">{formatNumber(totalLogistica.salidasSemanales)}</strong>
+            <strong className="text-3xl font-bold">{totalLogistica.salidasSemanales}</strong>
           </div>
         </div>
         <div className="flex flex-col text-center gap-2 w-full">
