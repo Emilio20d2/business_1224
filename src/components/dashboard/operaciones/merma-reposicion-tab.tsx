@@ -4,7 +4,7 @@
 import React from 'react';
 import type { WeeklyData } from "@/lib/data";
 import { KpiCard, DatoSimple } from "../kpi-card";
-import { Trash2, RefreshCw, Sparkles, Package, Percent, Target, Users } from 'lucide-react';
+import { Trash2, RefreshCw, Sparkles, Package, Percent, Target, Users, Euro } from 'lucide-react';
 
 type MermaReposicionTabProps = {
   data: WeeklyData;
@@ -30,7 +30,16 @@ const SectionMerma = ({
     <div>
         <h2 className="text-xl font-bold mb-2">{sectionName}</h2>
         <KpiCard title="Merma" icon={<Trash2 className="h-5 w-5 text-primary" />}>
-            <div className="grid grid-cols-3 justify-center items-center gap-4 h-full">
+            <div className="grid grid-cols-4 justify-center items-center gap-4 h-full">
+                <DatoSimple 
+                    label={<Euro className="h-5 w-5 text-primary"/>}
+                    value={perdidas.merma.euros}
+                    isEditing={isEditing}
+                    valueId={`${basePath}.perdidas.merma.euros`}
+                    align="center"
+                    unit="€"
+                    onInputChange={onInputChange}
+                />
                 <DatoSimple 
                     label={<Package className="h-5 w-5 text-primary"/>}
                     value={perdidas.merma.unidades}

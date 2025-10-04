@@ -34,6 +34,7 @@ export type PerdidasData = {
         unidades: number;
     };
     merma: {
+        euros: number;
         unidades: number;
         porcentaje: number;
     };
@@ -377,7 +378,7 @@ const createInitialSectionSpecificData = (): SectionSpecificData => ({
     },
     perdidas: {
         gap: { euros: 0, unidades: 0 },
-        merma: { unidades: 0, porcentaje: 0 }
+        merma: { euros: 0, unidades: 0, porcentaje: 0 }
     },
     logistica: { entradasSemanales: 0, salidasSemanales: 0, sintSemanales: 0 },
     almacenes: {
