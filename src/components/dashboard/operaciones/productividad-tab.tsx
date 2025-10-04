@@ -9,9 +9,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { formatNumber } from '@/lib/format';
+import { formatNumber, getDateOfWeek } from '@/lib/format';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
 
 
 type ProductividadTabProps = {
@@ -158,9 +160,12 @@ export function ProductividadTab({ data, isEditing, onInputChange }: Productivid
     const dayData = data.productividad[dayKey];
     const ratios = data.listas.productividadRatio;
     
+    const dayDate = getDateOfWeek(data.periodo, dayKey);
+    const dateString = dayDate ? format(dayDate, "d 'de' MMMM", { locale: es }) : '';
+    
     // Header
     doc.setFontSize(18);
-    doc.text(`PRODUCTIVIDAD ${dayKey.toUpperCase()}`, 105, 20, { align: 'center' });
+    doc.text(`PRODUCTIVIDAD ${dayKey.toUpperCase()}${dateString ? ` - ${dateString}` : ''}`, 105, 20, { align: 'center' });
     doc.setFontSize(10);
     doc.text(`ZARA 1224 - PUERTO VENECIA`, 105, 26, { align: 'center' });
     
@@ -201,8 +206,9 @@ export function ProductividadTab({ data, isEditing, onInputChange }: Productivid
         theme: 'grid',
         headStyles: { fillColor: [73, 175, 165] },
         didDrawCell: (data) => {
-            if (data.row.index % 3 === 0 && data.section === 'body') {
-                doc.line(data.cell.x, data.cell.y, data.cell.x + data.cell.width, data.cell.y);
+            if (data.row.index % 3 === 0 && data.section === 'body' && data.row.index > 0) {
+                 doc.setDrawColor(180, 180, 180); // gray
+                 doc.line(data.cell.x, data.cell.y, data.cell.x + data.table.getColWidth(0) + data.table.getColWidth(1) + data.table.getColWidth(2) + data.table.getColWidth(3) + data.table.getColWidth(4), data.cell.y);
             }
         },
         foot: [['TOTAL HORAS PRODUCTIVIDAD REQUERIDAS', '', '', '', `${roundToQuarter(horasProductividadRequeridas)} h`]],

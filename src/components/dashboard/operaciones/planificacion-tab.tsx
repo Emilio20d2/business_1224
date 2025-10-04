@@ -11,9 +11,11 @@ import { Input } from "@/components/ui/input";
 import { Plus, Trash2, Printer } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { formatNumber } from '@/lib/format';
+import { formatNumber, getDateOfWeek } from '@/lib/format';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
 
 
 type PlanificacionTabProps = {
@@ -214,9 +216,12 @@ export function PlanificacionTab({ data, empleados, isEditing, onDataChange, wee
     const dayData = data.productividad[dayKey];
     const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
     
+    const dayDate = getDateOfWeek(weekId, dayKey);
+    const dateString = dayDate ? format(dayDate, "d 'de' MMMM", { locale: es }) : '';
+
     // Header
     doc.setFontSize(18);
-    doc.text(`PLANIFICACIÓN ${dayKey.toUpperCase()}`, 105, 20, { align: 'center' });
+    doc.text(`PLANIFICACIÓN ${dayKey.toUpperCase()}${dateString ? ` - ${dateString}` : ''}`, 105, 20, { align: 'center' });
     doc.setFontSize(10);
     doc.text(`ZARA 1224 - PUERTO VENECIA`, 105, 26, { align: 'center' });
     
@@ -264,10 +269,28 @@ export function PlanificacionTab({ data, empleados, isEditing, onDataChange, wee
             tableWidth: 'wrap'
         });
 
-        const confeccionTableHeight = (doc as any).lastAutoTable.finalY;
-        const paqueteriaTableHeight = (doc as any).lastAutoTable.finalY;
+        const confeccionTable = (doc as any).lastAutoTable;
+        const paqueteriaTable = (doc as any).lastAutoTable;
+        
+        // This is a bit of a hack to get the Y position of the second table
+        // We find the first table, then use its finalY to start the second one on the same line.
+        // Then we get the final Y of both to continue.
+        const firstTableY = confeccionTable.finalY;
+        autoTable(doc, {
+          startY: lastY,
+          head: [['PAQUETERÍA']],
+          body: paqueteriaItems.map(item => [`${item.nombreEmpleado || '--'}\n  ${item.anotaciones || ''}`]),
+          theme: 'striped',
+          headStyles: { fillColor: [73, 175, 165] }, // Teal color
+          styles: { cellPadding: 2, fontSize: 8 },
+          columnStyles: { 0: { cellWidth: 88 } },
+          margin: { left: 107 },
+          tableWidth: 'wrap'
+        });
+        const secondTableY = (doc as any).lastAutoTable.finalY;
 
-        lastY = Math.max(confeccionTableHeight, paqueteriaTableHeight) + 10;
+
+        lastY = Math.max(firstTableY, secondTableY) + 10;
     });
 
     doc.save(`planificacion_${dayKey}.pdf`);

@@ -96,3 +96,30 @@ export const getPreviousWeekId = (weekId: string): string => {
         return weekId;
     }
 };
+
+export const getDateOfWeek = (weekId: string, day: 'lunes' | 'jueves'): Date | null => {
+    if (!weekId || typeof weekId !== 'string' || !weekId.includes('-')) {
+        return null;
+    }
+    try {
+        const [yearStr, weekStr] = weekId.split('-');
+        const year = parseInt(yearStr, 10);
+        const week = parseInt(weekStr, 10);
+
+        if (isNaN(year) || isNaN(week)) {
+            return null;
+        }
+
+        const date = parse(`${year}-W${String(week).padStart(2, '0')}-1`, "RRRR-'W'II-i", new Date());
+        const monday = startOfISOWeek(date);
+
+        if (day === 'lunes') {
+            return monday;
+        } else { // thursday
+            return addDays(monday, 3);
+        }
+    } catch (e) {
+        console.error(`Error getting date for weekId "${weekId}":`, e);
+        return null;
+    }
+};
