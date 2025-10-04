@@ -87,7 +87,8 @@ export type SectionSpecificData = {
     perdidas: PerdidasData;
     logistica: LogisticaData;
     almacenes: {
-        ropa: Almacen;
+        paqueteria: Almacen;
+        confeccion: Almacen;
         calzado: Almacen;
         perfumeria: Almacen;
     };
@@ -380,7 +381,8 @@ const createInitialSectionSpecificData = (): SectionSpecificData => ({
     },
     logistica: { entradasSemanales: 0, salidasSemanales: 0, sintSemanales: 0 },
     almacenes: {
-        ropa: { ocupacionPorc: 0, devolucionUnidades: 0, entradas: 0, salidas: 0 },
+        paqueteria: { ocupacionPorc: 0, devolucionUnidades: 0, entradas: 0, salidas: 0 },
+        confeccion: { ocupacionPorc: 0, devolucionUnidades: 0, entradas: 0, salidas: 0 },
         calzado: { ocupacionPorc: 0, devolucionUnidades: 0, entradas: 0, salidas: 0 },
         perfumeria: { ocupacionPorc: 0, devolucionUnidades: null, entradas: 0, salidas: 0 }
     }

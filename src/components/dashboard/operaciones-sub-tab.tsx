@@ -25,7 +25,9 @@ import {
   Percent,
   Sparkles,
   FileInput,
-  Repeat
+  Repeat,
+  Archive,
+  Box
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
@@ -102,12 +104,14 @@ export function OperacionesSubTab({ operaciones, perdidas, logistica, almacenes,
             <ModuloContenidoGrande icon={<FileInput className="h-8 w-8 text-primary"/>} value={logistica.salidasSemanales} isEditing={isEditing} id={`${basePath}.logistica.salidasSemanales`} onInputChange={onInputChange} />
           </ModuloAlmacen>
           <ModuloAlmacen title="Ocupación" className="w-full">
-            <FilaModulo icon={<Shirt className="h-5 w-5"/>} label="Ropa" value={almacenes.ropa.ocupacionPorc} isEditing={isEditing} id={`${basePath}.almacenes.ropa.ocupacionPorc`} onInputChange={onInputChange} unit="%" />
+            <FilaModulo icon={<Archive className="h-5 w-5"/>} label="Paque." value={almacenes.paqueteria.ocupacionPorc} isEditing={isEditing} id={`${basePath}.almacenes.paqueteria.ocupacionPorc`} onInputChange={onInputChange} unit="%" />
+            <FilaModulo icon={<Box className="h-5 w-5"/>} label="Confe." value={almacenes.confeccion.ocupacionPorc} isEditing={isEditing} id={`${basePath}.almacenes.confeccion.ocupacionPorc`} onInputChange={onInputChange} unit="%" />
             <FilaModulo icon={<Footprints className="h-5 w-5"/>} label="Calzado" value={almacenes.calzado.ocupacionPorc} isEditing={isEditing} id={`${basePath}.almacenes.calzado.ocupacionPorc`} onInputChange={onInputChange} unit="%" />
             <FilaModulo icon={<SprayCan className="h-5 w-5"/>} label="Perfu." value={almacenes.perfumeria.ocupacionPorc} isEditing={isEditing} id={`${basePath}.almacenes.perfumeria.ocupacionPorc`} onInputChange={onInputChange} unit="%" />
           </ModuloAlmacen>
           <ModuloAlmacen title="Propuesta Devo." className="w-full">
-             <FilaModulo icon={<Shirt className="h-5 w-5"/>} label="Ropa" value={almacenes.ropa.devolucionUnidades as number} isEditing={isEditing} id={`${basePath}.almacenes.ropa.devolucionUnidades`} onInputChange={onInputChange} unit="Unid."/>
+             <FilaModulo icon={<Archive className="h-5 w-5"/>} label="Paque." value={almacenes.paqueteria.devolucionUnidades as number} isEditing={isEditing} id={`${basePath}.almacenes.paqueteria.devolucionUnidades`} onInputChange={onInputChange} unit="Unid."/>
+             <FilaModulo icon={<Box className="h-5 w-5"/>} label="Confe." value={almacenes.confeccion.devolucionUnidades as number} isEditing={isEditing} id={`${basePath}.almacenes.confeccion.devolucionUnidades`} onInputChange={onInputChange} unit="Unid."/>
              <FilaModulo icon={<Footprints className="h-5 w-5"/>} label="Calzado" value={almacenes.calzado.devolucionUnidades as number} isEditing={isEditing} id={`${basePath}.almacenes.calzado.devolucionUnidades`} onInputChange={onInputChange} unit="Unid."/>
           </ModuloAlmacen>
         </div>
