@@ -312,8 +312,18 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
           />
         </KpiCard>
         
-        {/* Fila Central: 6-col Grid */}
-        <div className="md:col-span-6 grid grid-cols-1 md:grid-cols-6 gap-2">
+        {/* Fila Central: 7-col Grid */}
+        <div className="md:col-span-6 grid grid-cols-1 md:grid-cols-7 gap-2">
+          <KpiCard title="V. Ipod" icon={<Smartphone className="h-5 w-5 text-primary" />} className="md:col-span-2">
+            <DatoSimple 
+              value={operaciones.ventaIpod} 
+              isEditing={isEditing}
+              align="center"
+              valueId="general.operaciones.ventaIpod"
+              onInputChange={onInputChange}
+            />
+          </KpiCard>
+
           <KpiCard title="GAP" icon={<ClipboardX className="h-5 w-5 text-primary" />} className="md:col-span-2">
               <div className="flex flex-row justify-around items-center gap-4 h-full">
                   <DatoSimple 
@@ -358,15 +368,15 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
               </div>
           </KpiCard>
           
-          <KpiCard title="Operaciones" icon={<RefreshCw className="h-5 w-5 text-primary" />} className="md:col-span-2 h-full">
-              <div className="grid grid-cols-2 gap-4 h-full">
+          <KpiCard title="Operaciones" icon={<RefreshCw className="h-5 w-5 text-primary" />} className="md:col-span-1 h-full">
+              <div className="grid grid-cols-1 gap-2 h-full justify-center">
                    <DatoSimple 
                     label="Repo" 
                     value={operaciones.repoPorc} 
                     isEditing={isEditing}
                     align="center" 
                     unit="%" 
-                    icon={<RefreshCw className="h-5 w-5 text-primary"/>} 
+                    icon={<RefreshCw className="h-4 w-4 text-primary"/>} 
                     valueId="general.operaciones.repoPorc"
                     onInputChange={onInputChange}
                   />
@@ -375,7 +385,7 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
                     value={operaciones.frescuraPorc} 
                     isEditing={isEditing}
                     align="center" unit="%" 
-                    icon={<Sparkles className="h-5 w-5 text-primary"/>} 
+                    icon={<Sparkles className="h-4 w-4 text-primary"/>} 
                     valueId="general.operaciones.frescuraPorc"
                     onInputChange={onInputChange}
                   />
@@ -383,7 +393,7 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
           </KpiCard>
 
 
-          <KpiCard title="Caja" icon={<Receipt className="h-5 w-5 text-primary" />} className="md:col-span-4">
+          <KpiCard title="Caja" icon={<Receipt className="h-5 w-5 text-primary" />} className="md:col-span-7">
                <div className="grid grid-cols-4 items-center justify-center gap-4 h-full">
                    <DatoSimple 
                     icon={<Clock className="h-5 w-5 text-primary"/>} 
@@ -427,17 +437,6 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
                   />
               </div>
           </KpiCard>
-          
-           <KpiCard title="V. Ipod" icon={<Smartphone className="h-5 w-5 text-primary" />} className="md:col-span-2">
-              <DatoSimple 
-                value={operaciones.ventaIpod} 
-                isEditing={isEditing}
-                align="center"
-                valueId="general.operaciones.ventaIpod"
-                onInputChange={onInputChange}
-              />
-          </KpiCard>
-
         </div>
       </div>
        <AlmacenesGeneralCard data={{ ventas, rendimientoTienda, operaciones, perdidas, datosPorSeccion, general: datosPorSeccion.man, man: datosPorSeccion.man, woman: datosPorSeccion.woman, nino: datosPorSeccion.nino } as WeeklyData} isEditing={isEditing} onInputChange={onInputChange} />
