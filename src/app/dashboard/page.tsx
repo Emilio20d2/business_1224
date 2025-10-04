@@ -32,7 +32,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { EditListDialog } from '@/components/dashboard/edit-list-dialog';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { formatWeekIdToDateRange, getCurrentWeekId, getWeekIdFromDate, getPreviousWeekId } from '@/lib/format';
+import { formatWeekIdToDateRange, getCurrentWeekId, getWeekIdFromDate } from '@/lib/format';
 import { EditEmpleadosDialog } from '@/components/dashboard/edit-empleados-dialog';
 import { EditRatiosDialog } from '@/components/dashboard/operaciones/edit-ratios-dialog';
 
@@ -514,6 +514,48 @@ const handleSaveEmpleados = async (newItems: Empleado[]) => {
   }
 };
 
+const handleCopyWeek = async () => {
+    const fromWeek = '2023-39';
+    const toWeek = '2023-40';
+    
+    setIsSaving(true);
+    toast({ title: 'Copiando datos...', description: `De la semana ${fromWeek} a la ${toWeek}` });
+
+    try {
+        const fromDocRef = doc(db, "informes", fromWeek);
+        const fromDocSnap = await getDoc(fromDocRef);
+
+        if (!fromDocSnap.exists()) {
+            throw new Error(`El informe de la semana ${fromWeek} no existe.`);
+        }
+
+        const dataToCopy = fromDocSnap.data() as WeeklyData;
+        dataToCopy.periodo = toWeek.replace('-', ' ');
+
+        const toDocRef = doc(db, "informes", toWeek);
+        await setDoc(toDocRef, dataToCopy);
+
+        toast({
+            title: "¡Éxito!",
+            description: `Los datos de la semana ${fromWeek} se han copiado a la semana ${toWeek}.`,
+        });
+
+        if (selectedWeek === toWeek) {
+            fetchData(toWeek);
+        }
+
+    } catch (error: any) {
+        console.error("Error al copiar la semana:", error);
+        toast({
+            variant: "destructive",
+            title: "Error al copiar",
+            description: error.message,
+        });
+    } finally {
+        setIsSaving(false);
+    }
+};
+
 
   const tabButtons = [
     { value: 'ventas', label: 'RESUMEN' },
@@ -634,6 +676,7 @@ const handleSaveEmpleados = async (newItems: Empleado[]) => {
                      <Button onClick={() => router.push(`/presentation?week=${selectedWeek}`)} variant="outline" size="icon" disabled={!data}>
                         <Projector className="h-4 w-4 text-primary" />
                      </Button>
+                     <Button onClick={handleCopyWeek} variant="outline" disabled={isSaving}>Copiar Semana 39 a 40</Button>
                   </>
                 )}
                 <DropdownMenu>
@@ -790,6 +833,8 @@ export default function DashboardPage() {
         </Suspense>
     );
 }
+
+    
 
     
 
