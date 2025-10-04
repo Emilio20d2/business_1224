@@ -105,7 +105,7 @@ const SectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionNa
                      <div className="bg-background rounded-lg p-3 text-center flex flex-col justify-center items-center gap-1">
                          <DatoSimple 
                             value={data.metricasPrincipales.totalUnidades}
-                            isEditing={isEditing}
+                            isEditing={false}
                             valueId={`datosPorSeccion.${name}.metricasPrincipales.totalUnidades`}
                             onInputChange={onInputChange}
                             align="center"
@@ -210,7 +210,7 @@ const AlmacenesGeneralCard = ({ data, isEditing, onInputChange }: { data: Weekly
   )
 
   return (
-    <KpiCard title="ALMACENES (General)" icon={<Warehouse className="h-5 w-5 text-primary" />} className="md:col-span-6">
+    <KpiCard title="ALMACENES (General)" icon={<Warehouse className="h-5 w-5 text-primary" />} className="md:col-span-8">
       <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_1fr_1fr_1.5fr_1.5fr] gap-6 place-items-start">
         <div className="flex flex-col text-center gap-2 w-full">
           <h4 className="text-sm font-semibold text-muted-foreground tracking-wider uppercase">Entradas</h4>
@@ -272,6 +272,10 @@ export function DatosSemanalesTab({ data, ventas, rendimientoTienda, operaciones
                              (data.man?.perdidas?.merma?.unidades || 0) +
                              (data.nino?.perdidas?.merma?.unidades || 0);
 
+  const totalMermaEuros = (data.woman?.perdidas?.merma?.euros || 0) +
+                          (data.man?.perdidas?.merma?.euros || 0) +
+                          (data.nino?.perdidas?.merma?.euros || 0);
+
   return (
     <div className="space-y-2">
        <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
@@ -323,8 +327,8 @@ export function DatosSemanalesTab({ data, ventas, rendimientoTienda, operaciones
           />
         </KpiCard>
       </div>
-
-       <div className="grid grid-cols-1 md:grid-cols-8 gap-2">
+      
+      <div className="grid grid-cols-1 md:grid-cols-8 gap-2">
          <KpiCard title="GAP" icon={<ClipboardX className="h-5 w-5 text-primary" />} className="md:col-span-2">
           <div className="flex flex-col justify-around items-center gap-4 h-full">
             <DatoSimple 
@@ -367,12 +371,9 @@ export function DatosSemanalesTab({ data, ventas, rendimientoTienda, operaciones
           <div className="grid grid-cols-4 justify-center items-center gap-4 h-full">
             <DatoSimple 
               label={<Euro className="h-5 w-5 text-primary"/>}
-              value={perdidas.merma.euros}
-              isEditing={isEditing}
-              valueId="general.perdidas.merma.euros"
+              value={formatCurrency(totalMermaEuros)}
+              isEditing={false}
               align="center"
-              unit="€"
-              onInputChange={onInputChange}
             />
             <DatoSimple 
               label={<Package className="h-5 w-5 text-primary"/>}
