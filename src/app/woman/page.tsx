@@ -148,8 +148,8 @@ function WomanPageComponent() {
 
   useEffect(() => {
     if (!searchParams.has('week') && user) {
-        const previousWeekId = getPreviousWeekId(getCurrentWeekId());
-        updateUrl(previousWeekId);
+        const currentWeekId = getCurrentWeekId();
+        updateUrl(currentWeekId);
     }
   }, [user, searchParams, updateUrl]);
 
@@ -257,7 +257,7 @@ function WomanPageComponent() {
     } else if (!authLoading && user && !selectedWeek) {
       setDataLoading(false);
         if(canEdit) {
-            const newWeekId = getPreviousWeekId(getCurrentWeekId());
+            const newWeekId = getCurrentWeekId();
             updateUrl(newWeekId);
         } else {
             setError("No hay informes disponibles. Contacta al administrador.");
@@ -668,3 +668,5 @@ export default function WomanPage() {
         </Suspense>
     );
 }
+
+    

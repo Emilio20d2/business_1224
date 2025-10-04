@@ -155,8 +155,8 @@ function DashboardPageComponent() {
   
   useEffect(() => {
     if (!searchParams.has('week') && user) {
-        const previousWeekId = getPreviousWeekId(getCurrentWeekId());
-        updateUrl(previousWeekId, 'ventas');
+        const currentWeekId = getCurrentWeekId();
+        updateUrl(currentWeekId, 'ventas');
     }
   }, [user, searchParams, updateUrl]);
 
@@ -272,7 +272,7 @@ function DashboardPageComponent() {
     } else if (!authLoading && user && !selectedWeek) {
        setDataLoading(false);
         if(canEdit) {
-            const newWeekId = getPreviousWeekId(getCurrentWeekId());
+            const newWeekId = getCurrentWeekId();
             updateUrl(newWeekId, 'ventas');
         } else {
             setError("No hay informes disponibles. Contacta al administrador.");
@@ -790,5 +790,7 @@ export default function DashboardPage() {
         </Suspense>
     );
 }
+
+    
 
     
