@@ -209,7 +209,12 @@ export function ProductividadTab({ data, isEditing, onInputChange }: Productivid
         didDrawCell: (data) => {
             if (data.row.index % 3 === 2 && data.section === 'body' && data.row.index < bodyData.length -1) {
                  doc.setDrawColor(180, 180, 180);
-                 doc.line(data.table.x, data.row.y + data.row.height, data.table.x + data.table.width, data.row.y + data.row.height);
+                 const xStart = data.table.x;
+                 const y = data.row.y + data.row.height;
+                 const xEnd = data.table.x + data.table.width;
+                 if (typeof xStart === 'number' && typeof y === 'number' && typeof xEnd === 'number') {
+                     doc.line(xStart, y, xEnd, y);
+                 }
             }
         },
         foot: [['TOTAL HORAS PRODUCTIVIDAD REQUERIDAS', '', '', '', `${roundToQuarter(horasProductividadRequeridas)} h`]],
