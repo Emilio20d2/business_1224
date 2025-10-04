@@ -191,7 +191,7 @@ const AlmacenesGeneralCard = ({ data, isEditing, onInputChange }: { data: Weekly
       }
   };
 
-  const FilaModulo = ({ icon, label, value, isEditing, id, unit }: { icon: React.ReactNode, label: string, value: number, isEditing?: boolean, id?: string, onInputChange?: (path: string, value: string | number) => void; unit: string }) => (
+  const FilaModulo = ({ icon, label, value, isEditing, id, unit, isRawNumber }: { icon: React.ReactNode, label: string, value: number, isEditing?: boolean, id?: string, onInputChange?: (path: string, value: string | number) => void; unit: string, isRawNumber?: boolean }) => (
      <div className="grid grid-cols-2 items-center gap-4 text-md">
         <div className="flex items-center gap-2 text-primary justify-start">
             {icon}
@@ -203,7 +203,7 @@ const AlmacenesGeneralCard = ({ data, isEditing, onInputChange }: { data: Weekly
                 <Input type="number" inputMode="decimal" defaultValue={value} className="font-bold text-right w-24" id={id} onChange={(e) => onInputChange(id, e.target.value)} />
                 <span className="text-sm text-muted-foreground">{unit}</span>
             </div>
-            : <div className="font-bold text-right w-full">{unit === '%' ? formatPercentage(value) : formatNumber(value)}</div>
+            : <div className="font-bold text-right w-full">{unit === '%' ? formatPercentage(value) : isRawNumber ? value : formatNumber(value)}</div>
         }
         </div>
     </div>
@@ -252,9 +252,9 @@ const AlmacenesGeneralCard = ({ data, isEditing, onInputChange }: { data: Weekly
         <div className="flex flex-col text-center gap-2 w-full">
           <h4 className="text-sm font-semibold text-muted-foreground tracking-wider uppercase">Destocaje</h4>
           <div className="flex flex-col gap-3">
-             <FilaModulo icon={<Archive className="h-5 w-5"/>} label="Paque." value={totalAlmacenes.paqueteria.devolucionUnidades as number} unit="Unid."/>
-             <FilaModulo icon={<Box className="h-5 w-5"/>} label="Confe." value={totalAlmacenes.confeccion.devolucionUnidades as number} unit="Unid."/>
-             <FilaModulo icon={<Footprints className="h-5 w-5"/>} label="Calzado" value={totalAlmacenes.calzado.devolucionUnidades as number} unit="Unid."/>
+             <FilaModulo icon={<Archive className="h-5 w-5"/>} label="Paque." value={totalAlmacenes.paqueteria.devolucionUnidades as number} unit="Unid." isRawNumber/>
+             <FilaModulo icon={<Box className="h-5 w-5"/>} label="Confe." value={totalAlmacenes.confeccion.devolucionUnidades as number} unit="Unid." isRawNumber/>
+             <FilaModulo icon={<Footprints className="h-5 w-5"/>} label="Calzado" value={totalAlmacenes.calzado.devolucionUnidades as number} unit="Unid." isRawNumber/>
           </div>
         </div>
       </div>

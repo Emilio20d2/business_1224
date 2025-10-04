@@ -3,11 +3,12 @@ import { format, addDays, getISOWeek, getYear, startOfISOWeek, parse, addWeeks, 
 import { es } from 'date-fns/locale';
 
 export const formatCurrency = (amount: number) => {
+  if (amount === null || amount === undefined || isNaN(amount)) return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0 }).format(0);
   return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0 }).format(amount);
 };
 
 export const formatNumber = (amount: number | null | undefined) => {
-  if (amount === null || amount === undefined) return 'N/A';
+  if (amount === null || amount === undefined || isNaN(amount)) return '0';
   if (amount >= 1000) {
     return (amount / 1000).toLocaleString('es-ES', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + 'k';
   }
