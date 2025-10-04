@@ -137,6 +137,34 @@ function OperacionesPageComponent() {
       router.replace(`/operaciones?${params.toString()}`);
   }, [router, searchParams]);
 
+  const handleInputChange = (path: string, value: any) => {
+    if (!canEdit) return;
+
+    setData(prevData => {
+        if (!prevData) return null;
+
+        const updatedData = JSON.parse(JSON.stringify(prevData));
+        let current: any = updatedData;
+        const keys = path.split('.');
+
+        let cleanValue = value;
+         if (typeof value === 'string' && keys[0] !== 'focusOperaciones' && !keys.includes('incidencias')) {
+            cleanValue = parseFloat(value.replace(',', '.')) || 0;
+        }
+
+        // Navigate to the parent object
+        for (let i = 0; i < keys.length - 1; i++) {
+            if (current[keys[i]] === undefined) current[keys[i]] = {};
+            current = current[keys[i]];
+        }
+        
+        const finalKey = keys[keys.length - 1];
+        current[finalKey] = cleanValue;
+        
+        return updatedData;
+    });
+};
+
 
   const handleDateSelect = (date: Date | undefined) => {
     if (!date) return;
@@ -157,11 +185,11 @@ function OperacionesPageComponent() {
     if (!authLoading && !user) {
       router.push('/');
     } else if (!authLoading && user) {
-      if (selectedWeek) {
-        fetchData(selectedWeek);
-      } else {
+      if (!selectedWeek) {
         const currentWeekId = getCurrentWeekId();
         updateUrl(currentWeekId);
+      } else {
+        fetchData(selectedWeek);
       }
     }
   }, [user, authLoading, selectedWeek, router]);
@@ -252,33 +280,6 @@ function OperacionesPageComponent() {
   }, [saveSuccess, fetchData, selectedWeek])
 
 
-  const handleInputChange = (path: string, value: any) => {
-    if (!canEdit) return;
-
-    setData(prevData => {
-        if (!prevData) return null;
-
-        const updatedData = JSON.parse(JSON.stringify(prevData));
-        let current: any = updatedData;
-        const keys = path.split('.');
-
-        let cleanValue = value;
-        if (typeof value === 'string' && keys[0] !== 'focusOperaciones' && keys[1] !== 'incidencias') {
-            cleanValue = parseFloat(value.replace(',', '.')) || 0;
-        }
-
-        // Navigate to the parent object
-        for (let i = 0; i < keys.length - 1; i++) {
-            if (current[keys[i]] === undefined) current[keys[i]] = {};
-            current = current[keys[i]];
-        }
-        
-        const finalKey = keys[keys.length - 1];
-        current[finalKey] = cleanValue;
-        
-        return updatedData;
-    });
-};
 
   const handleSave = async () => {
     if (!data) return;
@@ -597,20 +598,20 @@ function OperacionesPageComponent() {
                     </div>
 
                     <TabsContent value="almacenes" className="mt-0">
-                       <AlmacenesTab data={data} isEditing={isEditing} onInputChange={onInputChange} />
+                       <AlmacenesTab data={data} isEditing={isEditing} onInputChange={handleInputChange} />
                     </TabsContent>
                     <TabsContent value="mermaReposicion" className="mt-0">
                         <MermaReposicionTab 
                             data={data}
                             isEditing={isEditing}
-                            onInputChange={onInputChange}
+                            onInputChange={handleInputChange}
                         />
                     </TabsContent>
                      <TabsContent value="productividad" className="mt-0">
                         <ProductividadTab 
                             data={data}
                             isEditing={isEditing}
-                            onInputChange={onInputChange}
+                            onInputChange={handleInputChange}
                         />
                     </TabsContent>
                     <TabsContent value="planificacion" className="mt-0">
