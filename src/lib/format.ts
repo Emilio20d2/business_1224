@@ -8,6 +8,9 @@ export const formatCurrency = (amount: number) => {
 
 export const formatNumber = (amount: number | null | undefined) => {
   if (amount === null || amount === undefined) return 'N/A';
+  if (amount >= 1000) {
+    return (amount / 1000).toLocaleString('es-ES', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + 'k';
+  }
   return new Intl.NumberFormat('es-ES').format(amount);
 };
 

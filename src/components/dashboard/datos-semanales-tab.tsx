@@ -248,7 +248,7 @@ const AlmacenesGeneralCard = ({ data, isEditing, onInputChange }: { data: Weekly
           </div>
         </div>
         <div className="flex flex-col text-center gap-2 w-full">
-          <h4 className="text-sm font-semibold text-muted-foreground tracking-wider uppercase">Propuesta Devo.</h4>
+          <h4 className="text-sm font-semibold text-muted-foreground tracking-wider uppercase">Propuesta Destocaje</h4>
           <div className="flex flex-col gap-3">
              <FilaModulo icon={<Archive className="h-5 w-5"/>} label="Paque." value={totalAlmacenes.paqueteria.devolucionUnidades as number} unit="Unid."/>
              <FilaModulo icon={<Box className="h-5 w-5"/>} label="Confe." value={totalAlmacenes.confeccion.devolucionUnidades as number} unit="Unid."/>
@@ -266,6 +266,10 @@ export function DatosSemanalesTab({ data, ventas, rendimientoTienda, operaciones
   
   const { mermaTarget } = data.listas;
 
+  const totalMermaUnidades = (data.woman?.perdidas?.merma?.unidades || 0) +
+                             (data.man?.perdidas?.merma?.unidades || 0) +
+                             (data.nino?.perdidas?.merma?.unidades || 0);
+
   return (
     <div className="space-y-2">
        <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
@@ -273,8 +277,8 @@ export function DatosSemanalesTab({ data, ventas, rendimientoTienda, operaciones
         <SectionCard name="man" data={datosPorSeccion.man} isEditing={isEditing} onInputChange={onInputChange} />
         <SectionCard name="nino" data={datosPorSeccion.nino} isEditing={isEditing} onInputChange={onInputChange} />
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-6 gap-2">
-        {/* Ventas */}
+
+       <div className="grid grid-cols-1 md:grid-cols-6 gap-2">
         <KpiCard title="Ventas" icon={<Euro className="h-5 w-5 text-primary" />} className="md:col-span-3">
            <DatoDoble 
             label="Importes"
@@ -296,7 +300,6 @@ export function DatosSemanalesTab({ data, ventas, rendimientoTienda, operaciones
           />
         </KpiCard>
 
-        {/* Rendimiento de Tienda */}
         <KpiCard title="Rendimiento de Tienda" icon={<ChartLine className="h-5 w-5 text-primary" />} className="md:col-span-3">
           <DatoDoble 
             label="Tráfico" 
@@ -317,171 +320,172 @@ export function DatosSemanalesTab({ data, ventas, rendimientoTienda, operaciones
             onInputChange={onInputChange}
           />
         </KpiCard>
-        
-        <div className="md:col-span-6 grid grid-cols-1 md:grid-cols-8 gap-2">
-          <KpiCard title="GAP" icon={<ClipboardX className="h-5 w-5 text-primary" />} className="md:col-span-1">
-              <div className="flex flex-col justify-around items-center gap-4 h-full">
-                  <DatoSimple 
-                      label={<Euro className="h-5 w-5 text-primary"/>}
-                      value={perdidas.gap.euros} 
-                      isEditing={isEditing}
-                      valueId="general.perdidas.gap.euros"
-                      align="center"
-                      onInputChange={onInputChange}
-                  />
-                  <DatoSimple 
-                      label={<Package className="h-5 w-5 text-primary"/>}
-                      value={perdidas.gap.unidades}
-                      isEditing={isEditing}
-                      valueId="general.perdidas.gap.unidades"
-                      align="center"
-                      onInputChange={onInputChange}
-                  />
-              </div>
-          </KpiCard>
+      </div>
 
-          <KpiCard title="V. Ipod" icon={<Smartphone className="h-5 w-5 text-primary" />} className="md:col-span-1">
+      <div className="grid grid-cols-1 md:grid-cols-8 gap-2">
+        <KpiCard title="GAP" icon={<ClipboardX className="h-5 w-5 text-primary" />} className="md:col-span-1">
+          <div className="flex flex-col justify-around items-center gap-4 h-full">
             <DatoSimple 
-              value={operaciones.ventaIpod} 
+              label={<Euro className="h-5 w-5 text-primary"/>}
+              value={perdidas.gap.euros} 
               isEditing={isEditing}
+              valueId="general.perdidas.gap.euros"
               align="center"
-              valueId="general.operaciones.ventaIpod"
               onInputChange={onInputChange}
             />
-          </KpiCard>
+            <DatoSimple 
+              label={<Package className="h-5 w-5 text-primary"/>}
+              value={perdidas.gap.unidades}
+              isEditing={isEditing}
+              valueId="general.perdidas.gap.unidades"
+              align="center"
+              onInputChange={onInputChange}
+            />
+          </div>
+        </KpiCard>
 
-          <KpiCard title="Caja" icon={<Receipt className="h-5 w-5 text-primary" />} className="md:col-span-2">
-               <div className="grid grid-cols-4 items-center justify-center gap-4 h-full">
-                   <DatoSimple 
-                    icon={<Clock className="h-5 w-5 text-primary"/>} 
-                    label="Filas Caja" 
-                    value={operaciones.filasCajaPorc}
-                    isEditing={isEditing}
-                    align="center" 
-                    unit="%"
-                    valueId="general.operaciones.filasCajaPorc"
-                    onInputChange={onInputChange}
-                   />
-                  <DatoSimple 
-                    icon={<ScanLine className="h-5 w-5 text-primary"/>} 
-                    label="ACO" 
-                    value={operaciones.scoPorc}
-                    isEditing={isEditing}
-                    align="center" 
-                    unit="%"
-                    valueId="general.operaciones.scoPorc"
-                    onInputChange={onInputChange}
-                  />
-                  <DatoSimple 
-                    icon={<Inbox className="h-5 w-5 text-primary"/>} 
-                    label="DropOff" 
-                    value={operaciones.dropOffPorc} 
-                    isEditing={isEditing}
-                    align="center" 
-                    unit="%"
-                    valueId="general.operaciones.dropOffPorc"
-                    onInputChange={onInputChange}
-                  />
-                   <DatoSimple 
-                    icon={<Ticket className="h-5 w-5 text-primary"/>}
-                    label="E-Ticket" 
-                    value={operaciones.eTicketPorc} 
-                    isEditing={isEditing}
-                    align="center" 
-                    unit="%"
-                    valueId="general.operaciones.eTicketPorc"
-                    onInputChange={onInputChange}
-                  />
-              </div>
-          </KpiCard>
+        <KpiCard title="V. Ipod" icon={<Smartphone className="h-5 w-5 text-primary" />} className="md:col-span-1">
+          <DatoSimple 
+            value={operaciones.ventaIpod} 
+            isEditing={isEditing}
+            align="center"
+            valueId="general.operaciones.ventaIpod"
+            onInputChange={onInputChange}
+          />
+        </KpiCard>
 
-            <KpiCard title="Merma" icon={<Trash2 className="h-5 w-5 text-primary" />} className="md:col-span-2">
-                <div className="grid grid-cols-4 justify-center items-center gap-4 h-full">
-                    <DatoSimple 
-                        label={<Euro className="h-5 w-5 text-primary"/>}
-                        value={perdidas.merma.euros}
-                        isEditing={isEditing}
-                        valueId="general.perdidas.merma.euros"
-                        align="center"
-                        unit="€"
-                        onInputChange={onInputChange}
-                    />
-                    <DatoSimple 
-                        label={<Package className="h-5 w-5 text-primary"/>}
-                        value={perdidas.merma.unidades}
-                        isEditing={isEditing}
-                        valueId="general.perdidas.merma.unidades"
-                        align="center"
-                        unit="Unid."
-                        onInputChange={onInputChange}
-                    />
-                    <DatoSimple 
-                        label={<Percent className="h-5 w-5 text-primary"/>}
-                        value={perdidas.merma.porcentaje}
-                        isEditing={isEditing}
-                        valueId="general.perdidas.merma.porcentaje"
-                        align="center"
-                        unit="%"
-                        onInputChange={onInputChange}
-                    />
-                     <DatoSimple 
-                        label={<Target className="h-5 w-5 text-primary"/>}
-                        value={mermaTarget?.general}
-                        isEditing={isEditing}
-                        valueId="listas.mermaTarget.general"
-                        align="center"
-                        unit="%"
-                        onInputChange={onInputChange}
-                    />
-                </div>
-            </KpiCard>
-          
-            <KpiCard title="Operaciones" icon={<RefreshCw className="h-5 w-5 text-primary" />} className="md:col-span-2">
-                <div className="grid grid-cols-4 gap-4 h-full">
-                <DatoSimple 
-                    icon={<RefreshCw className="h-5 w-5 text-primary"/>} 
-                    label="Repo" 
-                    value={operaciones.repoPorc} 
-                    isEditing={isEditing} 
-                    valueId="general.operaciones.repoPorc"
-                    align="center" 
-                    unit="%" 
-                    onInputChange={onInputChange} 
-                />
-                <DatoSimple 
-                    icon={<Sparkles className="h-5 w-5 text-primary"/>} 
-                    label="Frescura" 
-                    value={operaciones.frescuraPorc} 
-                    isEditing={isEditing} 
-                    valueId="general.operaciones.frescuraPorc"
-                    align="center" 
-                    unit="%" 
-                    onInputChange={onInputChange} 
-                />
-                <DatoSimple
-                    icon={<Users className="h-5 w-5 text-primary"/>}
-                    label="Cobertura"
-                    value={operaciones.coberturaPorc}
-                    isEditing={isEditing}
-                    valueId="general.operaciones.coberturaPorc"
-                    align="center"
-                    unit="%"
-                    onInputChange={onInputChange}
-                />
-                <DatoSimple
-                    icon={<FileQuestion className="h-5 w-5 text-primary"/>}
-                    label="Sin Posi."
-                    value={operaciones.sinUbicacion}
-                    isEditing={isEditing}
-                    valueId="general.operaciones.sinUbicacion"
-                    align="center"
-                    unit="%"
-                    onInputChange={onInputChange}
-                />
-                </div>
-            </KpiCard>
-        </div>
+        <KpiCard title="Caja" icon={<Receipt className="h-5 w-5 text-primary" />} className="md:col-span-6">
+          <div className="grid grid-cols-4 items-center justify-center gap-4 h-full">
+            <DatoSimple 
+              icon={<Clock className="h-5 w-5 text-primary"/>} 
+              label="Filas Caja" 
+              value={operaciones.filasCajaPorc}
+              isEditing={isEditing}
+              align="center" 
+              unit="%"
+              valueId="general.operaciones.filasCajaPorc"
+              onInputChange={onInputChange}
+            />
+            <DatoSimple 
+              icon={<ScanLine className="h-5 w-5 text-primary"/>} 
+              label="ACO" 
+              value={operaciones.scoPorc}
+              isEditing={isEditing}
+              align="center" 
+              unit="%"
+              valueId="general.operaciones.scoPorc"
+              onInputChange={onInputChange}
+            />
+            <DatoSimple 
+              icon={<Inbox className="h-5 w-5 text-primary"/>} 
+              label="DropOff" 
+              value={operaciones.dropOffPorc} 
+              isEditing={isEditing}
+              align="center" 
+              unit="%"
+              valueId="general.operaciones.dropOffPorc"
+              onInputChange={onInputChange}
+            />
+            <DatoSimple 
+              icon={<Ticket className="h-5 w-5 text-primary"/>}
+              label="E-Ticket" 
+              value={operaciones.eTicketPorc} 
+              isEditing={isEditing}
+              align="center" 
+              unit="%"
+              valueId="general.operaciones.eTicketPorc"
+              onInputChange={onInputChange}
+            />
+          </div>
+        </KpiCard>
       </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-8 gap-2">
+        <KpiCard title="Merma" icon={<Trash2 className="h-5 w-5 text-primary" />} className="md:col-span-4">
+          <div className="grid grid-cols-4 justify-center items-center gap-4 h-full">
+            <DatoSimple 
+              label={<Euro className="h-5 w-5 text-primary"/>}
+              value={perdidas.merma.euros}
+              isEditing={isEditing}
+              valueId="general.perdidas.merma.euros"
+              align="center"
+              unit="€"
+              onInputChange={onInputChange}
+            />
+            <DatoSimple 
+              label={<Package className="h-5 w-5 text-primary"/>}
+              value={formatNumber(totalMermaUnidades)}
+              isEditing={false}
+              align="center"
+              unit="Unid."
+            />
+            <DatoSimple 
+              label={<Percent className="h-5 w-5 text-primary"/>}
+              value={perdidas.merma.porcentaje}
+              isEditing={isEditing}
+              valueId="general.perdidas.merma.porcentaje"
+              align="center"
+              unit="%"
+              onInputChange={onInputChange}
+            />
+            <DatoSimple 
+              label={<Target className="h-5 w-5 text-primary"/>}
+              value={mermaTarget?.general}
+              isEditing={isEditing}
+              valueId="listas.mermaTarget.general"
+              align="center"
+              unit="%"
+              onInputChange={onInputChange}
+            />
+          </div>
+        </KpiCard>
+          
+        <KpiCard title="Operaciones" icon={<RefreshCw className="h-5 w-5 text-primary" />} className="md:col-span-4">
+          <div className="grid grid-cols-4 gap-4 h-full">
+            <DatoSimple 
+              icon={<RefreshCw className="h-5 w-5 text-primary"/>} 
+              label="Repo" 
+              value={operaciones.repoPorc} 
+              isEditing={isEditing} 
+              valueId="general.operaciones.repoPorc"
+              align="center" 
+              unit="%" 
+              onInputChange={onInputChange} 
+            />
+            <DatoSimple 
+              icon={<Sparkles className="h-5 w-5 text-primary"/>} 
+              label="Frescura" 
+              value={operaciones.frescuraPorc} 
+              isEditing={isEditing} 
+              valueId="general.operaciones.frescuraPorc"
+              align="center" 
+              unit="%" 
+              onInputChange={onInputChange} 
+            />
+            <DatoSimple
+              icon={<Users className="h-5 w-5 text-primary"/>}
+              label="Cobertura"
+              value={operaciones.coberturaPorc}
+              isEditing={isEditing}
+              valueId="general.operaciones.coberturaPorc"
+              align="center"
+              unit="%"
+              onInputChange={onInputChange}
+            />
+            <DatoSimple
+              icon={<FileQuestion className="h-5 w-5 text-primary"/>}
+              label="Sin Posi."
+              value={operaciones.sinUbicacion}
+              isEditing={isEditing}
+              valueId="general.operaciones.sinUbicacion"
+              align="center"
+              unit="%"
+              onInputChange={onInputChange}
+            />
+          </div>
+        </KpiCard>
+      </div>
+
        <AlmacenesGeneralCard data={data} isEditing={isEditing} onInputChange={onInputChange} />
     </div>
   );
