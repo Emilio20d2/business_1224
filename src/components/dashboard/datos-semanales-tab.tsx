@@ -171,6 +171,9 @@ const AlmacenesGeneralCard = ({ data, isEditing, onInputChange }: { data: Weekly
   };
 
   const balance = totalLogistica.entradasSemanales - totalLogistica.sintSemanales;
+
+  const perfumeriaOcupaciones = sections.map(key => data[key]?.almacenes?.perfumeria?.ocupacionPorc).filter(v => typeof v === 'number') as number[];
+  const perfumeriaOcupacionMedia = perfumeriaOcupaciones.length > 0 ? perfumeriaOcupaciones.reduce((a, b) => a + b, 0) / perfumeriaOcupaciones.length : 0;
   
   const totalAlmacenes = {
       paqueteria: {
@@ -187,7 +190,7 @@ const AlmacenesGeneralCard = ({ data, isEditing, onInputChange }: { data: Weekly
       },
       perfumeria: {
           devolucionUnidades: null,
-          ocupacionPorc: data.general?.almacenes?.perfumeria?.ocupacionPorc || 0,
+          ocupacionPorc: perfumeriaOcupacionMedia,
       }
   };
 
@@ -203,7 +206,7 @@ const AlmacenesGeneralCard = ({ data, isEditing, onInputChange }: { data: Weekly
                 <Input type="number" inputMode="decimal" defaultValue={value} className="font-bold text-right w-24" id={id} onChange={(e) => onInputChange(id, e.target.value)} />
                 <span className="text-sm text-muted-foreground">{unit}</span>
             </div>
-            : <div className="font-bold text-right w-full">{unit === '%' ? formatPercentage(value) : value}</div>
+            : <div className="font-bold text-right w-full">{unit === '%' ? formatPercentage(value) : isRawNumber ? value : formatNumber(value)}</div>
         }
         </div>
     </div>
@@ -246,7 +249,7 @@ const AlmacenesGeneralCard = ({ data, isEditing, onInputChange }: { data: Weekly
             <FilaModulo icon={<Archive className="h-5 w-5"/>} label="Paque." value={totalAlmacenes.paqueteria.ocupacionPorc} isEditing={isEditing} id="general.almacenes.paqueteria.ocupacionPorc" onInputChange={onInputChange} unit="%" />
             <FilaModulo icon={<Box className="h-5 w-5"/>} label="Confe." value={totalAlmacenes.confeccion.ocupacionPorc} isEditing={isEditing} id="general.almacenes.confeccion.ocupacionPorc" onInputChange={onInputChange} unit="%" />
             <FilaModulo icon={<Footprints className="h-5 w-5"/>} label="Calzado" value={totalAlmacenes.calzado.ocupacionPorc} isEditing={isEditing} id="general.almacenes.calzado.ocupacionPorc" onInputChange={onInputChange} unit="%" />
-            <FilaModulo icon={<SprayCan className="h-5 w-5"/>} label="Perfu." value={totalAlmacenes.perfumeria.ocupacionPorc} isEditing={isEditing} id="general.almacenes.perfumeria.ocupacionPorc" onInputChange={onInputChange} unit="%" />
+            <FilaModulo icon={<SprayCan className="h-5 w-5"/>} label="Perfu." value={totalAlmacenes.perfumeria.ocupacionPorc} isEditing={false} unit="%" />
           </div>
         </div>
         <div className="flex flex-col text-center gap-2 w-full">
