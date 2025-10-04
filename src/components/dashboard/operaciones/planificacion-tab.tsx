@@ -93,8 +93,7 @@ const SectionPlanificacion = ({
         });
     };
 
-    const renderColumn = (items: PlanificacionItem[], tarea: 'confeccion' | 'paqueteria', columnTitle: string) => {
-      return (
+    const renderColumn = (items: PlanificacionItem[], tarea: 'confeccion' | 'paqueteria', columnTitle: string) => (
         <div className="flex flex-col gap-2">
             <h3 className="font-bold text-center text-muted-foreground">{columnTitle}</h3>
             {items.map(item => (
@@ -132,7 +131,6 @@ const SectionPlanificacion = ({
             )}
         </div>
       );
-    }
 
     return (
         <Card className="font-light">
@@ -225,7 +223,7 @@ export function PlanificacionTab({ data, empleados, isEditing, onDataChange, wee
     let currentY = 35;
     
     doc.setFontSize(18);
-    doc.text(`PLANIFICACIÓN`, pageWidth / 2, 20, { align: 'center' });
+    doc.text(`Planning Camion`, pageWidth / 2, 20, { align: 'center' });
     doc.setFontSize(10);
     doc.text(`ZARA 1224 - PUERTO VENECIA - ${dateString.toUpperCase()}`, pageWidth / 2, 26, { align: 'center' });
 
@@ -244,20 +242,30 @@ export function PlanificacionTab({ data, empleados, isEditing, onDataChange, wee
         const titleHeight = 10;
         const itemHeight = 6;
         const noteHeight = 4;
-        const sectionSpacing = 10;
+        const sectionSpacing = 5;
         
         let sectionHeight = titleHeight + 10; // title + column titles
         
-        const maxRows = Math.max(confeccionItems.length, paqueteriaItems.length);
-        for (let i = 0; i < maxRows; i++) {
-            let rowHeight = itemHeight;
-            const hasConfeccionNote = confeccionItems[i] && confeccionItems[i].anotaciones;
-            const hasPaqueteriaNote = paqueteriaItems[i] && paqueteriaItems[i].anotaciones;
-            if (hasConfeccionNote || hasPaqueteriaNote) {
-                rowHeight += noteHeight;
+        const maxRowsConfeccion = confeccionItems.length;
+        const maxRowsPaqueteria = paqueteriaItems.length;
+        
+        for (let i = 0; i < maxRowsConfeccion; i++) {
+            sectionHeight += itemHeight;
+            if (confeccionItems[i] && confeccionItems[i].anotaciones) {
+                sectionHeight += noteHeight;
             }
-            sectionHeight += rowHeight;
         }
+        
+        let paqueteriaHeight = 0;
+        for (let i = 0; i < maxRowsPaqueteria; i++) {
+            paqueteriaHeight += itemHeight;
+            if (paqueteriaItems[i] && paqueteriaItems[i].anotaciones) {
+                paqueteriaHeight += noteHeight;
+            }
+        }
+
+        sectionHeight = Math.max(sectionHeight, titleHeight + 10 + paqueteriaHeight);
+
 
         if (currentY + sectionHeight > pageHeight - margin) {
             doc.addPage();
@@ -285,36 +293,37 @@ export function PlanificacionTab({ data, empleados, isEditing, onDataChange, wee
         currentY += 2;
 
         doc.setFont('helvetica', 'normal');
-        for(let i = 0; i < maxRows; i++) {
-            const hasConfeccionNote = confeccionItems[i] && confeccionItems[i].anotaciones;
-            const hasPaqueteriaNote = paqueteriaItems[i] && paqueteriaItems[i].anotaciones;
-            const rowHeight = itemHeight + (hasConfeccionNote || hasPaqueteriaNote ? noteHeight : 0);
 
-            if (confeccionItems[i]) {
-                const item = confeccionItems[i];
-                doc.setFontSize(9);
-                doc.text(item.nombreEmpleado || '--', margin, currentY + 4);
-                if (hasConfeccionNote) {
-                    doc.setFontSize(8);
-                    doc.setTextColor(120, 120, 120);
-                    doc.text(item.anotaciones, margin, currentY + 4 + noteHeight, { maxWidth: colWidth - 5 });
-                    doc.setTextColor(0, 0, 0);
-                }
+        let confeccionY = currentY;
+        let paqueteriaY = currentY;
+
+        confeccionItems.forEach(item => {
+            doc.setFontSize(9);
+            doc.text(item.nombreEmpleado || '--', margin, confeccionY + 4);
+            confeccionY += itemHeight;
+            if (item.anotaciones) {
+                doc.setFontSize(8);
+                doc.setTextColor(120, 120, 120);
+                doc.text(item.anotaciones, margin, confeccionY, { maxWidth: colWidth - 5 });
+                doc.setTextColor(0, 0, 0);
+                confeccionY += noteHeight;
             }
-            if (paqueteriaItems[i]) {
-                const item = paqueteriaItems[i];
-                doc.setFontSize(9);
-                doc.text(item.nombreEmpleado || '--', margin + colWidth, currentY + 4);
-                if (hasPaqueteriaNote) {
-                    doc.setFontSize(8);
-                    doc.setTextColor(120, 120, 120);
-                    doc.text(item.anotaciones, margin + colWidth, currentY + 4 + noteHeight, { maxWidth: colWidth - 5 });
-                    doc.setTextColor(0, 0, 0);
-                }
+        });
+
+        paqueteriaItems.forEach(item => {
+            doc.setFontSize(9);
+            doc.text(item.nombreEmpleado || '--', margin + colWidth, paqueteriaY + 4);
+            paqueteriaY += itemHeight;
+            if (item.anotaciones) {
+                doc.setFontSize(8);
+                doc.setTextColor(120, 120, 120);
+                doc.text(item.anotaciones, margin + colWidth, paqueteriaY, { maxWidth: colWidth - 5 });
+                doc.setTextColor(0, 0, 0);
+                paqueteriaY += noteHeight;
             }
-            currentY += rowHeight;
-        }
-        currentY += sectionSpacing;
+        });
+
+        currentY = Math.max(confeccionY, paqueteriaY) + sectionSpacing;
     });
 
     doc.output('dataurlnewwindow');
