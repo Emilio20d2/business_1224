@@ -81,7 +81,13 @@ export const FilaModulo = ({ icon, label, value, isEditing, id, onInputChange, u
 )
 
 export function OperacionesSubTab({ operaciones, perdidas, logistica, almacenes, isEditing, onInputChange, basePath }: OperacionesSubTabProps) {
-  const balance = (logistica.entradasSemanales || 0) - (logistica.sintSemanales || 0);
+  const balance = (logistica?.entradasSemanales || 0) - (logistica?.sintSemanales || 0);
+  
+  const safeAlmacenes = almacenes || {};
+  const paqueteria = safeAlmacenes.paqueteria || { ocupacionPorc: 0, devolucionUnidades: 0, entradas: 0, salidas: 0 };
+  const confeccion = safeAlmacenes.confeccion || { ocupacionPorc: 0, devolucionUnidades: 0, entradas: 0, salidas: 0 };
+  const calzado = safeAlmacenes.calzado || { ocupacionPorc: 0, devolucionUnidades: 0, entradas: 0, salidas: 0 };
+  const perfumeria = safeAlmacenes.perfumeria || { ocupacionPorc: 0, devolucionUnidades: null, entradas: 0, salidas: 0 };
 
   return (
     <div className="space-y-4">
@@ -89,10 +95,10 @@ export function OperacionesSubTab({ operaciones, perdidas, logistica, almacenes,
       <KpiCard title="ALMACENES" icon={<Warehouse className="h-5 w-5 text-primary" />} className="md:col-span-6">
         <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_1fr_1fr_1.5fr_1.5fr] gap-6 place-items-start">
           <ModuloAlmacen title="Entradas">
-            <ModuloContenidoGrande icon={<Truck className="h-8 w-8 text-primary"/>} value={logistica.entradasSemanales} isEditing={isEditing} id={`${basePath}.logistica.entradasSemanales`} onInputChange={onInputChange} />
+            <ModuloContenidoGrande icon={<Truck className="h-8 w-8 text-primary"/>} value={logistica?.entradasSemanales || 0} isEditing={isEditing} id={`${basePath}.logistica.entradasSemanales`} onInputChange={onInputChange} />
           </ModuloAlmacen>
           <ModuloAlmacen title="Salidas">
-            <ModuloContenidoGrande icon={<PackageCheck className="h-8 w-8 text-primary"/>} value={logistica.sintSemanales} isEditing={isEditing} id={`${basePath}.logistica.sintSemanales`} onInputChange={onInputChange} />
+            <ModuloContenidoGrande icon={<PackageCheck className="h-8 w-8 text-primary"/>} value={logistica?.sintSemanales || 0} isEditing={isEditing} id={`${basePath}.logistica.sintSemanales`} onInputChange={onInputChange} />
           </ModuloAlmacen>
           <ModuloAlmacen title="Balance">
              <div className="flex flex-col items-center justify-center gap-2 p-4 rounded-lg bg-background h-full">
@@ -101,18 +107,18 @@ export function OperacionesSubTab({ operaciones, perdidas, logistica, almacenes,
             </div>
           </ModuloAlmacen>
           <ModuloAlmacen title="DEVOS.">
-            <ModuloContenidoGrande icon={<FileInput className="h-8 w-8 text-primary"/>} value={logistica.salidasSemanales} isEditing={isEditing} id={`${basePath}.logistica.salidasSemanales`} onInputChange={onInputChange} />
+            <ModuloContenidoGrande icon={<FileInput className="h-8 w-8 text-primary"/>} value={logistica?.salidasSemanales || 0} isEditing={isEditing} id={`${basePath}.logistica.salidasSemanales`} onInputChange={onInputChange} />
           </ModuloAlmacen>
           <ModuloAlmacen title="Ocupación" className="w-full">
-            <FilaModulo icon={<Archive className="h-5 w-5"/>} label="Paque." value={almacenes.paqueteria.ocupacionPorc} isEditing={isEditing} id={`${basePath}.almacenes.paqueteria.ocupacionPorc`} onInputChange={onInputChange} unit="%" />
-            <FilaModulo icon={<Box className="h-5 w-5"/>} label="Confe." value={almacenes.confeccion.ocupacionPorc} isEditing={isEditing} id={`${basePath}.almacenes.confeccion.ocupacionPorc`} onInputChange={onInputChange} unit="%" />
-            <FilaModulo icon={<Footprints className="h-5 w-5"/>} label="Calzado" value={almacenes.calzado.ocupacionPorc} isEditing={isEditing} id={`${basePath}.almacenes.calzado.ocupacionPorc`} onInputChange={onInputChange} unit="%" />
-            <FilaModulo icon={<SprayCan className="h-5 w-5"/>} label="Perfu." value={almacenes.perfumeria.ocupacionPorc} isEditing={isEditing} id={`${basePath}.almacenes.perfumeria.ocupacionPorc`} onInputChange={onInputChange} unit="%" />
+            <FilaModulo icon={<Archive className="h-5 w-5"/>} label="Paque." value={paqueteria.ocupacionPorc} isEditing={isEditing} id={`${basePath}.almacenes.paqueteria.ocupacionPorc`} onInputChange={onInputChange} unit="%" />
+            <FilaModulo icon={<Box className="h-5 w-5"/>} label="Confe." value={confeccion.ocupacionPorc} isEditing={isEditing} id={`${basePath}.almacenes.confeccion.ocupacionPorc`} onInputChange={onInputChange} unit="%" />
+            <FilaModulo icon={<Footprints className="h-5 w-5"/>} label="Calzado" value={calzado.ocupacionPorc} isEditing={isEditing} id={`${basePath}.almacenes.calzado.ocupacionPorc`} onInputChange={onInputChange} unit="%" />
+            <FilaModulo icon={<SprayCan className="h-5 w-5"/>} label="Perfu." value={perfumeria.ocupacionPorc} isEditing={isEditing} id={`${basePath}.almacenes.perfumeria.ocupacionPorc`} onInputChange={onInputChange} unit="%" />
           </ModuloAlmacen>
           <ModuloAlmacen title="Propuesta Devo." className="w-full">
-             <FilaModulo icon={<Archive className="h-5 w-5"/>} label="Paque." value={almacenes.paqueteria.devolucionUnidades as number} isEditing={isEditing} id={`${basePath}.almacenes.paqueteria.devolucionUnidades`} onInputChange={onInputChange} unit="Unid."/>
-             <FilaModulo icon={<Box className="h-5 w-5"/>} label="Confe." value={almacenes.confeccion.devolucionUnidades as number} isEditing={isEditing} id={`${basePath}.almacenes.confeccion.devolucionUnidades`} onInputChange={onInputChange} unit="Unid."/>
-             <FilaModulo icon={<Footprints className="h-5 w-5"/>} label="Calzado" value={almacenes.calzado.devolucionUnidades as number} isEditing={isEditing} id={`${basePath}.almacenes.calzado.devolucionUnidades`} onInputChange={onInputChange} unit="Unid."/>
+             <FilaModulo icon={<Archive className="h-5 w-5"/>} label="Paque." value={paqueteria.devolucionUnidades as number} isEditing={isEditing} id={`${basePath}.almacenes.paqueteria.devolucionUnidades`} onInputChange={onInputChange} unit="Unid."/>
+             <FilaModulo icon={<Box className="h-5 w-5"/>} label="Confe." value={confeccion.devolucionUnidades as number} isEditing={isEditing} id={`${basePath}.almacenes.confeccion.devolucionUnidades`} onInputChange={onInputChange} unit="Unid."/>
+             <FilaModulo icon={<Footprints className="h-5 w-5"/>} label="Calzado" value={calzado.devolucionUnidades as number} isEditing={isEditing} id={`${basePath}.almacenes.calzado.devolucionUnidades`} onInputChange={onInputChange} unit="Unid."/>
           </ModuloAlmacen>
         </div>
       </KpiCard>
@@ -122,7 +128,7 @@ export function OperacionesSubTab({ operaciones, perdidas, logistica, almacenes,
              <div className="flex flex-row justify-center items-center gap-4">
                 <DatoSimple 
                     label={<Euro className="h-5 w-5 text-primary"/>}
-                    value={perdidas.gap.euros} 
+                    value={perdidas?.gap?.euros || 0} 
                     isEditing={isEditing}
                     valueId={`${basePath}.perdidas.gap.euros`}
                     align="center"
@@ -130,7 +136,7 @@ export function OperacionesSubTab({ operaciones, perdidas, logistica, almacenes,
                 />
                 <DatoSimple 
                     label={<Package className="h-5 w-5 text-primary"/>}
-                    value={perdidas.gap.unidades}
+                    value={perdidas?.gap?.unidades || 0}
                     isEditing={isEditing}
                     valueId={`${basePath}.perdidas.gap.unidades`}
                     align="center"
@@ -143,7 +149,7 @@ export function OperacionesSubTab({ operaciones, perdidas, logistica, almacenes,
             <div className="flex flex-row justify-center items-center gap-4">
                 <DatoSimple 
                     label={<Package className="h-5 w-5 text-primary"/>}
-                    value={perdidas.merma.unidades}
+                    value={perdidas?.merma?.unidades || 0}
                     isEditing={isEditing}
                     valueId={`${basePath}.perdidas.merma.unidades`}
                     align="center"
@@ -152,7 +158,7 @@ export function OperacionesSubTab({ operaciones, perdidas, logistica, almacenes,
                 />
                 <DatoSimple 
                     label={<Percent className="h-5 w-5 text-primary"/>}
-                    value={perdidas.merma.porcentaje}
+                    value={perdidas?.merma?.porcentaje || 0}
                     isEditing={isEditing}
                     valueId={`${basePath}.perdidas.merma.porcentaje`}
                     align="center"
@@ -167,7 +173,7 @@ export function OperacionesSubTab({ operaciones, perdidas, logistica, almacenes,
                 <DatoSimple 
                     icon={<RefreshCw className="h-5 w-5 text-primary"/>} 
                     label="Repo" 
-                    value={operaciones.repoPorc} 
+                    value={operaciones?.repoPorc || 0} 
                     isEditing={isEditing} 
                     valueId={`${basePath}.operaciones.repoPorc`} 
                     align="center" 
@@ -177,7 +183,7 @@ export function OperacionesSubTab({ operaciones, perdidas, logistica, almacenes,
                 <DatoSimple 
                     icon={<Sparkles className="h-5 w-5 text-primary"/>} 
                     label="Frescura" 
-                    value={operaciones.frescuraPorc} 
+                    value={operaciones?.frescuraPorc || 0} 
                     isEditing={isEditing} 
                     valueId={`${basePath}.operaciones.frescuraPorc`} 
                     align="center" 
