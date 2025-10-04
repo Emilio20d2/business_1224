@@ -34,7 +34,7 @@ const AlmacenCard = ({ basePath, logistica, almacenes, isEditing, onInputChange 
               <ModuloAlmacen title="Ocupación" className="w-full">
                 <FilaModulo icon={<Shirt className="h-5 w-5"/>} label="Ropa" value={almacenes.ropa.ocupacionPorc} isEditing={isEditing} id={`${basePath}.almacenes.ropa.ocupacionPorc`} onInputChange={onInputChange} unit="%" />
                 <FilaModulo icon={<Footprints className="h-5 w-5"/>} label="Calzado" value={almacenes.calzado.ocupacionPorc} isEditing={isEditing} id={`${basePath}.almacenes.calzado.ocupacionPorc`} onInputChange={onInputChange} unit="%" />
-                <FilaModulo icon={<SprayCan className="h-5 w-5"/>} label="Perfumería" value={almacenes.perfumeria.ocupacionPorc} isEditing={isEditing} id={`${basePath}.almacenes.perfumeria.ocupacionPorc`} onInputChange={onInputChange} unit="%" />
+                <FilaModulo icon={<SprayCan className="h-5 w-5"/>} label="Perfu." value={almacenes.perfumeria.ocupacionPorc} isEditing={isEditing} id={`${basePath}.almacenes.perfumeria.ocupacionPorc`} onInputChange={onInputChange} unit="%" />
               </ModuloAlmacen>
               <ModuloAlmacen title="Propuesta Devo." className="w-full">
                  <FilaModulo icon={<Shirt className="h-5 w-5"/>} label="Ropa" value={almacenes.ropa.devolucionUnidades as number} isEditing={isEditing} id={`${basePath}.almacenes.ropa.devolucionUnidades`} onInputChange={onInputChange} unit="Unid."/>

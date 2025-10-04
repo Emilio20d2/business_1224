@@ -232,7 +232,7 @@ export function VentasNinoTab({ data, isEditing, onInputChange, onTextChange }: 
                         showFooter={false}
                     />
                     <DataTable
-                        title="Perfumeria"
+                        title="Perfumería"
                         icon={<SprayCan className="h-5 w-5" />}
                         dataKey="datosPorSeccion.nino.desglose"
                         data={perfumeriaTableData}

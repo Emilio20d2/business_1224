@@ -222,7 +222,7 @@ export function VentasManTab({ data, isEditing, onInputChange, onTextChange }: V
                         showFooter={false}
                     />
                     <DataTable
-                        title="Perfumeria"
+                        title="Perfumería"
                         icon={<SprayCan className="h-5 w-5" />}
                         dataKey="datosPorSeccion.man.desglose"
                         data={perfumeriaTableData}
