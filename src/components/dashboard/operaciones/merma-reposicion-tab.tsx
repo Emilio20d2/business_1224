@@ -85,7 +85,7 @@ const SectionOperaciones = ({
     sectionName: string
 }) => (
      <div>
-        <h2 className="text-xl font-bold mb-2 invisible">{sectionName}</h2>
+        <h2 className="text-xl font-bold mb-2">{sectionName}</h2>
         <KpiCard title="Operaciones" icon={<RefreshCw className="h-5 w-5 text-primary" />}>
             <div className="grid grid-cols-4 gap-4 h-full">
             <DatoSimple 
