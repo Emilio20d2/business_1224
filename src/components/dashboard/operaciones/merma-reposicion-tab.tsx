@@ -46,7 +46,6 @@ const SectionMerma = ({
                     isEditing={isEditing}
                     valueId={`${basePath}.perdidas.merma.unidades`}
                     align="center"
-                    unit="Unid."
                     onInputChange={onInputChange}
                 />
                 <DatoSimple 

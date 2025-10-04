@@ -116,9 +116,9 @@ export function OperacionesSubTab({ operaciones, perdidas, logistica, almacenes,
             <FilaModulo icon={<SprayCan className="h-5 w-5"/>} label="Perfu." value={perfumeria.ocupacionPorc} isEditing={isEditing} id={`${basePath}.almacenes.perfumeria.ocupacionPorc`} onInputChange={onInputChange} unit="%" />
           </ModuloAlmacen>
           <ModuloAlmacen title="Propuesta Devo." className="w-full">
-             <FilaModulo icon={<Archive className="h-5 w-5"/>} label="Paque." value={paqueteria.devolucionUnidades as number} isEditing={isEditing} id={`${basePath}.almacenes.paqueteria.devolucionUnidades`} onInputChange={onInputChange} unit="Unid."/>
-             <FilaModulo icon={<Box className="h-5 w-5"/>} label="Confe." value={confeccion.devolucionUnidades as number} isEditing={isEditing} id={`${basePath}.almacenes.confeccion.devolucionUnidades`} onInputChange={onInputChange} unit="Unid."/>
-             <FilaModulo icon={<Footprints className="h-5 w-5"/>} label="Calzado" value={calzado.devolucionUnidades as number} isEditing={isEditing} id={`${basePath}.almacenes.calzado.devolucionUnidades`} onInputChange={onInputChange} unit="Unid."/>
+             <FilaModulo icon={<Archive className="h-5 w-5"/>} label="Paque." value={paqueteria.devolucionUnidades as number} isEditing={isEditing} id={`${basePath}.almacenes.paqueteria.devolucionUnidades`} onInputChange={onInputChange} unit=""/>
+             <FilaModulo icon={<Box className="h-5 w-5"/>} label="Confe." value={confeccion.devolucionUnidades as number} isEditing={isEditing} id={`${basePath}.almacenes.confeccion.devolucionUnidades`} onInputChange={onInputChange} unit=""/>
+             <FilaModulo icon={<Footprints className="h-5 w-5"/>} label="Calzado" value={calzado.devolucionUnidades as number} isEditing={isEditing} id={`${basePath}.almacenes.calzado.devolucionUnidades`} onInputChange={onInputChange} unit=""/>
           </ModuloAlmacen>
         </div>
       </KpiCard>
@@ -153,7 +153,6 @@ export function OperacionesSubTab({ operaciones, perdidas, logistica, almacenes,
                     isEditing={isEditing}
                     valueId={`${basePath}.perdidas.merma.unidades`}
                     align="center"
-                    unit="Unid."
                     onInputChange={onInputChange}
                 />
                 <DatoSimple 
