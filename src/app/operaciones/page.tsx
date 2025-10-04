@@ -263,7 +263,7 @@ function OperacionesPageComponent() {
         const keys = path.split('.');
 
         let cleanValue = value;
-        if (typeof value === 'string' && keys[0] !== 'focusOperaciones') {
+        if (typeof value === 'string' && keys[0] !== 'focusOperaciones' && keys[1] !== 'incidencias') {
             cleanValue = parseFloat(value.replace(',', '.')) || 0;
         }
 
@@ -597,20 +597,20 @@ function OperacionesPageComponent() {
                     </div>
 
                     <TabsContent value="almacenes" className="mt-0">
-                       <AlmacenesTab data={data} isEditing={isEditing} onInputChange={handleInputChange} />
+                       <AlmacenesTab data={data} isEditing={isEditing} onInputChange={onInputChange} />
                     </TabsContent>
                     <TabsContent value="mermaReposicion" className="mt-0">
                         <MermaReposicionTab 
                             data={data}
                             isEditing={isEditing}
-                            onInputChange={handleInputChange}
+                            onInputChange={onInputChange}
                         />
                     </TabsContent>
                      <TabsContent value="productividad" className="mt-0">
                         <ProductividadTab 
                             data={data}
                             isEditing={isEditing}
-                            onInputChange={handleInputChange}
+                            onInputChange={onInputChange}
                         />
                     </TabsContent>
                     <TabsContent value="planificacion" className="mt-0">
