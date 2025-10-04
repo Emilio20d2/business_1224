@@ -37,7 +37,7 @@ const AlmacenCard = ({ basePath, logistica, almacenes, isEditing, onInputChange 
                    <strong className="text-3xl font-bold">{formatNumber(balance)}</strong>
                 </div>
               </ModuloAlmacen>
-               <ModuloAlmacen title="DEVOS.">
+               <ModuloAlmacen title="Destocaje">
                 <ModuloContenidoGrande icon={<FileInput className="h-8 w-8 text-primary"/>} value={logistica.salidasSemanales} isEditing={!isTotalCard && isEditing} id={`${basePath}.logistica.salidasSemanales`} onInputChange={onInputChange} />
               </ModuloAlmacen>
               <ModuloAlmacen title="Ocupación" className="w-full">

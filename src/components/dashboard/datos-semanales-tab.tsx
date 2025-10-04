@@ -232,7 +232,7 @@ const AlmacenesGeneralCard = ({ data, isEditing, onInputChange }: { data: Weekly
           </div>
         </div>
         <div className="flex flex-col text-center gap-2 w-full">
-          <h4 className="text-sm font-semibold text-muted-foreground tracking-wider uppercase">DEVOS.</h4>
+          <h4 className="text-sm font-semibold text-muted-foreground tracking-wider uppercase">Destocaje</h4>
           <div className="flex flex-col items-center justify-center gap-2 p-4 rounded-lg bg-background h-full">
             <div className="text-primary"><FileInput className="h-8 w-8 text-primary"/></div>
             <strong className="text-3xl font-bold">{formatNumber(totalLogistica.salidasSemanales)}</strong>
@@ -319,16 +319,6 @@ export function DatosSemanalesTab({ data, ventas, rendimientoTienda, operaciones
         </KpiCard>
         
         <div className="md:col-span-6 grid grid-cols-1 md:grid-cols-8 gap-2">
-          <KpiCard title="V. Ipod" icon={<Smartphone className="h-5 w-5 text-primary" />} className="md:col-span-1">
-            <DatoSimple 
-              value={operaciones.ventaIpod} 
-              isEditing={isEditing}
-              align="center"
-              valueId="general.operaciones.ventaIpod"
-              onInputChange={onInputChange}
-            />
-          </KpiCard>
-
           <KpiCard title="GAP" icon={<ClipboardX className="h-5 w-5 text-primary" />} className="md:col-span-1">
               <div className="flex flex-col justify-around items-center gap-4 h-full">
                   <DatoSimple 
@@ -348,6 +338,16 @@ export function DatosSemanalesTab({ data, ventas, rendimientoTienda, operaciones
                       onInputChange={onInputChange}
                   />
               </div>
+          </KpiCard>
+
+          <KpiCard title="V. Ipod" icon={<Smartphone className="h-5 w-5 text-primary" />} className="md:col-span-1">
+            <DatoSimple 
+              value={operaciones.ventaIpod} 
+              isEditing={isEditing}
+              align="center"
+              valueId="general.operaciones.ventaIpod"
+              onInputChange={onInputChange}
+            />
           </KpiCard>
 
           <KpiCard title="Caja" icon={<Receipt className="h-5 w-5 text-primary" />} className="md:col-span-2">
@@ -470,7 +470,7 @@ export function DatosSemanalesTab({ data, ventas, rendimientoTienda, operaciones
                 />
                 <DatoSimple
                     icon={<FileQuestion className="h-5 w-5 text-primary"/>}
-                    label="Sin Ubicación"
+                    label="Sin Posi."
                     value={operaciones.sinUbicacion}
                     isEditing={isEditing}
                     valueId="general.operaciones.sinUbicacion"

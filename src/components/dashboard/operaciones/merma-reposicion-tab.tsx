@@ -121,7 +121,7 @@ const SectionOperaciones = ({
             />
             <DatoSimple
                 icon={<FileQuestion className="h-5 w-5 text-primary"/>}
-                label="Sin Ubicación"
+                label="Sin Posi."
                 value={operaciones.sinUbicacion}
                 isEditing={isEditing}
                 valueId={`${basePath}.operaciones.sinUbicacion`}
