@@ -726,7 +726,7 @@ const handleSaveEmpleados = async (newItems: Empleado[]) => {
                 <AqneSemanalTab data={data} isEditing={isEditing} onInputChange={handleInputChange} />
               </TabsContent>
               <TabsContent value="acumulado" className="mt-0">
-                <AcumuladoTab data={data.acumulado} isEditing={isEditing} onInputChange={onInputChange}/>
+                <AcumuladoTab data={data.acumulado} isEditing={isEditing} onInputChange={handleInputChange}/>
               </TabsContent>
 
             </Tabs>
@@ -789,3 +789,5 @@ export default function DashboardPage() {
         </Suspense>
     );
 }
+
+    
