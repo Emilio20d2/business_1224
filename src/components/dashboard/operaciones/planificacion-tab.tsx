@@ -293,7 +293,7 @@ export function PlanificacionTab({ data, empleados, isEditing, onDataChange, wee
         lastY = Math.max(firstTableY, secondTableY) + 10;
     });
 
-    doc.save(`planificacion_${dayKey}.pdf`);
+    doc.output('dataurlnewwindow');
   };
 
 

@@ -215,7 +215,7 @@ export function ProductividadTab({ data, isEditing, onInputChange }: Productivid
         footStyles: { fillColor: [230, 230, 230], textColor: 20, fontStyle: 'bold' }
     });
 
-    doc.save(`productividad_${dayKey}.pdf`);
+    doc.output('dataurlnewwindow');
   };
 
 
