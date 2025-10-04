@@ -24,7 +24,8 @@ import {
   Inbox,
   Percent,
   Sparkles,
-  FileInput
+  FileInput,
+  Repeat
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
@@ -78,19 +79,27 @@ export const FilaModulo = ({ icon, label, value, isEditing, id, onInputChange, u
 )
 
 export function OperacionesSubTab({ operaciones, perdidas, logistica, almacenes, isEditing, onInputChange, basePath }: OperacionesSubTabProps) {
+  const balance = (logistica.entradasSemanales || 0) - (logistica.sintSemanales || 0);
+
   return (
     <div className="space-y-4">
       {/* ALMACENES */}
       <KpiCard title="ALMACENES" icon={<Warehouse className="h-5 w-5 text-primary" />} className="md:col-span-6">
-        <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_1fr_1.5fr_1.5fr] gap-6 place-items-start">
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_1fr_1fr_1.5fr_1.5fr] gap-6 place-items-start">
           <ModuloAlmacen title="Entradas">
             <ModuloContenidoGrande icon={<Truck className="h-8 w-8 text-primary"/>} value={logistica.entradasSemanales} isEditing={isEditing} id={`${basePath}.logistica.entradasSemanales`} onInputChange={onInputChange} />
           </ModuloAlmacen>
-          <ModuloAlmacen title="DEV. ALMACEN">
-            <ModuloContenidoGrande icon={<PackageCheck className="h-8 w-8 text-primary"/>} value={logistica.salidasSemanales} isEditing={isEditing} id={`${basePath}.logistica.salidasSemanales`} onInputChange={onInputChange} />
+          <ModuloAlmacen title="Salidas">
+            <ModuloContenidoGrande icon={<PackageCheck className="h-8 w-8 text-primary"/>} value={logistica.sintSemanales} isEditing={isEditing} id={`${basePath}.logistica.sintSemanales`} onInputChange={onInputChange} />
+          </ModuloAlmacen>
+          <ModuloAlmacen title="Balance">
+             <div className="flex flex-col items-center justify-center gap-2 p-4 rounded-lg bg-background h-full">
+               <div className="text-primary"><Repeat className="h-8 w-8 text-primary"/></div>
+               <strong className="text-3xl font-bold">{formatNumber(balance)}</strong>
+            </div>
           </ModuloAlmacen>
           <ModuloAlmacen title="SINT">
-            <ModuloContenidoGrande icon={<FileInput className="h-8 w-8 text-primary"/>} value={logistica.sintSemanales} isEditing={isEditing} id={`${basePath}.logistica.sintSemanales`} onInputChange={onInputChange} />
+            <ModuloContenidoGrande icon={<FileInput className="h-8 w-8 text-primary"/>} value={logistica.salidasSemanales} isEditing={isEditing} id={`${basePath}.logistica.salidasSemanales`} onInputChange={onInputChange} />
           </ModuloAlmacen>
           <ModuloAlmacen title="Ocupación" className="w-full">
             <FilaModulo icon={<Shirt className="h-5 w-5"/>} label="Ropa" value={almacenes.ropa.ocupacionPorc} isEditing={isEditing} id={`${basePath}.almacenes.ropa.ocupacionPorc`} onInputChange={onInputChange} unit="%" />
