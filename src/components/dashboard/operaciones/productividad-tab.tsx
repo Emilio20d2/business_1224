@@ -208,7 +208,8 @@ export function ProductividadTab({ data, isEditing, onInputChange }: Productivid
         didDrawCell: (data) => {
             if (data.row.index % 3 === 0 && data.section === 'body' && data.row.index > 0) {
                  doc.setDrawColor(180, 180, 180); // gray
-                 doc.line(data.cell.x, data.cell.y, data.cell.x + data.table.getColWidth(0) + data.table.getColWidth(1) + data.table.getColWidth(2) + data.table.getColWidth(3) + data.table.getColWidth(4), data.cell.y);
+                 const tableWidth = data.table.columns.reduce((acc, col) => acc + col.width, 0);
+                 doc.line(data.cell.x, data.cell.y, data.cell.x + tableWidth, data.cell.y);
             }
         },
         foot: [['TOTAL HORAS PRODUCTIVIDAD REQUERIDAS', '', '', '', `${roundToQuarter(horasProductividadRequeridas)} h`]],
