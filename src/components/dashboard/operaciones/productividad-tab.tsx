@@ -205,7 +205,10 @@ export function ProductividadTab({ data, isEditing, onInputChange }: Productivid
         head: [['Sección', 'Tarea', 'Unidades', 'Productividad', 'Horas Req.']],
         body: bodyData.map(d => [d.section, d.tarea, d.unidades, d.ratio, d.horas]),
         theme: 'grid',
-        headStyles: { fillColor: [73, 175, 165] },
+        headStyles: { 
+            fillColor: false, // No background color
+            textColor: [73, 175, 165] // Primary app color for text
+        },
         didDrawCell: (data) => {
             if (data.row.index % 3 === 2 && data.section === 'body' && data.row.index < bodyData.length -1) {
                  doc.setDrawColor(180, 180, 180);
