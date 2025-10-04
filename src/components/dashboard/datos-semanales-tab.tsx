@@ -22,7 +22,11 @@ import {
   RefreshCw,
   Inbox,
   Percent,
-  Sparkles
+  Sparkles,
+  FileInput,
+  Repeat,
+  Archive,
+  Box
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
@@ -151,6 +155,106 @@ const SectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionNa
     );
 };
 
+const AlmacenesGeneralCard = ({ data, isEditing, onInputChange }: { data: WeeklyData, isEditing: boolean, onInputChange: any }) => {
+  const sections = ['woman', 'man', 'nino'] as const;
+  
+  const totalLogistica = {
+      entradasSemanales: sections.reduce((sum, key) => sum + (data[key]?.logistica?.entradasSemanales || 0), 0),
+      salidasSemanales: sections.reduce((sum, key) => sum + (data[key]?.logistica?.salidasSemanales || 0), 0),
+      sintSemanales: sections.reduce((sum, key) => sum + (data[key]?.logistica?.sintSemanales || 0), 0),
+  };
+
+  const balance = totalLogistica.entradasSemanales - totalLogistica.sintSemanales;
+  
+  const totalAlmacenes = {
+      paqueteria: {
+          devolucionUnidades: sections.reduce((sum, key) => sum + (data[key]?.almacenes?.paqueteria?.devolucionUnidades || 0), 0),
+          ocupacionPorc: data.general?.almacenes?.paqueteria?.ocupacionPorc || 0,
+      },
+      confeccion: {
+          devolucionUnidades: sections.reduce((sum, key) => sum + (data[key]?.almacenes?.confeccion?.devolucionUnidades || 0), 0),
+          ocupacionPorc: data.general?.almacenes?.confeccion?.ocupacionPorc || 0,
+      },
+      calzado: {
+          devolucionUnidades: sections.reduce((sum, key) => sum + (data[key]?.almacenes?.calzado?.devolucionUnidades || 0), 0),
+          ocupacionPorc: data.general?.almacenes?.calzado?.ocupacionPorc || 0,
+      },
+      perfumeria: {
+          devolucionUnidades: null,
+          ocupacionPorc: data.general?.almacenes?.perfumeria?.ocupacionPorc || 0,
+      }
+  };
+
+  const FilaModulo = ({ icon, label, value, isEditing, id, unit }: { icon: React.ReactNode, label: string, value: number, isEditing?: boolean, id?: string, unit: string }) => (
+     <div className="grid grid-cols-2 items-center gap-4 text-md">
+        <div className="flex items-center gap-2 text-primary justify-start">
+            {icon}
+            <span className="text-muted-foreground">{label}</span>
+        </div>
+        <div className="flex justify-end items-center text-right w-full">
+         {isEditing && id ? 
+            <div className="flex items-center justify-end gap-1 w-full">
+                <Input type="number" inputMode="decimal" defaultValue={value} className="font-bold text-right w-24" id={id} onChange={(e) => onInputChange(id, e.target.value)} />
+                <span className="text-sm text-muted-foreground">{unit}</span>
+            </div>
+            : <div className="font-bold text-right w-full">{unit === '%' ? formatPercentage(value) : formatNumber(value)}</div>
+        }
+        </div>
+    </div>
+  )
+
+  return (
+    <KpiCard title="ALMACENES (General)" icon={<Warehouse className="h-5 w-5 text-primary" />} className="md:col-span-6">
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_1fr_1fr_1.5fr_1.5fr] gap-6 place-items-start">
+        <div className="flex flex-col text-center gap-2 w-full">
+          <h4 className="text-sm font-semibold text-muted-foreground tracking-wider uppercase">Entradas</h4>
+          <div className="flex flex-col items-center justify-center gap-2 p-4 rounded-lg bg-background h-full">
+            <div className="text-primary"><Truck className="h-8 w-8 text-primary"/></div>
+            <strong className="text-3xl font-bold">{formatNumber(totalLogistica.entradasSemanales)}</strong>
+          </div>
+        </div>
+        <div className="flex flex-col text-center gap-2 w-full">
+          <h4 className="text-sm font-semibold text-muted-foreground tracking-wider uppercase">Salidas</h4>
+          <div className="flex flex-col items-center justify-center gap-2 p-4 rounded-lg bg-background h-full">
+            <div className="text-primary"><PackageCheck className="h-8 w-8 text-primary"/></div>
+            <strong className="text-3xl font-bold">{formatNumber(totalLogistica.sintSemanales)}</strong>
+          </div>
+        </div>
+        <div className="flex flex-col text-center gap-2 w-full">
+          <h4 className="text-sm font-semibold text-muted-foreground tracking-wider uppercase">Balance</h4>
+          <div className="flex flex-col items-center justify-center gap-2 p-4 rounded-lg bg-background h-full">
+            <div className="text-primary"><Repeat className="h-8 w-8 text-primary"/></div>
+            <strong className="text-3xl font-bold">{formatNumber(balance)}</strong>
+          </div>
+        </div>
+        <div className="flex flex-col text-center gap-2 w-full">
+          <h4 className="text-sm font-semibold text-muted-foreground tracking-wider uppercase">DEVOS.</h4>
+          <div className="flex flex-col items-center justify-center gap-2 p-4 rounded-lg bg-background h-full">
+            <div className="text-primary"><FileInput className="h-8 w-8 text-primary"/></div>
+            <strong className="text-3xl font-bold">{formatNumber(totalLogistica.salidasSemanales)}</strong>
+          </div>
+        </div>
+        <div className="flex flex-col text-center gap-2 w-full">
+          <h4 className="text-sm font-semibold text-muted-foreground tracking-wider uppercase">Ocupación</h4>
+          <div className="flex flex-col gap-3">
+            <FilaModulo icon={<Archive className="h-5 w-5"/>} label="Paque." value={totalAlmacenes.paqueteria.ocupacionPorc} isEditing={isEditing} id="general.almacenes.paqueteria.ocupacionPorc" onInputChange={onInputChange} unit="%" />
+            <FilaModulo icon={<Box className="h-5 w-5"/>} label="Confe." value={totalAlmacenes.confeccion.ocupacionPorc} isEditing={isEditing} id="general.almacenes.confeccion.ocupacionPorc" onInputChange={onInputChange} unit="%" />
+            <FilaModulo icon={<Footprints className="h-5 w-5"/>} label="Calzado" value={totalAlmacenes.calzado.ocupacionPorc} isEditing={isEditing} id="general.almacenes.calzado.ocupacionPorc" onInputChange={onInputChange} unit="%" />
+            <FilaModulo icon={<SprayCan className="h-5 w-5"/>} label="Perfu." value={totalAlmacenes.perfumeria.ocupacionPorc} isEditing={isEditing} id="general.almacenes.perfumeria.ocupacionPorc" onInputChange={onInputChange} unit="%" />
+          </div>
+        </div>
+        <div className="flex flex-col text-center gap-2 w-full">
+          <h4 className="text-sm font-semibold text-muted-foreground tracking-wider uppercase">Propuesta Devo.</h4>
+          <div className="flex flex-col gap-3">
+             <FilaModulo icon={<Archive className="h-5 w-5"/>} label="Paque." value={totalAlmacenes.paqueteria.devolucionUnidades} unit="Unid."/>
+             <FilaModulo icon={<Box className="h-5 w-5"/>} label="Confe." value={totalAlmacenes.confeccion.devolucionUnidades} unit="Unid."/>
+             <FilaModulo icon={<Footprints className="h-5 w-5"/>} label="Calzado" value={totalAlmacenes.calzado.devolucionUnidades} unit="Unid."/>
+          </div>
+        </div>
+      </div>
+    </KpiCard>
+  )
+}
 
 export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perdidas, datosPorSeccion, isEditing, onInputChange }: DatosSemanalesTabProps) {
   
@@ -158,6 +262,11 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
   
   return (
     <div className="space-y-2">
+       <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+        <SectionCard name="woman" data={datosPorSeccion.woman} isEditing={isEditing} onInputChange={onInputChange} />
+        <SectionCard name="man" data={datosPorSeccion.man} isEditing={isEditing} onInputChange={onInputChange} />
+        <SectionCard name="nino" data={datosPorSeccion.nino} isEditing={isEditing} onInputChange={onInputChange} />
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-6 gap-2">
         {/* Ventas */}
         <KpiCard title="Ventas" icon={<Euro className="h-5 w-5 text-primary" />} className="md:col-span-3">
@@ -275,7 +384,7 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
 
 
           <KpiCard title="Caja" icon={<Receipt className="h-5 w-5 text-primary" />} className="md:col-span-4">
-              <div className="grid grid-cols-3 items-center justify-center gap-4 h-full">
+               <div className="grid grid-cols-4 items-center justify-center gap-4 h-full">
                    <DatoSimple 
                     icon={<Clock className="h-5 w-5 text-primary"/>} 
                     label="Filas Caja" 
@@ -306,10 +415,20 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
                     valueId="general.operaciones.dropOffPorc"
                     onInputChange={onInputChange}
                   />
+                   <DatoSimple 
+                    icon={<Ticket className="h-5 w-5 text-primary"/>}
+                    label="E-Ticket" 
+                    value={operaciones.eTicketPorc} 
+                    isEditing={isEditing}
+                    align="center" 
+                    unit="%"
+                    valueId="general.operaciones.eTicketPorc"
+                    onInputChange={onInputChange}
+                  />
               </div>
           </KpiCard>
           
-           <KpiCard title="V. Ipod" icon={<Smartphone className="h-5 w-5 text-primary" />} className="md:col-span-1">
+           <KpiCard title="V. Ipod" icon={<Smartphone className="h-5 w-5 text-primary" />} className="md:col-span-2">
               <DatoSimple 
                 value={operaciones.ventaIpod} 
                 isEditing={isEditing}
@@ -319,24 +438,9 @@ export function DatosSemanalesTab({ ventas, rendimientoTienda, operaciones, perd
               />
           </KpiCard>
 
-          <KpiCard title="E-Ticket" icon={<Ticket className="h-5 w-5 text-primary" />} className="md:col-span-1">
-              <DatoSimple 
-                value={operaciones.eTicketPorc} 
-                isEditing={isEditing}
-                align="center" 
-                unit="%"
-                valueId="general.operaciones.eTicketPorc"
-                onInputChange={onInputChange}
-              />
-          </KpiCard>
-
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-        <SectionCard name="woman" data={datosPorSeccion.woman} isEditing={isEditing} onInputChange={onInputChange} />
-        <SectionCard name="man" data={datosPorSeccion.man} isEditing={isEditing} onInputChange={onInputChange} />
-        <SectionCard name="nino" data={datosPorSeccion.nino} isEditing={isEditing} onInputChange={onInputChange} />
-      </div>
+       <AlmacenesGeneralCard data={{ ventas, rendimientoTienda, operaciones, perdidas, datosPorSeccion, general: datosPorSeccion.man, man: datosPorSeccion.man, woman: datosPorSeccion.woman, nino: datosPorSeccion.nino } as WeeklyData} isEditing={isEditing} onInputChange={onInputChange} />
     </div>
   );
 }
