@@ -249,23 +249,26 @@ export function PlanificacionTab({ data, empleados, isEditing, onDataChange, wee
         const col1X = margin;
         const col2X = margin + colWidth + margin;
 
+        const unidadesConfeccion = dayData.productividadPorSeccion[sectionKey]?.unidadesConfeccion || 0;
+        const unidadesPaqueteria = dayData.productividadPorSeccion[sectionKey]?.unidadesPaqueteria || 0;
+        
         const getItemHeight = (item: PlanificacionItem) => {
-            let height = 5; // Base height for employee name
+            let height = 8; // Base height for employee name
             if (item.anotaciones) {
                 const splitNotes = doc.splitTextToSize(item.anotaciones, colWidth - 2);
-                height += (splitNotes.length * 3.5); // Add height for notes
+                height += (splitNotes.length * 4); // Add height for notes
             }
             return height;
         };
 
         const calculateColumnHeight = (items: PlanificacionItem[]) => {
-            return items.reduce((total, item) => total + getItemHeight(item) + 2, 0); // +2 for spacing
+            return items.reduce((total, item) => total + getItemHeight(item), 0);
         };
         
         const confeccionHeight = calculateColumnHeight(confeccionItems);
         const paqueteriaHeight = calculateColumnHeight(paqueteriaItems);
         const sectionContentHeight = Math.max(confeccionHeight, paqueteriaHeight);
-        const totalSectionHeight = 15 + sectionContentHeight; // 15 for title and headers
+        const totalSectionHeight = 15 + sectionContentHeight;
 
         if (currentY + totalSectionHeight > doc.internal.pageSize.height - margin) {
             doc.addPage();
@@ -282,8 +285,8 @@ export function PlanificacionTab({ data, empleados, isEditing, onDataChange, wee
         doc.setFontSize(10);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(150, 150, 150);
-        doc.text('CONFECCIÓN', col1X, currentY);
-        doc.text('PAQUETERÍA', col2X, currentY);
+        doc.text(`CONFECCIÓN (${unidadesConfeccion} un.)`, col1X, currentY);
+        doc.text(`PAQUETERÍA (${unidadesPaqueteria} un.)`, col2X, currentY);
         doc.setTextColor(0, 0, 0);
         currentY += 2;
         doc.setDrawColor(220, 220, 220);
@@ -307,7 +310,7 @@ export function PlanificacionTab({ data, empleados, isEditing, onDataChange, wee
                 doc.text(splitNotes, col1X, confeccionY + 5);
                 doc.setTextColor(0, 0, 0);
             }
-            confeccionY += itemHeight + 2; // spacing
+            confeccionY += itemHeight;
         });
 
         paqueteriaItems.forEach(item => {
@@ -324,7 +327,7 @@ export function PlanificacionTab({ data, empleados, isEditing, onDataChange, wee
                 doc.text(splitNotes, col2X, paqueteriaY + 5);
                 doc.setTextColor(0, 0, 0);
             }
-            paqueteriaY += itemHeight + 2; // spacing
+            paqueteriaY += itemHeight;
         });
         
         currentY = Math.max(confeccionY, paqueteriaY) + 5;
