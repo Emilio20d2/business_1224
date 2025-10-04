@@ -4,7 +4,7 @@
 import React from 'react';
 import type { WeeklyData, CoberturaHora, ProductividadData } from "@/lib/data";
 import { KpiCard, DatoDoble, DatoSimple } from "../kpi-card";
-import { Zap, Users, Box, Printer } from 'lucide-react';
+import { Zap, Users, Box, Printer, AlertCircle } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -14,6 +14,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { FocusSemanalTab } from '../focus-semanal-tab';
 
 
 type ProductividadTabProps = {
@@ -140,6 +141,15 @@ const DayProductividad = ({ dayData, dayKey, ratios, isEditing, onInputChange }:
                     </TableBody>
                  </Table>
             </KpiCard>
+
+            <FocusSemanalTab 
+                title="Incidencias"
+                icon={<AlertCircle className="h-5 w-5 text-primary" />}
+                text={dayData.incidencias || ""} 
+                isEditing={isEditing} 
+                onTextChange={(val) => onInputChange(`productividad.${dayKey}.incidencias`, val)} 
+                placeholder="Escribe aquí las incidencias del día..."
+            />
         </div>
     );
 }
@@ -205,14 +215,17 @@ export function ProductividadTab({ data, isEditing, onInputChange }: Productivid
         head: [['Sección', 'Tarea', 'Unidades', 'Productividad', 'Horas Req.']],
         body: bodyData.map(d => [d.section, d.tarea, d.unidades, d.ratio, d.horas]),
         theme: 'striped',
+        styles: {
+            valign: 'middle'
+        },
         headStyles: { 
             fillColor: false,
             textColor: [73, 175, 165]
         },
         didDrawCell: (data) => {
             if (data.row.index % 3 === 2 && data.section === 'body' && data.row.index < bodyData.length -1) {
-                 doc.setDrawColor(180, 180, 180);
                  if (data.table.x != null && data.table.width != null && data.row.y != null && data.row.height != null) {
+                    doc.setDrawColor(180, 180, 180);
                     doc.line(data.table.x, data.row.y + data.row.height, data.table.x + data.table.width, data.row.y + data.row.height);
                  }
             }

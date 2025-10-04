@@ -81,6 +81,7 @@ export type ProductividadData = {
     };
     coberturaPorHoras: CoberturaHora[];
     planificacion: PlanificacionItem[];
+    incidencias: string;
 };
 
 
@@ -429,6 +430,7 @@ const createInitialProductividadData = (): ProductividadData => ({
         { hora: "14-15", personas: 0 },
     ],
     planificacion: [],
+    incidencias: ""
 });
 
 
