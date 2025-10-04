@@ -13,6 +13,13 @@ import { formatNumber } from '@/lib/format';
 const AlmacenCard = ({ basePath, logistica, almacenes, isEditing, onInputChange }: { basePath: 'general' | 'woman' | 'man' | 'nino', logistica: any, almacenes: any, isEditing: boolean, onInputChange: any }) => {
     const balance = (logistica.entradasSemanales || 0) - (logistica.sintSemanales || 0);
 
+    // Ensure almacenes and its properties exist
+    const safeAlmacenes = almacenes || {};
+    const paqueteria = safeAlmacenes.paqueteria || { ocupacionPorc: 0, devolucionUnidades: 0 };
+    const confeccion = safeAlmacenes.confeccion || { ocupacionPorc: 0, devolucionUnidades: 0 };
+    const calzado = safeAlmacenes.calzado || { ocupacionPorc: 0, devolucionUnidades: 0 };
+    const perfumeria = safeAlmacenes.perfumeria || { ocupacionPorc: 0, devolucionUnidades: null };
+
     return (
         <KpiCard title="ALMACENES" icon={<Warehouse className="h-5 w-5 text-primary" />} className="md:col-span-6">
             <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_1fr_1fr_1.5fr_1.5fr] gap-6 place-items-start">
@@ -32,15 +39,15 @@ const AlmacenCard = ({ basePath, logistica, almacenes, isEditing, onInputChange 
                 <ModuloContenidoGrande icon={<FileInput className="h-8 w-8 text-primary"/>} value={logistica.salidasSemanales} isEditing={isEditing} id={`${basePath}.logistica.salidasSemanales`} onInputChange={onInputChange} />
               </ModuloAlmacen>
               <ModuloAlmacen title="Ocupación" className="w-full">
-                <FilaModulo icon={<Archive className="h-5 w-5"/>} label="Paque." value={almacenes.paqueteria.ocupacionPorc} isEditing={isEditing} id={`${basePath}.almacenes.paqueteria.ocupacionPorc`} onInputChange={onInputChange} unit="%" />
-                <FilaModulo icon={<Box className="h-5 w-5"/>} label="Confe." value={almacenes.confeccion.ocupacionPorc} isEditing={isEditing} id={`${basePath}.almacenes.confeccion.ocupacionPorc`} onInputChange={onInputChange} unit="%" />
-                <FilaModulo icon={<Footprints className="h-5 w-5"/>} label="Calzado" value={almacenes.calzado.ocupacionPorc} isEditing={isEditing} id={`${basePath}.almacenes.calzado.ocupacionPorc`} onInputChange={onInputChange} unit="%" />
-                <FilaModulo icon={<SprayCan className="h-5 w-5"/>} label="Perfu." value={almacenes.perfumeria.ocupacionPorc} isEditing={isEditing} id={`${basePath}.almacenes.perfumeria.ocupacionPorc`} onInputChange={onInputChange} unit="%" />
+                <FilaModulo icon={<Archive className="h-5 w-5"/>} label="Paque." value={paqueteria.ocupacionPorc} isEditing={isEditing} id={`${basePath}.almacenes.paqueteria.ocupacionPorc`} onInputChange={onInputChange} unit="%" />
+                <FilaModulo icon={<Box className="h-5 w-5"/>} label="Confe." value={confeccion.ocupacionPorc} isEditing={isEditing} id={`${basePath}.almacenes.confeccion.ocupacionPorc`} onInputChange={onInputChange} unit="%" />
+                <FilaModulo icon={<Footprints className="h-5 w-5"/>} label="Calzado" value={calzado.ocupacionPorc} isEditing={isEditing} id={`${basePath}.almacenes.calzado.ocupacionPorc`} onInputChange={onInputChange} unit="%" />
+                <FilaModulo icon={<SprayCan className="h-5 w-5"/>} label="Perfu." value={perfumeria.ocupacionPorc} isEditing={isEditing} id={`${basePath}.almacenes.perfumeria.ocupacionPorc`} onInputChange={onInputChange} unit="%" />
               </ModuloAlmacen>
               <ModuloAlmacen title="Propuesta Devo." className="w-full">
-                 <FilaModulo icon={<Archive className="h-5 w-5"/>} label="Paque." value={almacenes.paqueteria.devolucionUnidades as number} isEditing={isEditing} id={`${basePath}.almacenes.paqueteria.devolucionUnidades`} onInputChange={onInputChange} unit="Unid."/>
-                 <FilaModulo icon={<Box className="h-5 w-5"/>} label="Confe." value={almacenes.confeccion.devolucionUnidades as number} isEditing={isEditing} id={`${basePath}.almacenes.confeccion.devolucionUnidades`} onInputChange={onInputChange} unit="Unid."/>
-                 <FilaModulo icon={<Footprints className="h-5 w-5"/>} label="Calzado" value={almacenes.calzado.devolucionUnidades as number} isEditing={isEditing} id={`${basePath}.almacenes.calzado.devolucionUnidades`} onInputChange={onInputChange} unit="Unid."/>
+                 <FilaModulo icon={<Archive className="h-5 w-5"/>} label="Paque." value={paqueteria.devolucionUnidades as number} isEditing={isEditing} id={`${basePath}.almacenes.paqueteria.devolucionUnidades`} onInputChange={onInputChange} unit="Unid."/>
+                 <FilaModulo icon={<Box className="h-5 w-5"/>} label="Confe." value={confeccion.devolucionUnidades as number} isEditing={isEditing} id={`${basePath}.almacenes.confeccion.devolucionUnidades`} onInputChange={onInputChange} unit="Unid."/>
+                 <FilaModulo icon={<Footprints className="h-5 w-5"/>} label="Calzado" value={calzado.devolucionUnidades as number} isEditing={isEditing} id={`${basePath}.almacenes.calzado.devolucionUnidades`} onInputChange={onInputChange} unit="Unid."/>
               </ModuloAlmacen>
             </div>
           </KpiCard>

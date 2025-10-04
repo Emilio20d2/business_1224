@@ -79,21 +79,23 @@ const synchronizeTableData = (list: string[], oldTableData: VentasManItem[]): Ve
 
 const ensureSectionSpecificData = (data: WeeklyData): WeeklyData => {
     const defaultSectionData = getInitialDataForWeek('', getInitialLists()).general; // Get a full default structure
+    const sections: (keyof Pick<WeeklyData, 'general' | 'man' | 'woman' | 'nino'>)[] = ['general', 'man', 'woman', 'nino'];
 
-    if (!data.general) data.general = JSON.parse(JSON.stringify(defaultSectionData));
-    if (!data.man) data.man = JSON.parse(JSON.stringify(defaultSectionData));
-    if (!data.woman) data.woman = JSON.parse(JSON.stringify(defaultSectionData));
-    if (!data.nino) data.nino = JSON.parse(JSON.stringify(defaultSectionData));
-
-    // Ensure nested objects exist
-    if (!data.man.logistica) data.man.logistica = JSON.parse(JSON.stringify(defaultSectionData.logistica));
-    if (!data.man.almacenes) data.man.almacenes = JSON.parse(JSON.stringify(defaultSectionData.almacenes));
-    if (!data.woman.logistica) data.woman.logistica = JSON.parse(JSON.stringify(defaultSectionData.logistica));
-    if (!data.woman.almacenes) data.woman.almacenes = JSON.parse(JSON.stringify(defaultSectionData.almacenes));
-    if (!data.nino.logistica) data.nino.logistica = JSON.parse(JSON.stringify(defaultSectionData.logistica));
-    if (!data.nino.almacenes) data.nino.almacenes = JSON.parse(JSON.stringify(defaultSectionData.almacenes));
-    if (!data.general.logistica) data.general.logistica = JSON.parse(JSON.stringify(defaultSectionData.logistica));
-    if (!data.general.almacenes) data.general.almacenes = JSON.parse(JSON.stringify(defaultSectionData.almacenes));
+    sections.forEach(sectionKey => {
+        if (!data[sectionKey]) {
+            data[sectionKey] = JSON.parse(JSON.stringify(defaultSectionData));
+        } else {
+            if (!data[sectionKey].logistica) data[sectionKey].logistica = JSON.parse(JSON.stringify(defaultSectionData.logistica));
+            if (!data[sectionKey].almacenes) {
+                data[sectionKey].almacenes = JSON.parse(JSON.stringify(defaultSectionData.almacenes));
+            } else {
+                if (!data[sectionKey].almacenes.paqueteria) data[sectionKey].almacenes.paqueteria = JSON.parse(JSON.stringify(defaultSectionData.almacenes.paqueteria));
+                if (!data[sectionKey].almacenes.confeccion) data[sectionKey].almacenes.confeccion = JSON.parse(JSON.stringify(defaultSectionData.almacenes.confeccion));
+                if (!data[sectionKey].almacenes.calzado) data[sectionKey].almacenes.calzado = JSON.parse(JSON.stringify(defaultSectionData.almacenes.calzado));
+                if (!data[sectionKey].almacenes.perfumeria) data[sectionKey].almacenes.perfumeria = JSON.parse(JSON.stringify(defaultSectionData.almacenes.perfumeria));
+            }
+        }
+    });
 
     return data;
 }
