@@ -1,6 +1,7 @@
+
 "use client";
 
-import React, { useState } from 'react';
+import React from 'react';
 import type { WeeklyData, CoberturaHora, ProductividadData } from "@/lib/data";
 import { KpiCard, DatoDoble, DatoSimple } from "../kpi-card";
 import { Zap, Users, Box, Printer } from 'lucide-react';
@@ -144,7 +145,7 @@ const DayProductividad = ({ dayData, dayKey, ratios, isEditing, onInputChange }:
 }
 
 export function ProductividadTab({ data, isEditing, onInputChange }: ProductividadTabProps) {
-  const [activeSubTab, setActiveSubTab] = useState('lunes');
+  const [activeSubTab, setActiveSubTab] = React.useState('lunes');
   
   const subTabButtons = [
     { value: 'lunes', label: 'LUNES' },
@@ -208,7 +209,7 @@ export function ProductividadTab({ data, isEditing, onInputChange }: Productivid
         didDrawCell: (data) => {
             if (data.row.index % 3 === 2 && data.section === 'body' && data.row.index < bodyData.length -1) {
                  doc.setDrawColor(180, 180, 180);
-                 doc.line(data.table.margins.left, data.row.y + data.row.height, data.table.width + data.table.margins.left, data.row.y + data.row.height);
+                 doc.line(data.table.x, data.row.y + data.row.height, data.table.x + data.table.width, data.row.y + data.row.height);
             }
         },
         foot: [['TOTAL HORAS PRODUCTIVIDAD REQUERIDAS', '', '', '', `${roundToQuarter(horasProductividadRequeridas)} h`]],
