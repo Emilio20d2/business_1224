@@ -93,7 +93,8 @@ const SectionPlanificacion = ({
         });
     };
 
-    const renderColumn = (items: PlanificacionItem[], tarea: 'confeccion' | 'paqueteria', columnTitle: string) => (
+    const renderColumn = (items: PlanificacionItem[], tarea: 'confeccion' | 'paqueteria', columnTitle: string) => {
+      return (
         <div className="flex flex-col gap-2">
             <h3 className="font-bold text-center text-muted-foreground">{columnTitle}</h3>
             {items.map(item => (
@@ -130,7 +131,8 @@ const SectionPlanificacion = ({
                 </Button>
             )}
         </div>
-    );
+      );
+    }
 
     return (
         <Card className="font-light">
@@ -220,89 +222,71 @@ export function PlanificacionTab({ data, empleados, isEditing, onDataChange, wee
     const pageHeight = doc.internal.pageSize.height;
     const pageWidth = doc.internal.pageSize.width;
     const margin = 10;
-    let lastY = 35;
-
-    // Header
+    let currentY = 35;
+    
     doc.setFontSize(18);
     doc.text(`PLANIFICACIÓN ${dayKey.toUpperCase()}`, pageWidth / 2, 20, { align: 'center' });
     doc.setFontSize(10);
     doc.text(`ZARA 1224 - PUERTO VENECIA - ${dateString}`, pageWidth / 2, 26, { align: 'center' });
 
+    const sectionColors = {
+        woman: [229, 89, 104], // hsl(355, 71%, 60%)
+        man: [82, 126, 204],   // hsl(217, 56%, 60%)
+        nino: [115, 175, 165]   // hsl(172, 29%, 57%)
+    };
+
     ['woman', 'man', 'nino'].forEach(section => {
-        const sectionData = dayData.productividadPorSeccion[section as keyof typeof dayData.productividadPorSeccion];
-        const planificacionSeccion = dayData.planificacion.filter(p => p.seccion === section);
+        const sectionKey = section as 'woman' | 'man' | 'nino';
+        const sectionData = dayData.productividadPorSeccion[sectionKey];
+        const planificacionSeccion = dayData.planificacion.filter(p => p.seccion === sectionKey);
         const confeccionItems = planificacionSeccion.filter(p => p.tarea === 'confeccion');
         const paqueteriaItems = planificacionSeccion.filter(p => p.tarea === 'paqueteria');
 
-        const cardPadding = 5;
-        const cardWidth = pageWidth - margin * 2;
         const titleHeight = 10;
-        const subTitleHeight = 8;
-        const colTitleHeight = 8;
-        const itemHeight = 10; // Increased height for two lines
-        const itemSpacing = 2;
+        const itemHeight = 12; // Increased height for name + note
+        const sectionSpacing = 15;
         
-        const confeccionContentHeight = confeccionItems.length * (itemHeight + itemSpacing);
-        const paqueteriaContentHeight = paqueteriaItems.length * (itemHeight + itemSpacing);
-        const contentHeight = Math.max(confeccionContentHeight, paqueteriaContentHeight);
+        const contentHeight = Math.max(confeccionItems.length, paqueteriaItems.length) * itemHeight;
+        const sectionHeight = titleHeight + contentHeight;
         
-        const cardHeight = titleHeight + subTitleHeight + colTitleHeight + contentHeight + (cardPadding * 3);
-        
-        if (lastY + cardHeight > pageHeight - margin) {
+        if (currentY + sectionHeight > pageHeight - margin) {
             doc.addPage();
-            lastY = margin;
+            currentY = margin;
         }
-
-        // Card background
-        doc.setFillColor(255, 255, 255);
-        doc.setDrawColor(230, 230, 230);
-        doc.roundedRect(margin, lastY, cardWidth, cardHeight, 3, 3, 'FD');
-
-        let currentY = lastY + cardPadding;
-
+        
         // Section Title
         doc.setFontSize(14);
         doc.setFont('helvetica', 'bold');
-        doc.text(section.toUpperCase(), margin + cardPadding, currentY + titleHeight / 2, { verticalAlign: 'middle' });
-        currentY += titleHeight + itemSpacing;
-        
-        doc.setDrawColor(240, 240, 240);
-        doc.line(margin, currentY, margin + cardWidth, currentY);
-        currentY += itemSpacing;
-
-        // Subtitles
-        doc.setFontSize(9);
-        doc.setFont('helvetica', 'normal');
-        doc.setTextColor(100, 100, 100);
-        doc.text(`Un. Confección: ${formatNumber(sectionData?.unidadesConfeccion) || 0}`, margin + cardPadding, currentY + subTitleHeight / 2);
-        doc.text(`Un. Paquetería: ${formatNumber(sectionData?.unidadesPaqueteria) || 0}`, margin + cardWidth / 2, currentY + subTitleHeight / 2);
+        const color = sectionColors[sectionKey];
+        doc.setTextColor(color[0], color[1], color[2]);
+        doc.text(section.toUpperCase(), margin, currentY + titleHeight / 2, { verticalAlign: 'middle' });
         doc.setTextColor(0, 0, 0);
-        currentY += subTitleHeight + itemSpacing;
+        currentY += titleHeight;
 
         // Column Titles
-        const colWidth = (cardWidth - cardPadding * 2) / 2;
+        const colWidth = (pageWidth - margin * 2) / 2;
         doc.setFontSize(10);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(150, 150, 150);
-        doc.text('CONFECCIÓN', margin + cardPadding, currentY + colTitleHeight / 2);
-        doc.text('PAQUETERÍA', margin + cardPadding + colWidth, currentY + colTitleHeight / 2);
+        doc.text('CONFECCIÓN', margin, currentY + 5);
+        doc.text('PAQUETERÍA', margin + colWidth, currentY + 5);
         doc.setTextColor(0, 0, 0);
-        currentY += colTitleHeight;
+        currentY += 10;
 
         // Content
         doc.setFont('helvetica', 'normal');
         for(let i = 0; i < Math.max(confeccionItems.length, paqueteriaItems.length); i++) {
-            const baseItemY = currentY + i * (itemHeight + itemSpacing);
+            const baseItemY = currentY + i * itemHeight;
             
             // Confeccion column
             if (confeccionItems[i]) {
                 const item = confeccionItems[i];
                 doc.setFontSize(9);
-                doc.text(item.nombreEmpleado || '--', margin + cardPadding, baseItemY + 4);
+                doc.text(item.nombreEmpleado || '--', margin, baseItemY + 4);
                 if (item.anotaciones) {
                     doc.setFontSize(8);
                     doc.setTextColor(120, 120, 120);
-                    doc.text(item.anotaciones, margin + cardPadding, baseItemY + 8, { maxWidth: colWidth - 5 });
+                    doc.text(item.anotaciones, margin, baseItemY + 9, { maxWidth: colWidth - 5 });
                     doc.setTextColor(0, 0, 0);
                 }
             }
@@ -311,17 +295,16 @@ export function PlanificacionTab({ data, empleados, isEditing, onDataChange, wee
              if (paqueteriaItems[i]) {
                 const item = paqueteriaItems[i];
                 doc.setFontSize(9);
-                doc.text(item.nombreEmpleado || '--', margin + cardPadding + colWidth, baseItemY + 4);
+                doc.text(item.nombreEmpleado || '--', margin + colWidth, baseItemY + 4);
                 if (item.anotaciones) {
                     doc.setFontSize(8);
                     doc.setTextColor(120, 120, 120);
-                    doc.text(item.anotaciones, margin + cardPadding + colWidth, baseItemY + 8, { maxWidth: colWidth - 5 });
+                    doc.text(item.anotaciones, margin + colWidth, baseItemY + 9, { maxWidth: colWidth - 5 });
                     doc.setTextColor(0, 0, 0);
                 }
             }
         }
-        
-        lastY += cardHeight + 10;
+        currentY += contentHeight + sectionSpacing;
     });
 
     doc.output('dataurlnewwindow');
