@@ -514,60 +514,6 @@ const handleSaveEmpleados = async (newItems: Empleado[]) => {
   }
 };
 
-const handleCopyWeek = async () => {
-    const fromWeek = '2025-39';
-    const toWeek = '2025-40';
-    
-    setIsSaving(true);
-    toast({ title: 'Copiando datos...', description: `De la semana ${fromWeek} a la ${toWeek}` });
-
-    try {
-        const fromDocRef = doc(db, "informes", fromWeek);
-        const fromDocSnap = await getDoc(fromDocRef);
-
-        let dataToCopy;
-
-        if (fromDocSnap.exists()) {
-            dataToCopy = fromDocSnap.data() as WeeklyData;
-        } else {
-             toast({
-                title: "Semana de origen no encontrada",
-                description: `Creando informe en blanco para la semana ${toWeek}.`,
-                variant: "default",
-            });
-            const listsRef = doc(db, "configuracion", "listas");
-            const listsSnap = await getDoc(listsRef);
-            const listData = listsSnap.exists() ? (listsSnap.data() as WeeklyData['listas']) : getInitialLists();
-            dataToCopy = getInitialDataForWeek(fromWeek, listData);
-        }
-        
-        dataToCopy.periodo = toWeek.replace('-', ' ');
-
-        const toDocRef = doc(db, "informes", toWeek);
-        await setDoc(toDocRef, dataToCopy);
-
-        toast({
-            title: "¡Éxito!",
-            description: `Los datos de la semana ${fromWeek} se han copiado a la semana ${toWeek}.`,
-        });
-
-        if (selectedWeek === toWeek) {
-            fetchData(toWeek);
-        }
-
-    } catch (error: any) {
-        console.error("Error al copiar la semana:", error);
-        toast({
-            variant: "destructive",
-            title: "Error al copiar",
-            description: error.message,
-        });
-    } finally {
-        setIsSaving(false);
-    }
-};
-
-
   const tabButtons = [
     { value: 'ventas', label: 'RESUMEN' },
     { value: 'aqne', label: 'AQNE' },
@@ -687,7 +633,6 @@ const handleCopyWeek = async () => {
                      <Button onClick={() => router.push(`/presentation?week=${selectedWeek}`)} variant="outline" size="icon" disabled={!data}>
                         <Projector className="h-4 w-4 text-primary" />
                      </Button>
-                     <Button onClick={handleCopyWeek} variant="outline" disabled={isSaving}>Copiar Semana 39 a 40</Button>
                   </>
                 )}
                 <DropdownMenu>
