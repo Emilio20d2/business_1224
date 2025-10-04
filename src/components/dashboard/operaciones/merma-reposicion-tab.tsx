@@ -126,7 +126,7 @@ const SectionOperaciones = ({
                 isEditing={isEditing}
                 valueId={`${basePath}.operaciones.sinUbicacion`}
                 align="center"
-                unit="Unid."
+                unit="%"
                 onInputChange={onInputChange}
             />
             </div>

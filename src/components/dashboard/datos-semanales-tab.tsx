@@ -319,7 +319,7 @@ export function DatosSemanalesTab({ data, ventas, rendimientoTienda, operaciones
         </KpiCard>
         
         <div className="md:col-span-6 grid grid-cols-1 md:grid-cols-8 gap-2">
-          <KpiCard title="V. Ipod" icon={<Smartphone className="h-5 w-5 text-primary" />} className="md:col-span-2">
+          <KpiCard title="V. Ipod" icon={<Smartphone className="h-5 w-5 text-primary" />} className="md:col-span-1">
             <DatoSimple 
               value={operaciones.ventaIpod} 
               isEditing={isEditing}
@@ -329,8 +329,8 @@ export function DatosSemanalesTab({ data, ventas, rendimientoTienda, operaciones
             />
           </KpiCard>
 
-          <KpiCard title="GAP" icon={<ClipboardX className="h-5 w-5 text-primary" />} className="md:col-span-2">
-              <div className="flex flex-row justify-around items-center gap-4 h-full">
+          <KpiCard title="GAP" icon={<ClipboardX className="h-5 w-5 text-primary" />} className="md:col-span-1">
+              <div className="flex flex-col justify-around items-center gap-4 h-full">
                   <DatoSimple 
                       label={<Euro className="h-5 w-5 text-primary"/>}
                       value={perdidas.gap.euros} 
@@ -350,48 +350,7 @@ export function DatosSemanalesTab({ data, ventas, rendimientoTienda, operaciones
               </div>
           </KpiCard>
 
-            <KpiCard title="Merma" icon={<Trash2 className="h-5 w-5 text-primary" />} className="md:col-span-4">
-                <div className="grid grid-cols-4 justify-center items-center gap-4 h-full">
-                    <DatoSimple 
-                        label={<Euro className="h-5 w-5 text-primary"/>}
-                        value={perdidas.merma.euros}
-                        isEditing={isEditing}
-                        valueId="general.perdidas.merma.euros"
-                        align="center"
-                        unit="€"
-                        onInputChange={onInputChange}
-                    />
-                    <DatoSimple 
-                        label={<Package className="h-5 w-5 text-primary"/>}
-                        value={perdidas.merma.unidades}
-                        isEditing={isEditing}
-                        valueId="general.perdidas.merma.unidades"
-                        align="center"
-                        unit="Unid."
-                        onInputChange={onInputChange}
-                    />
-                    <DatoSimple 
-                        label={<Percent className="h-5 w-5 text-primary"/>}
-                        value={perdidas.merma.porcentaje}
-                        isEditing={isEditing}
-                        valueId="general.perdidas.merma.porcentaje"
-                        align="center"
-                        unit="%"
-                        onInputChange={onInputChange}
-                    />
-                     <DatoSimple 
-                        label={<Target className="h-5 w-5 text-primary"/>}
-                        value={mermaTarget?.general}
-                        isEditing={isEditing}
-                        valueId="listas.mermaTarget.general"
-                        align="center"
-                        unit="%"
-                        onInputChange={onInputChange}
-                    />
-                </div>
-            </KpiCard>
-          
-          <KpiCard title="Caja" icon={<Receipt className="h-5 w-5 text-primary" />} className="md:col-span-4">
+          <KpiCard title="Caja" icon={<Receipt className="h-5 w-5 text-primary" />} className="md:col-span-2">
                <div className="grid grid-cols-4 items-center justify-center gap-4 h-full">
                    <DatoSimple 
                     icon={<Clock className="h-5 w-5 text-primary"/>} 
@@ -435,8 +394,49 @@ export function DatosSemanalesTab({ data, ventas, rendimientoTienda, operaciones
                   />
               </div>
           </KpiCard>
+
+            <KpiCard title="Merma" icon={<Trash2 className="h-5 w-5 text-primary" />} className="md:col-span-2">
+                <div className="grid grid-cols-4 justify-center items-center gap-4 h-full">
+                    <DatoSimple 
+                        label={<Euro className="h-5 w-5 text-primary"/>}
+                        value={perdidas.merma.euros}
+                        isEditing={isEditing}
+                        valueId="general.perdidas.merma.euros"
+                        align="center"
+                        unit="€"
+                        onInputChange={onInputChange}
+                    />
+                    <DatoSimple 
+                        label={<Package className="h-5 w-5 text-primary"/>}
+                        value={perdidas.merma.unidades}
+                        isEditing={isEditing}
+                        valueId="general.perdidas.merma.unidades"
+                        align="center"
+                        unit="Unid."
+                        onInputChange={onInputChange}
+                    />
+                    <DatoSimple 
+                        label={<Percent className="h-5 w-5 text-primary"/>}
+                        value={perdidas.merma.porcentaje}
+                        isEditing={isEditing}
+                        valueId="general.perdidas.merma.porcentaje"
+                        align="center"
+                        unit="%"
+                        onInputChange={onInputChange}
+                    />
+                     <DatoSimple 
+                        label={<Target className="h-5 w-5 text-primary"/>}
+                        value={mermaTarget?.general}
+                        isEditing={isEditing}
+                        valueId="listas.mermaTarget.general"
+                        align="center"
+                        unit="%"
+                        onInputChange={onInputChange}
+                    />
+                </div>
+            </KpiCard>
           
-            <KpiCard title="Operaciones" icon={<RefreshCw className="h-5 w-5 text-primary" />} className="md:col-span-4">
+            <KpiCard title="Operaciones" icon={<RefreshCw className="h-5 w-5 text-primary" />} className="md:col-span-2">
                 <div className="grid grid-cols-4 gap-4 h-full">
                 <DatoSimple 
                     icon={<RefreshCw className="h-5 w-5 text-primary"/>} 
@@ -475,7 +475,7 @@ export function DatosSemanalesTab({ data, ventas, rendimientoTienda, operaciones
                     isEditing={isEditing}
                     valueId="general.operaciones.sinUbicacion"
                     align="center"
-                    unit="Unid."
+                    unit="%"
                     onInputChange={onInputChange}
                 />
                 </div>
