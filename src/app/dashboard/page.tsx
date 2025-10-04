@@ -713,6 +713,7 @@ const handleSaveEmpleados = async (newItems: Empleado[]) => {
               
               <TabsContent value="ventas" className="mt-0">
                 <DatosSemanalesTab 
+                  data={data}
                   ventas={data.ventas}
                   rendimientoTienda={data.rendimientoTienda}
                   operaciones={data.general.operaciones}
