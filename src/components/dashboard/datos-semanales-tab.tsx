@@ -203,7 +203,7 @@ const AlmacenesGeneralCard = ({ data, isEditing, onInputChange }: { data: Weekly
                 <Input type="number" inputMode="decimal" defaultValue={value} className="font-bold text-right w-24" id={id} onChange={(e) => onInputChange(id, e.target.value)} />
                 <span className="text-sm text-muted-foreground">{unit}</span>
             </div>
-            : <div className="font-bold text-right w-full">{unit === '%' ? formatPercentage(value) : isRawNumber ? formatNumber(value) : formatNumber(value)}</div>
+            : <div className="font-bold text-right w-full">{unit === '%' ? formatPercentage(value) : isRawNumber ? value : formatNumber(value)}</div>
         }
         </div>
     </div>
@@ -278,14 +278,8 @@ export function DatosSemanalesTab({ data, ventas, rendimientoTienda, operaciones
 
   return (
     <div className="space-y-2">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-        <SectionCard name="woman" data={datosPorSeccion.woman} isEditing={isEditing} onInputChange={onInputChange} />
-        <SectionCard name="man" data={datosPorSeccion.man} isEditing={isEditing} onInputChange={onInputChange} />
-        <SectionCard name="nino" data={datosPorSeccion.nino} isEditing={isEditing} onInputChange={onInputChange} />
-      </div>
-
        <div className="grid grid-cols-1 md:grid-cols-8 gap-2">
-        <KpiCard title="Ventas" icon={<Euro className="h-5 w-5 text-primary" />} className="md:col-span-4">
+         <KpiCard title="Ventas" icon={<Euro className="h-5 w-5 text-primary" />} className="md:col-span-4">
            <DatoDoble 
             label="Importes"
             value={formatCurrency(ventas.totalEuros)} 
@@ -326,6 +320,12 @@ export function DatosSemanalesTab({ data, ventas, rendimientoTienda, operaciones
             onInputChange={onInputChange}
           />
         </KpiCard>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+        <SectionCard name="woman" data={datosPorSeccion.woman} isEditing={isEditing} onInputChange={onInputChange} />
+        <SectionCard name="man" data={datosPorSeccion.man} isEditing={isEditing} onInputChange={onInputChange} />
+        <SectionCard name="nino" data={datosPorSeccion.nino} isEditing={isEditing} onInputChange={onInputChange} />
       </div>
       
        <div className="grid grid-cols-1 md:grid-cols-8 gap-2">
