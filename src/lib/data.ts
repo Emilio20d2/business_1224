@@ -26,6 +26,7 @@ export type OperacionesData = {
     repoPorc: number;
     frescuraPorc: number;
     coberturaPorc: number;
+    sinUbicacion: number;
 };
 
 export type PerdidasData = {
@@ -375,6 +376,7 @@ const createInitialSectionSpecificData = (): SectionSpecificData => ({
         repoPorc: 0,
         frescuraPorc: 0,
         coberturaPorc: 0,
+        sinUbicacion: 0,
     },
     perdidas: {
         gap: { euros: 0, unidades: 0 },

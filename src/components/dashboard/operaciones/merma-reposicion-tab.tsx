@@ -4,7 +4,7 @@
 import React from 'react';
 import type { WeeklyData } from "@/lib/data";
 import { KpiCard, DatoSimple } from "../kpi-card";
-import { Trash2, RefreshCw, Sparkles, Package, Percent, Target, Users, Euro } from 'lucide-react';
+import { Trash2, RefreshCw, Sparkles, Package, Percent, Target, Users, Euro, FileQuestion } from 'lucide-react';
 
 type MermaReposicionTabProps = {
   data: WeeklyData;
@@ -88,7 +88,7 @@ const SectionOperaciones = ({
      <div>
         <h2 className="text-xl font-bold mb-2 invisible">{sectionName}</h2>
         <KpiCard title="Operaciones" icon={<RefreshCw className="h-5 w-5 text-primary" />}>
-            <div className="grid grid-cols-3 gap-4 h-full">
+            <div className="grid grid-cols-4 gap-4 h-full">
             <DatoSimple 
                 icon={<RefreshCw className="h-5 w-5 text-primary"/>} 
                 label="Repo" 
@@ -117,6 +117,16 @@ const SectionOperaciones = ({
                 valueId={`${basePath}.operaciones.coberturaPorc`}
                 align="center"
                 unit="%"
+                onInputChange={onInputChange}
+            />
+            <DatoSimple
+                icon={<FileQuestion className="h-5 w-5 text-primary"/>}
+                label="Sin Ubicación"
+                value={operaciones.sinUbicacion}
+                isEditing={isEditing}
+                valueId={`${basePath}.operaciones.sinUbicacion`}
+                align="center"
+                unit="Unid."
                 onInputChange={onInputChange}
             />
             </div>
