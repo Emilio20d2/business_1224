@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState } from 'react';
@@ -211,69 +210,112 @@ export function PlanificacionTab({ data, empleados, isEditing, onDataChange, wee
   
   const handleGeneratePDF = () => {
     if (!data || !data.productividad) return;
-    
+
+    const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
     const dayKey = activeSubTab as 'lunes' | 'jueves';
     const dayData = data.productividad[dayKey];
-    const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
-    
     const dayDate = getDateOfWeek(weekId, dayKey);
     const dateString = dayDate ? format(dayDate, "d 'de' MMMM", { locale: es }) : '';
+    const pageHeight = doc.internal.pageSize.height;
+    const pageWidth = doc.internal.pageSize.width;
+    const margin = 15;
+    let lastY = 35;
 
     // Header
     doc.setFontSize(18);
-    doc.text(`PLANIFICACIÓN ${dayKey.toUpperCase()}${dateString ? ` - ${dateString}` : ''}`, 105, 20, { align: 'center' });
+    doc.text(`PLANIFICACIÓN ${dayKey.toUpperCase()}`, pageWidth / 2, 20, { align: 'center' });
     doc.setFontSize(10);
-    doc.text(`ZARA 1224 - PUERTO VENECIA`, 105, 26, { align: 'center' });
-    
-    let lastY = 35;
+    doc.text(`ZARA 1224 - PUERTO VENECIA - ${dateString}`, pageWidth / 2, 26, { align: 'center' });
 
     ['woman', 'man', 'nino'].forEach(section => {
         const sectionData = dayData.productividadPorSeccion[section as keyof typeof dayData.productividadPorSeccion];
         const planificacionSeccion = dayData.planificacion.filter(p => p.seccion === section);
-        
         const confeccionItems = planificacionSeccion.filter(p => p.tarea === 'confeccion');
         const paqueteriaItems = planificacionSeccion.filter(p => p.tarea === 'paqueteria');
 
+        const cardPadding = 5;
+        const cardWidth = pageWidth - margin * 2;
+        const titleHeight = 10;
+        const subTitleHeight = 8;
+        const colTitleHeight = 8;
+        const itemHeight = 6;
+        const itemSpacing = 2;
+        
+        const confeccionContentHeight = confeccionItems.length * (itemHeight + itemSpacing);
+        const paqueteriaContentHeight = paqueteriaItems.length * (itemHeight + itemSpacing);
+        const contentHeight = Math.max(confeccionContentHeight, paqueteriaContentHeight);
+        
+        const cardHeight = titleHeight + subTitleHeight + colTitleHeight + contentHeight + (cardPadding * 3);
+        
+        if (lastY + cardHeight > pageHeight - margin) {
+            doc.addPage();
+            lastY = margin;
+        }
+
+        // Card background
+        doc.setFillColor(255, 255, 255);
+        doc.setDrawColor(230, 230, 230);
+        doc.roundedRect(margin, lastY, cardWidth, cardHeight, 3, 3, 'FD');
+
+        let currentY = lastY + cardPadding;
+
+        // Section Title
         doc.setFontSize(14);
         doc.setFont('helvetica', 'bold');
-        doc.text(section.toUpperCase(), 15, lastY);
+        doc.text(section.toUpperCase(), margin + cardPadding, currentY + titleHeight / 2, { verticalAlign: 'middle' });
+        currentY += titleHeight + itemSpacing;
+        
+        doc.setDrawColor(240, 240, 240);
+        doc.line(margin, currentY, margin + cardWidth, currentY);
+        currentY += itemSpacing;
 
+        // Subtitles
         doc.setFontSize(9);
         doc.setFont('helvetica', 'normal');
-        doc.text(`Un. Confección: ${formatNumber(sectionData?.unidadesConfeccion) || 0}`, 15, lastY + 5);
-        doc.text(`Un. Paquetería: ${formatNumber(sectionData?.unidadesPaqueteria) || 0}`, 60, lastY + 5);
+        doc.setTextColor(100, 100, 100);
+        doc.text(`Un. Confección: ${formatNumber(sectionData?.unidadesConfeccion) || 0}`, margin + cardPadding, currentY + subTitleHeight / 2);
+        doc.text(`Un. Paquetería: ${formatNumber(sectionData?.unidadesPaqueteria) || 0}`, margin + cardWidth / 2, currentY + subTitleHeight / 2);
+        doc.setTextColor(0, 0, 0);
+        currentY += subTitleHeight + itemSpacing;
+
+        // Column Titles
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(150, 150, 150);
+        doc.text('CONFECCIÓN', margin + cardPadding + (cardWidth/4 - cardPadding), currentY + colTitleHeight / 2, { align: 'center' });
+        doc.text('PAQUETERÍA', margin + cardWidth/2 + (cardWidth/4 - cardPadding), currentY + colTitleHeight / 2, { align: 'center' });
+        doc.setTextColor(0, 0, 0);
+        currentY += colTitleHeight;
+
+        // Content
+        doc.setFont('helvetica', 'normal');
+        for(let i = 0; i < Math.max(confeccionItems.length, paqueteriaItems.length); i++) {
+            let itemY = currentY + i * (itemHeight + itemSpacing) + itemHeight / 2;
+            
+            // Confeccion column
+            if (confeccionItems[i]) {
+                const item = confeccionItems[i];
+                doc.setFontSize(9);
+                doc.text(item.nombreEmpleado || '--', margin + cardPadding, itemY, { verticalAlign: 'middle' });
+                doc.setFontSize(8);
+                doc.setTextColor(120, 120, 120);
+                doc.text(item.anotaciones || '', margin + cardPadding + 35, itemY, { verticalAlign: 'middle' });
+                doc.setTextColor(0, 0, 0);
+            }
+
+            // Paqueteria column
+             if (paqueteriaItems[i]) {
+                const item = paqueteriaItems[i];
+                doc.setFontSize(9);
+                doc.text(item.nombreEmpleado || '--', margin + cardWidth/2, itemY, { verticalAlign: 'middle' });
+                doc.setFontSize(8);
+                doc.setTextColor(120, 120, 120);
+                doc.text(item.anotaciones || '', margin + cardWidth/2 + 35, itemY, { verticalAlign: 'middle' });
+                doc.setTextColor(0, 0, 0);
+            }
+        }
         
-        lastY += 10;
-
-        autoTable(doc, {
-            startY: lastY,
-            head: [['CONFECCIÓN']],
-            body: confeccionItems.map(item => [`${item.nombreEmpleado || '--'}\n  ${item.anotaciones || ''}`]),
-            theme: 'striped',
-            headStyles: { fillColor: [73, 175, 165] }, // Teal color
-            styles: { cellPadding: 2, fontSize: 8 },
-            columnStyles: { 0: { cellWidth: 88 } },
-            margin: { left: 15 },
-            tableWidth: 'wrap'
-        });
-
-        const confeccionTable = (doc as any).lastAutoTable;
-        
-        autoTable(doc, {
-          startY: lastY,
-          head: [['PAQUETERÍA']],
-          body: paqueteriaItems.map(item => [`${item.nombreEmpleado || '--'}\n  ${item.anotaciones || ''}`]),
-          theme: 'striped',
-          headStyles: { fillColor: [73, 175, 165] },
-          styles: { cellPadding: 2, fontSize: 8 },
-          columnStyles: { 0: { cellWidth: 88 } },
-          margin: { left: 107 },
-          tableWidth: 'wrap'
-        });
-
-        const paqueteriaTable = (doc as any).lastAutoTable;
-
-        lastY = Math.max(confeccionTable.finalY, paqueteriaTable.finalY) + 10;
+        lastY += cardHeight + 10;
     });
 
     doc.output('dataurlnewwindow');

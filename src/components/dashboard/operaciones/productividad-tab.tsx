@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState } from 'react';
@@ -159,15 +158,16 @@ export function ProductividadTab({ data, isEditing, onInputChange }: Productivid
     const dayKey = activeSubTab as 'lunes' | 'jueves';
     const dayData = data.productividad[dayKey];
     const ratios = data.listas.productividadRatio;
+    const pageWidth = doc.internal.pageSize.width;
     
     const dayDate = getDateOfWeek(data.periodo, dayKey);
     const dateString = dayDate ? format(dayDate, "d 'de' MMMM", { locale: es }) : '';
     
     // Header
     doc.setFontSize(18);
-    doc.text(`PRODUCTIVIDAD ${dayKey.toUpperCase()}${dateString ? ` - ${dateString}` : ''}`, 105, 20, { align: 'center' });
+    doc.text(`PRODUCTIVIDAD ${dayKey.toUpperCase()}`, pageWidth / 2, 20, { align: 'center' });
     doc.setFontSize(10);
-    doc.text(`ZARA 1224 - PUERTO VENECIA`, 105, 26, { align: 'center' });
+    doc.text(`ZARA 1224 - PUERTO VENECIA - ${dateString}`, pageWidth / 2, 26, { align: 'center' });
     
     const ratioConfeccion = ratios.confeccion || 120;
     const ratioPerchado = ratios.perchado || 80;
@@ -206,10 +206,9 @@ export function ProductividadTab({ data, isEditing, onInputChange }: Productivid
         theme: 'grid',
         headStyles: { fillColor: [73, 175, 165] },
         didDrawCell: (data) => {
-            if (data.row.index % 3 === 0 && data.section === 'body' && data.row.index > 0) {
-                 doc.setDrawColor(180, 180, 180); // gray
-                 const tableWidth = data.table.columns.reduce((acc, col) => acc + col.width, 0);
-                 doc.line(data.cell.x, data.cell.y, data.cell.x + tableWidth, data.cell.y);
+            if (data.row.index % 3 === 2 && data.section === 'body' && data.row.index < bodyData.length -1) {
+                 doc.setDrawColor(180, 180, 180);
+                 doc.line(data.table.margins.left, data.row.y + data.row.height, data.table.width + data.table.margins.left, data.row.y + data.row.height);
             }
         },
         foot: [['TOTAL HORAS PRODUCTIVIDAD REQUERIDAS', '', '', '', `${roundToQuarter(horasProductividadRequeridas)} h`]],
