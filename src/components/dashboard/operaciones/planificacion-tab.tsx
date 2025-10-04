@@ -218,16 +218,16 @@ export function PlanificacionTab({ data, empleados, isEditing, onDataChange, wee
     const dayKey = activeSubTab as 'lunes' | 'jueves';
     const dayData = data.productividad[dayKey];
     const dayDate = getDateOfWeek(weekId, dayKey);
-    const dateString = dayDate ? format(dayDate, "d 'de' MMMM", { locale: es }) : '';
+    const dateString = dayDate ? format(dayDate, "EEEE, d 'de' MMMM", { locale: es }) : '';
     const pageHeight = doc.internal.pageSize.height;
     const pageWidth = doc.internal.pageSize.width;
     const margin = 10;
     let currentY = 35;
     
     doc.setFontSize(18);
-    doc.text(`PLANIFICACIÓN ${dayKey.toUpperCase()}`, pageWidth / 2, 20, { align: 'center' });
+    doc.text(`PLANIFICACIÓN`, pageWidth / 2, 20, { align: 'center' });
     doc.setFontSize(10);
-    doc.text(`ZARA 1224 - PUERTO VENECIA - ${dateString}`, pageWidth / 2, 26, { align: 'center' });
+    doc.text(`ZARA 1224 - PUERTO VENECIA - ${dateString.toUpperCase()}`, pageWidth / 2, 26, { align: 'center' });
 
     const sectionColors = {
         woman: [229, 89, 104], // hsl(355, 71%, 60%)
@@ -237,74 +237,84 @@ export function PlanificacionTab({ data, empleados, isEditing, onDataChange, wee
 
     ['woman', 'man', 'nino'].forEach(section => {
         const sectionKey = section as 'woman' | 'man' | 'nino';
-        const sectionData = dayData.productividadPorSeccion[sectionKey];
         const planificacionSeccion = dayData.planificacion.filter(p => p.seccion === sectionKey);
         const confeccionItems = planificacionSeccion.filter(p => p.tarea === 'confeccion');
         const paqueteriaItems = planificacionSeccion.filter(p => p.tarea === 'paqueteria');
 
         const titleHeight = 10;
-        const itemHeight = 12; // Increased height for name + note
-        const sectionSpacing = 15;
+        const itemHeight = 6;
+        const noteHeight = 4;
+        const sectionSpacing = 10;
         
-        const contentHeight = Math.max(confeccionItems.length, paqueteriaItems.length) * itemHeight;
-        const sectionHeight = titleHeight + contentHeight;
+        let sectionHeight = titleHeight + 10; // title + column titles
         
+        const maxRows = Math.max(confeccionItems.length, paqueteriaItems.length);
+        for (let i = 0; i < maxRows; i++) {
+            let rowHeight = itemHeight;
+            const hasConfeccionNote = confeccionItems[i] && confeccionItems[i].anotaciones;
+            const hasPaqueteriaNote = paqueteriaItems[i] && paqueteriaItems[i].anotaciones;
+            if (hasConfeccionNote || hasPaqueteriaNote) {
+                rowHeight += noteHeight;
+            }
+            sectionHeight += rowHeight;
+        }
+
         if (currentY + sectionHeight > pageHeight - margin) {
             doc.addPage();
             currentY = margin;
         }
         
-        // Section Title
         doc.setFontSize(14);
         doc.setFont('helvetica', 'bold');
         const color = sectionColors[sectionKey];
         doc.setTextColor(color[0], color[1], color[2]);
-        doc.text(section.toUpperCase(), margin, currentY + titleHeight / 2, { verticalAlign: 'middle' });
+        doc.text(section.toUpperCase(), margin, currentY);
         doc.setTextColor(0, 0, 0);
         currentY += titleHeight;
 
-        // Column Titles
         const colWidth = (pageWidth - margin * 2) / 2;
         doc.setFontSize(10);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(150, 150, 150);
-        doc.text('CONFECCIÓN', margin, currentY + 5);
-        doc.text('PAQUETERÍA', margin + colWidth, currentY + 5);
+        doc.text('CONFECCIÓN', margin, currentY);
+        doc.text('PAQUETERÍA', margin + colWidth, currentY);
         doc.setTextColor(0, 0, 0);
-        currentY += 10;
+        currentY += 5;
+        doc.setDrawColor(220, 220, 220);
+        doc.line(margin, currentY, pageWidth - margin, currentY);
+        currentY += 2;
 
-        // Content
         doc.setFont('helvetica', 'normal');
-        for(let i = 0; i < Math.max(confeccionItems.length, paqueteriaItems.length); i++) {
-            const baseItemY = currentY + i * itemHeight;
-            
-            // Confeccion column
+        for(let i = 0; i < maxRows; i++) {
+            const hasConfeccionNote = confeccionItems[i] && confeccionItems[i].anotaciones;
+            const hasPaqueteriaNote = paqueteriaItems[i] && paqueteriaItems[i].anotaciones;
+            const rowHeight = itemHeight + (hasConfeccionNote || hasPaqueteriaNote ? noteHeight : 0);
+
             if (confeccionItems[i]) {
                 const item = confeccionItems[i];
                 doc.setFontSize(9);
-                doc.text(item.nombreEmpleado || '--', margin, baseItemY + 4);
-                if (item.anotaciones) {
+                doc.text(item.nombreEmpleado || '--', margin, currentY + 4);
+                if (hasConfeccionNote) {
                     doc.setFontSize(8);
                     doc.setTextColor(120, 120, 120);
-                    doc.text(item.anotaciones, margin, baseItemY + 9, { maxWidth: colWidth - 5 });
+                    doc.text(item.anotaciones, margin, currentY + 4 + noteHeight, { maxWidth: colWidth - 5 });
                     doc.setTextColor(0, 0, 0);
                 }
             }
-
-            // Paqueteria column
-             if (paqueteriaItems[i]) {
+            if (paqueteriaItems[i]) {
                 const item = paqueteriaItems[i];
                 doc.setFontSize(9);
-                doc.text(item.nombreEmpleado || '--', margin + colWidth, baseItemY + 4);
-                if (item.anotaciones) {
+                doc.text(item.nombreEmpleado || '--', margin + colWidth, currentY + 4);
+                if (hasPaqueteriaNote) {
                     doc.setFontSize(8);
                     doc.setTextColor(120, 120, 120);
-                    doc.text(item.anotaciones, margin + colWidth, baseItemY + 9, { maxWidth: colWidth - 5 });
+                    doc.text(item.anotaciones, margin + colWidth, currentY + 4 + noteHeight, { maxWidth: colWidth - 5 });
                     doc.setTextColor(0, 0, 0);
                 }
             }
+            currentY += rowHeight;
         }
-        currentY += contentHeight + sectionSpacing;
+        currentY += sectionSpacing;
     });
 
     doc.output('dataurlnewwindow');

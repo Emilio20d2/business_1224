@@ -162,13 +162,13 @@ export function ProductividadTab({ data, isEditing, onInputChange }: Productivid
     const pageWidth = doc.internal.pageSize.width;
     
     const dayDate = getDateOfWeek(data.periodo, dayKey);
-    const dateString = dayDate ? format(dayDate, "d 'de' MMMM", { locale: es }) : '';
+    const dateString = dayDate ? format(dayDate, "EEEE, d 'de' MMMM", { locale: es }) : '';
     
     // Header
     doc.setFontSize(18);
-    doc.text(`PRODUCTIVIDAD ${dayKey.toUpperCase()}`, pageWidth / 2, 20, { align: 'center' });
+    doc.text(`PRODUCTIVIDAD`, pageWidth / 2, 20, { align: 'center' });
     doc.setFontSize(10);
-    doc.text(`ZARA 1224 - PUERTO VENECIA - ${dateString}`, pageWidth / 2, 26, { align: 'center' });
+    doc.text(`ZARA 1224 - PUERTO VENECIA - ${dateString.toUpperCase()}`, pageWidth / 2, 26, { align: 'center' });
     
     const ratioConfeccion = ratios.confeccion || 120;
     const ratioPerchado = ratios.perchado || 80;
@@ -209,11 +209,9 @@ export function ProductividadTab({ data, isEditing, onInputChange }: Productivid
         didDrawCell: (data) => {
             if (data.row.index % 3 === 2 && data.section === 'body' && data.row.index < bodyData.length -1) {
                  doc.setDrawColor(180, 180, 180);
-                 const xStart = data.table.x;
-                 const y = data.row.y + data.row.height;
-                 const xEnd = data.table.x + data.table.width;
-                 if (typeof xStart === 'number' && typeof y === 'number' && typeof xEnd === 'number') {
-                     doc.line(xStart, y, xEnd, y);
+                 const table = data.table;
+                 if(table.x && table.width) {
+                    doc.line(table.x, data.row.y + data.row.height, table.x + table.width, data.row.y + data.row.height);
                  }
             }
         },
