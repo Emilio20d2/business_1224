@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState } from 'react';
@@ -218,7 +219,7 @@ export function PlanificacionTab({ data, empleados, isEditing, onDataChange, wee
     const dateString = dayDate ? format(dayDate, "d 'de' MMMM", { locale: es }) : '';
     const pageHeight = doc.internal.pageSize.height;
     const pageWidth = doc.internal.pageSize.width;
-    const margin = 15;
+    const margin = 10;
     let lastY = 35;
 
     // Header
@@ -279,16 +280,18 @@ export function PlanificacionTab({ data, empleados, isEditing, onDataChange, wee
         currentY += subTitleHeight + itemSpacing;
 
         // Column Titles
+        const colWidth = (cardWidth - cardPadding * 2) / 2;
         doc.setFontSize(10);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(150, 150, 150);
-        doc.text('CONFECCIÓN', margin + cardPadding + (cardWidth/4 - cardPadding), currentY + colTitleHeight / 2, { align: 'center' });
-        doc.text('PAQUETERÍA', margin + cardWidth/2 + (cardWidth/4 - cardPadding), currentY + colTitleHeight / 2, { align: 'center' });
+        doc.text('CONFECCIÓN', margin + cardPadding + 1, currentY + colTitleHeight / 2);
+        doc.text('PAQUETERÍA', margin + cardPadding + colWidth + 1, currentY + colTitleHeight / 2);
         doc.setTextColor(0, 0, 0);
         currentY += colTitleHeight;
 
         // Content
         doc.setFont('helvetica', 'normal');
+        const halfColWidth = colWidth / 2;
         for(let i = 0; i < Math.max(confeccionItems.length, paqueteriaItems.length); i++) {
             let itemY = currentY + i * (itemHeight + itemSpacing) + itemHeight / 2;
             
@@ -299,7 +302,7 @@ export function PlanificacionTab({ data, empleados, isEditing, onDataChange, wee
                 doc.text(item.nombreEmpleado || '--', margin + cardPadding, itemY, { verticalAlign: 'middle' });
                 doc.setFontSize(8);
                 doc.setTextColor(120, 120, 120);
-                doc.text(item.anotaciones || '', margin + cardPadding + 35, itemY, { verticalAlign: 'middle' });
+                doc.text(item.anotaciones || '', margin + cardPadding + halfColWidth, itemY, { verticalAlign: 'middle', maxWidth: halfColWidth - 5 });
                 doc.setTextColor(0, 0, 0);
             }
 
@@ -307,10 +310,10 @@ export function PlanificacionTab({ data, empleados, isEditing, onDataChange, wee
              if (paqueteriaItems[i]) {
                 const item = paqueteriaItems[i];
                 doc.setFontSize(9);
-                doc.text(item.nombreEmpleado || '--', margin + cardWidth/2, itemY, { verticalAlign: 'middle' });
+                doc.text(item.nombreEmpleado || '--', margin + cardPadding + colWidth, itemY, { verticalAlign: 'middle' });
                 doc.setFontSize(8);
                 doc.setTextColor(120, 120, 120);
-                doc.text(item.anotaciones || '', margin + cardWidth/2 + 35, itemY, { verticalAlign: 'middle' });
+                doc.text(item.anotaciones || '', margin + cardPadding + colWidth + halfColWidth, itemY, { verticalAlign: 'middle', maxWidth: halfColWidth - 5 });
                 doc.setTextColor(0, 0, 0);
             }
         }
