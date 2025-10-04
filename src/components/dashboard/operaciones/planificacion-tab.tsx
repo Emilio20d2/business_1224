@@ -94,44 +94,47 @@ const SectionPlanificacion = ({
     };
 
     const renderColumn = (items: PlanificacionItem[], tarea: 'confeccion' | 'paqueteria', columnTitle: string) => {
-    return (
-        <div className="flex flex-col gap-2">
-            <h3 className="font-bold text-center text-muted-foreground">{columnTitle}</h3>
-            {items.map(item => (
-                <div key={item.id} className="grid grid-cols-[1fr_1fr_auto] gap-2 items-center">
-                    {isEditing ? (
-                        <>
-                            <Select value={item.idEmpleado || 'VACIO'} onValueChange={(value) => handlePlanChange(item.id, 'idEmpleado', value === 'VACIO' ? '' : value)}>
-                                <SelectTrigger><SelectValue placeholder="Seleccionar..." /></SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="VACIO">-- Vacío --</SelectItem>
-                                    {empleados.map(e => <SelectItem key={e.id} value={e.id}>{e.nombre}</SelectItem>)}
-                                </SelectContent>
-                            </Select>
-                            <Input
-                                value={item.anotaciones}
-                                onChange={(e) => handlePlanChange(item.id, 'anotaciones', e.target.value)}
-                                placeholder="Anotaciones..."
-                            />
-                            <Button variant="ghost" size="icon" onClick={() => handleRemoveItem(item.id)}>
-                                <Trash2 className="h-4 w-4 text-destructive" />
-                            </Button>
-                        </>
-                    ) : (
-                        <>
-                            <p className="font-medium p-2">{item.nombreEmpleado || <span className="text-muted-foreground">--</span>}</p>
-                            <p className="text-sm text-muted-foreground p-2">{item.anotaciones || <span className="text-muted-foreground">--</span>}</p>
-                        </>
-                    )}
-                </div>
-            ))}
-            {isEditing && (
-                <Button variant="outline" onClick={() => handleAddItem(tarea)}>
-                    <Plus className="mr-2 h-4 w-4" /> Añadir Empleado
-                </Button>
-            )}
-        </div>
-      );
+        return (
+            <div className="flex flex-col gap-2">
+                <h3 className="font-bold text-center text-muted-foreground">{columnTitle}</h3>
+                {items.map(item => (
+                    <div key={item.id} className="grid grid-cols-[1fr_auto] gap-2 items-center">
+                        {isEditing ? (
+                            <>
+                                <div className="flex flex-col gap-1">
+                                    <Select value={item.idEmpleado || 'VACIO'} onValueChange={(value) => handlePlanChange(item.id, 'idEmpleado', value === 'VACIO' ? '' : value)}>
+                                        <SelectTrigger><SelectValue placeholder="Seleccionar..." /></SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="VACIO">-- Vacío --</SelectItem>
+                                            {empleados.map(e => <SelectItem key={e.id} value={e.id}>{e.nombre}</SelectItem>)}
+                                        </SelectContent>
+                                    </Select>
+                                    <Input
+                                        value={item.anotaciones}
+                                        onChange={(e) => handlePlanChange(item.id, 'anotaciones', e.target.value)}
+                                        placeholder="Anotaciones..."
+                                        className="text-xs"
+                                    />
+                                </div>
+                                <Button variant="ghost" size="icon" onClick={() => handleRemoveItem(item.id)}>
+                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                </Button>
+                            </>
+                        ) : (
+                            <div className="col-span-2">
+                                <p className="font-medium p-2">{item.nombreEmpleado || <span className="text-muted-foreground">--</span>}</p>
+                                {item.anotaciones && <p className="text-xs text-muted-foreground px-2 pb-1 -mt-1">{item.anotaciones}</p>}
+                            </div>
+                        )}
+                    </div>
+                ))}
+                {isEditing && (
+                    <Button variant="outline" onClick={() => handleAddItem(tarea)}>
+                        <Plus className="mr-2 h-4 w-4" /> Añadir
+                    </Button>
+                )}
+            </div>
+        );
     }
 
     return (
@@ -222,9 +225,9 @@ export function PlanificacionTab({ data, empleados, isEditing, onDataChange, wee
     const pageWidth = doc.internal.pageSize.width;
     const margin = 10;
     let currentY = 35;
-    
+
     doc.setFontSize(18);
-    doc.text(`Planning Camion`, pageWidth / 2, 20, { align: 'center' });
+    doc.text("Planning Camion", pageWidth / 2, 20, { align: 'center' });
     doc.setFontSize(10);
     doc.text(`ZARA 1224 - PUERTO VENECIA - ${dateString.toUpperCase()}`, pageWidth / 2, 26, { align: 'center' });
 
@@ -234,97 +237,104 @@ export function PlanificacionTab({ data, empleados, isEditing, onDataChange, wee
         nino: [115, 175, 165]   // hsl(172, 29%, 57%)
     };
 
-    ['woman', 'man', 'nino'].forEach(section => {
-        const sectionKey = section as 'woman' | 'man' | 'nino';
+    const drawSection = (sectionKey: 'woman' | 'man' | 'nino') => {
         const planificacionSeccion = dayData.planificacion.filter(p => p.seccion === sectionKey);
         const confeccionItems = planificacionSeccion.filter(p => p.tarea === 'confeccion');
         const paqueteriaItems = planificacionSeccion.filter(p => p.tarea === 'paqueteria');
-        const title = section === 'nino' ? 'NIÑO' : section.toUpperCase();
-
-        const titleHeight = 10;
-        const itemHeight = 6;
-        const noteHeight = 4;
-        const sectionSpacing = 10;
         
-        let sectionHeight = titleHeight;
+        const title = sectionKey === 'nino' ? 'NIÑO' : sectionKey.toUpperCase();
+        const color = sectionColors[sectionKey];
 
-        const calculateItemsHeight = (items: PlanificacionItem[]) => {
-            let height = 0;
-            items.forEach(item => {
-                height += itemHeight;
-                if (item.anotaciones) {
-                    const splitNotes = doc.splitTextToSize(item.anotaciones, pageWidth / 2 - margin * 2);
-                    height += (splitNotes.length * noteHeight);
-                }
-            });
+        const colWidth = (pageWidth - margin * 3) / 2;
+        const col1X = margin;
+        const col2X = margin + colWidth + margin;
+
+        const getItemHeight = (item: PlanificacionItem) => {
+            let height = 5; // Base height for employee name
+            if (item.anotaciones) {
+                const splitNotes = doc.splitTextToSize(item.anotaciones, colWidth - 2);
+                height += (splitNotes.length * 3.5) + 1; // Add height for notes
+            }
             return height;
         };
 
-        const confeccionHeight = calculateItemsHeight(confeccionItems);
-        const paqueteriaHeight = calculateItemsHeight(paqueteriaItems);
+        const calculateColumnHeight = (items: PlanificacionItem[]) => {
+            return items.reduce((total, item) => total + getItemHeight(item) + 2, 0); // +2 for spacing
+        };
+        
+        const confeccionHeight = calculateColumnHeight(confeccionItems);
+        const paqueteriaHeight = calculateColumnHeight(paqueteriaItems);
+        const sectionContentHeight = Math.max(confeccionHeight, paqueteriaHeight);
+        const totalSectionHeight = 15 + sectionContentHeight; // 15 for title and headers
 
-        sectionHeight += Math.max(confeccionHeight, paqueteriaHeight);
-
-        if (currentY + sectionHeight > doc.internal.pageSize.height - margin) {
+        if (currentY + totalSectionHeight > doc.internal.pageSize.height - margin) {
             doc.addPage();
             currentY = margin;
         }
-        
+
         doc.setFontSize(14);
         doc.setFont('helvetica', 'bold');
-        const color = sectionColors[sectionKey];
         doc.setTextColor(color[0], color[1], color[2]);
         doc.text(title, margin, currentY);
         doc.setTextColor(0, 0, 0);
-        
-        currentY += titleHeight;
+        currentY += 8;
 
-        const colWidth = (pageWidth - margin * 2) / 2;
         doc.setFontSize(10);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(150, 150, 150);
-        doc.text('CONFECCIÓN', margin, currentY);
-        doc.text('PAQUETERÍA', margin + colWidth, currentY);
+        doc.text('CONFECCIÓN', col1X, currentY);
+        doc.text('PAQUETERÍA', col2X, currentY);
         doc.setTextColor(0, 0, 0);
         currentY += 2;
         doc.setDrawColor(220, 220, 220);
         doc.line(margin, currentY, pageWidth - margin, currentY);
-        currentY += 2;
-
-        doc.setFont('helvetica', 'normal');
+        currentY += 4;
 
         let confeccionY = currentY;
         let paqueteriaY = currentY;
 
         confeccionItems.forEach(item => {
             doc.setFontSize(9);
-            doc.text(item.nombreEmpleado || '--', margin, confeccionY + 4);
-            confeccionY += itemHeight;
+            doc.setFont('helvetica', 'bold');
+            doc.text(item.nombreEmpleado || '--', col1X, confeccionY);
+            confeccionY += 5;
+
             if (item.anotaciones) {
                 doc.setFontSize(8);
+                doc.setFont('helvetica', 'normal');
                 doc.setTextColor(120, 120, 120);
-                const splitNotes = doc.splitTextToSize(item.anotaciones, colWidth - 5);
-                doc.text(splitNotes, margin, confeccionY);
+                const splitNotes = doc.splitTextToSize(item.anotaciones, colWidth - 2);
+                doc.text(splitNotes, col1X, confeccionY);
                 doc.setTextColor(0, 0, 0);
-                confeccionY += (splitNotes.length * noteHeight);
+                confeccionY += (splitNotes.length * 3.5);
             }
+            confeccionY += 2; // spacing between items
         });
 
         paqueteriaItems.forEach(item => {
             doc.setFontSize(9);
-            doc.text(item.nombreEmpleado || '--', margin + colWidth, paqueteriaY + 4);
-            paqueteriaY += itemHeight;
+            doc.setFont('helvetica', 'bold');
+            doc.text(item.nombreEmpleado || '--', col2X, paqueteriaY);
+            paqueteriaY += 5;
+
             if (item.anotaciones) {
                 doc.setFontSize(8);
+                doc.setFont('helvetica', 'normal');
                 doc.setTextColor(120, 120, 120);
-                const splitNotes = doc.splitTextToSize(item.anotaciones, colWidth - 5);
-                doc.text(splitNotes, margin + colWidth, paqueteriaY);
+                const splitNotes = doc.splitTextToSize(item.anotaciones, colWidth - 2);
+                doc.text(splitNotes, col2X, paqueteriaY);
                 doc.setTextColor(0, 0, 0);
-                paqueteriaY += (splitNotes.length * noteHeight);
+                paqueteriaY += (splitNotes.length * 3.5);
             }
+            paqueteriaY += 2; // spacing between items
         });
-        currentY = Math.max(confeccionY, paqueteriaY) + sectionSpacing;
-    });
+        
+        currentY = Math.max(confeccionY, paqueteriaY) + 5;
+    };
+    
+    drawSection('woman');
+    drawSection('man');
+    drawSection('nino');
 
     doc.output('dataurlnewwindow');
   };
