@@ -239,7 +239,7 @@ export function PlanificacionTab({ data, empleados, isEditing, onDataChange, wee
         const titleHeight = 10;
         const subTitleHeight = 8;
         const colTitleHeight = 8;
-        const itemHeight = 6;
+        const itemHeight = 10; // Increased height for two lines
         const itemSpacing = 2;
         
         const confeccionContentHeight = confeccionItems.length * (itemHeight + itemSpacing);
@@ -284,37 +284,40 @@ export function PlanificacionTab({ data, empleados, isEditing, onDataChange, wee
         doc.setFontSize(10);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(150, 150, 150);
-        doc.text('CONFECCIÓN', margin + cardPadding + 1, currentY + colTitleHeight / 2);
-        doc.text('PAQUETERÍA', margin + cardPadding + colWidth + 1, currentY + colTitleHeight / 2);
+        doc.text('CONFECCIÓN', margin + cardPadding, currentY + colTitleHeight / 2);
+        doc.text('PAQUETERÍA', margin + cardPadding + colWidth, currentY + colTitleHeight / 2);
         doc.setTextColor(0, 0, 0);
         currentY += colTitleHeight;
 
         // Content
         doc.setFont('helvetica', 'normal');
-        const halfColWidth = colWidth / 2;
         for(let i = 0; i < Math.max(confeccionItems.length, paqueteriaItems.length); i++) {
-            let itemY = currentY + i * (itemHeight + itemSpacing) + itemHeight / 2;
+            const baseItemY = currentY + i * (itemHeight + itemSpacing);
             
             // Confeccion column
             if (confeccionItems[i]) {
                 const item = confeccionItems[i];
                 doc.setFontSize(9);
-                doc.text(item.nombreEmpleado || '--', margin + cardPadding, itemY, { verticalAlign: 'middle' });
-                doc.setFontSize(8);
-                doc.setTextColor(120, 120, 120);
-                doc.text(item.anotaciones || '', margin + cardPadding + halfColWidth, itemY, { verticalAlign: 'middle', maxWidth: halfColWidth - 5 });
-                doc.setTextColor(0, 0, 0);
+                doc.text(item.nombreEmpleado || '--', margin + cardPadding, baseItemY + 4);
+                if (item.anotaciones) {
+                    doc.setFontSize(8);
+                    doc.setTextColor(120, 120, 120);
+                    doc.text(item.anotaciones, margin + cardPadding, baseItemY + 8, { maxWidth: colWidth - 5 });
+                    doc.setTextColor(0, 0, 0);
+                }
             }
 
             // Paqueteria column
              if (paqueteriaItems[i]) {
                 const item = paqueteriaItems[i];
                 doc.setFontSize(9);
-                doc.text(item.nombreEmpleado || '--', margin + cardPadding + colWidth, itemY, { verticalAlign: 'middle' });
-                doc.setFontSize(8);
-                doc.setTextColor(120, 120, 120);
-                doc.text(item.anotaciones || '', margin + cardPadding + colWidth + halfColWidth, itemY, { verticalAlign: 'middle', maxWidth: halfColWidth - 5 });
-                doc.setTextColor(0, 0, 0);
+                doc.text(item.nombreEmpleado || '--', margin + cardPadding + colWidth, baseItemY + 4);
+                if (item.anotaciones) {
+                    doc.setFontSize(8);
+                    doc.setTextColor(120, 120, 120);
+                    doc.text(item.anotaciones, margin + cardPadding + colWidth, baseItemY + 8, { maxWidth: colWidth - 5 });
+                    doc.setTextColor(0, 0, 0);
+                }
             }
         }
         
