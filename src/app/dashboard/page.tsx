@@ -516,7 +516,7 @@ const handleSaveEmpleados = async (newItems: Empleado[]) => {
 
 
   const tabButtons = [
-    { value: 'ventas', label: 'VENTAS' },
+    { value: 'ventas', label: 'RESUMEN' },
     { value: 'aqne', label: 'AQNE' },
     { value: 'acumulado', label: 'ACUMULADO' },
   ];
