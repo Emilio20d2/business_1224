@@ -204,17 +204,16 @@ export function ProductividadTab({ data, isEditing, onInputChange }: Productivid
         startY: 35,
         head: [['Sección', 'Tarea', 'Unidades', 'Productividad', 'Horas Req.']],
         body: bodyData.map(d => [d.section, d.tarea, d.unidades, d.ratio, d.horas]),
-        theme: 'grid',
+        theme: 'striped',
         headStyles: { 
-            fillColor: false, // No background color
-            textColor: [73, 175, 165] // Primary app color for text
+            fillColor: false,
+            textColor: [73, 175, 165]
         },
         didDrawCell: (data) => {
             if (data.row.index % 3 === 2 && data.section === 'body' && data.row.index < bodyData.length -1) {
                  doc.setDrawColor(180, 180, 180);
-                 const table = data.table;
-                 if(table.x && table.width) {
-                    doc.line(table.x, data.row.y + data.row.height, table.x + table.width, data.row.y + data.row.height);
+                 if (data.table.x != null && data.table.width != null) {
+                    doc.line(data.table.x, data.row.y + data.row.height, data.table.x + data.table.width, data.row.y + data.row.height);
                  }
             }
         },
