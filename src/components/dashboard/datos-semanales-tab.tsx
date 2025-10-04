@@ -203,7 +203,7 @@ const AlmacenesGeneralCard = ({ data, isEditing, onInputChange }: { data: Weekly
                 <Input type="number" inputMode="decimal" defaultValue={value} className="font-bold text-right w-24" id={id} onChange={(e) => onInputChange(id, e.target.value)} />
                 <span className="text-sm text-muted-foreground">{unit}</span>
             </div>
-            : <div className="font-bold text-right w-full">{unit === '%' ? formatPercentage(value) : isRawNumber ? value : formatNumber(value)}</div>
+            : <div className="font-bold text-right w-full">{unit === '%' ? formatPercentage(value) : isRawNumber ? formatNumber(value) : formatNumber(value)}</div>
         }
         </div>
     </div>
@@ -329,7 +329,7 @@ export function DatosSemanalesTab({ data, ventas, rendimientoTienda, operaciones
       </div>
       
        <div className="grid grid-cols-1 md:grid-cols-8 gap-2">
-         <KpiCard title="GAP" icon={<ClipboardX className="h-5 w-5 text-primary" />} className="md:col-span-2">
+        <KpiCard title="GAP" icon={<ClipboardX className="h-5 w-5 text-primary" />} className="md:col-span-2">
           <div className="flex flex-row justify-around items-center gap-4 h-full">
             <DatoSimple 
               label={<Euro className="h-5 w-5 text-primary"/>}
