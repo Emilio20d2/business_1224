@@ -257,40 +257,23 @@ export function PlanificacionTab({ data, empleados, isEditing, onDataChange, wee
             tableWidth: 'wrap'
         });
 
-        autoTable(doc, {
-            startY: lastY,
-            head: [['PAQUETERÍA']],
-            body: paqueteriaItems.map(item => [`${item.nombreEmpleado || '--'}\n  ${item.anotaciones || ''}`]),
-            theme: 'striped',
-            headStyles: { fillColor: [73, 175, 165] },
-            styles: { cellPadding: 2, fontSize: 8 },
-            columnStyles: { 0: { cellWidth: 88 } },
-            margin: { left: 107 },
-            tableWidth: 'wrap'
-        });
-
         const confeccionTable = (doc as any).lastAutoTable;
-        const paqueteriaTable = (doc as any).lastAutoTable;
         
-        // This is a bit of a hack to get the Y position of the second table
-        // We find the first table, then use its finalY to start the second one on the same line.
-        // Then we get the final Y of both to continue.
-        const firstTableY = confeccionTable.finalY;
         autoTable(doc, {
           startY: lastY,
           head: [['PAQUETERÍA']],
           body: paqueteriaItems.map(item => [`${item.nombreEmpleado || '--'}\n  ${item.anotaciones || ''}`]),
           theme: 'striped',
-          headStyles: { fillColor: [73, 175, 165] }, // Teal color
+          headStyles: { fillColor: [73, 175, 165] },
           styles: { cellPadding: 2, fontSize: 8 },
           columnStyles: { 0: { cellWidth: 88 } },
           margin: { left: 107 },
           tableWidth: 'wrap'
         });
-        const secondTableY = (doc as any).lastAutoTable.finalY;
 
+        const paqueteriaTable = (doc as any).lastAutoTable;
 
-        lastY = Math.max(firstTableY, secondTableY) + 10;
+        lastY = Math.max(confeccionTable.finalY, paqueteriaTable.finalY) + 10;
     });
 
     doc.output('dataurlnewwindow');
