@@ -10,7 +10,7 @@ import { FilaModulo, ModuloAlmacen, ModuloContenidoGrande } from '../operaciones
 import { Footprints, Shirt, SprayCan } from 'lucide-react';
 import { formatNumber } from '@/lib/format';
 
-const AlmacenCard = ({ basePath, logistica, almacenes, isEditing, onInputChange }: { basePath: 'general' | 'woman' | 'man' | 'nino', logistica: any, almacenes: any, isEditing: boolean, onInputChange: any }) => {
+const AlmacenCard = ({ basePath, logistica, almacenes, isEditing, onInputChange }: { basePath: 'general' | 'woman' | 'man' | 'nino' | 'total', logistica: any, almacenes: any, isEditing: boolean, onInputChange: any }) => {
     const balance = (logistica.entradasSemanales || 0) - (logistica.sintSemanales || 0);
 
     // Ensure almacenes and its properties exist
@@ -20,14 +20,16 @@ const AlmacenCard = ({ basePath, logistica, almacenes, isEditing, onInputChange 
     const calzado = safeAlmacenes.calzado || { ocupacionPorc: 0, devolucionUnidades: 0 };
     const perfumeria = safeAlmacenes.perfumeria || { ocupacionPorc: 0, devolucionUnidades: null };
 
+    const isTotalCard = basePath === 'total';
+
     return (
         <KpiCard title="ALMACENES" icon={<Warehouse className="h-5 w-5 text-primary" />} className="md:col-span-6">
             <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_1fr_1fr_1.5fr_1.5fr] gap-6 place-items-start">
               <ModuloAlmacen title="Entradas">
-                <ModuloContenidoGrande icon={<Truck className="h-8 w-8 text-primary"/>} value={logistica.entradasSemanales} isEditing={isEditing} id={`${basePath}.logistica.entradasSemanales`} onInputChange={onInputChange} />
+                <ModuloContenidoGrande icon={<Truck className="h-8 w-8 text-primary"/>} value={logistica.entradasSemanales} isEditing={!isTotalCard && isEditing} id={`${basePath}.logistica.entradasSemanales`} onInputChange={onInputChange} />
               </ModuloAlmacen>
               <ModuloAlmacen title="Salidas">
-                <ModuloContenidoGrande icon={<PackageCheck className="h-8 w-8 text-primary"/>} value={logistica.sintSemanales} isEditing={isEditing} id={`${basePath}.logistica.sintSemanales`} onInputChange={onInputChange} />
+                <ModuloContenidoGrande icon={<PackageCheck className="h-8 w-8 text-primary"/>} value={logistica.sintSemanales} isEditing={!isTotalCard && isEditing} id={`${basePath}.logistica.sintSemanales`} onInputChange={onInputChange} />
               </ModuloAlmacen>
               <ModuloAlmacen title="Balance">
                  <div className="flex flex-col items-center justify-center gap-2 p-4 rounded-lg bg-background h-full">
@@ -36,7 +38,7 @@ const AlmacenCard = ({ basePath, logistica, almacenes, isEditing, onInputChange 
                 </div>
               </ModuloAlmacen>
                <ModuloAlmacen title="DEVOS.">
-                <ModuloContenidoGrande icon={<FileInput className="h-8 w-8 text-primary"/>} value={logistica.salidasSemanales} isEditing={isEditing} id={`${basePath}.logistica.salidasSemanales`} onInputChange={onInputChange} />
+                <ModuloContenidoGrande icon={<FileInput className="h-8 w-8 text-primary"/>} value={logistica.salidasSemanales} isEditing={!isTotalCard && isEditing} id={`${basePath}.logistica.salidasSemanales`} onInputChange={onInputChange} />
               </ModuloAlmacen>
               <ModuloAlmacen title="Ocupación" className="w-full">
                 <FilaModulo icon={<Archive className="h-5 w-5"/>} label="Paque." value={paqueteria.ocupacionPorc} isEditing={isEditing} id={`${basePath}.almacenes.paqueteria.ocupacionPorc`} onInputChange={onInputChange} unit="%" />
@@ -45,9 +47,9 @@ const AlmacenCard = ({ basePath, logistica, almacenes, isEditing, onInputChange 
                 <FilaModulo icon={<SprayCan className="h-5 w-5"/>} label="Perfu." value={perfumeria.ocupacionPorc} isEditing={isEditing} id={`${basePath}.almacenes.perfumeria.ocupacionPorc`} onInputChange={onInputChange} unit="%" />
               </ModuloAlmacen>
               <ModuloAlmacen title="Propuesta Devo." className="w-full">
-                 <FilaModulo icon={<Archive className="h-5 w-5"/>} label="Paque." value={paqueteria.devolucionUnidades as number} isEditing={isEditing} id={`${basePath}.almacenes.paqueteria.devolucionUnidades`} onInputChange={onInputChange} unit="Unid."/>
-                 <FilaModulo icon={<Box className="h-5 w-5"/>} label="Confe." value={confeccion.devolucionUnidades as number} isEditing={isEditing} id={`${basePath}.almacenes.confeccion.devolucionUnidades`} onInputChange={onInputChange} unit="Unid."/>
-                 <FilaModulo icon={<Footprints className="h-5 w-5"/>} label="Calzado" value={calzado.devolucionUnidades as number} isEditing={isEditing} id={`${basePath}.almacenes.calzado.devolucionUnidades`} onInputChange={onInputChange} unit="Unid."/>
+                 <FilaModulo icon={<Archive className="h-5 w-5"/>} label="Paque." value={paqueteria.devolucionUnidades as number} isEditing={!isTotalCard && isEditing} id={`${basePath}.almacenes.paqueteria.devolucionUnidades`} onInputChange={onInputChange} unit="Unid."/>
+                 <FilaModulo icon={<Box className="h-5 w-5"/>} label="Confe." value={confeccion.devolucionUnidades as number} isEditing={!isTotalCard && isEditing} id={`${basePath}.almacenes.confeccion.devolucionUnidades`} onInputChange={onInputChange} unit="Unid."/>
+                 <FilaModulo icon={<Footprints className="h-5 w-5"/>} label="Calzado" value={calzado.devolucionUnidades as number} isEditing={!isTotalCard && isEditing} id={`${basePath}.almacenes.calzado.devolucionUnidades`} onInputChange={onInputChange} unit="Unid."/>
               </ModuloAlmacen>
             </div>
           </KpiCard>
@@ -57,14 +59,42 @@ const AlmacenCard = ({ basePath, logistica, almacenes, isEditing, onInputChange 
 
 export function AlmacenesTab({ data, isEditing, onInputChange }: { data: WeeklyData, isEditing: boolean, onInputChange: any }) {
   if (!data) return null;
+  
+  const sections = ['woman', 'man', 'nino'] as const;
+  
+  const totalLogistica = {
+      entradasSemanales: sections.reduce((sum, key) => sum + (data[key]?.logistica?.entradasSemanales || 0), 0),
+      salidasSemanales: sections.reduce((sum, key) => sum + (data[key]?.logistica?.salidasSemanales || 0), 0),
+      sintSemanales: sections.reduce((sum, key) => sum + (data[key]?.logistica?.sintSemanales || 0), 0),
+  };
+  
+  const totalAlmacenes = {
+      paqueteria: {
+          devolucionUnidades: sections.reduce((sum, key) => sum + (data[key]?.almacenes?.paqueteria?.devolucionUnidades || 0), 0),
+          ocupacionPorc: data.general?.almacenes?.paqueteria?.ocupacionPorc || 0,
+      },
+      confeccion: {
+          devolucionUnidades: sections.reduce((sum, key) => sum + (data[key]?.almacenes?.confeccion?.devolucionUnidades || 0), 0),
+          ocupacionPorc: data.general?.almacenes?.confeccion?.ocupacionPorc || 0,
+      },
+      calzado: {
+          devolucionUnidades: sections.reduce((sum, key) => sum + (data[key]?.almacenes?.calzado?.devolucionUnidades || 0), 0),
+          ocupacionPorc: data.general?.almacenes?.calzado?.ocupacionPorc || 0,
+      },
+      perfumeria: {
+          devolucionUnidades: null,
+          ocupacionPorc: data.general?.almacenes?.perfumeria?.ocupacionPorc || 0,
+      }
+  };
+
 
   return (
     <div className="space-y-4">
        <div>
         <h2 className="text-xl font-bold mb-2">GENERAL</h2>
         <AlmacenCard 
-            logistica={data.general.logistica}
-            almacenes={data.general.almacenes}
+            logistica={totalLogistica}
+            almacenes={totalAlmacenes}
             isEditing={isEditing} 
             onInputChange={onInputChange}
             basePath="general"
