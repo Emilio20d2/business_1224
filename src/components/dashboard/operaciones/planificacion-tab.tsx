@@ -253,7 +253,7 @@ export function PlanificacionTab({ data, empleados, isEditing, onDataChange, wee
             let height = 5; // Base height for employee name
             if (item.anotaciones) {
                 const splitNotes = doc.splitTextToSize(item.anotaciones, colWidth - 2);
-                height += (splitNotes.length * 3.5) + 1; // Add height for notes
+                height += (splitNotes.length * 3.5); // Add height for notes
             }
             return height;
         };
@@ -294,39 +294,37 @@ export function PlanificacionTab({ data, empleados, isEditing, onDataChange, wee
         let paqueteriaY = currentY;
 
         confeccionItems.forEach(item => {
+            const itemHeight = getItemHeight(item);
             doc.setFontSize(9);
             doc.setFont('helvetica', 'bold');
             doc.text(item.nombreEmpleado || '--', col1X, confeccionY);
-            confeccionY += 5;
-
+            
             if (item.anotaciones) {
                 doc.setFontSize(8);
                 doc.setFont('helvetica', 'normal');
                 doc.setTextColor(120, 120, 120);
                 const splitNotes = doc.splitTextToSize(item.anotaciones, colWidth - 2);
-                doc.text(splitNotes, col1X, confeccionY);
+                doc.text(splitNotes, col1X, confeccionY + 5);
                 doc.setTextColor(0, 0, 0);
-                confeccionY += (splitNotes.length * 3.5);
             }
-            confeccionY += 2; // spacing between items
+            confeccionY += itemHeight + 2; // spacing
         });
 
         paqueteriaItems.forEach(item => {
+            const itemHeight = getItemHeight(item);
             doc.setFontSize(9);
             doc.setFont('helvetica', 'bold');
             doc.text(item.nombreEmpleado || '--', col2X, paqueteriaY);
-            paqueteriaY += 5;
 
             if (item.anotaciones) {
                 doc.setFontSize(8);
                 doc.setFont('helvetica', 'normal');
                 doc.setTextColor(120, 120, 120);
                 const splitNotes = doc.splitTextToSize(item.anotaciones, colWidth - 2);
-                doc.text(splitNotes, col2X, paqueteriaY);
+                doc.text(splitNotes, col2X, paqueteriaY + 5);
                 doc.setTextColor(0, 0, 0);
-                paqueteriaY += (splitNotes.length * 3.5);
             }
-            paqueteriaY += 2; // spacing between items
+            paqueteriaY += itemHeight + 2; // spacing
         });
         
         currentY = Math.max(confeccionY, paqueteriaY) + 5;
@@ -336,7 +334,7 @@ export function PlanificacionTab({ data, empleados, isEditing, onDataChange, wee
     drawSection('man');
     drawSection('nino');
 
-    doc.output('dataurlnewwindow');
+    doc.save('planning-camion.pdf');
   };
 
 
