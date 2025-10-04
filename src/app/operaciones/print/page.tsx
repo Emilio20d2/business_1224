@@ -1,68 +1,16 @@
 
 'use client';
 
-import React, { useState, useEffect, Suspense, useRef } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { WeeklyData, PlanificacionItem } from '@/lib/data';
 import { formatNumber } from '@/lib/format';
 import { Loader2, Share } from 'lucide-react';
-import Image from 'next/image';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-
-const PrintSection = ({
-    title,
-    planificacion,
-    unidadesConfeccion,
-    unidadesPaqueteria,
-}: {
-    title: string;
-    planificacion: PlanificacionItem[];
-    unidadesConfeccion: number;
-    unidadesPaqueteria: number;
-}) => {
-    const safePlanificacion = Array.isArray(planificacion) ? planificacion : [];
-    const confeccionItems = safePlanificacion.filter(p => p.tarea === 'confeccion');
-    const paqueteriaItems = safePlanificacion.filter(p => p.tarea === 'paqueteria');
-
-    const renderColumn = (items: PlanificacionItem[], columnTitle: string) => (
-        <div className="flex flex-col space-y-4">
-            <h3 className="font-bold text-center text-muted-foreground uppercase text-sm mb-2">{columnTitle}</h3>
-            <div className="flex flex-col text-sm">
-                {items.length > 0 ? items.map(item => (
-                     <div key={item.id} className="flex flex-col mb-1">
-                        <p className="font-medium text-sm">{item.nombreEmpleado || '--'}</p>
-                        {item.anotaciones && (
-                            <p className="text-sm text-muted-foreground pl-4">{item.anotaciones}</p>
-                        )}
-                    </div>
-                )) : <p className="text-xs text-muted-foreground text-center pt-4">No asignado</p>}
-            </div>
-        </div>
-    );
-
-    return (
-        <Card className="font-light break-inside-avoid">
-            <CardHeader className="pb-2">
-                <CardTitle className="flex flex-col justify-center items-center text-base">
-                    <span>{title}</span>
-                    <div className="flex justify-around items-center w-full text-xs font-normal text-muted-foreground mt-2">
-                        <span>Un. Confección: <strong className="text-foreground">{formatNumber(unidadesConfeccion)}</strong></span>
-                        <span>Un. Paquetería: <strong className="text-foreground">{formatNumber(unidadesPaqueteria)}</strong></span>
-                    </div>
-                </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-                 <div className="space-y-6">
-                    {renderColumn(confeccionItems, 'CONFECCIÓN')}
-                    {renderColumn(paqueteriaItems, 'PAQUETERÍA')}
-                </div>
-            </CardContent>
-        </Card>
-    );
-};
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 
 function PrintPlanificacionPageComponent() {
@@ -73,9 +21,72 @@ function PrintPlanificacionPageComponent() {
   const [data, setData] = useState<WeeklyData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
-  const handlePrint = () => {
-    window.print();
+
+  const handleGeneratePDF = () => {
+    if (!data || !data.productividad) return;
+
+    const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+    const dayData = data.productividad[day as 'lunes' | 'jueves'];
+    
+    // Header
+    doc.setFontSize(18);
+    doc.text(`PLANIFICACIÓN ${day.toUpperCase()}`, 105, 20, { align: 'center' });
+    doc.setFontSize(10);
+    doc.text(`ZARA 1224 - PUERTO VENECIA`, 105, 26, { align: 'center' });
+    
+    let lastY = 35;
+
+    ['woman', 'man', 'nino'].forEach(section => {
+        const sectionData = dayData.productividadPorSeccion[section as keyof typeof dayData.productividadPorSeccion];
+        const planificacionSeccion = dayData.planificacion.filter(p => p.seccion === section);
+        
+        const confeccionItems = planificacionSeccion.filter(p => p.tarea === 'confeccion');
+        const paqueteriaItems = planificacionSeccion.filter(p => p.tarea === 'paqueteria');
+
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.text(section.toUpperCase(), 15, lastY);
+
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`Un. Confección: ${formatNumber(sectionData?.unidadesConfeccion) || 0}`, 15, lastY + 5);
+        doc.text(`Un. Paquetería: ${formatNumber(sectionData?.unidadesPaqueteria) || 0}`, 60, lastY + 5);
+        
+        lastY += 10;
+
+        // Confección
+        autoTable(doc, {
+            startY: lastY,
+            head: [['CONFECCIÓN']],
+            body: confeccionItems.map(item => [`${item.nombreEmpleado || '--'}\n  ${item.anotaciones || ''}`]),
+            theme: 'striped',
+            headStyles: { fillColor: [73, 175, 165] }, // Teal color
+            styles: { cellPadding: 2, fontSize: 8 },
+            columnStyles: { 0: { cellWidth: 88 } },
+            margin: { left: 15 },
+            tableWidth: 'wrap'
+        });
+
+        // Paquetería
+        autoTable(doc, {
+            startY: lastY,
+            head: [['PAQUETERÍA']],
+            body: paqueteriaItems.map(item => [`${item.nombreEmpleado || '--'}\n  ${item.anotaciones || ''}`]),
+            theme: 'striped',
+            headStyles: { fillColor: [73, 175, 165] },
+            styles: { cellPadding: 2, fontSize: 8 },
+            columnStyles: { 0: { cellWidth: 88 } },
+            margin: { left: 107 },
+            tableWidth: 'wrap'
+        });
+
+        const confeccionTableHeight = (doc as any).lastAutoTable.finalY;
+        const paqueteriaTableHeight = (doc as any).lastAutoTable.finalY;
+
+        lastY = Math.max(confeccionTableHeight, paqueteriaTableHeight) + 10;
+    });
+
+    doc.save(`planificacion_${day}.pdf`);
   };
 
   useEffect(() => {
@@ -103,12 +114,11 @@ function PrintPlanificacionPageComponent() {
     fetchData();
   }, [weekId]);
 
-
   if (loading) {
     return (
       <div className="flex h-screen w-screen items-center justify-center bg-white text-zinc-900">
         <Loader2 className="h-16 w-16 animate-spin" />
-        <p className="ml-4 text-lg">Cargando informe...</p>
+        <p className="ml-4 text-lg">Cargando informe para generar PDF...</p>
       </div>
     );
   }
@@ -125,63 +135,16 @@ function PrintPlanificacionPageComponent() {
     return null;
   }
   
-  const dayData = data.productividad[day as 'lunes' | 'jueves'];
-  if (!dayData) {
-      return (
-          <div className="flex h-screen w-screen items-center justify-center bg-white text-zinc-900" >
-             <p className="text-xl text-red-500">No se encontraron datos para el día seleccionado.</p>
-          </div>
-      )
-  }
-
-  const womanPlanificacion = dayData.planificacion?.filter(p => p.seccion === 'woman') || [];
-  const manPlanificacion = dayData.planificacion?.filter(p => p.seccion === 'man') || [];
-  const ninoPlanificacion = dayData.planificacion?.filter(p => p.seccion === 'nino') || [];
-  
-
   return (
-    <div className="bg-gray-100 min-h-screen">
-      <div className="bg-white p-8 w-[1123px] min-h-[794px] mx-auto my-8 text-zinc-900 font-aptos relative" style={{ fontFamily: "'Aptos', sans-serif"}}>
-          <header className="mb-6 flex justify-between items-center">
-            <div className="text-left">
-                <h1 className="text-3xl font-bold tracking-tight">PLANIFICACIÓN {day.toUpperCase()}</h1>
-            </div>
-            <Image src="/Zara_Logo.svg.png" alt="Zara Logo" width={200} height={44} />
-          </header>
-
-          <main className="grid grid-cols-3 gap-4">
-             <PrintSection 
-                title="WOMAN" 
-                planificacion={womanPlanificacion}
-                unidadesConfeccion={dayData.productividadPorSeccion?.woman?.unidadesConfeccion || 0}
-                unidadesPaqueteria={dayData.productividadPorSeccion?.woman?.unidadesPaqueteria || 0}
-            />
-            <PrintSection 
-                title="MAN" 
-                planificacion={manPlanificacion}
-                unidadesConfeccion={dayData.productividadPorSeccion?.man?.unidadesConfeccion || 0}
-                unidadesPaqueteria={dayData.productividadPorSeccion?.man?.unidadesPaqueteria || 0}
-            />
-            <PrintSection 
-                title="NIÑO" 
-                planificacion={ninoPlanificacion} 
-                unidadesConfeccion={dayData.productividadPorSeccion?.nino?.unidadesConfeccion || 0}
-                unidadesPaqueteria={dayData.productividadPorSeccion?.nino?.unidadesPaqueteria || 0}
-            />
-          </main>
-          
-           <Button
-            onClick={handlePrint}
-            size="icon"
-            className="fixed bottom-8 right-8 h-14 w-14 rounded-full shadow-lg print:hidden"
-          >
-            <Share className="h-6 w-6" />
-          </Button>
-
-          <footer className="absolute bottom-4 right-8 text-right">
-            <p className="text-xs">ZARA 1224 - PUERTO VENECIA</p>
-          </footer>
-      </div>
+    <div className="bg-gray-100 min-h-screen p-8">
+        <div className="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-lg text-center">
+            <h1 className="text-2xl font-bold mb-4">Generar PDF de Planificación</h1>
+            <p className="mb-8 text-muted-foreground">El informe para la semana <span className="font-semibold">{weekId}</span> y el día <span className="font-semibold">{day}</span> está listo para ser generado.</p>
+            <Button onClick={handleGeneratePDF} size="lg">
+                <Share className="mr-2 h-5 w-5" />
+                Descargar PDF
+            </Button>
+        </div>
     </div>
   );
 }

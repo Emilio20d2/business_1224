@@ -1,18 +1,17 @@
 
 'use client';
 
-import React, { useState, useEffect, Suspense, useRef } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { getInitialDataForWeek, getInitialLists, type WeeklyData, type ProductividadData } from '@/lib/data';
 import { formatNumber } from '@/lib/format';
-import { Loader2, Share, Box, Zap } from 'lucide-react';
-import Image from 'next/image';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Loader2, Share } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { KpiCard, DatoDoble } from '@/components/dashboard/kpi-card';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+
 
 const roundToQuarter = (value: number) => {
     if (isNaN(value) || !isFinite(value)) return '0.00';
@@ -28,8 +27,65 @@ function PrintProductividadPageComponent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
-  const handlePrint = () => {
-    window.print();
+  const handleGeneratePDF = () => {
+    if (!data || !data.productividad || !data.listas || !data.listas.productividadRatio) return;
+
+    const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+    const dayData = data.productividad[day as 'lunes' | 'jueves'];
+    const ratios = data.listas.productividadRatio;
+    
+    // Header
+    doc.setFontSize(18);
+    doc.text(`PRODUCTIVIDAD ${day.toUpperCase()}`, 105, 20, { align: 'center' });
+    doc.setFontSize(10);
+    doc.text(`ZARA 1224 - PUERTO VENECIA`, 105, 26, { align: 'center' });
+    
+    const ratioConfeccion = ratios.confeccion || 120;
+    const ratioPerchado = ratios.perchado || 80;
+    const ratioPicking = ratios.picking || 400;
+    const porcentajePerchado = (ratios.porcentajePerchado || 40) / 100;
+    const porcentajePicking = (ratios.porcentajePicking || 60) / 100;
+
+    const sections = ['woman', 'man', 'nino'] as const;
+
+    const productividadData = sections.map(sec => {
+        const unidadesConfeccion = dayData.productividadPorSeccion[sec]?.unidadesConfeccion || 0;
+        const unidadesPaqueteria = dayData.productividadPorSeccion[sec]?.unidadesPaqueteria || 0;
+        const horasConfeccion = unidadesConfeccion / ratioConfeccion;
+        const unidadesPerchado = unidadesPaqueteria * porcentajePerchado;
+        const horasPerchado = unidadesPerchado / ratioPerchado;
+        const unidadesPicking = unidadesPaqueteria * porcentajePicking;
+        const horasPicking = unidadesPicking / ratioPicking;
+        return { 
+            title: sec.toUpperCase(),
+            unidadesConfeccion, horasConfeccion, unidadesPaqueteria, unidadesPerchado, horasPerchado, unidadesPicking, horasPicking 
+        };
+    });
+
+    const bodyData = productividadData.flatMap(sec => [
+        { section: sec.title, tarea: 'Confección', unidades: formatNumber(sec.unidadesConfeccion), ratio: `${ratioConfeccion} u/h`, horas: `${roundToQuarter(sec.horasConfeccion)} h` },
+        { section: '', tarea: 'Paquetería (Perchado)', unidades: formatNumber(sec.unidadesPerchado), ratio: `${ratioPerchado} u/h`, horas: `${roundToQuarter(sec.horasPerchado)} h` },
+        { section: '', tarea: 'Paquetería (Picking)', unidades: formatNumber(sec.unidadesPicking), ratio: `${ratioPicking} u/h`, horas: `${roundToQuarter(sec.horasPicking)} h` },
+    ]);
+
+    const horasProductividadRequeridas = productividadData.reduce((sum, d) => sum + d.horasConfeccion + d.horasPerchado + d.horasPicking, 0);
+
+    autoTable(doc, {
+        startY: 35,
+        head: [['Sección', 'Tarea', 'Unidades', 'Productividad', 'Horas Req.']],
+        body: bodyData.map(d => [d.section, d.tarea, d.unidades, d.ratio, d.horas]),
+        theme: 'grid',
+        headStyles: { fillColor: [73, 175, 165] },
+        didDrawCell: (data) => {
+            if (data.row.index % 3 === 0 && data.section === 'body') {
+                doc.line(data.cell.x, data.cell.y, data.cell.x + data.cell.width, data.cell.y);
+            }
+        },
+        foot: [['TOTAL HORAS PRODUCTIVIDAD REQUERIDAS', '', '', '', `${roundToQuarter(horasProductividadRequeridas)} h`]],
+        footStyles: { fillColor: [230, 230, 230], textColor: 20, fontStyle: 'bold' }
+    });
+
+    doc.save(`productividad_${day}.pdf`);
   };
 
   useEffect(() => {
@@ -53,8 +109,9 @@ function PrintProductividadPageComponent() {
         if (reportSnap.exists()) {
             reportData = reportSnap.data() as WeeklyData;
         } else {
-            console.warn(`No report found for week ${weekId}, using initial data structure for printing.`);
-            reportData = getInitialDataForWeek(weekId, getInitialLists());
+            setError(`No se encontró ningún informe para la semana "${weekId}".`);
+            setLoading(false);
+            return;
         }
 
         if (listsSnap.exists()) {
@@ -85,7 +142,7 @@ function PrintProductividadPageComponent() {
     return (
       <div className="flex h-screen w-screen items-center justify-center bg-white text-zinc-900">
         <Loader2 className="h-16 w-16 animate-spin" />
-        <p className="ml-4 text-lg">Cargando informe...</p>
+        <p className="ml-4 text-lg">Cargando informe para generar PDF...</p>
       </div>
     );
   }
@@ -105,121 +162,17 @@ function PrintProductividadPageComponent() {
         </div>
     );
   }
-  
-  const dayData = data.productividad[day as 'lunes' | 'jueves'];
-  const ratios = data.listas.productividadRatio;
-  if (!dayData || !ratios) {
-      return (
-          <div className="flex h-screen w-screen items-center justify-center bg-white text-zinc-900" >
-             <p className="text-xl text-red-500">No se encontraron datos para el día seleccionado.</p>
-          </div>
-      )
-  }
-
-  const ratioConfeccion = ratios.confeccion || 120;
-  const ratioPerchado = ratios.perchado || 80;
-  const ratioPicking = ratios.picking || 400;
-  const porcentajePerchado = (ratios.porcentajePerchado || 40) / 100;
-  const porcentajePicking = (ratios.porcentajePicking || 60) / 100;
-
-  const sections = [
-      { key: 'woman', title: 'WOMAN' },
-      { key: 'man', title: 'MAN' },
-      { key: 'nino', title: 'NIÑO' },
-  ] as const;
-
-  const productividadData = sections.map(sec => {
-      const unidadesConfeccion = dayData.productividadPorSeccion[sec.key]?.unidadesConfeccion || 0;
-      const unidadesPaqueteria = dayData.productividadPorSeccion[sec.key]?.unidadesPaqueteria || 0;
-      const horasConfeccion = unidadesConfeccion / ratioConfeccion;
-      const unidadesPerchado = unidadesPaqueteria * porcentajePerchado;
-      const horasPerchado = unidadesPerchado / ratioPerchado;
-      const unidadesPicking = unidadesPaqueteria * porcentajePicking;
-      const horasPicking = unidadesPicking / ratioPicking;
-      return { ...sec, unidadesConfeccion, horasConfeccion, unidadesPaqueteria, unidadesPerchado, horasPerchado, unidadesPicking, horasPicking };
-  });
-  
-  const horasProductividadRequeridas = productividadData.reduce((sum, d) => sum + d.horasConfeccion + d.horasPerchado + d.horasPicking, 0);
 
   return (
-    <div className="bg-gray-100 min-h-screen">
-      <div className="bg-white p-4 w-[210mm] min-h-[297mm] mx-auto my-4 text-zinc-900 font-aptos relative" style={{ fontFamily: "'Aptos', sans-serif"}}>
-          <header className="mb-4 flex justify-between items-center">
-            <div className="text-left">
-                <h1 className="text-2xl font-bold tracking-tight">PRODUCTIVIDAD {day.toUpperCase()}</h1>
-            </div>
-            <Image src="/Zara_Logo.svg.png" alt="Zara Logo" width={180} height={40} />
-          </header>
-
-          <main className="space-y-2 font-light">
-             <div className="grid grid-cols-3 gap-2">
-                {productividadData.map(sec => (
-                    <KpiCard key={sec.key} title={sec.title} icon={<Box className="h-4 w-4 text-primary"/>}>
-                        <div className="flex flex-col gap-1 p-1">
-                           <DatoDoble 
-                             label="Un. Confección"
-                             value={formatNumber(sec.unidadesConfeccion)}
-                           />
-                           <DatoDoble 
-                             label="Un. Paquetería"
-                             value={formatNumber(sec.unidadesPaqueteria)}
-                           />
-                        </div>
-                    </KpiCard>
-                ))}
-             </div>
-
-             <KpiCard title="Desglose de Productividad" icon={<Zap className="h-4 w-4 text-primary" />} className="shadow-none border">
-                 <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead className="text-left w-[25%] font-bold text-xs">Sección</TableHead>
-                            <TableHead className="text-left w-[25%] font-bold text-xs">Tarea</TableHead>
-                            <TableHead className="text-center w-[15%] font-bold text-xs">Unidades</TableHead>
-                            <TableHead className="text-center w-[15%] font-bold text-xs">Productividad</TableHead>
-                            <TableHead className="text-right w-[20%] font-bold text-xs">Horas Req.</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {productividadData.map((sec, secIndex) => (
-                            <React.Fragment key={sec.key}>
-                                <TableRow>
-                                    <TableCell rowSpan={3} className="font-bold align-top pt-3 text-sm">{sec.title}</TableCell>
-                                    <TableCell className="font-medium text-muted-foreground text-xs">Confección</TableCell>
-                                    <TableCell className="text-center text-xs">{formatNumber(sec.unidadesConfeccion)}</TableCell>
-                                    <TableCell className="text-center text-muted-foreground text-xs">{ratioConfeccion} u/h</TableCell>
-                                    <TableCell className="text-right font-medium text-xs">{roundToQuarter(sec.horasConfeccion)} h</TableCell>
-                                </TableRow>
-                                <TableRow>
-                                    <TableCell className="font-medium text-muted-foreground text-xs">Paquetería (Perchado)</TableCell>
-                                     <TableCell className="text-center text-xs">{formatNumber(sec.unidadesPerchado)}</TableCell>
-                                    <TableCell className="text-center text-muted-foreground text-xs">{ratioPerchado} u/h</TableCell>
-                                    <TableCell className="text-right font-medium text-xs">{roundToQuarter(sec.horasPerchado)} h</TableCell>
-                                </TableRow>
-                                <TableRow className={secIndex < sections.length - 1 ? 'border-b-2' : ''}>
-                                    <TableCell className="font-medium text-muted-foreground text-xs">Paquetería (Picking)</TableCell>
-                                    <TableCell className="text-center text-xs">{formatNumber(sec.unidadesPicking)}</TableCell>
-                                    <TableCell className="text-center text-muted-foreground text-xs">{ratioPicking} u/h</TableCell>
-                                    <TableCell className="text-right font-medium text-xs">{roundToQuarter(sec.horasPicking)} h</TableCell>
-                                </TableRow>
-                            </React.Fragment>
-                        ))}
-                         <TableRow className="bg-muted/50 font-bold">
-                            <TableCell colSpan={4} className="text-sm">TOTAL HORAS PRODUCTIVIDAD REQUERIDAS</TableCell>
-                            <TableCell className="text-right text-base">{roundToQuarter(horasProductividadRequeridas)} h</TableCell>
-                        </TableRow>
-                    </TableBody>
-                 </Table>
-            </KpiCard>
-          </main>
-           <Button
-            onClick={handlePrint}
-            size="icon"
-            className="fixed bottom-8 right-8 h-14 w-14 rounded-full shadow-lg print:hidden"
-          >
-            <Share className="h-6 w-6" />
-          </Button>
-      </div>
+    <div className="bg-gray-100 min-h-screen p-8">
+        <div className="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-lg text-center">
+            <h1 className="text-2xl font-bold mb-4">Generar PDF de Productividad</h1>
+            <p className="mb-8 text-muted-foreground">El informe para la semana <span className="font-semibold">{weekId}</span> y el día <span className="font-semibold">{day}</span> está listo para ser generado.</p>
+            <Button onClick={handleGeneratePDF} size="lg">
+                <Share className="mr-2 h-5 w-5" />
+                Descargar PDF
+            </Button>
+        </div>
     </div>
   );
 }
