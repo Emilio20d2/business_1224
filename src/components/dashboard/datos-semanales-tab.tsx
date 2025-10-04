@@ -35,6 +35,8 @@ import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { AlmacenesTab } from "./operaciones/almacenes-tab";
+import { CajaCard } from "./caja-card";
 
 type DatosSemanalesTabProps = {
   ventas: WeeklyData['ventas'];
@@ -322,8 +324,8 @@ export function DatosSemanalesTab({ data, ventas, rendimientoTienda, operaciones
         </KpiCard>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-8 gap-2">
-        <KpiCard title="GAP" icon={<ClipboardX className="h-5 w-5 text-primary" />} className="md:col-span-1">
+       <div className="grid grid-cols-1 md:grid-cols-8 gap-2">
+         <KpiCard title="GAP" icon={<ClipboardX className="h-5 w-5 text-primary" />} className="md:col-span-2">
           <div className="flex flex-col justify-around items-center gap-4 h-full">
             <DatoSimple 
               label={<Euro className="h-5 w-5 text-primary"/>}
@@ -343,7 +345,6 @@ export function DatosSemanalesTab({ data, ventas, rendimientoTienda, operaciones
             />
           </div>
         </KpiCard>
-
         <KpiCard title="V. Ipod" icon={<Smartphone className="h-5 w-5 text-primary" />} className="md:col-span-1">
           <DatoSimple 
             value={operaciones.ventaIpod} 
@@ -353,52 +354,13 @@ export function DatosSemanalesTab({ data, ventas, rendimientoTienda, operaciones
             onInputChange={onInputChange}
           />
         </KpiCard>
-
-        <KpiCard title="Caja" icon={<Receipt className="h-5 w-5 text-primary" />} className="md:col-span-6">
-          <div className="grid grid-cols-4 items-center justify-center gap-4 h-full">
-            <DatoSimple 
-              icon={<Clock className="h-5 w-5 text-primary"/>} 
-              label="Filas Caja" 
-              value={operaciones.filasCajaPorc}
-              isEditing={isEditing}
-              align="center" 
-              unit="%"
-              valueId="general.operaciones.filasCajaPorc"
-              onInputChange={onInputChange}
-            />
-            <DatoSimple 
-              icon={<ScanLine className="h-5 w-5 text-primary"/>} 
-              label="ACO" 
-              value={operaciones.scoPorc}
-              isEditing={isEditing}
-              align="center" 
-              unit="%"
-              valueId="general.operaciones.scoPorc"
-              onInputChange={onInputChange}
-            />
-            <DatoSimple 
-              icon={<Inbox className="h-5 w-5 text-primary"/>} 
-              label="DropOff" 
-              value={operaciones.dropOffPorc} 
-              isEditing={isEditing}
-              align="center" 
-              unit="%"
-              valueId="general.operaciones.dropOffPorc"
-              onInputChange={onInputChange}
-            />
-            <DatoSimple 
-              icon={<Ticket className="h-5 w-5 text-primary"/>}
-              label="E-Ticket" 
-              value={operaciones.eTicketPorc} 
-              isEditing={isEditing}
-              align="center" 
-              unit="%"
-              valueId="general.operaciones.eTicketPorc"
-              onInputChange={onInputChange}
-            />
-          </div>
-        </KpiCard>
-      </div>
+         <CajaCard
+            operaciones={operaciones}
+            isEditing={isEditing}
+            onInputChange={onInputChange}
+            className="md:col-span-5"
+        />
+       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-8 gap-2">
         <KpiCard title="Merma" icon={<Trash2 className="h-5 w-5 text-primary" />} className="md:col-span-4">
