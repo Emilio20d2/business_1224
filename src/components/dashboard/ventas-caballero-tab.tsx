@@ -297,6 +297,7 @@ export function VentasCaballeroTab({ data, isEditing, onInputChange, onTextChang
                     perdidas={man.perdidas}
                     logistica={man.logistica}
                     almacenes={man.almacenes}
+                    mermaTarget={data.listas.mermaTarget.man}
                     isEditing={isEditing} 
                     onInputChange={onInputChange}
                     basePath="man"
@@ -327,4 +328,3 @@ export function VentasCaballeroTab({ data, isEditing, onInputChange, onTextChang
 }
 
     
-

@@ -282,6 +282,7 @@ export function VentasSenoraTab({ data, isEditing, onInputChange, onTextChange, 
                     perdidas={woman.perdidas}
                     logistica={woman.logistica}
                     almacenes={woman.almacenes}
+                    mermaTarget={data.listas.mermaTarget.woman}
                     isEditing={isEditing} 
                     onInputChange={onInputChange}
                     basePath="woman"

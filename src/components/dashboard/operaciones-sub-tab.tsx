@@ -27,16 +27,19 @@ import {
   FileInput,
   Repeat,
   Archive,
-  Box
+  Box,
+  Target
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
+import { MermaCard } from "./merma-card";
 
 type OperacionesSubTabProps = {
   operaciones: OperacionesData;
   perdidas: PerdidasData;
   logistica: LogisticaData;
   almacenes: WeeklyData['man']['almacenes'];
+  mermaTarget: number;
   isEditing: boolean;
   onInputChange: (path: string, value: string | number) => void;
   basePath: 'man' | 'woman' | 'nino' | 'general';
@@ -80,7 +83,7 @@ export const FilaModulo = ({ icon, label, value, isEditing, id, onInputChange, u
     </div>
 )
 
-export function OperacionesSubTab({ operaciones, perdidas, logistica, almacenes, isEditing, onInputChange, basePath }: OperacionesSubTabProps) {
+export function OperacionesSubTab({ operaciones, perdidas, logistica, almacenes, mermaTarget, isEditing, onInputChange, basePath }: OperacionesSubTabProps) {
   const balance = (logistica?.entradasSemanales || 0) - (logistica?.sintSemanales || 0);
   
   const safeAlmacenes = almacenes || {};
@@ -144,28 +147,16 @@ export function OperacionesSubTab({ operaciones, perdidas, logistica, almacenes,
                 />
             </div>
         </KpiCard>
-
-        <KpiCard title="Merma" icon={<Trash2 className="h-5 w-5 text-primary" />}>
-            <div className="flex flex-row justify-center items-center gap-4">
-                <DatoSimple 
-                    label={<Package className="h-5 w-5 text-primary"/>}
-                    value={perdidas?.merma?.unidades || 0}
-                    isEditing={isEditing}
-                    valueId={`${basePath}.perdidas.merma.unidades`}
-                    align="center"
-                    onInputChange={onInputChange}
-                />
-                <DatoSimple 
-                    label={<Percent className="h-5 w-5 text-primary"/>}
-                    value={perdidas?.merma?.porcentaje || 0}
-                    isEditing={isEditing}
-                    valueId={`${basePath}.perdidas.merma.porcentaje`}
-                    align="center"
-                    unit="%"
-                    onInputChange={onInputChange}
-                />
-            </div>
-        </KpiCard>
+        
+        <MermaCard
+          sectionName=""
+          perdidas={perdidas}
+          target={mermaTarget}
+          isEditing={isEditing}
+          onInputChange={onInputChange}
+          basePath={basePath}
+          showTitle={true}
+        />
         
         <KpiCard title="Operaciones" icon={<RefreshCw className="h-5 w-5 text-primary" />}>
              <div className="grid grid-cols-2 gap-4 h-full">

@@ -282,6 +282,7 @@ export function VentasNinoTab({ data, isEditing, onInputChange, onTextChange, on
                     perdidas={nino.perdidas}
                     logistica={nino.logistica}
                     almacenes={nino.almacenes}
+                    mermaTarget={data.listas.mermaTarget.nino}
                     isEditing={isEditing} 
                     onInputChange={onInputChange}
                     basePath="nino"
