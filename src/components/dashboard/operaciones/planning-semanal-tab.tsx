@@ -80,6 +80,7 @@ const DayColumn = ({
                 nombreEmpleado: '',
                 seccion: '',
                 notas: '',
+                hora: '07:00'
             };
             (newData.planningSemanal[dayKey] as PlanningSemanalItem[]).push(newItem);
             return newData;
@@ -94,6 +95,17 @@ const DayColumn = ({
             return newData;
         });
     };
+    
+    const timeOptions = [];
+    for (let h = 7; h <= 22; h++) {
+        for (let m = 0; m < 60; m += 30) {
+            if (h === 22 && m > 0) continue;
+            const hour = String(h).padStart(2, '0');
+            const minute = String(m).padStart(2, '0');
+            timeOptions.push(`${hour}:${minute}`);
+        }
+    }
+
 
     return (
         <Card>
@@ -119,6 +131,16 @@ const DayColumn = ({
                             ) : (
                                 <p className="font-semibold flex-grow">{item.nombreEmpleado || <span className="text-muted-foreground">-- Sin Asignar --</span>}</p>
                             )}
+                             {isEditing ? (
+                                <Select value={item.hora || '07:00'} onValueChange={(value) => handleItemChange(item.id, 'hora', value)}>
+                                    <SelectTrigger className="w-28"><SelectValue /></SelectTrigger>
+                                    <SelectContent>
+                                        {timeOptions.map(time => <SelectItem key={time} value={time}>{time}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                             ) : (
+                                 <p className="font-semibold text-sm text-muted-foreground">{item.hora}</p>
+                             )}
                              {isEditing && (
                                 <Button variant="ghost" size="icon" onClick={() => handleRemoveItem(item.id)}>
                                     <Trash2 className="h-4 w-4 text-destructive" />
@@ -280,7 +302,16 @@ export function PlanningSemanalTab({ data, empleados, isEditing, onDataChange, w
                 }
                 
                 doc.setFont('helvetica', 'bold');
-                doc.text(item.nombreEmpleado || "-- Sin Asignar --", cardX + cardPadding + 6, cardContentY);
+                const employeeText = `${item.nombreEmpleado || "-- Sin Asignar --"}`;
+                doc.text(employeeText, cardX + cardPadding + 6, cardContentY);
+
+                const timeText = item.hora || '';
+                const employeeTextWidth = doc.getStringUnitWidth(employeeText) * doc.getFontSize() / doc.internal.scaleFactor;
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(128, 128, 128);
+                doc.text(timeText, cardX + cardWidth - margin - doc.getStringUnitWidth(timeText) * doc.getFontSize() / doc.internal.scaleFactor, cardContentY);
+                doc.setTextColor(0, 0, 0);
+
                 cardContentY += 5;
 
                 if (item.notas) {

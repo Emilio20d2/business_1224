@@ -80,6 +80,7 @@ export type PlanningSemanalItem = {
     nombreEmpleado: string;
     seccion: 'woman' | 'man' | 'nino' | 'sint' | '';
     notas: string;
+    hora: string;
 };
 
 export type ProductividadData = {
@@ -576,5 +577,3 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
         },
     };
 }
-
-    
