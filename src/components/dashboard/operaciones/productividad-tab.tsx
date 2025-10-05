@@ -214,20 +214,24 @@ export function ProductividadTab({ data, isEditing, onInputChange }: Productivid
         startY: 35,
         head: [['Sección', 'Tarea', 'Unidades', 'Productividad', 'Horas Req.']],
         body: bodyData.map(d => [d.section, d.tarea, d.unidades, d.ratio, d.horas]),
-        theme: 'striped',
+        theme: 'grid',
         styles: {
             valign: 'middle'
         },
         headStyles: { 
             fillColor: false,
-            textColor: [73, 175, 165]
+            textColor: [73, 175, 165],
+            lineWidth: 0.1,
+            lineColor: [200, 200, 200],
         },
         didDrawCell: (data) => {
-            if (data.row.index % 3 === 2 && data.section === 'body' && data.row.index < bodyData.length -1) {
-                 if (data.table.x != null && data.table.width != null && data.row.y != null && data.row.height != null) {
-                    doc.setDrawColor(180, 180, 180);
-                    doc.line(data.table.x, data.row.y + data.row.height, data.table.x + data.table.width, data.row.y + data.row.height);
-                 }
+            if (data.row.index % 3 === 0 && data.section === 'body' && data.row.index > 0) {
+                if (data.table.x != null && data.table.width != null && data.row.y != null) {
+                    doc.setDrawColor(120, 120, 120); // Darker line for separation
+                    doc.setLineWidth(0.3);
+                    doc.line(data.table.x, data.row.y, data.table.x + data.table.width, data.row.y);
+                    doc.setLineWidth(0.1); // Reset for next cells
+                }
             }
         },
         foot: [['TOTAL HORAS PRODUCTIVIDAD REQUERIDAS', '', '', '', `${roundToQuarter(horasProductividadRequeridas)} h`]],
