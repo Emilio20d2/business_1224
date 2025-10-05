@@ -323,9 +323,17 @@ function SenoraPageComponent() {
     if (!data) return;
     setIsSaving(true);
     const docRef = doc(db, "informes", selectedWeek);
-    const dataToSave = JSON.parse(JSON.stringify(data));
     
-    setDoc(docRef, dataToSave, { merge: true })
+    // We only want to save specific parts of the data from this page
+    const {listas, ...dataToSave} = data;
+    const relevantData = {
+        ventasWoman: dataToSave.ventasWoman,
+        woman: dataToSave.woman,
+        focusSemanal: dataToSave.focusSemanal,
+        planningSemanal: dataToSave.planningSemanal,
+    };
+
+    setDoc(docRef, relevantData, { merge: true })
         .then(() => {
             toast({
                 title: "¡Guardado!",
