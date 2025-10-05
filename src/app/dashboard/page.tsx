@@ -157,13 +157,11 @@ function DashboardPageComponent() {
     if (!authLoading && !user) {
       router.push('/');
     } else if (!authLoading && user) {
-        const currentWeekId = getCurrentWeekId();
-        const targetWeek = selectedWeek || currentWeekId;
-        
-        if (targetWeek !== selectedWeek) {
-            updateUrl(targetWeek, activeSubTab);
+        if (!selectedWeek) {
+            const currentWeekId = getCurrentWeekId();
+            updateUrl(currentWeekId, activeSubTab);
         } else {
-            fetchData(targetWeek);
+            fetchData(selectedWeek);
         }
     }
 }, [user, authLoading, selectedWeek]);
@@ -309,6 +307,7 @@ function DashboardPageComponent() {
 
             if (sectionData && Array.isArray(sectionData.desglose)) {
                 sectionData.metricasPrincipales.totalEuros = sectionData.desglose.reduce((sum: number, item: any) => sum + (item.totalEuros || 0), 0);
+                // Assume totalUnidades are entered manually, so we don't calculate them
             }
         
             const sections = updatedData.datosPorSeccion;
@@ -317,7 +316,13 @@ function DashboardPageComponent() {
             const totalEurosNino = sections.nino?.metricasPrincipales.totalEuros || 0;
             const grandTotalEuros = totalEurosMan + totalEurosWoman + totalEurosNino;
 
+            const totalUnidadesMan = sections.man?.metricasPrincipales.totalUnidades || 0;
+            const totalUnidadesWoman = sections.woman?.metricasPrincipales.totalUnidades || 0;
+            const totalUnidadesNino = sections.nino?.metricasPrincipales.totalUnidades || 0;
+            const grandTotalUnidades = totalUnidadesMan + totalUnidadesWoman + totalUnidadesNino;
+
             updatedData.ventas.totalEuros = grandTotalEuros;
+            updatedData.ventas.totalUnidades = grandTotalUnidades;
 
              if (grandTotalEuros > 0) {
                 if (sections.man) sections.man.pesoPorc = Math.round((totalEurosMan / grandTotalEuros) * 100);

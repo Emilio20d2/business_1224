@@ -105,7 +105,7 @@ const SectionCard = ({ name, data, isEditing, onInputChange }: { name: SectionNa
                      <div className="bg-background rounded-lg p-3 text-center flex flex-col justify-center items-center gap-1">
                          <DatoSimple 
                             value={data.metricasPrincipales.totalUnidades}
-                            isEditing={false}
+                            isEditing={isEditing}
                             valueId={`datosPorSeccion.${name}.metricasPrincipales.totalUnidades`}
                             onInputChange={onInputChange}
                             align="center"
@@ -249,7 +249,7 @@ const AlmacenesGeneralCard = ({ data, isEditing, onInputChange }: { data: Weekly
             <FilaModulo icon={<Archive className="h-5 w-5"/>} label="Paque." value={totalAlmacenes.paqueteria.ocupacionPorc} isEditing={isEditing} id="general.almacenes.paqueteria.ocupacionPorc" onInputChange={onInputChange} unit="%" />
             <FilaModulo icon={<Box className="h-5 w-5"/>} label="Confe." value={totalAlmacenes.confeccion.ocupacionPorc} isEditing={isEditing} id="general.almacenes.confeccion.ocupacionPorc" onInputChange={onInputChange} unit="%" />
             <FilaModulo icon={<Footprints className="h-5 w-5"/>} label="Calzado" value={totalAlmacenes.calzado.ocupacionPorc} isEditing={isEditing} id="general.almacenes.calzado.ocupacionPorc" onInputChange={onInputChange} unit="%" />
-            <FilaModulo icon={<SprayCan className="h-5 w-5"/>} label="Perfu." value={totalAlmacenes.perfumeria.ocupacionPorc} isEditing={isEditing} id="general.almacenes.perfumeria.ocupacionPorc" onInputChange={onInputChange} unit="%" />
+            <FilaModulo icon={<SprayCan className="h-5 w-5"/>} label="Perfu." value={totalAlmacenes.perfumeria.ocupacionPorc} isEditing={isEditing} id="general.almacenes.perfumeria.ocupacionPorc" onInputChange={onInputChange} unit="%" rawValue={perfumeriaOcupacionMedia} />
           </div>
         </div>
         <div className="flex flex-col text-center gap-2 w-full">

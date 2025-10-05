@@ -52,6 +52,8 @@ export function DatoDoble({ label, value, variation, unit, isEditing, valueId, v
   const rawValue = typeof value === 'string'
     ? parseFloat(value.replace(/[^0-9.,-]+/g, '').replace(',', '.'))
     : value;
+  console.log({label, rawValue, value});
+
 
   const valueColor = typeof rawValue === 'number' && rawValue < 0 ? 'text-red-600' : '';
 
@@ -244,5 +246,3 @@ export function DatoSimple({
         </div>
     );
 }
-
-    
