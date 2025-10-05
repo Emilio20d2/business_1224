@@ -81,7 +81,7 @@ const DayColumn = ({
                 nombreEmpleado: '',
                 seccion: '',
                 notas: '',
-                hora: '07:00'
+                hora: ''
             };
             (newData.planningSemanal[dayKey] as PlanningSemanalItem[]).push(newItem);
             return newData;
@@ -133,14 +133,15 @@ const DayColumn = ({
                                 <p className="font-semibold flex-grow">{item.nombreEmpleado || <span className="text-muted-foreground">-- Sin Asignar --</span>}</p>
                             )}
                              {isEditing ? (
-                                <Select value={item.hora || '07:00'} onValueChange={(value) => handleItemChange(item.id, 'hora', value)}>
-                                    <SelectTrigger className="w-28"><SelectValue /></SelectTrigger>
+                                <Select value={item.hora || ''} onValueChange={(value) => handleItemChange(item.id, 'hora', value)}>
+                                    <SelectTrigger className="w-28"><SelectValue placeholder="Hora" /></SelectTrigger>
                                     <SelectContent>
+                                        <SelectItem value="">-- Hora --</SelectItem>
                                         {timeOptions.map(time => <SelectItem key={time} value={time}>{time}</SelectItem>)}
                                     </SelectContent>
                                 </Select>
                              ) : (
-                                 <p className="font-semibold text-sm text-muted-foreground">{item.hora}</p>
+                                 item.hora && <p className="font-semibold text-sm text-muted-foreground">{item.hora}</p>
                              )}
                              {isEditing && (
                                 <Button variant="ghost" size="icon" onClick={() => handleRemoveItem(item.id)}>
