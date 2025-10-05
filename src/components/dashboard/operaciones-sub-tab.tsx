@@ -62,7 +62,7 @@ export const ModuloContenidoGrande = ({ icon, value, isEditing, id, onInputChang
     </div>
 );
 
-export const FilaModulo = ({ icon, label, value, isEditing, id, onInputChange, unit }: { icon: React.ReactNode, label: string, value: number, isEditing?: boolean, id?: string, onInputChange?: (path: string, value: string | number) => void; unit: string }) => (
+export const FilaModulo = ({ icon, label, value, isEditing, id, onInputChange, unit, rawValue }: { icon: React.ReactNode, label: string, value: number, isEditing?: boolean, id?: string, onInputChange?: (path: string, value: string | number) => void; unit: string, rawValue?: number }) => (
      <div className="grid grid-cols-2 items-center gap-4 text-md">
         <div className="flex items-center gap-2 text-primary justify-start">
             {icon}
@@ -74,7 +74,7 @@ export const FilaModulo = ({ icon, label, value, isEditing, id, onInputChange, u
                 <Input type="number" inputMode="decimal" defaultValue={value} className="font-bold text-right w-24" id={id} onChange={(e) => onInputChange(id, e.target.value)} />
                 <span className="text-sm text-muted-foreground">{unit}</span>
             </div>
-            : <div className="font-bold text-right w-full">{unit === '%' ? formatPercentage(value) : formatNumber(value)}</div>
+            : <div className="font-bold text-right w-full">{unit === '%' ? formatPercentage(rawValue !== undefined ? rawValue : value) : formatNumber(value)}</div>
         }
         </div>
     </div>

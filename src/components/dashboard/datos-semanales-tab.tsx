@@ -194,7 +194,7 @@ const AlmacenesGeneralCard = ({ data, isEditing, onInputChange }: { data: Weekly
       }
   };
 
-  const FilaModulo = ({ icon, label, value, isEditing, id, unit, isRawNumber }: { icon: React.ReactNode, label: string, value: number, isEditing?: boolean, id?: string, onInputChange?: (path: string, value: string | number) => void; unit: string, isRawNumber?: boolean }) => (
+  const FilaModulo = ({ icon, label, value, isEditing, id, unit, isRawNumber, onInputChange }: { icon: React.ReactNode, label: string, value: number, isEditing?: boolean, id?: string; unit: string, isRawNumber?: boolean, onInputChange?: any }) => (
      <div className="grid grid-cols-2 items-center gap-4 text-md">
         <div className="flex items-center gap-2 text-primary justify-start">
             {icon}
@@ -249,7 +249,7 @@ const AlmacenesGeneralCard = ({ data, isEditing, onInputChange }: { data: Weekly
             <FilaModulo icon={<Archive className="h-5 w-5"/>} label="Paque." value={totalAlmacenes.paqueteria.ocupacionPorc} isEditing={isEditing} id="general.almacenes.paqueteria.ocupacionPorc" onInputChange={onInputChange} unit="%" />
             <FilaModulo icon={<Box className="h-5 w-5"/>} label="Confe." value={totalAlmacenes.confeccion.ocupacionPorc} isEditing={isEditing} id="general.almacenes.confeccion.ocupacionPorc" onInputChange={onInputChange} unit="%" />
             <FilaModulo icon={<Footprints className="h-5 w-5"/>} label="Calzado" value={totalAlmacenes.calzado.ocupacionPorc} isEditing={isEditing} id="general.almacenes.calzado.ocupacionPorc" onInputChange={onInputChange} unit="%" />
-            <FilaModulo icon={<SprayCan className="h-5 w-5"/>} label="Perfu." value={totalAlmacenes.perfumeria.ocupacionPorc} isEditing={false} unit="%" />
+            <FilaModulo icon={<SprayCan className="h-5 w-5"/>} label="Perfu." value={totalAlmacenes.perfumeria.ocupacionPorc} isEditing={isEditing} id="general.almacenes.perfumeria.ocupacionPorc" onInputChange={onInputChange} unit="%" />
           </div>
         </div>
         <div className="flex flex-col text-center gap-2 w-full">

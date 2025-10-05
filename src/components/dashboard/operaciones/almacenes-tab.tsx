@@ -10,7 +10,7 @@ import { FilaModulo, ModuloAlmacen, ModuloContenidoGrande } from '../operaciones
 import { Footprints, Shirt, SprayCan } from 'lucide-react';
 import { formatNumber } from '@/lib/format';
 
-const AlmacenCard = ({ basePath, logistica, almacenes, isEditing, onInputChange }: { basePath: 'general' | 'woman' | 'man' | 'nino' | 'total', logistica: any, almacenes: any, isEditing: boolean, onInputChange: any }) => {
+const AlmacenCard = ({ basePath, logistica, almacenes, isEditing, onInputChange, perfumeriaAvg }: { basePath: 'general' | 'woman' | 'man' | 'nino' | 'total', logistica: any, almacenes: any, isEditing: boolean, onInputChange: any, perfumeriaAvg?: number }) => {
     const balance = (logistica.entradasSemanales || 0) - (logistica.sintSemanales || 0);
 
     // Ensure almacenes and its properties exist
@@ -44,12 +44,12 @@ const AlmacenCard = ({ basePath, logistica, almacenes, isEditing, onInputChange 
                 <FilaModulo icon={<Archive className="h-5 w-5"/>} label="Paque." value={paqueteria.ocupacionPorc} isEditing={isEditing} id={`${basePath}.almacenes.paqueteria.ocupacionPorc`} onInputChange={onInputChange} unit="%" />
                 <FilaModulo icon={<Box className="h-5 w-5"/>} label="Confe." value={confeccion.ocupacionPorc} isEditing={isEditing} id={`${basePath}.almacenes.confeccion.ocupacionPorc`} onInputChange={onInputChange} unit="%" />
                 <FilaModulo icon={<Footprints className="h-5 w-5"/>} label="Calzado" value={calzado.ocupacionPorc} isEditing={isEditing} id={`${basePath}.almacenes.calzado.ocupacionPorc`} onInputChange={onInputChange} unit="%" />
-                <FilaModulo icon={<SprayCan className="h-5 w-5"/>} label="Perfu." value={perfumeria.ocupacionPorc} isEditing={isEditing} id={`${basePath}.almacenes.perfumeria.ocupacionPorc`} onInputChange={onInputChange} unit="%" />
+                <FilaModulo icon={<SprayCan className="h-5 w-5"/>} label="Perfu." value={perfumeriaAvg !== undefined ? perfumeriaAvg : perfumeria.ocupacionPorc} isEditing={isEditing && perfumeriaAvg === undefined} id={`${basePath}.almacenes.perfumeria.ocupacionPorc`} onInputChange={onInputChange} unit="%" rawValue={perfumeriaAvg} />
               </ModuloAlmacen>
               <ModuloAlmacen title="Destocaje" className="w-full">
-                 <FilaModulo icon={<Archive className="h-5 w-5"/>} label="Paque." value={paqueteria.devolucionUnidades as number} isEditing={!isTotalCard && isEditing} id={`${basePath}.almacenes.paqueteria.devolucionUnidades`} onInputChange={onInputChange} unit="Unid."/>
-                 <FilaModulo icon={<Box className="h-5 w-5"/>} label="Confe." value={confeccion.devolucionUnidades as number} isEditing={!isTotalCard && isEditing} id={`${basePath}.almacenes.confeccion.devolucionUnidades`} onInputChange={onInputChange} unit="Unid."/>
-                 <FilaModulo icon={<Footprints className="h-5 w-5"/>} label="Calzado" value={calzado.devolucionUnidades as number} isEditing={!isTotalCard && isEditing} id={`${basePath}.almacenes.calzado.devolucionUnidades`} onInputChange={onInputChange} unit="Unid."/>
+                 <FilaModulo icon={<Archive className="h-5 w-5"/>} label="Paque." value={paqueteria.devolucionUnidades as number} isEditing={!isTotalCard && isEditing} id={`${basePath}.almacenes.paqueteria.devolucionUnidades`} onInputChange={onInputChange} unit=""/>
+                 <FilaModulo icon={<Box className="h-5 w-5"/>} label="Confe." value={confeccion.devolucionUnidades as number} isEditing={!isTotalCard && isEditing} id={`${basePath}.almacenes.confeccion.devolucionUnidades`} onInputChange={onInputChange} unit=""/>
+                 <FilaModulo icon={<Footprints className="h-5 w-5"/>} label="Calzado" value={calzado.devolucionUnidades as number} isEditing={!isTotalCard && isEditing} id={`${basePath}.almacenes.calzado.devolucionUnidades`} onInputChange={onInputChange} unit=""/>
               </ModuloAlmacen>
             </div>
           </KpiCard>
@@ -67,6 +67,9 @@ export function AlmacenesTab({ data, isEditing, onInputChange }: { data: WeeklyD
       salidasSemanales: sections.reduce((sum, key) => sum + (data[key]?.logistica?.salidasSemanales || 0), 0),
       sintSemanales: sections.reduce((sum, key) => sum + (data[key]?.logistica?.sintSemanales || 0), 0),
   };
+
+  const perfumeriaOcupaciones = sections.map(key => data[key]?.almacenes?.perfumeria?.ocupacionPorc).filter(v => typeof v === 'number') as number[];
+  const perfumeriaOcupacionMedia = perfumeriaOcupaciones.length > 0 ? perfumeriaOcupaciones.reduce((a, b) => a + b, 0) / perfumeriaOcupaciones.length : 0;
   
   const totalAlmacenes = {
       paqueteria: {
@@ -83,7 +86,7 @@ export function AlmacenesTab({ data, isEditing, onInputChange }: { data: WeeklyD
       },
       perfumeria: {
           devolucionUnidades: null,
-          ocupacionPorc: data.general?.almacenes?.perfumeria?.ocupacionPorc || 0,
+          ocupacionPorc: perfumeriaOcupacionMedia,
       }
   };
 
@@ -98,6 +101,7 @@ export function AlmacenesTab({ data, isEditing, onInputChange }: { data: WeeklyD
             isEditing={isEditing} 
             onInputChange={onInputChange}
             basePath="general"
+            perfumeriaAvg={perfumeriaOcupacionMedia}
         />
       </div>
       <div>
