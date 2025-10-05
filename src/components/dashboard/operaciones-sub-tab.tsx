@@ -28,7 +28,9 @@ import {
   Repeat,
   Archive,
   Box,
-  Target
+  Target,
+  Users,
+  FileQuestion
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
@@ -126,7 +128,7 @@ export function OperacionesSubTab({ operaciones, perdidas, logistica, almacenes,
         </div>
       </KpiCard>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <KpiCard title="GAP" icon={<ClipboardX className="h-5 w-5 text-primary" />}>
              <div className="flex flex-row justify-center items-center gap-4">
                 <DatoSimple 
@@ -157,32 +159,52 @@ export function OperacionesSubTab({ operaciones, perdidas, logistica, almacenes,
           basePath={basePath}
           showTitle={true}
         />
-        
-        <KpiCard title="Operaciones" icon={<RefreshCw className="h-5 w-5 text-primary" />}>
-             <div className="grid grid-cols-2 gap-4 h-full">
-                <DatoSimple 
-                    icon={<RefreshCw className="h-5 w-5 text-primary"/>} 
-                    label="Repo" 
-                    value={operaciones?.repoPorc || 0} 
-                    isEditing={isEditing} 
-                    valueId={`${basePath}.operaciones.repoPorc`} 
-                    align="center" 
-                    unit="%" 
-                    onInputChange={onInputChange} 
-                />
-                <DatoSimple 
-                    icon={<Sparkles className="h-5 w-5 text-primary"/>} 
-                    label="Frescura" 
-                    value={operaciones?.frescuraPorc || 0} 
-                    isEditing={isEditing} 
-                    valueId={`${basePath}.operaciones.frescuraPorc`} 
-                    align="center" 
-                    unit="%" 
-                    onInputChange={onInputChange} 
-                />
+      </div>
+
+      <KpiCard title="Operaciones" icon={<RefreshCw className="h-5 w-5 text-primary" />}>
+            <div className="grid grid-cols-4 gap-4 h-full">
+            <DatoSimple 
+                icon={<RefreshCw className="h-5 w-5 text-primary"/>} 
+                label="Repo" 
+                value={operaciones.repoPorc} 
+                isEditing={isEditing} 
+                valueId={`${basePath}.operaciones.repoPorc`}
+                align="center" 
+                unit="%" 
+                onInputChange={onInputChange} 
+            />
+            <DatoSimple 
+                icon={<Sparkles className="h-5 w-5 text-primary"/>} 
+                label="Frescura" 
+                value={operaciones.frescuraPorc} 
+                isEditing={isEditing} 
+                valueId={`${basePath}.operaciones.frescuraPorc`}
+                align="center" 
+                unit="%" 
+                onInputChange={onInputChange} 
+            />
+            <DatoSimple
+                icon={<Users className="h-5 w-5 text-primary"/>}
+                label="Cobertura"
+                value={operaciones.coberturaPorc}
+                isEditing={isEditing}
+                valueId={`${basePath}.operaciones.coberturaPorc`}
+                align="center"
+                unit="%"
+                onInputChange={onInputChange}
+            />
+            <DatoSimple
+                icon={<FileQuestion className="h-5 w-5 text-primary"/>}
+                label="Sin Posi."
+                value={operaciones.sinUbicacion}
+                isEditing={isEditing}
+                valueId={`${basePath}.operaciones.sinUbicacion`}
+                align="center"
+                unit="%"
+                onInputChange={onInputChange}
+            />
             </div>
         </KpiCard>
-      </div>
     </div>
   );
 }
