@@ -73,6 +73,13 @@ export type PlanificacionItem = {
     anotaciones: string;
 };
 
+export type PlanningSemanalItem = {
+    id: string; // uuid
+    idEmpleado: string;
+    nombreEmpleado: string;
+    notas: string;
+};
+
 export type ProductividadData = {
     productividadPorSeccion: {
         woman: ProductividadSeccion;
@@ -187,6 +194,14 @@ export type WeeklyData = {
     productividad: {
         lunes: ProductividadData;
         jueves: ProductividadData;
+    };
+    planningSemanal: {
+        lunes: PlanningSemanalItem[];
+        martes: PlanningSemanalItem[];
+        miercoles: PlanningSemanalItem[];
+        jueves: PlanningSemanalItem[];
+        viernes: PlanningSemanalItem[];
+        sabado: PlanningSemanalItem[];
     };
     acumulado: {
         mensual: AcumuladoPeriodo;
@@ -433,6 +448,15 @@ const createInitialProductividadData = (): ProductividadData => ({
     incidencias: ""
 });
 
+const createInitialPlanningSemanal = (): WeeklyData['planningSemanal'] => ({
+    lunes: [],
+    martes: [],
+    miercoles: [],
+    jueves: [],
+    viernes: [],
+    sabado: [],
+});
+
 
 // This function generates a new, blank report structure based on the provided lists.
 export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas']): WeeklyData {
@@ -516,6 +540,7 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
             lunes: createInitialProductividadData(),
             jueves: createInitialProductividadData(),
         },
+        planningSemanal: createInitialPlanningSemanal(),
         acumulado: {
             mensual: {
                 totalEuros: 0, varPorcTotal: 0,
@@ -549,3 +574,5 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
         },
     };
 }
+
+    

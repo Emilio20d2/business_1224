@@ -36,6 +36,7 @@ import { FocusOperacionesTab } from '@/components/dashboard/operaciones/focus-op
 import { EditRatiosDialog } from '@/components/dashboard/operaciones/edit-ratios-dialog';
 import { EditEmpleadosDialog } from '@/components/dashboard/edit-empleados-dialog';
 import { PlanificacionTab } from '@/components/dashboard/operaciones/planificacion-tab';
+import { PlanningSemanalTab } from '@/components/dashboard/operaciones/planning-semanal-tab';
 
 
 type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan' | 'compradorWoman' | 'zonaComercialWoman' | 'agrupacionComercialWoman' | 'compradorNino' | 'zonaComercialNino' | 'agrupacionComercialNino';
@@ -99,6 +100,10 @@ const ensureSectionSpecificData = (data: WeeklyData): WeeklyData => {
     if (!data.listas.productividadRatio) {
         data.listas.productividadRatio = getInitialLists().productividadRatio;
     }
+    
+    if (!data.planningSemanal) {
+        data.planningSemanal = defaultData.planningSemanal;
+    }
 
     return data;
 }
@@ -148,7 +153,7 @@ function OperacionesPageComponent() {
         const keys = path.split('.');
 
         let cleanValue = value;
-         if (typeof value === 'string' && keys[0] !== 'focusOperaciones' && !keys.includes('incidencias')) {
+         if (typeof value === 'string' && keys[0] !== 'focusOperaciones' && !keys.includes('incidencias') && !keys.includes('anotaciones') && !keys.includes('notas')) {
             cleanValue = parseFloat(value.replace(',', '.')) || 0;
         }
 
@@ -185,11 +190,11 @@ function OperacionesPageComponent() {
     if (!authLoading && !user) {
       router.push('/');
     } else if (!authLoading && user) {
-      if (!selectedWeek) {
+      if (selectedWeek) {
+        fetchData(selectedWeek);
+      } else {
         const currentWeekId = getCurrentWeekId();
         updateUrl(currentWeekId);
-      } else {
-        fetchData(selectedWeek);
       }
     }
   }, [user, authLoading, selectedWeek, router]);
@@ -406,6 +411,7 @@ function OperacionesPageComponent() {
     { value: 'mermaReposicion', label: 'MERMA Y REPOSICIÓN' },
     { value: 'productividad', label: 'PRODUCTIVIDAD' },
     { value: 'planificacion', label: 'PLANIFICACIÓN' },
+    { value: 'planningSemanal', label: 'PLANNING SEMANAL' },
     { value: 'focus', label: 'FOCUS' },
   ];
 
@@ -584,7 +590,7 @@ function OperacionesPageComponent() {
         <main>
            {data ? (
                 <Tabs value={activeSubTab} onValueChange={setActiveSubTab} className="w-full">
-                    <div className="mb-4 grid w-full grid-cols-2 md:grid-cols-5 gap-2">
+                    <div className="mb-4 grid w-full grid-cols-2 md:grid-cols-6 gap-2">
                         {tabButtons.map(tab => (
                             <Button
                                 key={tab.value}
@@ -621,6 +627,14 @@ function OperacionesPageComponent() {
                             onDataChange={setData}
                             empleados={data.listas.empleados || []}
                             weekId={selectedWeek}
+                        />
+                    </TabsContent>
+                     <TabsContent value="planningSemanal" className="mt-0">
+                        <PlanningSemanalTab
+                            data={data}
+                            isEditing={isEditing}
+                            onDataChange={setData}
+                            empleados={data.listas.empleados || []}
                         />
                     </TabsContent>
                     <TabsContent value="focus" className="mt-0">
@@ -688,4 +702,5 @@ export default function OperacionesPage() {
     );
 }
 
+    
     
