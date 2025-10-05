@@ -22,10 +22,11 @@ type PlanningSemanalTabProps = {
 
 type DayKey = keyof WeeklyData['planningSemanal'];
 
-const sectionColors = {
+const sectionColors: { [key: string]: string } = {
     'woman': 'hsl(355, 71%, 60%)', // rosado
     'man': 'hsl(217, 56%, 60%)',   // azul
     'nino': 'hsl(172, 29%, 57%)',   // verde
+    'sint': 'hsl(0, 0%, 0%)', // negro
     '': 'hsl(var(--muted))'
 };
 
@@ -133,6 +134,7 @@ const DayColumn = ({
                                         <SelectItem value="woman">Señora</SelectItem>
                                         <SelectItem value="man">Caballero</SelectItem>
                                         <SelectItem value="nino">Niño</SelectItem>
+                                        <SelectItem value="sint">SINT</SelectItem>
                                     </SelectContent>
                                 </Select>
 
@@ -175,23 +177,50 @@ export function PlanningSemanalTab({ data, empleados, isEditing, onDataChange, w
         const pageWidth = doc.internal.pageSize.getWidth();
         const pageHeight = doc.internal.pageSize.getHeight();
         const margin = 10;
-        const cardPadding = 5;
-        const cardWidth = (pageWidth - margin * 3) / 2;
-        let currentY = 30;
-        let currentX = margin;
-        let maxHeightInRow = 0;
+        let currentY = 15;
 
         doc.setFontSize(18);
-        doc.text("Planning Semanal de Almacén", pageWidth / 2, 15, { align: 'center' });
+        doc.text("Planning Semanal de Almacén", pageWidth / 2, currentY, { align: 'center' });
+        currentY += 7;
         doc.setFontSize(12);
-        doc.text(formatWeekIdToDateRange(weekId), pageWidth / 2, 22, { align: 'center' });
+        doc.text(formatWeekIdToDateRange(weekId), pageWidth / 2, currentY, { align: 'center' });
+        currentY += 10;
+
+        // Draw Legend
+        const legendItems = [
+            { label: 'Señora', color: sectionColors['woman'] },
+            { label: 'Caballero', color: sectionColors['man'] },
+            { label: 'Niño', color: sectionColors['nino'] },
+            { label: 'SINT', color: sectionColors['sint'] },
+        ];
+        
+        let legendX = margin;
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        legendItems.forEach(item => {
+            const rgb = item.color.match(/\d+/g);
+            if (rgb) {
+                doc.setFillColor(parseInt(rgb[0]), parseInt(rgb[1]), parseInt(rgb[2]));
+            } else {
+                doc.setFillColor(0, 0, 0);
+            }
+            doc.circle(legendX + 2, currentY - 1.5, 2, 'F');
+            doc.text(item.label, legendX + 6, currentY);
+            legendX += doc.getStringUnitWidth(item.label) * 4 + 15;
+        });
+
+        currentY += 10;
+        
+        const cardPadding = 5;
+        const cardWidth = (pageWidth - margin * 3) / 2;
+        let cardX = margin;
+        let maxHeightInRow = 0;
 
         days.forEach((day, index) => {
             const dayData = data.planningSemanal[day.key];
             if (!dayData || dayData.length === 0) return;
             
             const isLeftColumn = index % 2 === 0;
-            currentX = isLeftColumn ? margin : margin * 2 + cardWidth;
 
             // Calculate card height
             let cardHeight = cardPadding * 2 + 8; // Padding + Title
@@ -204,7 +233,18 @@ export function PlanningSemanalTab({ data, empleados, isEditing, onDataChange, w
                 cardHeight += 3; // Spacing
             });
 
-            if (!isLeftColumn && currentY + Math.max(maxHeightInRow, cardHeight) > pageHeight - margin) {
+            if (currentY + cardHeight > pageHeight - margin) {
+                if (isLeftColumn) {
+                    doc.addPage();
+                    currentY = margin;
+                } else {
+                    // This case is tricky, for now we just let it overflow or we add a new page and reset x
+                    doc.addPage();
+                    currentY = margin;
+                    cardX = margin; // Reset to left column
+                }
+            }
+             if (!isLeftColumn && currentY + Math.max(maxHeightInRow, cardHeight) > pageHeight - margin) {
                  doc.addPage();
                  currentY = margin;
                  maxHeightInRow = 0;
@@ -214,23 +254,19 @@ export function PlanningSemanalTab({ data, empleados, isEditing, onDataChange, w
                 currentY = margin;
              }
 
-            if (isLeftColumn) {
-                currentX = margin;
-            } else {
-                currentX = margin * 2 + cardWidth;
-            }
+            cardX = isLeftColumn ? margin : margin * 2 + cardWidth;
             
             // Draw card
             doc.setDrawColor(224, 224, 224); // border color
             doc.setFillColor(253, 253, 253); // background color
-            doc.roundedRect(currentX, currentY, cardWidth, cardHeight, 3, 3, 'FD');
+            doc.roundedRect(cardX, currentY, cardWidth, cardHeight, 3, 3, 'FD');
 
             let cardContentY = currentY + cardPadding + 5;
 
             // Card Title
             doc.setFontSize(12);
             doc.setFont('helvetica', 'bold');
-            doc.text(day.title, currentX + cardWidth / 2, cardContentY, { align: 'center' });
+            doc.text(day.title, cardX + cardWidth / 2, cardContentY, { align: 'center' });
             cardContentY += 8;
 
             // Card Content
@@ -240,18 +276,18 @@ export function PlanningSemanalTab({ data, empleados, isEditing, onDataChange, w
                 const rgb = sectionColor.match(/\d+/g);
                 if (rgb) {
                     doc.setFillColor(parseInt(rgb[0]), parseInt(rgb[1]), parseInt(rgb[2]));
-                    doc.circle(currentX + cardPadding + 2, cardContentY - 1.5, 2, 'F');
+                    doc.circle(cardX + cardPadding + 2, cardContentY - 1.5, 2, 'F');
                 }
                 
                 doc.setFont('helvetica', 'bold');
-                doc.text(item.nombreEmpleado || "-- Sin Asignar --", currentX + cardPadding + 6, cardContentY);
+                doc.text(item.nombreEmpleado || "-- Sin Asignar --", cardX + cardPadding + 6, cardContentY);
                 cardContentY += 5;
 
                 if (item.notas) {
                     doc.setFont('helvetica', 'normal');
                     doc.setTextColor(128, 128, 128); // muted-foreground
                     const notesLines = doc.splitTextToSize(item.notas, cardWidth - cardPadding * 2 - 6);
-                    doc.text(notesLines, currentX + cardPadding + 6, cardContentY);
+                    doc.text(notesLines, cardX + cardPadding + 6, cardContentY);
                     cardContentY += notesLines.length * 4;
                     doc.setTextColor(0, 0, 0);
                 }

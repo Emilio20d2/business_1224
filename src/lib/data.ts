@@ -78,7 +78,7 @@ export type PlanningSemanalItem = {
     id: string; // uuid
     idEmpleado: string;
     nombreEmpleado: string;
-    seccion: 'woman' | 'man' | 'nino' | '';
+    seccion: 'woman' | 'man' | 'nino' | 'sint' | '';
     notas: string;
 };
 
