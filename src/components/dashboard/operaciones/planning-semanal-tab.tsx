@@ -143,50 +143,77 @@ export function PlanningSemanalTab({ data, empleados, isEditing, onDataChange, w
 
     const handleGeneratePDF = () => {
         const doc = new jsPDF();
-        const pageWidth = doc.internal.pageSize.width;
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
         const margin = 10;
+        const cardPadding = 5;
+        const cardWidth = (pageWidth - margin * 3) / 2;
+
         let currentY = 30;
 
         doc.setFontSize(18);
         doc.text("Planning Semanal de Almacén", pageWidth / 2, 15, { align: 'center' });
         doc.setFontSize(12);
         doc.text(formatWeekIdToDateRange(weekId), pageWidth / 2, 22, { align: 'center' });
-        
-        const tableData = data.planningSemanal;
-        const body: (string | null)[][] = [];
 
-        const maxRows = Math.max(...days.map(day => tableData[day.key].length));
+        days.forEach((day, index) => {
+            const dayData = data.planningSemanal[day.key];
+            if (!dayData || dayData.length === 0) return;
 
-        for (let i = 0; i < maxRows; i++) {
-            const row: (string|null)[] = [];
-            days.forEach(day => {
-                const item = tableData[day.key][i];
-                if (item) {
-                    row.push(`${item.nombreEmpleado}\n${item.notas}`);
-                } else {
-                    row.push(null);
+            const isLeftColumn = index % 2 === 0;
+            const x = isLeftColumn ? margin : margin * 2 + cardWidth;
+
+            // Calculate card height
+            let cardHeight = cardPadding * 2 + 8; // Padding + Title
+            dayData.forEach(item => {
+                cardHeight += 5; // For employee name
+                if (item.notas) {
+                    const notesLines = doc.splitTextToSize(item.notas, cardWidth - cardPadding * 2);
+                    cardHeight += notesLines.length * 4; // Approx height for notes
                 }
+                cardHeight += 3; // Spacing
             });
-            body.push(row);
-        }
 
-        (doc as any).autoTable({
-            head: [days.map(d => d.title)],
-            body: body,
-            startY: currentY,
-            theme: 'grid',
-            styles: {
-                valign: 'top',
-                cellPadding: 2,
-                overflow: 'linebreak'
-            },
-            headStyles: {
-                fillColor: [115, 175, 165], // primary color
-                textColor: 255,
-                fontStyle: 'bold'
-            },
+            if (currentY + cardHeight > pageHeight - margin) {
+                doc.addPage();
+                currentY = margin;
+            }
+            
+            // Draw card
+            doc.setDrawColor(224, 224, 224); // border color
+            doc.setFillColor(253, 253, 253); // background color
+            doc.roundedRect(x, currentY, cardWidth, cardHeight, 3, 3, 'FD');
+
+            let cardContentY = currentY + cardPadding + 5;
+
+            // Card Title
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'bold');
+            doc.text(day.title, x + cardWidth / 2, cardContentY, { align: 'center' });
+            cardContentY += 8;
+
+            // Card Content
+            doc.setFontSize(9);
+            dayData.forEach(item => {
+                doc.setFont('helvetica', 'bold');
+                doc.text(item.nombreEmpleado || "-- Sin Asignar --", x + cardPadding, cardContentY);
+                cardContentY += 5;
+
+                if (item.notas) {
+                    doc.setFont('helvetica', 'normal');
+                    doc.setTextColor(128, 128, 128); // muted-foreground
+                    const notesLines = doc.splitTextToSize(item.notas, cardWidth - cardPadding * 2);
+                    doc.text(notesLines, x + cardPadding, cardContentY);
+                    cardContentY += notesLines.length * 4;
+                    doc.setTextColor(0, 0, 0);
+                }
+                cardContentY += 3; // spacing
+            });
+
+            if (!isLeftColumn) {
+                currentY += cardHeight + margin;
+            }
         });
-
 
         doc.save('planning-semanal.pdf');
     };
