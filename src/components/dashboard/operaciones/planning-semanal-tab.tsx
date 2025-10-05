@@ -221,12 +221,13 @@ export function PlanningSemanalTab({ data, empleados, isEditing, onDataChange, w
         doc.setFont('helvetica', 'normal');
 
         // Calculate total legend width to center it
+        let totalLegendWidth = 0;
         const legendItemWidths = legendItems.map(item => {
-            const circleWidth = 5; // 2 for radius + 2 for padding
+            const circleWidth = 5; // 2 for radius + 3 for padding
             const textWidth = doc.getStringUnitWidth(item.label) * doc.getFontSize() / doc.internal.scaleFactor;
             return circleWidth + textWidth + 5; // 5 for padding between items
         });
-        const totalLegendWidth = legendItemWidths.reduce((a, b) => a + b, 0) - 5; // Remove last padding
+        totalLegendWidth = legendItemWidths.reduce((a, b) => a + b, 0) - 5; // Remove last padding
         
         let legendX = (pageWidth - totalLegendWidth) / 2;
 
@@ -329,12 +330,13 @@ export function PlanningSemanalTab({ data, empleados, isEditing, onDataChange, w
                 const employeeText = `${item.nombreEmpleado || "-- Sin Asignar --"}`;
                 doc.text(employeeText, cardX + cardPadding + 6, cardContentY);
 
-                const timeText = item.hora || '';
-                const employeeTextWidth = doc.getStringUnitWidth(employeeText) * doc.getFontSize() / doc.internal.scaleFactor;
-                doc.setFont('helvetica', 'normal');
-                doc.setTextColor(128, 128, 128);
-                doc.text(timeText, cardX + cardWidth - margin - doc.getStringUnitWidth(timeText) * doc.getFontSize() / doc.internal.scaleFactor, cardContentY);
-                doc.setTextColor(0, 0, 0);
+                if (item.hora) {
+                    const timeText = item.hora;
+                    doc.setFont('helvetica', 'normal');
+                    doc.setTextColor(128, 128, 128);
+                    doc.text(timeText, cardX + cardWidth - margin - doc.getStringUnitWidth(timeText) * doc.getFontSize() / doc.internal.scaleFactor, cardContentY);
+                    doc.setTextColor(0, 0, 0);
+                }
 
                 cardContentY += 5;
 
