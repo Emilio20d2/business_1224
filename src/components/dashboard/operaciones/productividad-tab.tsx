@@ -223,6 +223,8 @@ export function ProductividadTab({ data, isEditing, onInputChange }: Productivid
             fillColor: false,
             textColor: [73, 175, 165],
             fontStyle: 'bold',
+            lineWidth: { bottom: 0.3 },
+            lineColor: [120, 120, 120]
         },
         foot: [['TOTAL HORAS PRODUCTIVIDAD REQUERIDAS', '', '', '', `${roundToQuarter(horasProductividadRequeridas)} h`]],
         footStyles: { 
@@ -235,10 +237,6 @@ export function ProductividadTab({ data, isEditing, onInputChange }: Productivid
         didParseCell: function (data) {
             if (data.row.index % 3 === 2 && data.section === 'body') {
                 data.cell.styles.lineWidth = { ...data.cell.styles.lineWidth, bottom: 0.3 };
-                 data.cell.styles.lineColor = [120, 120, 120];
-            }
-             if (data.row.index % 3 === 0 && data.section === 'body' && data.row.index > 0) {
-                 data.cell.styles.lineWidth = { ...data.cell.styles.lineWidth, top: 0.3 };
                  data.cell.styles.lineColor = [120, 120, 120];
             }
         },
