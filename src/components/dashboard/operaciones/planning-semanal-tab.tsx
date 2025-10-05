@@ -7,14 +7,18 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, Printer } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
+import { formatWeekIdToDateRange } from '@/lib/format';
 
 type PlanningSemanalTabProps = {
   data: WeeklyData;
   empleados: Empleado[];
   isEditing: boolean;
   onDataChange: React.Dispatch<React.SetStateAction<WeeklyData | null>>;
+  weekId: string;
 };
 
 type DayKey = keyof WeeklyData['planningSemanal'];
@@ -126,7 +130,7 @@ const DayColumn = ({
     );
 };
 
-export function PlanningSemanalTab({ data, empleados, isEditing, onDataChange }: PlanningSemanalTabProps) {
+export function PlanningSemanalTab({ data, empleados, isEditing, onDataChange, weekId }: PlanningSemanalTabProps) {
     if (!data.planningSemanal) return null;
 
     const days: { key: DayKey, title: string }[] = [
@@ -138,21 +142,77 @@ export function PlanningSemanalTab({ data, empleados, isEditing, onDataChange }:
         { key: 'sabado', title: 'Sábado' },
     ];
 
+    const handleGeneratePDF = () => {
+        const doc = new jsPDF();
+        const pageWidth = doc.internal.pageSize.width;
+        const margin = 10;
+        let currentY = 30;
+
+        doc.setFontSize(18);
+        doc.text("Planning Semanal", pageWidth / 2, 15, { align: 'center' });
+        doc.setFontSize(12);
+        doc.text(formatWeekIdToDateRange(weekId), pageWidth / 2, 22, { align: 'center' });
+        
+        const tableData = data.planningSemanal;
+        const body: (string | null)[][] = [];
+
+        const maxRows = Math.max(...days.map(day => tableData[day.key].length));
+
+        for (let i = 0; i < maxRows; i++) {
+            const row: (string|null)[] = [];
+            days.forEach(day => {
+                const item = tableData[day.key][i];
+                if (item) {
+                    row.push(`${item.nombreEmpleado}\n${item.notas}`);
+                } else {
+                    row.push(null);
+                }
+            });
+            body.push(row);
+        }
+
+        (doc as any).autoTable({
+            head: [days.map(d => d.title)],
+            body: body,
+            startY: currentY,
+            theme: 'grid',
+            styles: {
+                valign: 'top',
+                cellPadding: 2,
+                overflow: 'linebreak'
+            },
+            headStyles: {
+                fillColor: [115, 175, 165], // primary color
+                textColor: 255,
+                fontStyle: 'bold'
+            },
+        });
+
+
+        doc.save('planning-semanal.pdf');
+    };
+
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {days.map(day => (
-                <DayColumn
-                    key={day.key}
-                    dayKey={day.key}
-                    title={day.title}
-                    dayData={data.planningSemanal[day.key]}
-                    empleados={empleados}
-                    isEditing={isEditing}
-                    onDataChange={onDataChange}
-                />
-            ))}
+        <div className="space-y-4">
+             <div className="flex justify-end">
+                <Button onClick={handleGeneratePDF} variant="outline">
+                    <Printer className="mr-2 h-4 w-4" />
+                    Crear PDF
+                </Button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {days.map(day => (
+                    <DayColumn
+                        key={day.key}
+                        dayKey={day.key}
+                        title={day.title}
+                        dayData={data.planningSemanal[day.key]}
+                        empleados={empleados}
+                        isEditing={isEditing}
+                        onDataChange={onDataChange}
+                    />
+                ))}
+            </div>
         </div>
     );
 }
-
-    

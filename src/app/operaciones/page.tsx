@@ -153,9 +153,14 @@ function OperacionesPageComponent() {
         const keys = path.split('.');
 
         let cleanValue = value;
-         if (typeof value === 'string' && keys[0] !== 'focusOperaciones' && !keys.includes('incidencias') && !keys.includes('anotaciones') && !keys.includes('notas')) {
-            cleanValue = parseFloat(value.replace(',', '.')) || 0;
+        const specialTextFields = ['incidencias', 'anotaciones', 'notas', 'focusOperaciones'];
+        const isSpecialTextField = specialTextFields.some(field => keys.includes(field));
+
+        if (typeof value === 'string' && !isSpecialTextField) {
+            const parsedValue = parseFloat(value.replace(',', '.'));
+            cleanValue = isNaN(parsedValue) ? value : parsedValue;
         }
+
 
         // Navigate to the parent object
         for (let i = 0; i < keys.length - 1; i++) {
@@ -186,18 +191,20 @@ function OperacionesPageComponent() {
     }
   };
 
-  useEffect(() => {
+ useEffect(() => {
     if (!authLoading && !user) {
       router.push('/');
     } else if (!authLoading && user) {
-      if (selectedWeek) {
-        fetchData(selectedWeek);
-      } else {
         const currentWeekId = getCurrentWeekId();
-        updateUrl(currentWeekId);
-      }
+        const targetWeek = selectedWeek || currentWeekId;
+        
+        if (targetWeek !== selectedWeek) {
+            updateUrl(targetWeek);
+        } else {
+            fetchData(targetWeek);
+        }
     }
-  }, [user, authLoading, selectedWeek, router]);
+}, [user, authLoading, selectedWeek]);
 
 
  const fetchData = useCallback(async (weekId: string) => {
@@ -635,6 +642,7 @@ function OperacionesPageComponent() {
                             isEditing={isEditing}
                             onDataChange={setData}
                             empleados={data.listas.empleados || []}
+                            weekId={selectedWeek}
                         />
                     </TabsContent>
                     <TabsContent value="focus" className="mt-0">
@@ -701,7 +709,3 @@ export default function OperacionesPage() {
         </Suspense>
     );
 }
-
-    
-    
-    
