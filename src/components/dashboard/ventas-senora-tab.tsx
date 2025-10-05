@@ -32,7 +32,7 @@ import { DatoSimple } from './kpi-card';
 import { PlanningSemanalTab } from './operaciones/planning-semanal-tab';
 
 
-type VentasNinoTabProps = {
+type VentasSenoraTabProps = {
   data: WeeklyData;
   isEditing: boolean;
   onInputChange: (path: string, value: any, reorder?: boolean) => void;
@@ -60,7 +60,7 @@ const DataTable = ({
     list: string[] | undefined,
     isEditing: boolean, 
     dataKey: string, 
-    onInputChange: VentasNinoTabProps['onInputChange'],
+    onInputChange: VentasSenoraTabProps['onInputChange'],
     showFooter?: boolean,
     totalEurosOverride?: number,
     totalVarPorcOverride?: number,
@@ -118,7 +118,7 @@ const DataTable = ({
                                     {item.nombre}
                                 </TableCell>
                                 <TableCell className="text-right font-medium">
-                                    {formatPercentageInt(item.pesoPorc)}
+                                     {formatPercentageInt(item.pesoPorc)}
                                 </TableCell>
                                 <TableCell className="text-right font-medium">
                                     {isEditing ? <Input type="number" inputMode="decimal" className="w-full ml-auto text-right" defaultValue={item.totalEuros} onBlur={(e) => handleChange(originalIndex, 'totalEuros', e.target.value)} /> : formatCurrency(item.totalEuros)}
@@ -154,16 +154,16 @@ const DataTable = ({
 };
 
 
-export function VentasNinoTab({ data, isEditing, onInputChange, onTextChange, onDataChange }: VentasNinoTabProps) {
+export function VentasSenoraTab({ data, isEditing, onInputChange, onTextChange, onDataChange }: VentasSenoraTabProps) {
     const [activeTab, setActiveTab] = React.useState<string>('ventas');
     
-    if (!data || !data.ventasNino || !data.listas) return <p>Cargando datos de Ventas Niño...</p>;
+    if (!data || !data.ventasWoman || !data.listas) return <p>Cargando datos de Ventas Señora...</p>;
 
-    const { ventasNino, listas, datosPorSeccion, nino, focusSemanal, planningSemanal } = data;
+    const { ventasWoman, listas, datosPorSeccion, woman, focusSemanal, planningSemanal } = data;
     
-    const ropaTotalEuros = ventasNino.pesoComprador.reduce((sum, item) => sum + (Number(item.totalEuros) || 0), 0);
-    const calzadoData = datosPorSeccion.nino.desglose.find(d => d.seccion === 'Calzado');
-    const perfumeriaData = datosPorSeccion.nino.desglose.find(d => d.seccion === 'Perfumería');
+    const ropaTotalEuros = ventasWoman.pesoComprador.reduce((sum, item) => sum + (Number(item.totalEuros) || 0), 0);
+    const calzadoData = datosPorSeccion.woman.desglose.find(d => d.seccion === 'Calzado');
+    const perfumeriaData = datosPorSeccion.woman.desglose.find(d => d.seccion === 'Perfumería');
 
     const calzadoTotalEuros = calzadoData?.totalEuros || 0;
     const perfumeriaTotalEuros = perfumeriaData?.totalEuros || 0;
@@ -185,7 +185,7 @@ export function VentasNinoTab({ data, isEditing, onInputChange, onTextChange, on
     }] : [];
 
     const ropaPesoPorcTotal = grandTotalEuros > 0 ? Math.round((ropaTotalEuros / grandTotalEuros) * 100) : 0;
-    const ropaVarPorcTotal = datosPorSeccion.nino.metricasPrincipales.varPorcEuros;
+    const ropaVarPorcTotal = datosPorSeccion.woman.metricasPrincipales.varPorcEuros;
 
     const tabButtons = [
         { value: 'ventas', label: 'VENTAS' },
@@ -214,9 +214,9 @@ export function VentasNinoTab({ data, isEditing, onInputChange, onTextChange, on
                    <DataTable
                         title="Ropa"
                         icon={<Shirt className="h-5 w-5" />}
-                        dataKey="ventasNino.pesoComprador"
-                        data={ventasNino.pesoComprador}
-                        list={listas.compradorNino}
+                        dataKey="ventasWoman.pesoComprador"
+                        data={ventasWoman.pesoComprador}
+                        list={listas.compradorWoman}
                         isEditing={isEditing}
                         onInputChange={onInputChange}
                         showFooter={true}
@@ -227,7 +227,7 @@ export function VentasNinoTab({ data, isEditing, onInputChange, onTextChange, on
                     <DataTable
                         title="Calzado"
                         icon={<Footprints className="h-5 w-5" />}
-                        dataKey="datosPorSeccion.nino.desglose"
+                        dataKey="datosPorSeccion.woman.desglose"
                         data={calzadoTableData}
                         list={undefined}
                         isEditing={isEditing}
@@ -237,7 +237,7 @@ export function VentasNinoTab({ data, isEditing, onInputChange, onTextChange, on
                     <DataTable
                         title="Perfumería"
                         icon={<SprayCan className="h-5 w-5" />}
-                        dataKey="datosPorSeccion.nino.desglose"
+                        dataKey="datosPorSeccion.woman.desglose"
                         data={perfumeriaTableData}
                         list={undefined}
                         isEditing={isEditing}
@@ -264,10 +264,10 @@ export function VentasNinoTab({ data, isEditing, onInputChange, onTextChange, on
                                     <TableCell className="font-bold uppercase">Total</TableCell>
                                     <TableCell></TableCell>
                                     <TableCell className="text-right font-medium">
-                                        {formatNumber(datosPorSeccion.nino.metricasPrincipales.totalUnidades)}
+                                        {formatNumber(datosPorSeccion.woman.metricasPrincipales.totalUnidades)}
                                     </TableCell>
-                                    <TableCell className={cn("text-right font-medium", datosPorSeccion.nino.metricasPrincipales.varPorcUnidades < 0 ? "text-red-600" : "text-green-600")}>
-                                        {formatPercentage(datosPorSeccion.nino.metricasPrincipales.varPorcUnidades)}
+                                    <TableCell className={cn("text-right font-medium", datosPorSeccion.woman.metricasPrincipales.varPorcUnidades < 0 ? "text-red-600" : "text-green-600")}>
+                                        {formatPercentage(datosPorSeccion.woman.metricasPrincipales.varPorcUnidades)}
                                     </TableCell>
                                 </TableRow>
                             </TableBody>
@@ -278,13 +278,13 @@ export function VentasNinoTab({ data, isEditing, onInputChange, onTextChange, on
 
             <TabsContent value="operaciones" className="mt-0">
                 <OperacionesSubTab 
-                    operaciones={nino.operaciones} 
-                    perdidas={nino.perdidas}
-                    logistica={nino.logistica}
-                    almacenes={nino.almacenes}
+                    operaciones={woman.operaciones} 
+                    perdidas={woman.perdidas}
+                    logistica={woman.logistica}
+                    almacenes={woman.almacenes}
                     isEditing={isEditing} 
                     onInputChange={onInputChange}
-                    basePath="nino"
+                    basePath="woman"
                 />
             </TabsContent>
 
@@ -302,7 +302,7 @@ export function VentasNinoTab({ data, isEditing, onInputChange, onTextChange, on
             
             <TabsContent value="focus" className="mt-0">
               <FocusSemanalTab 
-                text={focusSemanal.nino} 
+                text={focusSemanal.woman} 
                 isEditing={isEditing} 
                 onTextChange={onTextChange} 
               />

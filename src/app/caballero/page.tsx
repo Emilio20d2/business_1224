@@ -5,10 +5,11 @@ import React, { useState, useContext, useEffect, useCallback, Suspense } from 'r
 import type { WeeklyData, VentasManItem, SectionSpecificData, Empleado } from "@/lib/data";
 import { doc, getDoc, setDoc, updateDoc, collection, getDocs } from "firebase/firestore";
 import { db } from '@/lib/firebase';
-import { Calendar as CalendarIcon, Settings, LogOut, Loader2, Briefcase, List, LayoutDashboard, Pencil, Upload, Projector, Users, UserPlus, SlidersHorizontal } from 'lucide-react';
+import { Calendar as CalendarIcon, Settings, LogOut, Loader2, Briefcase, List, LayoutDashboard, Pencil, Projector, Users, UserPlus, SlidersHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { VentasCaballeroTab } from '@/components/dashboard/ventas-caballero-tab';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,7 +29,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { EditListDialog } from '@/components/dashboard/edit-list-dialog';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { VentasNinoTab } from '@/components/dashboard/ventas-nino-tab';
 import { formatWeekIdToDateRange, getCurrentWeekId, getWeekIdFromDate } from '@/lib/format';
 import { EditEmpleadosDialog } from '@/components/dashboard/edit-empleados-dialog';
 import { EditRatiosDialog } from '@/components/dashboard/operaciones/edit-ratios-dialog';
@@ -100,7 +100,7 @@ const ensureSectionSpecificData = (data: WeeklyData): WeeklyData => {
     return data;
 }
 
-function NinoPageComponent() {
+function CaballeroPageComponent() {
   const { user, loading: authLoading, logout } = useContext(AuthContext);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -118,11 +118,11 @@ function NinoPageComponent() {
   const [isRatiosDialogOpen, setRatiosDialogOpen] = useState(false);
 
   const selectedWeek = searchParams.get('week') || '';
-  const activeTab = "nino";
+  const activeTab = "man";
   
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [isCalendarOpen, setCalendarOpen] = useState(false);
-
+  
   const canEdit = user?.email === 'emiliogp@inditex.com';
   const { toast } = useToast();
   
@@ -130,7 +130,7 @@ function NinoPageComponent() {
       if (!newWeek) return;
       const params = new URLSearchParams(searchParams);
       params.set('week', newWeek);
-      router.replace(`/nino?${params.toString()}`);
+      router.replace(`/caballero?${params.toString()}`);
   }, [router, searchParams]);
 
 
@@ -202,22 +202,23 @@ function NinoPageComponent() {
         } else {
             reportData = reportSnap.data() as WeeklyData;
         }
-
+        
         reportData.listas = listData;
         
         reportData = ensureSectionSpecificData(reportData);
 
         if (typeof reportData.focusSemanal === 'string' || !reportData.focusSemanal) {
             reportData.focusSemanal = {
-                man: "",
+                man: typeof reportData.focusSemanal === 'string' ? reportData.focusSemanal : "",
                 woman: "",
-                nino: typeof reportData.focusSemanal === 'string' ? reportData.focusSemanal : "",
-                experiencia: ""
+                nino: "",
+                experiencia: "",
             };
         }
 
+
         // Ensure main sales sections exist before synchronization
-        if (!reportData.ventasNino) reportData.ventasNino = { pesoComprador: [], zonaComercial: [], agrupacionComercial: [] };
+        if (!reportData.ventasMan) reportData.ventasMan = { pesoComprador: [], zonaComercial: [], agrupacionComercial: [] };
 
         let needsSave = false;
         
@@ -235,13 +236,13 @@ function NinoPageComponent() {
         };
 
         let changed;
-        [reportData.ventasNino.pesoComprador, changed] = syncAndCheck(reportData.ventasNino.pesoComprador, listData.compradorNino);
+        [reportData.ventasMan.pesoComprador, changed] = syncAndCheck(reportData.ventasMan.pesoComprador, listData.compradorMan);
         if (changed) needsSave = true;
         
-        [reportData.ventasNino.zonaComercial, changed] = syncAndCheck(reportData.ventasNino.zonaComercial, listData.zonaComercialNino);
+        [reportData.ventasMan.zonaComercial, changed] = syncAndCheck(reportData.ventasMan.zonaComercial, listData.zonaComercialMan);
         if (changed) needsSave = true;
         
-        [reportData.ventasNino.agrupacionComercial, changed] = syncAndCheck(reportData.ventasNino.agrupacionComercial, listData.agrupacionComercialNino);
+        [reportData.ventasMan.agrupacionComercial, changed] = syncAndCheck(reportData.ventasMan.agrupacionComercial, listData.agrupacionComercialMan);
         if (changed) needsSave = true;
 
         if (needsSave && canEdit) {
@@ -284,9 +285,9 @@ function NinoPageComponent() {
         const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
         current[finalKey] = isNaN(numericValue) || value === "" ? 0 : numericValue;
 
-        if (keys[0] === 'ventasNino' && reorder) {
+        if (keys[0] === 'ventasMan' && reorder) {
             const tableKey = keys[1] as 'pesoComprador' | 'zonaComercial' | 'agrupacionComercial';
-            const table = updatedData.ventasNino[tableKey] as VentasManItem[];
+            const table = updatedData.ventasMan[tableKey] as VentasManItem[];
             if (table) {
                 const totalEuros = table.reduce((sum: number, item: VentasManItem) => sum + (item.totalEuros || 0), 0);
 
@@ -299,7 +300,6 @@ function NinoPageComponent() {
                         item.pesoPorc = 0;
                     });
                 }
-
                 table.sort((a: VentasManItem, b: VentasManItem) => (b.totalEuros || 0) - (a.totalEuros || 0));
             }
         }
@@ -312,7 +312,7 @@ function NinoPageComponent() {
     if (!canEdit) return;
     setData(prevData => {
       if (!prevData) return null;
-      const updatedFocus = { ...prevData.focusSemanal, nino: newValue };
+      const updatedFocus = { ...prevData.focusSemanal, man: newValue };
       return {
         ...prevData,
         focusSemanal: updatedFocus,
@@ -353,7 +353,7 @@ function NinoPageComponent() {
       setListToEdit({ listKey, title });
       setListDialogOpen(true);
   };
-  
+
   const handleOpenRatiosDialog = () => {
     if (!canEdit) return;
     setRatiosDialogOpen(true);
@@ -456,7 +456,7 @@ const handleSaveEmpleados = async (newItems: Empleado[]) => {
     <TooltipProvider>
       <div className="min-h-screen w-full p-2 sm:p-3 bg-background">
         <header className="mb-4 flex flex-wrap items-center justify-between gap-2">
-          <div className="flex w-full flex-wrap items-center justify-start gap-x-4 gap-y-2">
+           <div className="flex w-full flex-wrap items-center justify-start gap-x-4 gap-y-2">
               <h1 className="text-2xl sm:text-3xl font-aptos font-light text-foreground flex items-center gap-2">
                 <Briefcase className="h-7 w-7" />
                 BUSINESS
@@ -528,13 +528,13 @@ const handleSaveEmpleados = async (newItems: Empleado[]) => {
                       <Button variant="outline" onClick={handleCancel} disabled={isSaving || !data}>Cancelar</Button>
                     </>
                   ) : (
-                    <Button onClick={() => setIsEditing(true)} variant="outline" size="icon" disabled={!data}>
-                      <Pencil className="h-4 w-4 text-primary" />
-                    </Button>
+                     <Button onClick={() => setIsEditing(true)} variant="outline" size="icon" disabled={!data}>
+                        <Pencil className="h-4 w-4 text-primary" />
+                     </Button>
                   )}
-                   <Button onClick={() => router.push(`/presentation?week=${selectedWeek}`)} variant="outline" size="icon" disabled={!data}>
-                        <Projector className="h-4 w-4 text-primary" />
-                   </Button>
+                  <Button onClick={() => router.push(`/presentation?week=${selectedWeek}`)} variant="outline" size="icon" disabled={!data}>
+                    <Projector className="h-4 w-4 text-primary" />
+                  </Button>
                 </>
               )}
               <DropdownMenu>
@@ -580,7 +580,7 @@ const handleSaveEmpleados = async (newItems: Empleado[]) => {
                             </DropdownMenuSubContent>
                           </DropdownMenuPortal>
                         </DropdownMenuSub>
-                    </>
+                   </>
                   )}
                   {canEdit && <DropdownMenuSeparator />}
                   <DropdownMenuItem onSelect={() => {
@@ -598,7 +598,7 @@ const handleSaveEmpleados = async (newItems: Empleado[]) => {
         
         <main>
            {data ? (
-                <VentasNinoTab 
+                <VentasCaballeroTab
                   data={data}
                   isEditing={isEditing} 
                   onInputChange={handleInputChange}
@@ -650,15 +650,15 @@ const handleSaveEmpleados = async (newItems: Empleado[]) => {
 }
 
 
-export default function NinoPage() {
+export default function CaballeroPage() {
     return (
         <Suspense fallback={
             <div className="flex flex-col items-center justify-center min-h-screen">
                 <Loader2 className="h-12 w-12 animate-spin text-primary" />
-                <p className="mt-4">Cargando sección NIÑO...</p>
+                <p className="mt-4">Cargando sección CABALLERO...</p>
             </div>
         }>
-            <NinoPageComponent />
+            <CaballeroPageComponent />
         </Suspense>
     );
 }

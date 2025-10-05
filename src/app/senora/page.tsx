@@ -28,7 +28,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { EditListDialog } from '@/components/dashboard/edit-list-dialog';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { VentasNinoTab } from '@/components/dashboard/ventas-nino-tab';
+import { VentasSenoraTab } from '@/components/dashboard/ventas-senora-tab';
 import { formatWeekIdToDateRange, getCurrentWeekId, getWeekIdFromDate } from '@/lib/format';
 import { EditEmpleadosDialog } from '@/components/dashboard/edit-empleados-dialog';
 import { EditRatiosDialog } from '@/components/dashboard/operaciones/edit-ratios-dialog';
@@ -64,7 +64,7 @@ const synchronizeTableData = (list: string[], oldTableData: VentasManItem[]): Ve
     const safeOldTableData = Array.isArray(oldTableData) ? oldTableData : [];
     
     const oldDataMap = new Map(safeOldTableData.map(item => [item.nombre, item]));
-    
+
     return safeList.map(itemName => {
         const existingItem = oldDataMap.get(itemName);
         if (existingItem) {
@@ -100,7 +100,7 @@ const ensureSectionSpecificData = (data: WeeklyData): WeeklyData => {
     return data;
 }
 
-function NinoPageComponent() {
+function SenoraPageComponent() {
   const { user, loading: authLoading, logout } = useContext(AuthContext);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -118,7 +118,7 @@ function NinoPageComponent() {
   const [isRatiosDialogOpen, setRatiosDialogOpen] = useState(false);
 
   const selectedWeek = searchParams.get('week') || '';
-  const activeTab = "nino";
+  const activeTab = "woman";
   
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [isCalendarOpen, setCalendarOpen] = useState(false);
@@ -130,9 +130,8 @@ function NinoPageComponent() {
       if (!newWeek) return;
       const params = new URLSearchParams(searchParams);
       params.set('week', newWeek);
-      router.replace(`/nino?${params.toString()}`);
+      router.replace(`/senora?${params.toString()}`);
   }, [router, searchParams]);
-
 
   const handleDateSelect = (date: Date | undefined) => {
     if (!date) return;
@@ -210,14 +209,15 @@ function NinoPageComponent() {
         if (typeof reportData.focusSemanal === 'string' || !reportData.focusSemanal) {
             reportData.focusSemanal = {
                 man: "",
-                woman: "",
-                nino: typeof reportData.focusSemanal === 'string' ? reportData.focusSemanal : "",
+                woman: typeof reportData.focusSemanal === 'string' ? reportData.focusSemanal : "",
+                nino: "",
                 experiencia: ""
             };
         }
 
+
         // Ensure main sales sections exist before synchronization
-        if (!reportData.ventasNino) reportData.ventasNino = { pesoComprador: [], zonaComercial: [], agrupacionComercial: [] };
+        if (!reportData.ventasWoman) reportData.ventasWoman = { pesoComprador: [], zonaComercial: [], agrupacionComercial: [] };
 
         let needsSave = false;
         
@@ -235,13 +235,13 @@ function NinoPageComponent() {
         };
 
         let changed;
-        [reportData.ventasNino.pesoComprador, changed] = syncAndCheck(reportData.ventasNino.pesoComprador, listData.compradorNino);
+        [reportData.ventasWoman.pesoComprador, changed] = syncAndCheck(reportData.ventasWoman.pesoComprador, listData.compradorWoman);
         if (changed) needsSave = true;
         
-        [reportData.ventasNino.zonaComercial, changed] = syncAndCheck(reportData.ventasNino.zonaComercial, listData.zonaComercialNino);
+        [reportData.ventasWoman.zonaComercial, changed] = syncAndCheck(reportData.ventasWoman.zonaComercial, listData.zonaComercialWoman);
         if (changed) needsSave = true;
         
-        [reportData.ventasNino.agrupacionComercial, changed] = syncAndCheck(reportData.ventasNino.agrupacionComercial, listData.agrupacionComercialNino);
+        [reportData.ventasWoman.agrupacionComercial, changed] = syncAndCheck(reportData.ventasWoman.agrupacionComercial, listData.agrupacionComercialWoman);
         if (changed) needsSave = true;
 
         if (needsSave && canEdit) {
@@ -284,9 +284,9 @@ function NinoPageComponent() {
         const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
         current[finalKey] = isNaN(numericValue) || value === "" ? 0 : numericValue;
 
-        if (keys[0] === 'ventasNino' && reorder) {
+        if (keys[0] === 'ventasWoman' && reorder) {
             const tableKey = keys[1] as 'pesoComprador' | 'zonaComercial' | 'agrupacionComercial';
-            const table = updatedData.ventasNino[tableKey] as VentasManItem[];
+            const table = updatedData.ventasWoman[tableKey] as VentasManItem[];
             if (table) {
                 const totalEuros = table.reduce((sum: number, item: VentasManItem) => sum + (item.totalEuros || 0), 0);
 
@@ -299,7 +299,6 @@ function NinoPageComponent() {
                         item.pesoPorc = 0;
                     });
                 }
-
                 table.sort((a: VentasManItem, b: VentasManItem) => (b.totalEuros || 0) - (a.totalEuros || 0));
             }
         }
@@ -312,7 +311,7 @@ function NinoPageComponent() {
     if (!canEdit) return;
     setData(prevData => {
       if (!prevData) return null;
-      const updatedFocus = { ...prevData.focusSemanal, nino: newValue };
+       const updatedFocus = { ...prevData.focusSemanal, woman: newValue };
       return {
         ...prevData,
         focusSemanal: updatedFocus,
@@ -598,7 +597,7 @@ const handleSaveEmpleados = async (newItems: Empleado[]) => {
         
         <main>
            {data ? (
-                <VentasNinoTab 
+                <VentasSenoraTab 
                   data={data}
                   isEditing={isEditing} 
                   onInputChange={handleInputChange}
@@ -650,15 +649,15 @@ const handleSaveEmpleados = async (newItems: Empleado[]) => {
 }
 
 
-export default function NinoPage() {
+export default function SenoraPage() {
     return (
         <Suspense fallback={
             <div className="flex flex-col items-center justify-center min-h-screen">
                 <Loader2 className="h-12 w-12 animate-spin text-primary" />
-                <p className="mt-4">Cargando sección NIÑO...</p>
+                <p className="mt-4">Cargando sección SEÑORA...</p>
             </div>
         }>
-            <NinoPageComponent />
+            <SenoraPageComponent />
         </Suspense>
     );
 }

@@ -13,26 +13,18 @@ import {
   TableRow,
   TableFooter,
 } from "@/components/ui/table"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCurrency, formatPercentage, formatNumber, formatPercentageInt } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { Button } from '../ui/button';
 import { Users, MapPin, ShoppingBasket, Percent, Euro, Shirt, Footprints, SprayCan, Package } from 'lucide-react';
-import { Tabs, TabsContent } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { OperacionesSubTab } from './operaciones-sub-tab';
 import { FocusSemanalTab } from './focus-semanal-tab';
-import { DatoSimple } from './kpi-card';
 import { PlanningSemanalTab } from './operaciones/planning-semanal-tab';
 
 
-type VentasNinoTabProps = {
+type VentasCaballeroTabProps = {
   data: WeeklyData;
   isEditing: boolean;
   onInputChange: (path: string, value: any, reorder?: boolean) => void;
@@ -60,17 +52,16 @@ const DataTable = ({
     list: string[] | undefined,
     isEditing: boolean, 
     dataKey: string, 
-    onInputChange: VentasNinoTabProps['onInputChange'],
+    onInputChange: VentasCaballeroTabProps['onInputChange'],
     showFooter?: boolean,
     totalEurosOverride?: number,
     totalVarPorcOverride?: number,
     totalPesoPorcOverride?: number,
-    showVarPorc?: boolean
+    showVarPorc?: boolean,
 }) => {
     if (!data || !Array.isArray(data)) {
         return <p className="text-center text-muted-foreground mt-8">No hay datos disponibles.</p>;
     }
-    const optionList = list || [];
 
     const totalEuros = data.reduce((sum, item) => sum + (Number(item.totalEuros) || 0), 0);
     
@@ -111,12 +102,8 @@ const DataTable = ({
                     {displayedData.map((item, index) => {
                         const originalIndex = data.findIndex(d => d.nombre === item.nombre);
                         return (
-                            <TableRow 
-                                key={item.nombre + index}
-                            >
-                                <TableCell>
-                                    {item.nombre}
-                                </TableCell>
+                            <TableRow key={item.nombre + index}>
+                                <TableCell>{item.nombre}</TableCell>
                                 <TableCell className="text-right font-medium">
                                     {formatPercentageInt(item.pesoPorc)}
                                 </TableCell>
@@ -154,16 +141,16 @@ const DataTable = ({
 };
 
 
-export function VentasNinoTab({ data, isEditing, onInputChange, onTextChange, onDataChange }: VentasNinoTabProps) {
+export function VentasCaballeroTab({ data, isEditing, onInputChange, onTextChange, onDataChange }: VentasCaballeroTabProps) {
     const [activeTab, setActiveTab] = React.useState<string>('ventas');
     
-    if (!data || !data.ventasNino || !data.listas) return <p>Cargando datos de Ventas Niño...</p>;
+    if (!data || !data.ventasMan || !data.listas) return <p>Cargando datos de Ventas Caballero...</p>;
 
-    const { ventasNino, listas, datosPorSeccion, nino, focusSemanal, planningSemanal } = data;
+    const { ventasMan, listas, datosPorSeccion, man, focusSemanal, planningSemanal } = data;
     
-    const ropaTotalEuros = ventasNino.pesoComprador.reduce((sum, item) => sum + (Number(item.totalEuros) || 0), 0);
-    const calzadoData = datosPorSeccion.nino.desglose.find(d => d.seccion === 'Calzado');
-    const perfumeriaData = datosPorSeccion.nino.desglose.find(d => d.seccion === 'Perfumería');
+    const ropaTotalEuros = ventasMan.pesoComprador.reduce((sum, item) => sum + (Number(item.totalEuros) || 0), 0);
+    const calzadoData = datosPorSeccion.man.desglose.find(d => d.seccion === 'Calzado');
+    const perfumeriaData = datosPorSeccion.man.desglose.find(d => d.seccion === 'Perfumería');
 
     const calzadoTotalEuros = calzadoData?.totalEuros || 0;
     const perfumeriaTotalEuros = perfumeriaData?.totalEuros || 0;
@@ -185,10 +172,13 @@ export function VentasNinoTab({ data, isEditing, onInputChange, onTextChange, on
     }] : [];
 
     const ropaPesoPorcTotal = grandTotalEuros > 0 ? Math.round((ropaTotalEuros / grandTotalEuros) * 100) : 0;
-    const ropaVarPorcTotal = datosPorSeccion.nino.metricasPrincipales.varPorcEuros;
+    
+    const ropaVarPorcTotal = datosPorSeccion.man.metricasPrincipales.varPorcEuros;
+
 
     const tabButtons = [
         { value: 'ventas', label: 'VENTAS' },
+        { value: 'zonaYAgrupacion', label: 'ZONA Y AGRUPACIÓN' },
         { value: 'operaciones', label: 'OPERACIONES' },
         { value: 'planificacion', label: 'PLANIFICACIÓN' },
         { value: 'focus', label: 'FOCUS' },
@@ -196,7 +186,7 @@ export function VentasNinoTab({ data, isEditing, onInputChange, onTextChange, on
 
     return (
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <div className="mb-4 grid w-full grid-cols-2 md:grid-cols-4 gap-2">
+            <div className="mb-4 grid w-full grid-cols-2 md:grid-cols-5 gap-2">
                 {tabButtons.map(tab => (
                     <Button
                         key={tab.value}
@@ -214,9 +204,9 @@ export function VentasNinoTab({ data, isEditing, onInputChange, onTextChange, on
                    <DataTable
                         title="Ropa"
                         icon={<Shirt className="h-5 w-5" />}
-                        dataKey="ventasNino.pesoComprador"
-                        data={ventasNino.pesoComprador}
-                        list={listas.compradorNino}
+                        dataKey="ventasMan.pesoComprador"
+                        data={ventasMan.pesoComprador}
+                        list={listas.compradorMan}
                         isEditing={isEditing}
                         onInputChange={onInputChange}
                         showFooter={true}
@@ -227,7 +217,7 @@ export function VentasNinoTab({ data, isEditing, onInputChange, onTextChange, on
                     <DataTable
                         title="Calzado"
                         icon={<Footprints className="h-5 w-5" />}
-                        dataKey="datosPorSeccion.nino.desglose"
+                        dataKey="datosPorSeccion.man.desglose"
                         data={calzadoTableData}
                         list={undefined}
                         isEditing={isEditing}
@@ -237,7 +227,7 @@ export function VentasNinoTab({ data, isEditing, onInputChange, onTextChange, on
                     <DataTable
                         title="Perfumería"
                         icon={<SprayCan className="h-5 w-5" />}
-                        dataKey="datosPorSeccion.nino.desglose"
+                        dataKey="datosPorSeccion.man.desglose"
                         data={perfumeriaTableData}
                         list={undefined}
                         isEditing={isEditing}
@@ -264,10 +254,10 @@ export function VentasNinoTab({ data, isEditing, onInputChange, onTextChange, on
                                     <TableCell className="font-bold uppercase">Total</TableCell>
                                     <TableCell></TableCell>
                                     <TableCell className="text-right font-medium">
-                                        {formatNumber(datosPorSeccion.nino.metricasPrincipales.totalUnidades)}
+                                        {formatNumber(datosPorSeccion.man.metricasPrincipales.totalUnidades)}
                                     </TableCell>
-                                    <TableCell className={cn("text-right font-medium", datosPorSeccion.nino.metricasPrincipales.varPorcUnidades < 0 ? "text-red-600" : "text-green-600")}>
-                                        {formatPercentage(datosPorSeccion.nino.metricasPrincipales.varPorcUnidades)}
+                                    <TableCell className={cn("text-right font-medium", datosPorSeccion.man.metricasPrincipales.varPorcUnidades < 0 ? "text-red-600" : "text-green-600")}>
+                                        {formatPercentage(datosPorSeccion.man.metricasPrincipales.varPorcUnidades)}
                                     </TableCell>
                                 </TableRow>
                             </TableBody>
@@ -276,18 +266,43 @@ export function VentasNinoTab({ data, isEditing, onInputChange, onTextChange, on
                </div>
             </TabsContent>
 
-            <TabsContent value="operaciones" className="mt-0">
-                <OperacionesSubTab 
-                    operaciones={nino.operaciones} 
-                    perdidas={nino.perdidas}
-                    logistica={nino.logistica}
-                    almacenes={nino.almacenes}
-                    isEditing={isEditing} 
-                    onInputChange={onInputChange}
-                    basePath="nino"
-                />
+            <TabsContent value="zonaYAgrupacion" className="mt-0">
+                <div className="grid gap-4 items-start grid-cols-1 md:grid-cols-2">
+                    <DataTable
+                        title="Zona Comprador"
+                        icon={<MapPin className="h-5 w-5" />}
+                        dataKey="ventasMan.zonaComercial"
+                        data={ventasMan.zonaComercial}
+                        list={listas.zonaComercialMan}
+                        isEditing={isEditing}
+                        onInputChange={onInputChange}
+                        showFooter={false}
+                    />
+                    <DataTable
+                        title="Agrupación Comercial"
+                        icon={<ShoppingBasket className="h-5 w-5" />}
+                        dataKey="ventasMan.agrupacionComercial"
+                        data={ventasMan.agrupacionComercial}
+                        list={listas.agrupacionComercialMan}
+                        isEditing={isEditing}
+                        onInputChange={onInputChange}
+                        showFooter={false}
+                    />
+                </div>
             </TabsContent>
 
+            <TabsContent value="operaciones" className="mt-0">
+                <OperacionesSubTab 
+                    operaciones={man.operaciones} 
+                    perdidas={man.perdidas}
+                    logistica={man.logistica}
+                    almacenes={man.almacenes}
+                    isEditing={isEditing} 
+                    onInputChange={onInputChange}
+                    basePath="man"
+                />
+            </TabsContent>
+            
             <TabsContent value="planificacion" className="mt-0">
                  {data.planningSemanal && (
                     <PlanningSemanalTab
@@ -299,10 +314,10 @@ export function VentasNinoTab({ data, isEditing, onInputChange, onTextChange, on
                     />
                  )}
             </TabsContent>
-            
+
             <TabsContent value="focus" className="mt-0">
               <FocusSemanalTab 
-                text={focusSemanal.nino} 
+                text={focusSemanal.man} 
                 isEditing={isEditing} 
                 onTextChange={onTextChange} 
               />
@@ -310,3 +325,6 @@ export function VentasNinoTab({ data, isEditing, onInputChange, onTextChange, on
         </Tabs>
     );
 }
+
+    
+

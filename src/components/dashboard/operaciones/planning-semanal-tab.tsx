@@ -22,6 +22,13 @@ type PlanningSemanalTabProps = {
 
 type DayKey = keyof WeeklyData['planningSemanal'];
 
+const sectionColors = {
+    'woman': 'hsl(355, 71%, 60%)', // rosado
+    'man': 'hsl(217, 56%, 60%)',   // azul
+    'nino': 'hsl(172, 29%, 57%)',   // verde
+    '': 'hsl(var(--muted))'
+};
+
 const DayColumn = ({
     dayKey,
     title,
@@ -66,6 +73,7 @@ const DayColumn = ({
                 id: uuidv4(),
                 idEmpleado: '',
                 nombreEmpleado: '',
+                seccion: '',
                 notas: '',
             };
             (newData.planningSemanal[dayKey] as PlanningSemanalItem[]).push(newItem);
@@ -90,20 +98,40 @@ const DayColumn = ({
             <CardContent className="space-y-4">
                 {dayData.map(item => (
                     <div key={item.id} className="space-y-2 border-b pb-4">
-                        {isEditing ? (
+                        <div className="flex items-center gap-2">
+                             <div 
+                                className="h-4 w-4 rounded-full flex-shrink-0" 
+                                style={{ backgroundColor: sectionColors[item.seccion || ''] }}
+                            />
+                            {isEditing ? (
+                                <Select value={item.idEmpleado || 'VACIO'} onValueChange={(value) => handleItemChange(item.id, 'idEmpleado', value === 'VACIO' ? '' : value)}>
+                                    <SelectTrigger><SelectValue placeholder="Seleccionar Empleado..." /></SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="VACIO">-- Vacío --</SelectItem>
+                                        {empleados.map(e => <SelectItem key={e.id} value={e.id}>{e.nombre}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                            ) : (
+                                <p className="font-semibold flex-grow">{item.nombreEmpleado || <span className="text-muted-foreground">-- Sin Asignar --</span>}</p>
+                            )}
+                             {isEditing && (
+                                <Button variant="ghost" size="icon" onClick={() => handleRemoveItem(item.id)}>
+                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                </Button>
+                             )}
+                        </div>
+                         {isEditing ? (
                             <>
-                                <div className="flex items-center gap-2">
-                                     <Select value={item.idEmpleado || 'VACIO'} onValueChange={(value) => handleItemChange(item.id, 'idEmpleado', value === 'VACIO' ? '' : value)}>
-                                        <SelectTrigger><SelectValue placeholder="Seleccionar Empleado..." /></SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="VACIO">-- Vacío --</SelectItem>
-                                            {empleados.map(e => <SelectItem key={e.id} value={e.id}>{e.nombre}</SelectItem>)}
-                                        </SelectContent>
-                                    </Select>
-                                    <Button variant="ghost" size="icon" onClick={() => handleRemoveItem(item.id)}>
-                                        <Trash2 className="h-4 w-4 text-destructive" />
-                                    </Button>
-                                </div>
+                                <Select value={item.seccion || ''} onValueChange={(value) => handleItemChange(item.id, 'seccion', value)}>
+                                    <SelectTrigger><SelectValue placeholder="Sección..." /></SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="">-- Sección --</SelectItem>
+                                        <SelectItem value="woman">Señora</SelectItem>
+                                        <SelectItem value="man">Caballero</SelectItem>
+                                        <SelectItem value="nino">Niño</SelectItem>
+                                    </SelectContent>
+                                </Select>
+
                                 <Textarea
                                     value={item.notas}
                                     onChange={(e) => handleItemChange(item.id, 'notas', e.target.value)}
@@ -111,12 +139,9 @@ const DayColumn = ({
                                     rows={3}
                                 />
                             </>
-                        ) : (
-                            <div>
-                                <p className="font-semibold">{item.nombreEmpleado || <span className="text-muted-foreground">-- Sin Asignar --</span>}</p>
-                                <p className="text-sm text-muted-foreground whitespace-pre-wrap">{item.notas || "Sin notas"}</p>
-                            </div>
-                        )}
+                         ) : (
+                             <p className="text-sm text-muted-foreground whitespace-pre-wrap pl-6">{item.notas || "Sin notas"}</p>
+                         )}
                     </div>
                 ))}
                 {isEditing && (
@@ -148,8 +173,9 @@ export function PlanningSemanalTab({ data, empleados, isEditing, onDataChange, w
         const margin = 10;
         const cardPadding = 5;
         const cardWidth = (pageWidth - margin * 3) / 2;
-
         let currentY = 30;
+        let currentX = margin;
+        let maxHeightInRow = 0;
 
         doc.setFontSize(18);
         doc.text("Planning Semanal de Almacén", pageWidth / 2, 15, { align: 'center' });
@@ -159,64 +185,85 @@ export function PlanningSemanalTab({ data, empleados, isEditing, onDataChange, w
         days.forEach((day, index) => {
             const dayData = data.planningSemanal[day.key];
             if (!dayData || dayData.length === 0) return;
-
+            
             const isLeftColumn = index % 2 === 0;
-            const x = isLeftColumn ? margin : margin * 2 + cardWidth;
+            currentX = isLeftColumn ? margin : margin * 2 + cardWidth;
 
             // Calculate card height
             let cardHeight = cardPadding * 2 + 8; // Padding + Title
             dayData.forEach(item => {
-                cardHeight += 5; // For employee name
+                cardHeight += 6; // For employee name + circle
                 if (item.notas) {
-                    const notesLines = doc.splitTextToSize(item.notas, cardWidth - cardPadding * 2);
-                    cardHeight += notesLines.length * 4; // Approx height for notes
+                    const notesLines = doc.splitTextToSize(item.notas, cardWidth - cardPadding * 2 - 5); // 5 for circle margin
+                    cardHeight += notesLines.length * 4;
                 }
                 cardHeight += 3; // Spacing
             });
 
-            if (currentY + cardHeight > pageHeight - margin) {
+            if (!isLeftColumn && currentY + Math.max(maxHeightInRow, cardHeight) > pageHeight - margin) {
+                 doc.addPage();
+                 currentY = margin;
+                 maxHeightInRow = 0;
+            }
+             if (isLeftColumn && currentY + cardHeight > pageHeight - margin) {
                 doc.addPage();
                 currentY = margin;
+             }
+
+            if (isLeftColumn) {
+                currentX = margin;
+            } else {
+                currentX = margin * 2 + cardWidth;
             }
             
             // Draw card
             doc.setDrawColor(224, 224, 224); // border color
             doc.setFillColor(253, 253, 253); // background color
-            doc.roundedRect(x, currentY, cardWidth, cardHeight, 3, 3, 'FD');
+            doc.roundedRect(currentX, currentY, cardWidth, cardHeight, 3, 3, 'FD');
 
             let cardContentY = currentY + cardPadding + 5;
 
             // Card Title
             doc.setFontSize(12);
             doc.setFont('helvetica', 'bold');
-            doc.text(day.title, x + cardWidth / 2, cardContentY, { align: 'center' });
+            doc.text(day.title, currentX + cardWidth / 2, cardContentY, { align: 'center' });
             cardContentY += 8;
 
             // Card Content
             doc.setFontSize(9);
             dayData.forEach(item => {
+                const sectionColor = sectionColors[item.seccion || ''];
+                const rgb = sectionColor.match(/\d+/g);
+                if (rgb) {
+                    doc.setFillColor(parseInt(rgb[0]), parseInt(rgb[1]), parseInt(rgb[2]));
+                    doc.circle(currentX + cardPadding + 2, cardContentY - 1.5, 2, 'F');
+                }
+                
                 doc.setFont('helvetica', 'bold');
-                doc.text(item.nombreEmpleado || "-- Sin Asignar --", x + cardPadding, cardContentY);
+                doc.text(item.nombreEmpleado || "-- Sin Asignar --", currentX + cardPadding + 6, cardContentY);
                 cardContentY += 5;
 
                 if (item.notas) {
                     doc.setFont('helvetica', 'normal');
                     doc.setTextColor(128, 128, 128); // muted-foreground
-                    const notesLines = doc.splitTextToSize(item.notas, cardWidth - cardPadding * 2);
-                    doc.text(notesLines, x + cardPadding, cardContentY);
+                    const notesLines = doc.splitTextToSize(item.notas, cardWidth - cardPadding * 2 - 6);
+                    doc.text(notesLines, currentX + cardPadding + 6, cardContentY);
                     cardContentY += notesLines.length * 4;
                     doc.setTextColor(0, 0, 0);
                 }
                 cardContentY += 3; // spacing
             });
 
+            maxHeightInRow = Math.max(maxHeightInRow, cardHeight);
             if (!isLeftColumn) {
-                currentY += cardHeight + margin;
+                currentY += maxHeightInRow + margin;
+                maxHeightInRow = 0;
             }
         });
 
         doc.save('planning-semanal.pdf');
     };
+
 
     return (
         <div className="space-y-4">

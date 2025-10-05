@@ -1,4 +1,5 @@
 
+
 export type Empleado = {
     id: string;
     nombre: string;
@@ -77,6 +78,7 @@ export type PlanningSemanalItem = {
     id: string; // uuid
     idEmpleado: string;
     nombreEmpleado: string;
+    seccion: 'woman' | 'man' | 'nino' | '';
     notas: string;
 };
 
