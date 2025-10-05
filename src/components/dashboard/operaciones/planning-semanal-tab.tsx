@@ -1,4 +1,3 @@
-
 "use client";
 
 import React from 'react';
@@ -149,7 +148,7 @@ export function PlanningSemanalTab({ data, empleados, isEditing, onDataChange, w
         let currentY = 30;
 
         doc.setFontSize(18);
-        doc.text("Planning Semanal", pageWidth / 2, 15, { align: 'center' });
+        doc.text("Planning Semanal de Almacén", pageWidth / 2, 15, { align: 'center' });
         doc.setFontSize(12);
         doc.text(formatWeekIdToDateRange(weekId), pageWidth / 2, 22, { align: 'center' });
         
