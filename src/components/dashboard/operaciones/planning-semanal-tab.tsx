@@ -57,7 +57,11 @@ const DayColumn = ({
                     const empleado = empleados.find(e => e.id === value);
                     dayItems[itemIndex].idEmpleado = value;
                     dayItems[itemIndex].nombreEmpleado = empleado?.nombre || '';
-                } else {
+                } else if (field === 'seccion') {
+                    dayItems[itemIndex].seccion = value === 'ninguna' ? '' : value;
+                }
+                
+                else {
                     (dayItems[itemIndex] as any)[field] = value;
                 }
             }
@@ -122,10 +126,10 @@ const DayColumn = ({
                         </div>
                          {isEditing ? (
                             <>
-                                <Select value={item.seccion || ''} onValueChange={(value) => handleItemChange(item.id, 'seccion', value)}>
+                                <Select value={item.seccion || 'ninguna'} onValueChange={(value) => handleItemChange(item.id, 'seccion', value)}>
                                     <SelectTrigger><SelectValue placeholder="Sección..." /></SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="">-- Sección --</SelectItem>
+                                        <SelectItem value="ninguna">-- Sección --</SelectItem>
                                         <SelectItem value="woman">Señora</SelectItem>
                                         <SelectItem value="man">Caballero</SelectItem>
                                         <SelectItem value="nino">Niño</SelectItem>
