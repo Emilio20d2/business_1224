@@ -150,14 +150,16 @@ function WomanPageComponent() {
     if (!authLoading && !user) {
       router.push('/');
     } else if (!authLoading && user) {
-      if (selectedWeek) {
-        fetchData(selectedWeek);
-      } else {
         const currentWeekId = getCurrentWeekId();
-        updateUrl(currentWeekId);
-      }
+        const targetWeek = selectedWeek || currentWeekId;
+        
+        if (targetWeek !== selectedWeek) {
+            updateUrl(targetWeek);
+        } else {
+            fetchData(targetWeek);
+        }
     }
-  }, [user, authLoading, selectedWeek, router]);
+}, [user, authLoading, selectedWeek]);
 
 
  const fetchData = useCallback(async (weekId: string) => {
@@ -658,5 +660,7 @@ export default function WomanPage() {
         </Suspense>
     );
 }
+
+    
 
     

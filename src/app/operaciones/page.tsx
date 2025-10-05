@@ -417,7 +417,7 @@ function OperacionesPageComponent() {
     { value: 'almacenes', label: 'ALMACENES' },
     { value: 'mermaReposicion', label: 'MERMA Y REPOSICIÓN' },
     { value: 'productividad', label: 'PRODUCTIVIDAD' },
-    { value: 'planificacion', label: 'CAMIONES' },
+    { value: 'planificacion', label: 'PLANIFICACIÓN' },
     { value: 'planningSemanal', label: 'PLANNING SEMANAL' },
     { value: 'focus', label: 'FOCUS' },
   ];
@@ -709,3 +709,5 @@ export default function OperacionesPage() {
         </Suspense>
     );
 }
+
+    
