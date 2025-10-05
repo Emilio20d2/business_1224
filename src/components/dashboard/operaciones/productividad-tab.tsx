@@ -174,7 +174,6 @@ export function ProductividadTab({ data, isEditing, onInputChange }: Productivid
     const dayDate = getDateOfWeek(data.periodo, dayKey);
     const dateString = dayDate ? format(dayDate, "EEEE, d 'de' MMMM", { locale: es }) : '';
     
-    // Header
     doc.setFontSize(18);
     doc.text(`PRODUCTIVIDAD`, pageWidth / 2, 20, { align: 'center' });
     doc.setFontSize(10);
@@ -214,28 +213,45 @@ export function ProductividadTab({ data, isEditing, onInputChange }: Productivid
         startY: 35,
         head: [['Sección', 'Tarea', 'Unidades', 'Productividad', 'Horas Req.']],
         body: bodyData.map(d => [d.section, d.tarea, d.unidades, d.ratio, d.horas]),
-        theme: 'grid',
+        theme: 'plain',
         styles: {
-            valign: 'middle'
+            valign: 'middle',
+            lineWidth: { top: 0, right: 0, bottom: 0.1, left: 0 },
+            lineColor: [200, 200, 200],
         },
         headStyles: { 
             fillColor: false,
             textColor: [73, 175, 165],
-            lineWidth: 0.1,
-            lineColor: [200, 200, 200],
-        },
-        didDrawCell: (data) => {
-            if (data.row.index % 3 === 0 && data.section === 'body' && data.row.index > 0) {
-                if (data.table.x != null && data.table.width != null && data.row.y != null) {
-                    doc.setDrawColor(120, 120, 120); // Darker line for separation
-                    doc.setLineWidth(0.3);
-                    doc.line(data.table.x, data.row.y, data.table.x + data.table.width, data.row.y);
-                    doc.setLineWidth(0.1); // Reset for next cells
-                }
-            }
+            fontStyle: 'bold',
         },
         foot: [['TOTAL HORAS PRODUCTIVIDAD REQUERIDAS', '', '', '', `${roundToQuarter(horasProductividadRequeridas)} h`]],
-        footStyles: { fillColor: [230, 230, 230], textColor: 20, fontStyle: 'bold' }
+        footStyles: { 
+            fillColor: [230, 230, 230], 
+            textColor: 20, 
+            fontStyle: 'bold',
+            lineWidth: { top: 0.2, right: 0, bottom: 0, left: 0 },
+            lineColor: [150,150,150]
+        },
+        didParseCell: function (data) {
+            if (data.row.index % 3 === 2 && data.section === 'body') {
+                data.cell.styles.lineWidth = { ...data.cell.styles.lineWidth, bottom: 0.3 };
+                 data.cell.styles.lineColor = [120, 120, 120];
+            }
+             if (data.row.index % 3 === 0 && data.section === 'body' && data.row.index > 0) {
+                 data.cell.styles.lineWidth = { ...data.cell.styles.lineWidth, top: 0.3 };
+                 data.cell.styles.lineColor = [120, 120, 120];
+            }
+        },
+         willDrawCell: function (data) {
+            if (data.column.index === 0 && data.section === 'body' && data.row.index % 3 === 0) {
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'bold');
+            }
+             if (data.column.index === 0 && data.section === 'body' && data.row.index % 3 !== 0) {
+                // This will effectively hide the "WOMAN", "MAN", "NINO" text on the 2nd and 3rd row of each group
+                data.cell.text = [''];
+            }
+        }
     });
 
     doc.save('productividad.pdf');
