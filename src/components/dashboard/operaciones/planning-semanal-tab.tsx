@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from 'react';
@@ -23,7 +24,7 @@ type PlanningSemanalTabProps = {
 type DayKey = keyof WeeklyData['planningSemanal'];
 
 const sectionColors: { [key: string]: string } = {
-    'woman': 'hsl(355, 71%, 60%)', // rosado
+    'woman': 'hsl(0, 84%, 60%)', // rojo
     'man': 'hsl(217, 56%, 60%)',   // azul
     'nino': 'hsl(172, 29%, 57%)',   // verde
     'sint': 'hsl(0, 0%, 0%)', // negro
@@ -216,19 +217,32 @@ export function PlanningSemanalTab({ data, empleados, isEditing, onDataChange, w
             { label: 'SINT', color: sectionColors['sint'] },
         ];
         
-        let legendX = margin;
         doc.setFontSize(10);
         doc.setFont('helvetica', 'normal');
+
+        // Calculate total legend width to center it
+        const legendItemWidths = legendItems.map(item => {
+            const circleWidth = 5; // 2 for radius + 2 for padding
+            const textWidth = doc.getStringUnitWidth(item.label) * doc.getFontSize() / doc.internal.scaleFactor;
+            return circleWidth + textWidth + 5; // 5 for padding between items
+        });
+        const totalLegendWidth = legendItemWidths.reduce((a, b) => a + b, 0) - 5; // Remove last padding
+        
+        let legendX = (pageWidth - totalLegendWidth) / 2;
+
         legendItems.forEach(item => {
             const rgb = item.color.match(/\d+/g);
             if (rgb) {
-                doc.setFillColor(parseInt(rgb[0]), parseInt(rgb[1]), parseInt(rgb[2]));
+                 const r = parseInt(rgb[0]);
+                 const g = parseInt(rgb[1]);
+                 const b = parseInt(rgb[2]);
+                 doc.setFillColor(r,g,b);
             } else {
                 doc.setFillColor(0, 0, 0);
             }
             doc.circle(legendX + 2, currentY - 1.5, 2, 'F');
             doc.text(item.label, legendX + 6, currentY);
-            legendX += doc.getStringUnitWidth(item.label) * 4 + 15;
+            legendX += doc.getStringUnitWidth(item.label) * doc.getFontSize() / doc.internal.scaleFactor + 15;
         });
 
         currentY += 10;
@@ -297,7 +311,10 @@ export function PlanningSemanalTab({ data, empleados, isEditing, onDataChange, w
                 const sectionColor = sectionColors[item.seccion || ''];
                 const rgb = sectionColor.match(/\d+/g);
                 if (rgb) {
-                    doc.setFillColor(parseInt(rgb[0]), parseInt(rgb[1]), parseInt(rgb[2]));
+                    const r = parseInt(rgb[0]);
+                    const g = parseInt(rgb[1]);
+                    const b = parseInt(rgb[2]);
+                    doc.setFillColor(r, g, b);
                     doc.circle(cardX + cardPadding + 2, cardContentY - 1.5, 2, 'F');
                 }
                 
@@ -360,3 +377,5 @@ export function PlanningSemanalTab({ data, empleados, isEditing, onDataChange, w
         </div>
     );
 }
+
+    
