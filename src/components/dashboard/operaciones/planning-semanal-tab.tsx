@@ -203,10 +203,10 @@ export function PlanningSemanalTab({ data, empleados, isEditing, onDataChange, w
         let currentY = 15;
 
         doc.setFontSize(18);
-        doc.text("Planning Semanal de Almacén", pageWidth / 2, currentY, { align: 'center' });
+        doc.text("PLANNING SEMANAL ALMACEN", pageWidth / 2, currentY, { align: 'center' });
         currentY += 7;
         doc.setFontSize(12);
-        doc.text(formatWeekIdToDateRange(weekId), pageWidth / 2, currentY, { align: 'center' });
+        doc.text(`SEMANA ${formatWeekIdToDateRange(weekId)}`, pageWidth / 2, currentY, { align: 'center' });
         currentY += 10;
 
         // Draw Legend
@@ -231,15 +231,17 @@ export function PlanningSemanalTab({ data, empleados, isEditing, onDataChange, w
         let legendX = (pageWidth - totalLegendWidth) / 2;
 
         legendItems.forEach(item => {
-            const rgb = item.color.match(/\d+/g);
-            if (rgb) {
-                 const r = parseInt(rgb[0]);
-                 const g = parseInt(rgb[1]);
-                 const b = parseInt(rgb[2]);
-                 doc.setFillColor(r,g,b);
-            } else {
-                doc.setFillColor(0, 0, 0);
-            }
+            const rgbString = item.color.replace('hsl(', '').replace(')', '').replace(/%/g, '');
+            const [h, s, l] = rgbString.split(',').map(parseFloat);
+            
+            // For simplicity, converting HSL to RGB is complex. Let's use hardcoded RGB values from the HSL.
+            let rgb = [0,0,0];
+            if (item.label === 'Señora') rgb = [229, 89, 104];
+            if (item.label === 'Caballero') rgb = [82, 126, 204];
+            if (item.label === 'Niño') rgb = [115, 175, 165];
+            if (item.label === 'SINT') rgb = [0, 0, 0];
+
+            doc.setFillColor(rgb[0], rgb[1], rgb[2]);
             doc.circle(legendX + 2, currentY - 1.5, 2, 'F');
             doc.text(item.label, legendX + 6, currentY);
             legendX += doc.getStringUnitWidth(item.label) * doc.getFontSize() / doc.internal.scaleFactor + 15;
@@ -309,12 +311,17 @@ export function PlanningSemanalTab({ data, empleados, isEditing, onDataChange, w
             doc.setFontSize(9);
             dayData.forEach(item => {
                 const sectionColor = sectionColors[item.seccion || ''];
-                const rgb = sectionColor.match(/\d+/g);
-                if (rgb) {
-                    const r = parseInt(rgb[0]);
-                    const g = parseInt(rgb[1]);
-                    const b = parseInt(rgb[2]);
-                    doc.setFillColor(r, g, b);
+                const rgbString = sectionColor.replace('hsl(', '').replace(')', '').replace(/%/g, '');
+                const [h, s, l] = rgbString.split(',').map(parseFloat);
+                
+                let rgb = [0,0,0];
+                if (item.seccion === 'woman') rgb = [229, 89, 104];
+                if (item.seccion === 'man') rgb = [82, 126, 204];
+                if (item.seccion === 'nino') rgb = [115, 175, 165];
+                if (item.seccion === 'sint') rgb = [0, 0, 0];
+
+                if (item.seccion) {
+                    doc.setFillColor(rgb[0], rgb[1], rgb[2]);
                     doc.circle(cardX + cardPadding + 2, cardContentY - 1.5, 2, 'F');
                 }
                 
@@ -377,5 +384,3 @@ export function PlanningSemanalTab({ data, empleados, isEditing, onDataChange, w
         </div>
     );
 }
-
-    
