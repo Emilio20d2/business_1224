@@ -61,6 +61,8 @@ const DayColumn = ({
                     dayItems[itemIndex].nombreEmpleado = empleado?.nombre || '';
                 } else if (field === 'seccion') {
                     dayItems[itemIndex].seccion = value === 'ninguna' ? '' : value;
+                } else if (field === 'hora') {
+                    dayItems[itemIndex].hora = value === 'ninguna' ? '' : value;
                 }
                 
                 else {
@@ -133,10 +135,10 @@ const DayColumn = ({
                                 <p className="font-semibold flex-grow">{item.nombreEmpleado || <span className="text-muted-foreground">-- Sin Asignar --</span>}</p>
                             )}
                              {isEditing ? (
-                                <Select value={item.hora || ''} onValueChange={(value) => handleItemChange(item.id, 'hora', value)}>
+                                <Select value={item.hora || 'ninguna'} onValueChange={(value) => handleItemChange(item.id, 'hora', value)}>
                                     <SelectTrigger className="w-28"><SelectValue placeholder="Hora" /></SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="">-- Hora --</SelectItem>
+                                        <SelectItem value="ninguna">-- Hora --</SelectItem>
                                         {timeOptions.map(time => <SelectItem key={time} value={time}>{time}</SelectItem>)}
                                     </SelectContent>
                                 </Select>
