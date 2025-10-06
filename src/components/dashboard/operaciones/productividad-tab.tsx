@@ -97,24 +97,7 @@ const DayProductividad = ({ dayData, dayKey, ratios, isEditing, onInputChange }:
         <div className="space-y-4 font-light">
              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {productividadData.map(sec => (
-                    <KpiCard key={sec.key} title={
-                        <div className="flex justify-between items-center w-full">
-                            <span>{sec.title}</span>
-                            {isEditing ? (
-                                <Select value={sec.hora || 'ninguna'} onValueChange={(value) => handleTimeChange(sec.key, value)}>
-                                    <SelectTrigger className="w-32 h-8 text-xs">
-                                        <SelectValue placeholder="Hora" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="ninguna">-- Hora --</SelectItem>
-                                        {timeOptions.map(time => <SelectItem key={time} value={time}>{time}</SelectItem>)}
-                                    </SelectContent>
-                                </Select>
-                            ) : (
-                                sec.hora && <span className="text-sm font-medium text-muted-foreground">{sec.hora}</span>
-                            )}
-                        </div>
-                    } icon={<Box className="h-5 w-5 text-primary"/>}>
+                    <KpiCard key={sec.key} title={sec.title} icon={<Box className="h-5 w-5 text-primary"/>}>
                         <div className="flex flex-col gap-2 p-2">
                            <DatoDoble 
                              label="Un. Confección"
@@ -130,6 +113,22 @@ const DayProductividad = ({ dayData, dayKey, ratios, isEditing, onInputChange }:
                              onInputChange={onInputChange}
                              valueId={`productividad.${dayKey}.productividadPorSeccion.${sec.key}.unidadesPaqueteria`}
                            />
+                           <div className="flex justify-between items-center w-full mt-2">
+                                <span className="text-sm font-semibold text-muted-foreground">Finalización Camión</span>
+                                {isEditing ? (
+                                    <Select value={sec.hora || 'ninguna'} onValueChange={(value) => handleTimeChange(sec.key, value)}>
+                                        <SelectTrigger className="w-32 h-8 text-xs">
+                                            <SelectValue placeholder="Hora" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="ninguna">-- Hora --</SelectItem>
+                                            {timeOptions.map(time => <SelectItem key={time} value={time}>{time}</SelectItem>)}
+                                        </SelectContent>
+                                    </Select>
+                                ) : (
+                                    sec.hora && <span className="text-sm font-medium text-foreground">{sec.hora}</span>
+                                )}
+                            </div>
                         </div>
                     </KpiCard>
                 ))}
@@ -236,23 +235,24 @@ export function ProductividadTab({ data, isEditing, onInputChange }: Productivid
         const hora = sectionData?.hora || '';
 
         return { 
-            title: `${sec.toUpperCase()}${hora ? ` (${hora})` : ''}`,
+            title: `${sec.toUpperCase()}`,
+            hora,
             unidadesConfeccion, horasConfeccion, unidadesPaqueteria, unidadesPerchado, horasPerchado, unidadesPicking, horasPicking 
         };
     });
 
     const bodyData = productividadData.flatMap(sec => [
-        { section: sec.title, tarea: 'Confección', unidades: formatNumber(sec.unidadesConfeccion), ratio: `${ratioConfeccion} u/h`, horas: `${roundToHalf(sec.horasConfeccion)} h` },
-        { section: '', tarea: 'Paquetería (Perchado)', unidades: formatNumber(sec.unidadesPerchado), ratio: `${ratioPerchado} u/h`, horas: `${roundToHalf(sec.horasPerchado)} h` },
-        { section: '', tarea: 'Paquetería (Picking)', unidades: formatNumber(sec.unidadesPicking), ratio: `${ratioPicking} u/h`, horas: `${roundToHalf(sec.horasPicking)} h` },
+        { section: sec.title, hora: sec.hora, tarea: 'Confección', unidades: formatNumber(sec.unidadesConfeccion), ratio: `${ratioConfeccion} u/h`, horas: `${roundToHalf(sec.horasConfeccion)} h` },
+        { section: '', hora: '', tarea: 'Paquetería (Perchado)', unidades: formatNumber(sec.unidadesPerchado), ratio: `${ratioPerchado} u/h`, horas: `${roundToHalf(sec.horasPerchado)} h` },
+        { section: '', hora: '', tarea: 'Paquetería (Picking)', unidades: formatNumber(sec.unidadesPicking), ratio: `${ratioPicking} u/h`, horas: `${roundToHalf(sec.horasPicking)} h` },
     ]);
 
     const horasProductividadRequeridas = productividadData.reduce((sum, d) => sum + d.horasConfeccion + d.horasPerchado + d.horasPicking, 0);
 
     autoTable(doc, {
         startY: 35,
-        head: [['Sección', 'Tarea', 'Unidades', 'Productividad', 'Horas Req.']],
-        body: bodyData.map(d => [d.section, d.tarea, d.unidades, d.ratio, d.horas]),
+        head: [['Sección', 'Finalización Camión', 'Tarea', 'Unidades', 'Productividad', 'Horas Req.']],
+        body: bodyData.map(d => [d.section, d.hora, d.tarea, d.unidades, d.ratio, d.horas]),
         theme: 'plain',
         styles: {
             valign: 'middle',
@@ -266,7 +266,7 @@ export function ProductividadTab({ data, isEditing, onInputChange }: Productivid
             lineWidth: { bottom: 0.3 },
             lineColor: [120, 120, 120]
         },
-        foot: [['TOTAL HORAS PRODUCTIVIDAD REQUERIDAS', '', '', '', `${roundToHalf(horasProductividadRequeridas)} h`]],
+        foot: [['TOTAL HORAS PRODUCTIVIDAD REQUERIDAS', '', '', '', '', `${roundToHalf(horasProductividadRequeridas)} h`]],
         footStyles: { 
             fillColor: [230, 230, 230], 
             textColor: 20, 
@@ -285,7 +285,7 @@ export function ProductividadTab({ data, isEditing, onInputChange }: Productivid
                 doc.setFontSize(10);
                 doc.setFont('helvetica', 'bold');
             }
-             if (data.column.index === 0 && data.section === 'body' && data.row.index % 3 !== 0) {
+             if (data.column.index <=1 && data.section === 'body' && data.row.index % 3 !== 0) {
                 // This will effectively hide the "WOMAN", "MAN", "NINO" text on the 2nd and 3rd row of each group
                 data.cell.text = [''];
             }
@@ -327,3 +327,4 @@ export function ProductividadTab({ data, isEditing, onInputChange }: Productivid
     </Tabs>
   );
 }
+
