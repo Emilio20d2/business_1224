@@ -27,53 +27,50 @@ const SectionOperaciones = ({
     basePath: string ,
     sectionName: string
 }) => (
-     <div>
-        <h2 className="text-xl font-bold mb-2">{sectionName}</h2>
-        <KpiCard title="Operaciones" icon={<RefreshCw className="h-5 w-5 text-primary" />}>
-            <div className="grid grid-cols-4 gap-4 h-full">
-            <DatoSimple 
-                icon={<RefreshCw className="h-5 w-5 text-primary"/>} 
-                label="Repo" 
-                value={operaciones.repoPorc} 
-                isEditing={isEditing} 
-                valueId={`${basePath}.operaciones.repoPorc`}
-                align="center" 
-                unit="%" 
-                onInputChange={onInputChange} 
-            />
-            <DatoSimple 
-                icon={<Sparkles className="h-5 w-5 text-primary"/>} 
-                label="Frescura" 
-                value={operaciones.frescuraPorc} 
-                isEditing={isEditing} 
-                valueId={`${basePath}.operaciones.frescuraPorc`}
-                align="center" 
-                unit="%" 
-                onInputChange={onInputChange} 
-            />
-            <DatoSimple
-                icon={<Users className="h-5 w-5 text-primary"/>}
-                label="Cobertura"
-                value={operaciones.coberturaPorc}
-                isEditing={isEditing}
-                valueId={`${basePath}.operaciones.coberturaPorc`}
-                align="center"
-                unit="%"
-                onInputChange={onInputChange}
-            />
-            <DatoSimple
-                icon={<FileQuestion className="h-5 w-5 text-primary"/>}
-                label="Sin Posi."
-                value={operaciones.sinUbicacion}
-                isEditing={isEditing}
-                valueId={`${basePath}.operaciones.sinUbicacion`}
-                align="center"
-                unit="%"
-                onInputChange={onInputChange}
-            />
-            </div>
-        </KpiCard>
-    </div>
+    <KpiCard title={`OPERACIONES ${sectionName}`} icon={<RefreshCw className="h-5 w-5 text-primary" />}>
+        <div className="grid grid-cols-4 gap-4 h-full">
+        <DatoSimple 
+            icon={<RefreshCw className="h-5 w-5 text-primary"/>} 
+            label="Repo" 
+            value={operaciones.repoPorc} 
+            isEditing={isEditing} 
+            valueId={`${basePath}.operaciones.repoPorc`}
+            align="center" 
+            unit="%" 
+            onInputChange={onInputChange} 
+        />
+        <DatoSimple 
+            icon={<Sparkles className="h-5 w-5 text-primary"/>} 
+            label="Frescura" 
+            value={operaciones.frescuraPorc} 
+            isEditing={isEditing} 
+            valueId={`${basePath}.operaciones.frescuraPorc`}
+            align="center" 
+            unit="%" 
+            onInputChange={onInputChange} 
+        />
+        <DatoSimple
+            icon={<Users className="h-5 w-5 text-primary"/>}
+            label="Cobertura"
+            value={operaciones.coberturaPorc}
+            isEditing={isEditing}
+            valueId={`${basePath}.operaciones.coberturaPorc`}
+            align="center"
+            unit="%"
+            onInputChange={onInputChange}
+        />
+        <DatoSimple
+            icon={<FileQuestion className="h-5 w-5 text-primary"/>}
+            label="Sin Posi."
+            value={operaciones.sinUbicacion}
+            isEditing={isEditing}
+            valueId={`${basePath}.operaciones.sinUbicacion`}
+            align="center"
+            unit="%"
+            onInputChange={onInputChange}
+        />
+        </div>
+    </KpiCard>
 );
 
 export function MermaReposicionTab({ data, isEditing, onInputChange }: MermaReposicionTabProps) {
@@ -84,7 +81,7 @@ export function MermaReposicionTab({ data, isEditing, onInputChange }: MermaRepo
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div className="space-y-2">
+        <div className="space-y-4">
             <MermaCard
                 sectionName="GENERAL"
                 perdidas={data.general.perdidas}
@@ -119,7 +116,7 @@ export function MermaReposicionTab({ data, isEditing, onInputChange }: MermaRepo
             />
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-4">
             <SectionOperaciones
                 sectionName="GENERAL"
                 operaciones={data.general.operaciones}
