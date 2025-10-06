@@ -128,7 +128,7 @@ const DayColumn = ({
                                     <SelectTrigger><SelectValue placeholder="Seleccionar Empleado..." /></SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="VACIO">-- Vacío --</SelectItem>
-                                        {empleados.map(e => <SelectItem key={e.id} value={e.id}>{e.nombre}</SelectItem>)}
+                                        {empleados.map(e => <SelectItem key={e.id} value={e.id}>{e.id} - {e.nombre}</SelectItem>)}
                                     </SelectContent>
                                 </Select>
                             ) : (

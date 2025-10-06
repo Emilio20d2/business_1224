@@ -71,7 +71,7 @@ export function RankingEmpleadosCard({ ranking, empleados, isEditing, canEdit, o
                                                 </SelectItem>
                                                 {empleados && empleados.sort((a, b) => a.nombre.localeCompare(b.nombre)).map((e) => (
                                                     <SelectItem key={e.id} value={e.id}>
-                                                        {e.nombre}
+                                                        {e.id} - {e.nombre}
                                                     </SelectItem>
                                                 ))}
                                             </SelectContent>
