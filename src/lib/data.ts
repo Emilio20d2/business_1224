@@ -58,7 +58,7 @@ export type LogisticaData = {
 export type ProductividadSeccion = {
     unidadesConfeccion: number;
     unidadesPaqueteria: number;
-    hora?: string;
+    hora: string;
 };
 
 export type CoberturaHora = {

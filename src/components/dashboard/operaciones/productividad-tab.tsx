@@ -114,11 +114,11 @@ const DayProductividad = ({ dayData, dayKey, ratios, isEditing, onInputChange }:
                              onInputChange={onInputChange}
                              valueId={`productividad.${dayKey}.productividadPorSeccion.${sec.key}.unidadesPaqueteria`}
                            />
-                            <div className="flex justify-between items-center w-full mt-2">
+                             <div className="flex justify-between items-center pt-2 mt-2 border-t">
                                 <span className="text-sm font-semibold text-muted-foreground">Finalización Camión</span>
                                 {isEditing ? (
-                                    <Select value={sec.hora || 'ninguna'} onValueChange={(value) => handleTimeChange(sec.key, value)}>
-                                        <SelectTrigger className="w-32 h-8 text-xs">
+                                    <Select value={sec.hora || "ninguna"} onValueChange={(value) => handleTimeChange(sec.key, value)}>
+                                        <SelectTrigger className="w-28 h-8 text-xs">
                                             <SelectValue placeholder="Hora" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -339,6 +339,7 @@ export function ProductividadTab({ data, isEditing, onInputChange }: Productivid
     </Tabs>
   );
 }
+
 
 
 
