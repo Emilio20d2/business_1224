@@ -94,6 +94,12 @@ const DayProductividad = ({ dayData, dayKey, ratios, isEditing, onInputChange }:
         onInputChange(path, finalValue);
     };
 
+    const formatHora = (hora: string) => {
+        if (!hora) return '';
+        if (hora.includes(':')) return hora;
+        return `${hora}:00`;
+    }
+
     return (
         <div className="space-y-4 font-light">
              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -127,7 +133,7 @@ const DayProductividad = ({ dayData, dayKey, ratios, isEditing, onInputChange }:
                                         </SelectContent>
                                     </Select>
                                 ) : (
-                                    sec.hora && <span className="text-sm font-medium text-foreground">{sec.hora}</span>
+                                    sec.hora && <span className="text-sm font-medium text-foreground">{formatHora(sec.hora)}</span>
                                 )}
                             </div>
                         </div>
@@ -237,7 +243,7 @@ export function ProductividadTab({ data, isEditing, onInputChange }: Productivid
 
         let sectionTitle = `${sec.toUpperCase()}`;
         if (hora) {
-            sectionTitle += ` (${hora})`;
+            sectionTitle += ` (${hora.includes(':') ? hora : hora + ':00'})`;
         }
         
         return { 
@@ -339,6 +345,7 @@ export function ProductividadTab({ data, isEditing, onInputChange }: Productivid
     </Tabs>
   );
 }
+
 
 
 
