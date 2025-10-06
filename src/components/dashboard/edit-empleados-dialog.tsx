@@ -27,7 +27,7 @@ export function EditEmpleadosDialog({ isOpen, onClose, empleados, onSave }: Edit
 
   useEffect(() => {
     if (isOpen) {
-      const sortedEmpleados = [...(empleados || [])].sort((a, b) => a.id.localeCompare(b.id));
+      const sortedEmpleados = [...(empleados || [])].sort((a, b) => a.nombre.localeCompare(b.nombre));
       setCurrentItems(sortedEmpleados);
     }
   }, [empleados, isOpen]);
@@ -35,7 +35,7 @@ export function EditEmpleadosDialog({ isOpen, onClose, empleados, onSave }: Edit
   const handleAddItem = () => {
     if (newId.trim() && newItem.nombre.trim() && !currentItems.some(item => item.id === newId.trim())) {
       const newEmployee: Empleado = { id: newId.trim(), nombre: newItem.nombre.trim() };
-      const updatedItems = [...currentItems, newEmployee].sort((a, b) => a.id.localeCompare(b.id));
+      const updatedItems = [...currentItems, newEmployee].sort((a, b) => a.nombre.localeCompare(b.nombre));
       setCurrentItems(updatedItems);
       setNewItem({ nombre: '' });
       setNewId('');
