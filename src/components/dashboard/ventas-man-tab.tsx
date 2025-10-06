@@ -294,6 +294,7 @@ export function VentasManTab({ data, isEditing, onInputChange, onTextChange }: V
                     perdidas={man.perdidas}
                     logistica={man.logistica}
                     almacenes={man.almacenes}
+                    mermaTarget={data.listas.mermaTarget.man}
                     isEditing={isEditing} 
                     onInputChange={onInputChange}
                     basePath="man"

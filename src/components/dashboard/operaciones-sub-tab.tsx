@@ -157,7 +157,6 @@ export function OperacionesSubTab({ operaciones, perdidas, logistica, almacenes,
           isEditing={isEditing}
           onInputChange={onInputChange}
           basePath={basePath}
-          showTitle={true}
         />
       </div>
 
