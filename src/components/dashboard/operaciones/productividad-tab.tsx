@@ -234,25 +234,29 @@ export function ProductividadTab({ data, isEditing, onInputChange }: Productivid
         const horasPicking = unidadesPicking / ratioPicking;
         const hora = sectionData?.hora || '';
 
+        let sectionTitle = `${sec.toUpperCase()}`;
+        if (hora) {
+            sectionTitle += ` (${hora})`;
+        }
+        
         return { 
-            title: `${sec.toUpperCase()}`,
-            hora,
+            title: sectionTitle,
             unidadesConfeccion, horasConfeccion, unidadesPaqueteria, unidadesPerchado, horasPerchado, unidadesPicking, horasPicking 
         };
     });
 
     const bodyData = productividadData.flatMap(sec => [
-        { section: sec.title, hora: sec.hora, tarea: 'Confección', unidades: formatNumber(sec.unidadesConfeccion), ratio: `${ratioConfeccion} u/h`, horas: `${roundToHalf(sec.horasConfeccion)} h` },
-        { section: '', hora: '', tarea: 'Paquetería (Perchado)', unidades: formatNumber(sec.unidadesPerchado), ratio: `${ratioPerchado} u/h`, horas: `${roundToHalf(sec.horasPerchado)} h` },
-        { section: '', hora: '', tarea: 'Paquetería (Picking)', unidades: formatNumber(sec.unidadesPicking), ratio: `${ratioPicking} u/h`, horas: `${roundToHalf(sec.horasPicking)} h` },
+        { section: sec.title, tarea: 'Confección', unidades: formatNumber(sec.unidadesConfeccion), ratio: `${ratioConfeccion} u/h`, horas: `${roundToHalf(sec.horasConfeccion)} h` },
+        { section: '', tarea: 'Paquetería (Perchado)', unidades: formatNumber(sec.unidadesPerchado), ratio: `${ratioPerchado} u/h`, horas: `${roundToHalf(sec.horasPerchado)} h` },
+        { section: '', tarea: 'Paquetería (Picking)', unidades: formatNumber(sec.unidadesPicking), ratio: `${ratioPicking} u/h`, horas: `${roundToHalf(sec.horasPicking)} h` },
     ]);
 
     const horasProductividadRequeridas = productividadData.reduce((sum, d) => sum + d.horasConfeccion + d.horasPerchado + d.horasPicking, 0);
 
     autoTable(doc, {
         startY: 35,
-        head: [['Sección', 'FINALIZACION CAMION', 'Tarea', 'Unidades', 'Productividad', 'Horas Req.']],
-        body: bodyData.map(d => [d.section, d.hora, d.tarea, d.unidades, d.ratio, d.horas]),
+        head: [['Sección', 'Tarea', 'Unidades', 'Productividad', 'Horas Req.']],
+        body: bodyData.map(d => [d.section, d.tarea, d.unidades, d.ratio, d.horas]),
         theme: 'plain',
         styles: {
             valign: 'middle',
@@ -266,7 +270,7 @@ export function ProductividadTab({ data, isEditing, onInputChange }: Productivid
             lineWidth: { bottom: 0.3 },
             lineColor: [120, 120, 120]
         },
-        foot: [['TOTAL HORAS PRODUCTIVIDAD REQUERIDAS', '', '', '', '', `${roundToHalf(horasProductividadRequeridas)} h`]],
+        foot: [['TOTAL HORAS PRODUCTIVIDAD REQUERIDAS', '', '', '', `${roundToHalf(horasProductividadRequeridas)} h`]],
         footStyles: { 
             fillColor: [230, 230, 230], 
             textColor: 20, 
@@ -285,7 +289,7 @@ export function ProductividadTab({ data, isEditing, onInputChange }: Productivid
                 doc.setFontSize(10);
                 doc.setFont('helvetica', 'bold');
             }
-             if (data.column.index <=1 && data.section === 'body' && data.row.index % 3 !== 0) {
+             if (data.column.index === 0 && data.section === 'body' && data.row.index % 3 !== 0) {
                 // This will effectively hide the "WOMAN", "MAN", "NINO" text on the 2nd and 3rd row of each group
                 data.cell.text = [''];
             }
@@ -327,5 +331,6 @@ export function ProductividadTab({ data, isEditing, onInputChange }: Productivid
     </Tabs>
   );
 }
+
 
 
