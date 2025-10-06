@@ -251,7 +251,7 @@ export function ProductividadTab({ data, isEditing, onInputChange }: Productivid
 
     autoTable(doc, {
         startY: 35,
-        head: [['Sección', 'Finalización Camión', 'Tarea', 'Unidades', 'Productividad', 'Horas Req.']],
+        head: [['Sección', 'FINALIZACION CAMION', 'Tarea', 'Unidades', 'Productividad', 'Horas Req.']],
         body: bodyData.map(d => [d.section, d.hora, d.tarea, d.unidades, d.ratio, d.horas]),
         theme: 'plain',
         styles: {
