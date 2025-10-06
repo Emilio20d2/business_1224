@@ -23,9 +23,9 @@ type ProductividadTabProps = {
   onInputChange: (path: string, value: any, reorder?: boolean) => void;
 };
 
-const roundToQuarter = (value: number) => {
+const roundToHalf = (value: number) => {
     if (isNaN(value) || !isFinite(value)) return '0.00';
-    return (Math.round(value * 4) / 4).toFixed(2);
+    return (Math.round(value * 2) / 2).toFixed(2);
 }
 
 
@@ -118,25 +118,25 @@ const DayProductividad = ({ dayData, dayKey, ratios, isEditing, onInputChange }:
                                     <TableCell className="font-medium text-muted-foreground">Confección</TableCell>
                                     <TableCell className="text-center">{formatNumber(sec.unidadesConfeccion)}</TableCell>
                                     <TableCell className="text-center text-muted-foreground">{ratioConfeccion} u/h</TableCell>
-                                    <TableCell className="text-right font-medium">{roundToQuarter(sec.horasConfeccion)} h</TableCell>
+                                    <TableCell className="text-right font-medium">{roundToHalf(sec.horasConfeccion)} h</TableCell>
                                 </TableRow>
                                 <TableRow>
                                     <TableCell className="font-medium text-muted-foreground">Paquetería (Perchado)</TableCell>
                                      <TableCell className="text-center">{formatNumber(sec.unidadesPerchado)}</TableCell>
                                     <TableCell className="text-center text-muted-foreground">{ratioPerchado} u/h</TableCell>
-                                    <TableCell className="text-right font-medium">{roundToQuarter(sec.horasPerchado)} h</TableCell>
+                                    <TableCell className="text-right font-medium">{roundToHalf(sec.horasPerchado)} h</TableCell>
                                 </TableRow>
                                 <TableRow className={secIndex < sections.length - 1 ? 'border-b-4' : ''}>
                                     <TableCell className="font-medium text-muted-foreground">Paquetería (Picking)</TableCell>
                                     <TableCell className="text-center">{formatNumber(sec.unidadesPicking)}</TableCell>
                                     <TableCell className="text-center text-muted-foreground">{ratioPicking} u/h</TableCell>
-                                    <TableCell className="text-right font-medium">{roundToQuarter(sec.horasPicking)} h</TableCell>
+                                    <TableCell className="text-right font-medium">{roundToHalf(sec.horasPicking)} h</TableCell>
                                 </TableRow>
                             </React.Fragment>
                         ))}
                          <TableRow className="bg-muted/50 font-bold text-base">
                             <TableCell colSpan={4}>TOTAL HORAS PRODUCTIVIDAD REQUERIDAS</TableCell>
-                            <TableCell className="text-right text-lg">{roundToQuarter(horasProductividadRequeridas)} h</TableCell>
+                            <TableCell className="text-right text-lg">{roundToHalf(horasProductividadRequeridas)} h</TableCell>
                         </TableRow>
                     </TableBody>
                  </Table>
@@ -202,9 +202,9 @@ export function ProductividadTab({ data, isEditing, onInputChange }: Productivid
     });
 
     const bodyData = productividadData.flatMap(sec => [
-        { section: sec.title, tarea: 'Confección', unidades: formatNumber(sec.unidadesConfeccion), ratio: `${ratioConfeccion} u/h`, horas: `${roundToQuarter(sec.horasConfeccion)} h` },
-        { section: '', tarea: 'Paquetería (Perchado)', unidades: formatNumber(sec.unidadesPerchado), ratio: `${ratioPerchado} u/h`, horas: `${roundToQuarter(sec.horasPerchado)} h` },
-        { section: '', tarea: 'Paquetería (Picking)', unidades: formatNumber(sec.unidadesPicking), ratio: `${ratioPicking} u/h`, horas: `${roundToQuarter(sec.horasPicking)} h` },
+        { section: sec.title, tarea: 'Confección', unidades: formatNumber(sec.unidadesConfeccion), ratio: `${ratioConfeccion} u/h`, horas: `${roundToHalf(sec.horasConfeccion)} h` },
+        { section: '', tarea: 'Paquetería (Perchado)', unidades: formatNumber(sec.unidadesPerchado), ratio: `${ratioPerchado} u/h`, horas: `${roundToHalf(sec.horasPerchado)} h` },
+        { section: '', tarea: 'Paquetería (Picking)', unidades: formatNumber(sec.unidadesPicking), ratio: `${ratioPicking} u/h`, horas: `${roundToHalf(sec.horasPicking)} h` },
     ]);
 
     const horasProductividadRequeridas = productividadData.reduce((sum, d) => sum + d.horasConfeccion + d.horasPerchado + d.horasPicking, 0);
@@ -226,7 +226,7 @@ export function ProductividadTab({ data, isEditing, onInputChange }: Productivid
             lineWidth: { bottom: 0.3 },
             lineColor: [120, 120, 120]
         },
-        foot: [['TOTAL HORAS PRODUCTIVIDAD REQUERIDAS', '', '', '', `${roundToQuarter(horasProductividadRequeridas)} h`]],
+        foot: [['TOTAL HORAS PRODUCTIVIDAD REQUERIDAS', '', '', '', `${roundToHalf(horasProductividadRequeridas)} h`]],
         footStyles: { 
             fillColor: [230, 230, 230], 
             textColor: 20, 
