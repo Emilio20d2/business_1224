@@ -108,7 +108,8 @@ const DayColumn = ({
             timeOptions.push(`${hour}:${minute}`);
         }
     }
-
+    
+    const sortedEmpleados = [...(empleados || [])].sort((a, b) => a.id.localeCompare(b.id));
 
     return (
         <Card>
@@ -128,7 +129,7 @@ const DayColumn = ({
                                     <SelectTrigger><SelectValue placeholder="Seleccionar Empleado..." /></SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="VACIO">-- Vacío --</SelectItem>
-                                        {empleados.map(e => <SelectItem key={e.id} value={e.id}>{e.id} - {e.nombre}</SelectItem>)}
+                                        {sortedEmpleados.map(e => <SelectItem key={e.id} value={e.id}>{e.id} - {e.nombre}</SelectItem>)}
                                     </SelectContent>
                                 </Select>
                             ) : (

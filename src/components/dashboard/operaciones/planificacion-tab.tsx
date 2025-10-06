@@ -94,6 +94,8 @@ const SectionPlanificacion = ({
     };
 
     const renderColumn = (items: PlanificacionItem[], tarea: 'confeccion' | 'paqueteria', columnTitle: string) => {
+        const sortedEmpleados = [...(empleados || [])].sort((a, b) => a.id.localeCompare(b.id));
+
         return (
             <div className="flex flex-col gap-2">
                 <h3 className="font-bold text-center text-muted-foreground">{columnTitle}</h3>
@@ -106,7 +108,7 @@ const SectionPlanificacion = ({
                                         <SelectTrigger><SelectValue placeholder="Seleccionar..." /></SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="VACIO">-- Vacío --</SelectItem>
-                                            {empleados.map(e => <SelectItem key={e.id} value={e.id}>{e.id} - {e.nombre}</SelectItem>)}
+                                            {sortedEmpleados.map(e => <SelectItem key={e.id} value={e.id}>{e.id} - {e.nombre}</SelectItem>)}
                                         </SelectContent>
                                     </Select>
                                     <Input
@@ -385,5 +387,3 @@ export function PlanificacionTab({ data, empleados, isEditing, onDataChange, wee
     </Tabs>
   );
 }
-
-    

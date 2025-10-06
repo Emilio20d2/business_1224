@@ -28,6 +28,7 @@ export function RankingEmpleadosCard({ ranking, empleados, isEditing, canEdit, o
         onInputChange(`pedidos.rankingEmpleados.${rowIndex}.${field}`, value);
     };
 
+    const sortedEmpleados = [...(empleados || [])].sort((a, b) => a.id.localeCompare(b.id));
 
     return (
         <Card>
@@ -69,7 +70,7 @@ export function RankingEmpleadosCard({ ranking, empleados, isEditing, canEdit, o
                                                  <SelectItem value="VACIO">
                                                     <span className="text-muted-foreground">-- Vacío --</span>
                                                 </SelectItem>
-                                                {empleados && empleados.sort((a, b) => a.nombre.localeCompare(b.nombre)).map((e) => (
+                                                {sortedEmpleados && sortedEmpleados.map((e) => (
                                                     <SelectItem key={e.id} value={e.id}>
                                                         {e.id} - {e.nombre}
                                                     </SelectItem>
