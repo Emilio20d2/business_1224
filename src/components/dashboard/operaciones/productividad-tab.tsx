@@ -73,7 +73,7 @@ const DayProductividad = ({ dayData, dayKey, ratios, isEditing, onInputChange }:
         };
     });
 
-    const timeOptions = [''];
+    const timeOptions = [];
     for (let h = 8; h <= 22; h++) {
         for (let m = 0; m < 60; m += 30) {
             if (h === 22 && m > 0) continue;
@@ -327,4 +327,5 @@ export function ProductividadTab({ data, isEditing, onInputChange }: Productivid
     </Tabs>
   );
 }
+
 
