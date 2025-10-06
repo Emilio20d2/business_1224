@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import React from 'react';
@@ -15,6 +16,7 @@ import autoTable from 'jspdf-autotable';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { FocusSemanalTab } from '../focus-semanal-tab';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 
 type ProductividadTabProps = {
@@ -45,8 +47,10 @@ const DayProductividad = ({ dayData, dayKey, ratios, isEditing, onInputChange }:
     ] as const;
 
     const productividadData = sections.map(sec => {
-        const unidadesConfeccion = dayData.productividadPorSeccion[sec.key]?.unidadesConfeccion || 0;
-        const unidadesPaqueteria = dayData.productividadPorSeccion[sec.key]?.unidadesPaqueteria || 0;
+        const sectionData = dayData.productividadPorSeccion[sec.key];
+        const unidadesConfeccion = sectionData?.unidadesConfeccion || 0;
+        const unidadesPaqueteria = sectionData?.unidadesPaqueteria || 0;
+        const hora = sectionData?.hora || '';
 
         const horasConfeccion = unidadesConfeccion / ratioConfeccion;
         
@@ -65,19 +69,52 @@ const DayProductividad = ({ dayData, dayKey, ratios, isEditing, onInputChange }:
             horasPerchado,
             unidadesPicking,
             horasPicking,
+            hora,
         };
     });
+
+    const timeOptions = [''];
+    for (let h = 8; h <= 22; h++) {
+        for (let m = 0; m < 60; m += 30) {
+            if (h === 22 && m > 0) continue;
+            const hour = String(h).padStart(2, '0');
+            const minute = String(m).padStart(2, '0');
+            timeOptions.push(`${hour}:${minute}`);
+        }
+    }
     
     const totalHorasConfeccion = productividadData.reduce((sum, d) => sum + d.horasConfeccion, 0);
     const totalHorasPerchado = productividadData.reduce((sum, d) => sum + d.horasPerchado, 0);
     const totalHorasPicking = productividadData.reduce((sum, d) => sum + d.horasPicking, 0);
     const horasProductividadRequeridas = totalHorasConfeccion + totalHorasPerchado + totalHorasPicking;
 
+    const handleTimeChange = (sectionKey: 'woman' | 'man' | 'nino', value: string) => {
+        const path = `productividad.${dayKey}.productividadPorSeccion.${sectionKey}.hora`;
+        onInputChange(path, value === 'ninguna' ? '' : value);
+    };
+
     return (
         <div className="space-y-4 font-light">
              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {productividadData.map(sec => (
-                    <KpiCard key={sec.key} title={sec.title} icon={<Box className="h-5 w-5 text-primary"/>}>
+                    <KpiCard key={sec.key} title={
+                        <div className="flex justify-between items-center w-full">
+                            <span>{sec.title}</span>
+                            {isEditing ? (
+                                <Select value={sec.hora || 'ninguna'} onValueChange={(value) => handleTimeChange(sec.key, value)}>
+                                    <SelectTrigger className="w-32 h-8 text-xs">
+                                        <SelectValue placeholder="Hora" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="ninguna">-- Hora --</SelectItem>
+                                        {timeOptions.map(time => <SelectItem key={time} value={time}>{time}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                            ) : (
+                                sec.hora && <span className="text-sm font-medium text-muted-foreground">{sec.hora}</span>
+                            )}
+                        </div>
+                    } icon={<Box className="h-5 w-5 text-primary"/>}>
                         <div className="flex flex-col gap-2 p-2">
                            <DatoDoble 
                              label="Un. Confección"
@@ -188,15 +225,18 @@ export function ProductividadTab({ data, isEditing, onInputChange }: Productivid
     const sections = ['woman', 'man', 'nino'] as const;
 
     const productividadData = sections.map(sec => {
-        const unidadesConfeccion = dayData.productividadPorSeccion[sec]?.unidadesConfeccion || 0;
-        const unidadesPaqueteria = dayData.productividadPorSeccion[sec]?.unidadesPaqueteria || 0;
+        const sectionData = dayData.productividadPorSeccion[sec];
+        const unidadesConfeccion = sectionData?.unidadesConfeccion || 0;
+        const unidadesPaqueteria = sectionData?.unidadesPaqueteria || 0;
         const horasConfeccion = unidadesConfeccion / ratioConfeccion;
         const unidadesPerchado = unidadesPaqueteria * porcentajePerchado;
         const horasPerchado = unidadesPerchado / ratioPerchado;
         const unidadesPicking = unidadesPaqueteria * porcentajePicking;
         const horasPicking = unidadesPicking / ratioPicking;
+        const hora = sectionData?.hora || '';
+
         return { 
-            title: sec.toUpperCase(),
+            title: `${sec.toUpperCase()}${hora ? ` (${hora})` : ''}`,
             unidadesConfeccion, horasConfeccion, unidadesPaqueteria, unidadesPerchado, horasPerchado, unidadesPicking, horasPicking 
         };
     });

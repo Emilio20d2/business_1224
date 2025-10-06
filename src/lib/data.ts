@@ -58,6 +58,7 @@ export type LogisticaData = {
 export type ProductividadSeccion = {
     unidadesConfeccion: number;
     unidadesPaqueteria: number;
+    hora?: string;
 };
 
 export type CoberturaHora = {
@@ -429,6 +430,7 @@ const createInitialPedidosData = (): PedidosData => ({
 const createInitialProductividadSeccion = (): ProductividadSeccion => ({
     unidadesConfeccion: 0,
     unidadesPaqueteria: 0,
+    hora: '',
 });
 
 const createInitialProductividadData = (): ProductividadData => ({
