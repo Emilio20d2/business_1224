@@ -90,7 +90,8 @@ const DayProductividad = ({ dayData, dayKey, ratios, isEditing, onInputChange }:
 
     const handleTimeChange = (sectionKey: 'woman' | 'man' | 'nino', value: string) => {
         const path = `productividad.${dayKey}.productividadPorSeccion.${sectionKey}.hora`;
-        onInputChange(path, value === 'ninguna' ? '' : value);
+        const finalValue = value === 'ninguna' ? '' : value;
+        onInputChange(path, finalValue);
     };
 
     return (
@@ -331,6 +332,7 @@ export function ProductividadTab({ data, isEditing, onInputChange }: Productivid
     </Tabs>
   );
 }
+
 
 
 
