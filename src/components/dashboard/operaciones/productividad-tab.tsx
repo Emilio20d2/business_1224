@@ -94,10 +94,11 @@ const DayProductividad = ({ dayData, dayKey, ratios, isEditing, onInputChange }:
         onInputChange(path, finalValue);
     };
 
-    const formatHora = (hora: string) => {
+    const formatHora = (hora: any) => {
         if (!hora) return '';
-        if (hora.includes(':')) return hora;
-        return `${hora}:00`;
+        const horaStr = String(hora);
+        if (horaStr.includes(':')) return horaStr;
+        return `${horaStr}:00`;
     }
 
     return (
@@ -345,6 +346,7 @@ export function ProductividadTab({ data, isEditing, onInputChange }: Productivid
     </Tabs>
   );
 }
+
 
 
 
