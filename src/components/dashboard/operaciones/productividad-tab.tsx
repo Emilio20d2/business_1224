@@ -114,7 +114,7 @@ const DayProductividad = ({ dayData, dayKey, ratios, isEditing, onInputChange }:
                              onInputChange={onInputChange}
                              valueId={`productividad.${dayKey}.productividadPorSeccion.${sec.key}.unidadesPaqueteria`}
                            />
-                           <div className="flex justify-between items-center w-full mt-2">
+                            <div className="flex justify-between items-center w-full mt-2">
                                 <span className="text-sm font-semibold text-muted-foreground">Finalización Camión</span>
                                 {isEditing ? (
                                     <Select value={sec.hora || 'ninguna'} onValueChange={(value) => handleTimeChange(sec.key, value)}>
@@ -264,6 +264,13 @@ export function ProductividadTab({ data, isEditing, onInputChange }: Productivid
             lineWidth: { top: 0, right: 0, bottom: 0.1, left: 0 },
             lineColor: [200, 200, 200],
         },
+        columnStyles: {
+            0: { cellWidth: 40 }, // Sección
+            1: { cellWidth: 'auto' }, // Tarea
+            2: { cellWidth: 25 }, // Unidades
+            3: { cellWidth: 35 }, // Productividad
+            4: { cellWidth: 30 }, // Horas Req.
+        },
         headStyles: { 
             fillColor: false,
             textColor: [73, 175, 165],
@@ -291,7 +298,7 @@ export function ProductividadTab({ data, isEditing, onInputChange }: Productivid
                 doc.setFont('helvetica', 'bold');
             }
              if (data.column.index === 0 && data.section === 'body' && data.row.index % 3 !== 0) {
-                // This will effectively hide the "WOMAN", "MAN", "NINO" text on the 2nd and 3rd row of each group
+                // This will effectively hide the text on the 2nd and 3rd row of each group
                 data.cell.text = [''];
             }
         }
@@ -332,6 +339,7 @@ export function ProductividadTab({ data, isEditing, onInputChange }: Productivid
     </Tabs>
   );
 }
+
 
 
 
