@@ -4,8 +4,10 @@
 import React from 'react';
 import type { WeeklyData } from "@/lib/data";
 import { KpiCard, DatoSimple } from "../kpi-card";
-import { RefreshCw, Sparkles, Users, FileQuestion } from 'lucide-react';
+import { RefreshCw, Sparkles, Users, FileQuestion, StickyNote } from 'lucide-react';
 import { MermaCard } from '../merma-card';
+import { FocusSemanalTab } from '../focus-semanal-tab';
+
 
 type MermaReposicionTabProps = {
   data: WeeklyData;
@@ -114,6 +116,14 @@ export function MermaReposicionTab({ data, isEditing, onInputChange }: MermaRepo
                 onInputChange={onInputChange}
                 basePath="nino"
             />
+            <FocusSemanalTab
+                title="Notas Merma"
+                icon={<StickyNote className="h-5 w-5 text-primary" />}
+                text={data.notasMerma || ""}
+                isEditing={isEditing}
+                onTextChange={(value) => onInputChange('notasMerma', value)}
+                placeholder="Añadir notas sobre merma..."
+            />
         </div>
 
         <div className="space-y-4">
@@ -144,6 +154,14 @@ export function MermaReposicionTab({ data, isEditing, onInputChange }: MermaRepo
                 isEditing={isEditing}
                 onInputChange={onInputChange}
                 basePath="nino"
+            />
+            <FocusSemanalTab
+                title="Notas Reposición"
+                icon={<StickyNote className="h-5 w-5 text-primary" />}
+                text={data.notasReposicion || ""}
+                isEditing={isEditing}
+                onTextChange={(value) => onInputChange('notasReposicion', value)}
+                placeholder="Añadir notas sobre reposición..."
             />
         </div>
     </div>

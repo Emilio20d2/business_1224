@@ -190,6 +190,8 @@ export type WeeklyData = {
       experiencia: string;
     };
     focusOperaciones: string;
+    notasMerma: string;
+    notasReposicion: string;
     experiencia: {
       texto: string;
       focus: string;
@@ -536,6 +538,8 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
           experiencia: ""
         },
         focusOperaciones: "",
+        notasMerma: "",
+        notasReposicion: "",
         experiencia: {
             texto: "",
             focus: "",
