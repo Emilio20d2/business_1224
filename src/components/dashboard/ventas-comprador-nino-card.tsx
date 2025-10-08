@@ -35,99 +35,103 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
           <div className="flex flex-col justify-center items-center gap-4 py-4">
             <h3 className="font-bold text-3xl text-center">{compradorData.nombre}</h3>
             <div className="flex flex-col items-center gap-2">
-              <label className="text-lg font-medium text-muted-foreground">Total €</label>
+              <label className="text-xl font-medium text-muted-foreground">Total €</label>
               {isEditing ? (
                 <Input
                   type="number"
                   inputMode="decimal"
                   value={compradorData.totalEuros}
-                  className="w-28 text-center text-xl font-bold bg-muted"
+                  className="w-32 text-center text-2xl font-bold bg-muted"
                   readOnly
                 />
               ) : (
-                <span className="font-bold text-xl">{formatCurrency(compradorData.totalEuros)}</span>
+                <span className="font-bold text-2xl">{formatCurrency(compradorData.totalEuros)}</span>
               )}
             </div>
             <div className="flex flex-col items-center gap-2">
-              <label className="text-lg font-medium text-muted-foreground">Total Unidades</label>
+              <label className="text-xl font-medium text-muted-foreground">Total Unidades</label>
                {isEditing ? (
                  <Input
                   type="number"
                   inputMode="decimal"
                   value={compradorData.totalUnidades}
-                  className="w-28 text-center text-xl font-bold bg-muted"
+                  className="w-32 text-center text-2xl font-bold bg-muted"
                   readOnly
                 />
               ) : (
-                <span className="font-bold text-xl">{formatNumber(compradorData.totalUnidades)}</span>
+                <span className="font-bold text-2xl">{formatNumber(compradorData.totalUnidades)}</span>
               )}
             </div>
           </div>
 
           {/* Columna 2: Zona */}
           <div className="flex flex-col">
-            <div className="space-y-4">
-              <h3 className="font-bold text-xl text-center text-primary">ZONA</h3>
-              {compradorData.zonas.map((zona, zonaIndex) => (
-                <div key={zona.nombre} className="flex flex-col items-center justify-center">
-                  <span className="font-bold text-lg">{zona.nombre}</span>
-                  <div className="flex items-center gap-4 mt-1">
-                      {isEditing ? (
-                      <>
-                          <Input
-                          type="number"
-                          inputMode="decimal"
-                          defaultValue={zona.totalEuros}
-                          onBlur={(e) => handleZonaChange(zonaIndex, 'totalEuros', e.target.value)}
-                          className="w-24 text-right text-lg"
-                          placeholder="€"
-                          />
-                          <Input
-                          type="number"
-                          inputMode="decimal"
-                          defaultValue={zona.totalUnidades}
-                          onBlur={(e) => handleZonaChange(zonaIndex, 'totalUnidades', e.target.value)}
-                          className="w-20 text-right text-lg"
-                          placeholder="Uds."
-                          />
-                      </>
-                      ) : (
-                      <>
-                          <span className="font-medium text-lg text-right w-24">{formatCurrency(zona.totalEuros)}</span>
-                          <span className="font-medium text-lg text-right w-20">{formatNumber(zona.totalUnidades)}</span>
-                      </>
-                      )}
+            <h3 className="font-bold text-xl text-center text-primary mb-2">ZONA</h3>
+            <div className="flex-grow flex flex-col justify-center">
+              <div className="space-y-4">
+                {compradorData.zonas.map((zona, zonaIndex) => (
+                  <div key={zona.nombre} className="flex flex-col items-center justify-center">
+                    <span className="font-bold text-xl">{zona.nombre}</span>
+                    <div className="flex items-center gap-4 mt-1">
+                        {isEditing ? (
+                        <>
+                            <Input
+                            type="number"
+                            inputMode="decimal"
+                            defaultValue={zona.totalEuros}
+                            onBlur={(e) => handleZonaChange(zonaIndex, 'totalEuros', e.target.value)}
+                            className="w-24 text-right text-lg"
+                            placeholder="€"
+                            />
+                            <Input
+                            type="number"
+                            inputMode="decimal"
+                            defaultValue={zona.totalUnidades}
+                            onBlur={(e) => handleZonaChange(zonaIndex, 'totalUnidades', e.target.value)}
+                            className="w-20 text-right text-lg"
+                            placeholder="Uds."
+                            />
+                        </>
+                        ) : (
+                        <>
+                            <span className="font-medium text-lg text-right w-24">{formatCurrency(zona.totalEuros)}</span>
+                            <span className="font-medium text-lg text-right w-20">{formatNumber(zona.totalUnidades)}</span>
+                        </>
+                        )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
 
           {/* Columna 3: Mejores Familias */}
           <div className="flex flex-col">
-            <div className="space-y-2">
-              <h3 className="font-bold text-xl text-center text-primary">MEJORES FAMILIAS</h3>
-              {compradorData.mejoresFamilias.map((familia, familiaIndex) => (
-                <div key={familiaIndex}>
-                  {isEditing ? (
-                    <Select value={familia || 'ninguna'} onValueChange={(value) => handleFamiliaChange(familiaIndex, value)}>
-                      <SelectTrigger className="text-lg">
-                        <SelectValue placeholder="Seleccionar familia..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="ninguna">-- Ninguna --</SelectItem>
-                        {sortedFamilias.map(option => (
-                          <SelectItem key={option} value={option}>{option}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  ) : (
-                    <p className="font-medium text-lg text-center p-2 border rounded-md bg-muted/50 h-10 flex items-center justify-center">
-                      {familia || <span className="text-muted-foreground">--</span>}
-                    </p>
-                  )}
-                </div>
-              ))}
+            <h3 className="font-bold text-xl text-center text-primary mb-2">MEJORES FAMILIAS</h3>
+            <div className="flex-grow flex flex-col justify-center">
+              <div className="space-y-2">
+                {compradorData.mejoresFamilias.map((familia, familiaIndex) => (
+                  <div key={familiaIndex}>
+                    {isEditing ? (
+                      <Select value={familia || 'ninguna'} onValueChange={(value) => handleFamiliaChange(familiaIndex, value)}>
+                        <SelectTrigger className="text-lg">
+                          <SelectValue placeholder="Seleccionar familia..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="ninguna">-- Ninguna --</SelectItem>
+                          {sortedFamilias.map(option => (
+                            <SelectItem key={option} value={option}>{option}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <p className="font-medium text-lg text-center p-2 border rounded-md bg-muted/50 h-10 flex items-center justify-center">
+                        {familia || <span className="text-muted-foreground">--</span>}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
