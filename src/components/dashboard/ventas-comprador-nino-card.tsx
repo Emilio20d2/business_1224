@@ -65,66 +65,70 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
           </div>
 
           {/* Columna 2: Zona */}
-          <div className="space-y-4">
-            <h3 className="font-bold text-lg text-center text-primary">ZONA</h3>
-            {compradorData.zonas.map((zona, zonaIndex) => (
-              <div key={zona.nombre} className="flex flex-col items-center justify-center">
-                <span className="font-bold">{zona.nombre}</span>
-                 <div className="flex items-center gap-2 mt-1">
-                    {isEditing ? (
-                    <>
-                        <Input
-                        type="number"
-                        inputMode="decimal"
-                        defaultValue={zona.totalEuros}
-                        onBlur={(e) => handleZonaChange(zonaIndex, 'totalEuros', e.target.value)}
-                        className="w-20 text-right"
-                        placeholder="€"
-                        />
-                        <Input
-                        type="number"
-                        inputMode="decimal"
-                        defaultValue={zona.totalUnidades}
-                        onBlur={(e) => handleZonaChange(zonaIndex, 'totalUnidades', e.target.value)}
-                        className="w-16 text-right"
-                        placeholder="Uds."
-                        />
-                    </>
-                    ) : (
-                    <>
-                        <span className="font-medium text-sm text-right w-20">{formatCurrency(zona.totalEuros)}</span>
-                        <span className="font-medium text-sm text-right w-16">{formatNumber(zona.totalUnidades)}</span>
-                    </>
-                    )}
+          <div className="flex flex-col justify-center">
+            <div className="space-y-4">
+              <h3 className="font-bold text-lg text-center text-primary">ZONA</h3>
+              {compradorData.zonas.map((zona, zonaIndex) => (
+                <div key={zona.nombre} className="flex flex-col items-center justify-center">
+                  <span className="font-bold">{zona.nombre}</span>
+                  <div className="flex items-center gap-2 mt-1">
+                      {isEditing ? (
+                      <>
+                          <Input
+                          type="number"
+                          inputMode="decimal"
+                          defaultValue={zona.totalEuros}
+                          onBlur={(e) => handleZonaChange(zonaIndex, 'totalEuros', e.target.value)}
+                          className="w-20 text-right"
+                          placeholder="€"
+                          />
+                          <Input
+                          type="number"
+                          inputMode="decimal"
+                          defaultValue={zona.totalUnidades}
+                          onBlur={(e) => handleZonaChange(zonaIndex, 'totalUnidades', e.target.value)}
+                          className="w-16 text-right"
+                          placeholder="Uds."
+                          />
+                      </>
+                      ) : (
+                      <>
+                          <span className="font-medium text-sm text-right w-20">{formatCurrency(zona.totalEuros)}</span>
+                          <span className="font-medium text-sm text-right w-16">{formatNumber(zona.totalUnidades)}</span>
+                      </>
+                      )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
 
           {/* Columna 3: Mejores Familias */}
-          <div className="space-y-2">
-            <h3 className="font-bold text-lg text-center text-primary">MEJORES FAMILIAS</h3>
-            {compradorData.mejoresFamilias.map((familia, familiaIndex) => (
-              <div key={familiaIndex}>
-                {isEditing ? (
-                  <Select value={familia || 'ninguna'} onValueChange={(value) => handleFamiliaChange(familiaIndex, value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Seleccionar familia..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="ninguna">-- Ninguna --</SelectItem>
-                      {sortedFamilias.map(option => (
-                        <SelectItem key={option} value={option}>{option}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                ) : (
-                  <p className="font-medium text-center p-2 border rounded-md bg-muted/50 h-10 flex items-center justify-center">
-                    {familia || <span className="text-muted-foreground">--</span>}
-                  </p>
-                )}
-              </div>
-            ))}
+          <div className="flex flex-col justify-center">
+            <div className="space-y-2">
+              <h3 className="font-bold text-lg text-center text-primary">MEJORES FAMILIAS</h3>
+              {compradorData.mejoresFamilias.map((familia, familiaIndex) => (
+                <div key={familiaIndex}>
+                  {isEditing ? (
+                    <Select value={familia || 'ninguna'} onValueChange={(value) => handleFamiliaChange(familiaIndex, value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccionar familia..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="ninguna">-- Ninguna --</SelectItem>
+                        {sortedFamilias.map(option => (
+                          <SelectItem key={option} value={option}>{option}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <p className="font-medium text-center p-2 border rounded-md bg-muted/50 h-10 flex items-center justify-center">
+                      {familia || <span className="text-muted-foreground">--</span>}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </CardContent>
