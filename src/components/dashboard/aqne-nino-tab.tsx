@@ -36,7 +36,7 @@ export function AqneNinoTab({ data, isEditing, onInputChange }: AqneNinoTabProps
         <Card className="flex-1">
             <CardHeader className="pb-2">
                 <CardTitle className="flex justify-between items-center text-lg font-bold">
-                    AQNE NIÑO
+                    AQNE SEMANAL
                 </CardTitle>
             </CardHeader>
             <CardContent>
