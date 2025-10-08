@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
@@ -57,7 +58,7 @@ export function DatoDoble({ label, value, variation, unit, isEditing, valueId, v
   return (
     <div className="flex justify-between items-baseline">
       {label && <span className="text-lg text-muted-foreground">{label}</span>}
-      <div className="flex items-baseline gap-2">
+      <div className="flex items-baseline gap-2 justify-end">
         {isEditing && valueId ? (
           <div className="flex items-center gap-1">
              <Input 
