@@ -95,13 +95,14 @@ const synchronizeVentasCompradorNino = (
         let compradorItem: VentasCompradorNinoItem;
 
         if (existingComprador) {
-            compradorItem = existingComprador;
-            const oldZoneNames = existingComprador.zonas.map(z => z.nombre).sort().join(',');
+            compradorItem = { ...existingComprador }; // Create a copy
+            const oldZoneNames = (compradorItem.zonas || []).map(z => z.nombre).sort().join(',');
             const newZoneNames = [...zonaList].sort().join(',');
+            
             if (oldZoneNames !== newZoneNames) {
                 needsUpdate = true;
                 compradorItem.zonas = zonaList.map(zonaName => {
-                    const existingZone = existingComprador.zonas.find(z => z.nombre === zonaName);
+                    const existingZone = (compradorItem.zonas || []).find(z => z.nombre === zonaName);
                     return existingZone || { nombre: zonaName, totalEuros: 0, totalUnidades: 0 };
                 });
             }
@@ -124,10 +125,25 @@ const synchronizeVentasCompradorNino = (
         needsUpdate = true;
     }
 
+    if (safeOldData.length !== compradorList.length){
+        needsUpdate = true;
+    }
+    
+    // Check if any sub-property needs updating
+    if (!needsUpdate) {
+        for(let i = 0; i < newData.length; i++) {
+            const oldItem = safeOldData[i];
+            const newItem = newData[i];
+            if (JSON.stringify(oldItem) !== JSON.stringify(newItem)) {
+                needsUpdate = true;
+                break;
+            }
+        }
+    }
+
+
     if (needsUpdate) {
-        // Force the order based on compradorList
-        const finalData = compradorList.map(name => newData.find(item => item.nombre === name)!);
-        return [finalData, true];
+        return [newData, true];
     }
     
     return [safeOldData, false];
