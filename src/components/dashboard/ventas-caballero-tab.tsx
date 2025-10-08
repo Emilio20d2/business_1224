@@ -180,13 +180,12 @@ export function VentasCaballeroTab({ data, isEditing, onInputChange, onTextChang
         { value: 'ventas', label: 'VENTAS' },
         { value: 'zonaYAgrupacion', label: 'ZONA Y AGRUPACIÓN' },
         { value: 'operaciones', label: 'OPERACIONES' },
-        { value: 'planificacion', label: 'PLANIFICACIÓN' },
         { value: 'focus', label: 'FOCUS' },
     ];
 
     return (
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <div className="mb-4 grid w-full grid-cols-2 md:grid-cols-5 gap-2">
+            <div className="mb-4 grid w-full grid-cols-2 md:grid-cols-4 gap-2">
                 {tabButtons.map(tab => (
                     <Button
                         key={tab.value}
@@ -303,18 +302,6 @@ export function VentasCaballeroTab({ data, isEditing, onInputChange, onTextChang
                     basePath="man"
                 />
             </TabsContent>
-            
-            <TabsContent value="planificacion" className="mt-0">
-                 {data.planningSemanal && (
-                    <PlanningSemanalTab
-                        data={data}
-                        empleados={data.listas.empleados || []}
-                        isEditing={isEditing}
-                        onDataChange={onDataChange}
-                        weekId={data.periodo}
-                    />
-                 )}
-            </TabsContent>
 
             <TabsContent value="focus" className="mt-0">
               <FocusSemanalTab 
@@ -326,5 +313,3 @@ export function VentasCaballeroTab({ data, isEditing, onInputChange, onTextChang
         </Tabs>
     );
 }
-
-    
