@@ -89,6 +89,9 @@ const synchronizeVentasCompradorNino = (
     const oldDataMap = new Map(safeOldData.map(d => [d.nombre, d]));
     let needsUpdate = false;
 
+    // Create a map for quick sorting based on the master list order
+    const listOrderMap = new Map(compradorList.map((name, index) => [name, index]));
+
     const newData = compradorList.map(compradorName => {
         const existingComprador = oldDataMap.get(compradorName);
         if (existingComprador) {
@@ -114,10 +117,22 @@ const synchronizeVentasCompradorNino = (
         }
     });
 
+    // Sort the new data based on the master list order
+    newData.sort((a, b) => {
+        const orderA = listOrderMap.get(a.nombre) ?? Infinity;
+        const orderB = listOrderMap.get(b.nombre) ?? Infinity;
+        return orderA - orderB;
+    });
+
     const oldOrder = safeOldData.map(d => d.nombre).join(',');
     const newOrder = newData.map(d => d.nombre).join(',');
     if (oldOrder !== newOrder) {
         needsUpdate = true;
+    }
+
+
+    if (JSON.stringify(newData) !== JSON.stringify(safeOldData)) {
+      needsUpdate = true;
     }
 
     return [newData, needsUpdate];
