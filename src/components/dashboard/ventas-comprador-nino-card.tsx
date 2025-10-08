@@ -32,10 +32,10 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
       <CardContent className="p-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Columna 1: Comprador */}
-          <div className="flex flex-col justify-center items-center gap-4">
+          <div className="flex flex-col justify-center items-center gap-4 py-4">
             <h3 className="font-bold text-3xl text-center">{compradorData.nombre}</h3>
             <div className="flex flex-col items-center gap-2">
-              <label className="text-base font-medium text-muted-foreground">Total €</label>
+              <label className="text-lg font-medium text-muted-foreground">Total €</label>
               {isEditing ? (
                 <Input
                   type="number"
@@ -49,7 +49,7 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
               )}
             </div>
             <div className="flex flex-col items-center gap-2">
-              <label className="text-base font-medium text-muted-foreground">Total Unidades</label>
+              <label className="text-lg font-medium text-muted-foreground">Total Unidades</label>
                {isEditing ? (
                  <Input
                   type="number"
@@ -65,7 +65,7 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
           </div>
 
           {/* Columna 2: Zona */}
-          <div className="flex flex-col justify-center">
+          <div className="flex flex-col">
             <div className="space-y-4">
               <h3 className="font-bold text-xl text-center text-primary">ZONA</h3>
               {compradorData.zonas.map((zona, zonaIndex) => (
@@ -79,7 +79,7 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
                           inputMode="decimal"
                           defaultValue={zona.totalEuros}
                           onBlur={(e) => handleZonaChange(zonaIndex, 'totalEuros', e.target.value)}
-                          className="w-24 text-right text-base"
+                          className="w-24 text-right text-lg"
                           placeholder="€"
                           />
                           <Input
@@ -87,14 +87,14 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
                           inputMode="decimal"
                           defaultValue={zona.totalUnidades}
                           onBlur={(e) => handleZonaChange(zonaIndex, 'totalUnidades', e.target.value)}
-                          className="w-20 text-right text-base"
+                          className="w-20 text-right text-lg"
                           placeholder="Uds."
                           />
                       </>
                       ) : (
                       <>
-                          <span className="font-medium text-base text-right w-24">{formatCurrency(zona.totalEuros)}</span>
-                          <span className="font-medium text-base text-right w-20">{formatNumber(zona.totalUnidades)}</span>
+                          <span className="font-medium text-lg text-right w-24">{formatCurrency(zona.totalEuros)}</span>
+                          <span className="font-medium text-lg text-right w-20">{formatNumber(zona.totalUnidades)}</span>
                       </>
                       )}
                   </div>
@@ -104,14 +104,14 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
           </div>
 
           {/* Columna 3: Mejores Familias */}
-          <div className="flex flex-col justify-center">
+          <div className="flex flex-col">
             <div className="space-y-2">
               <h3 className="font-bold text-xl text-center text-primary">MEJORES FAMILIAS</h3>
               {compradorData.mejoresFamilias.map((familia, familiaIndex) => (
                 <div key={familiaIndex}>
                   {isEditing ? (
                     <Select value={familia || 'ninguna'} onValueChange={(value) => handleFamiliaChange(familiaIndex, value)}>
-                      <SelectTrigger className="text-base">
+                      <SelectTrigger className="text-lg">
                         <SelectValue placeholder="Seleccionar familia..." />
                       </SelectTrigger>
                       <SelectContent>
@@ -122,7 +122,7 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
                       </SelectContent>
                     </Select>
                   ) : (
-                    <p className="font-medium text-base text-center p-2 border rounded-md bg-muted/50 h-10 flex items-center justify-center">
+                    <p className="font-medium text-lg text-center p-2 border rounded-md bg-muted/50 h-10 flex items-center justify-center">
                       {familia || <span className="text-muted-foreground">--</span>}
                     </p>
                   )}
