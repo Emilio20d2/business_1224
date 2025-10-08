@@ -44,19 +44,15 @@ export function AqneNinoTab({ data, isEditing, onInputChange }: AqneNinoTabProps
                     <DatoDoble
                         label="Total Euros"
                         value={formatCurrency(metricasPrincipales.totalEuros)}
-                        variation={metricasPrincipales.varPorcEuros}
                         isEditing={isEditing}
                         valueId="aqneNino.metricasPrincipales.totalEuros"
-                        variationId="aqneNino.metricasPrincipales.varPorcEuros"
                         onInputChange={onInputChange}
                     />
                     <DatoDoble
                         label="Total Unidades"
                         value={formatNumber(metricasPrincipales.totalUnidades)}
-                        variation={metricasPrincipales.varPorcUnidades}
                         isEditing={isEditing}
                         valueId="aqneNino.metricasPrincipales.totalUnidades"
-                        variationId="aqneNino.metricasPrincipales.varPorcUnidades"
                         onInputChange={onInputChange}
                     />
                 </div>
