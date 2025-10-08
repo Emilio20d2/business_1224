@@ -323,6 +323,19 @@ function NinoPageComponent() {
         if (needsSave && canEdit) {
             await setDoc(reportRef, reportData, { merge: true });
         }
+
+        // --- FORCE ORDER ---
+        const forcedOrder = ["NIÑA", "NIÑO", "KIDS-A", "KIDS-O", "BABY", "ACCESORIOS"];
+        if (reportData.ventasCompradorNino) {
+            reportData.ventasCompradorNino.sort((a, b) => {
+                const indexA = forcedOrder.indexOf(a.nombre);
+                const indexB = forcedOrder.indexOf(b.nombre);
+                // Handle cases where a name might not be in the forcedOrder list
+                if (indexA === -1) return 1;
+                if (indexB === -1) return -1;
+                return indexA - indexB;
+            });
+        }
         
         setData(reportData);
     } catch(err: any) {

@@ -35,6 +35,16 @@ export function AqneNinoTab({ data, isEditing, onInputChange, nextWeekDateRange 
         onInputChange(`aqneNino.desglose.${index}.${field}`, value);
     };
 
+    // --- FORCE ORDER ---
+    const forcedOrder = ["NIÑA", "NIÑO", "KIDS-A", "KIDS-O", "BABY", "ACCESORIOS"];
+    const sortedVentasCompradorNino = ventasCompradorNino ? [...ventasCompradorNino].sort((a, b) => {
+        const indexA = forcedOrder.indexOf(a.nombre);
+        const indexB = forcedOrder.indexOf(b.nombre);
+        if (indexA === -1) return 1;
+        if (indexB === -1) return -1;
+        return indexA - indexB;
+    }) : [];
+
     return (
         <div className="space-y-4">
             <Card className="flex-1">
@@ -117,7 +127,7 @@ export function AqneNinoTab({ data, isEditing, onInputChange, nextWeekDateRange 
                     </Table>
                 </CardContent>
             </Card>
-            {ventasCompradorNino && ventasCompradorNino.map((compradorData, index) => (
+            {sortedVentasCompradorNino && sortedVentasCompradorNino.map((compradorData, index) => (
                 <VentasCompradorNinoCard
                     key={compradorData.nombre}
                     compradorData={compradorData}
@@ -129,3 +139,5 @@ export function AqneNinoTab({ data, isEditing, onInputChange, nextWeekDateRange 
         </div>
     );
 };
+
+    
