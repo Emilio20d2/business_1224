@@ -32,34 +32,34 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
       <CardContent className="p-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Columna 1: Comprador */}
-          <div className="space-y-2">
-            <h3 className="font-bold text-lg">{compradorData.nombre}</h3>
-            <div className="flex items-center justify-between">
+          <div className="flex flex-col justify-center items-center gap-4">
+            <h3 className="font-bold text-2xl">{compradorData.nombre}</h3>
+            <div className="flex flex-col items-center gap-2">
               <label className="text-sm font-medium text-muted-foreground">Total €</label>
               {isEditing ? (
                 <Input
                   type="number"
                   inputMode="decimal"
                   value={compradorData.totalEuros}
-                  className="w-24 text-right bg-muted"
+                  className="w-24 text-center text-lg font-bold bg-muted"
                   readOnly
                 />
               ) : (
-                <span className="font-bold">{formatCurrency(compradorData.totalEuros)}</span>
+                <span className="font-bold text-lg">{formatCurrency(compradorData.totalEuros)}</span>
               )}
             </div>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col items-center gap-2">
               <label className="text-sm font-medium text-muted-foreground">Total Unidades</label>
                {isEditing ? (
                  <Input
                   type="number"
                   inputMode="decimal"
                   value={compradorData.totalUnidades}
-                  className="w-24 text-right bg-muted"
+                  className="w-24 text-center text-lg font-bold bg-muted"
                   readOnly
                 />
               ) : (
-                <span className="font-bold">{formatNumber(compradorData.totalUnidades)}</span>
+                <span className="font-bold text-lg">{formatNumber(compradorData.totalUnidades)}</span>
               )}
             </div>
           </div>
