@@ -65,36 +65,38 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
           </div>
 
           {/* Columna 2: Zona */}
-          <div className="space-y-2">
+          <div className="space-y-4">
             <h3 className="font-bold text-lg text-center text-primary">ZONA</h3>
             {compradorData.zonas.map((zona, zonaIndex) => (
-              <div key={zona.nombre} className="grid grid-cols-[1fr_auto_auto] items-center gap-2">
-                <span className="text-sm font-medium text-muted-foreground">{zona.nombre}</span>
-                {isEditing ? (
-                  <>
-                    <Input
-                      type="number"
-                      inputMode="decimal"
-                      defaultValue={zona.totalEuros}
-                      onBlur={(e) => handleZonaChange(zonaIndex, 'totalEuros', e.target.value)}
-                      className="w-20 text-right"
-                      placeholder="€"
-                    />
-                    <Input
-                      type="number"
-                      inputMode="decimal"
-                      defaultValue={zona.totalUnidades}
-                      onBlur={(e) => handleZonaChange(zonaIndex, 'totalUnidades', e.target.value)}
-                      className="w-16 text-right"
-                      placeholder="Uds."
-                    />
-                  </>
-                ) : (
-                  <>
-                    <span className="font-medium text-right">{formatCurrency(zona.totalEuros)}</span>
-                    <span className="font-medium text-right">{formatNumber(zona.totalUnidades)}</span>
-                  </>
-                )}
+              <div key={zona.nombre} className="flex flex-col items-center justify-center">
+                <span className="font-bold">{zona.nombre}</span>
+                 <div className="flex items-center gap-2 mt-1">
+                    {isEditing ? (
+                    <>
+                        <Input
+                        type="number"
+                        inputMode="decimal"
+                        defaultValue={zona.totalEuros}
+                        onBlur={(e) => handleZonaChange(zonaIndex, 'totalEuros', e.target.value)}
+                        className="w-20 text-right"
+                        placeholder="€"
+                        />
+                        <Input
+                        type="number"
+                        inputMode="decimal"
+                        defaultValue={zona.totalUnidades}
+                        onBlur={(e) => handleZonaChange(zonaIndex, 'totalUnidades', e.target.value)}
+                        className="w-16 text-right"
+                        placeholder="Uds."
+                        />
+                    </>
+                    ) : (
+                    <>
+                        <span className="font-medium text-sm text-right w-20">{formatCurrency(zona.totalEuros)}</span>
+                        <span className="font-medium text-sm text-right w-16">{formatNumber(zona.totalUnidades)}</span>
+                    </>
+                    )}
+                </div>
               </div>
             ))}
           </div>
