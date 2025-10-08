@@ -370,8 +370,16 @@ function NinoPageComponent() {
         }
         
         const finalKey = keys[keys.length - 1];
-        const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
-        current[finalKey] = isNaN(numericValue) || value === "" ? (fieldRequiresString(finalKey) ? "" : 0) : numericValue;
+
+        if (keys[0] === 'ventasCompradorNino' && keys[2] === 'mejoresFamilias') {
+            const compradorIndex = parseInt(keys[1], 10);
+            const familiaIndex = parseInt(keys[3], 10);
+            updatedData.ventasCompradorNino[compradorIndex].mejoresFamilias[familiaIndex] = value;
+        } else {
+            const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
+            current[finalKey] = isNaN(numericValue) || value === "" ? (fieldRequiresString(finalKey) ? "" : 0) : numericValue;
+        }
+
 
         if (keys[0] === 'ventasNino' && reorder) {
             const tableKey = keys[1] as 'pesoComprador' | 'zonaComercial' | 'agrupacionComercial';
