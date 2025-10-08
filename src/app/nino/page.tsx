@@ -89,22 +89,25 @@ const synchronizeVentasCompradorNino = (
     const oldDataMap = new Map(safeOldData.map(d => [d.nombre, d]));
     let needsUpdate = false;
 
+    // Build the new data in the order of compradorList
     const newData = compradorList.map(compradorName => {
         const existingComprador = oldDataMap.get(compradorName);
+        let compradorItem: VentasCompradorNinoItem;
+
         if (existingComprador) {
+            compradorItem = existingComprador;
             const oldZoneNames = existingComprador.zonas.map(z => z.nombre).sort().join(',');
             const newZoneNames = [...zonaList].sort().join(',');
             if (oldZoneNames !== newZoneNames) {
                 needsUpdate = true;
-                existingComprador.zonas = zonaList.map(zonaName => {
+                compradorItem.zonas = zonaList.map(zonaName => {
                     const existingZone = existingComprador.zonas.find(z => z.nombre === zonaName);
                     return existingZone || { nombre: zonaName, totalEuros: 0, totalUnidades: 0 };
                 });
             }
-            return existingComprador;
         } else {
             needsUpdate = true;
-            return {
+            compradorItem = {
                 nombre: compradorName,
                 totalEuros: 0,
                 totalUnidades: 0,
@@ -112,13 +115,22 @@ const synchronizeVentasCompradorNino = (
                 mejoresFamilias: Array(5).fill(''),
             };
         }
+        return compradorItem;
     });
 
-    if (JSON.stringify(newData) !== JSON.stringify(safeOldData)) {
-      needsUpdate = true;
+    const currentOrder = safeOldData.map(d => d.nombre).join(',');
+    const desiredOrder = compradorList.join(',');
+    if (currentOrder !== desiredOrder) {
+        needsUpdate = true;
     }
 
-    return [newData, needsUpdate];
+    if (needsUpdate) {
+        // Force the order based on compradorList
+        const finalData = compradorList.map(name => newData.find(item => item.nombre === name)!);
+        return [finalData, true];
+    }
+    
+    return [safeOldData, false];
 };
 
 
