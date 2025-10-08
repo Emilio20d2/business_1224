@@ -2,7 +2,7 @@
 
 "use client"
 import React, { useState, useContext, useEffect, useCallback, Suspense } from 'react';
-import type { WeeklyData, VentasManItem, SectionSpecificData, Empleado } from "@/lib/data";
+import type { WeeklyData, VentasManItem, SectionSpecificData, Empleado, VentasCompradorNinoItem } from "@/lib/data";
 import { doc, getDoc, setDoc, updateDoc, collection, getDocs } from "firebase/firestore";
 import { db } from '@/lib/firebase';
 import { Calendar as CalendarIcon, Settings, LogOut, Loader2, Briefcase, List, LayoutDashboard, Pencil, Upload, Projector, Users, UserPlus, SlidersHorizontal } from 'lucide-react';
@@ -80,6 +80,56 @@ const synchronizeTableData = (list: string[], oldTableData: VentasManItem[]): Ve
     });
 };
 
+const synchronizeVentasCompradorNino = (
+    compradorList: string[],
+    zonaList: string[],
+    oldData: VentasCompradorNinoItem[] | undefined
+): [VentasCompradorNinoItem[], boolean] => {
+    const safeOldData = Array.isArray(oldData) ? oldData : [];
+    let needsUpdate = false;
+
+    // Check if the number of compradores has changed
+    if (compradorList.length !== safeOldData.length) {
+        needsUpdate = true;
+    } else {
+        // Check if the names of compradores are the same
+        const oldCompradorNames = safeOldData.map(d => d.nombre).sort().join(',');
+        const newCompradorNames = [...compradorList].sort().join(',');
+        if (oldCompradorNames !== newCompradorNames) {
+            needsUpdate = true;
+        }
+    }
+
+    const newData = compradorList.map(compradorName => {
+        const existingComprador = safeOldData.find(d => d.nombre === compradorName);
+        if (existingComprador) {
+            // Check if zones are in sync for this comprador
+            const oldZoneNames = existingComprador.zonas.map(z => z.nombre).sort().join(',');
+            const newZoneNames = [...zonaList].sort().join(',');
+            if (oldZoneNames !== newZoneNames) {
+                needsUpdate = true;
+                existingComprador.zonas = zonaList.map(zonaName => {
+                    const existingZone = existingComprador.zonas.find(z => z.nombre === zonaName);
+                    return existingZone || { nombre: zonaName, totalEuros: 0, totalUnidades: 0 };
+                });
+            }
+            return existingComprador;
+        } else {
+            needsUpdate = true;
+            return {
+                nombre: compradorName,
+                totalEuros: 0,
+                totalUnidades: 0,
+                zonas: zonaList.map(zonaName => ({ nombre: zonaName, totalEuros: 0, totalUnidades: 0 })),
+                mejoresFamilias: Array(5).fill(''),
+            };
+        }
+    });
+
+    return [newData, needsUpdate];
+};
+
+
 const ensureSectionSpecificData = (data: WeeklyData): WeeklyData => {
     const defaultSectionData = getInitialDataForWeek('', getInitialLists()).general; // Get a full default structure
 
@@ -98,6 +148,7 @@ const ensureSectionSpecificData = (data: WeeklyData): WeeklyData => {
     if (!data.general.logistica) data.general.logistica = JSON.parse(JSON.stringify(defaultSectionData.logistica));
     if (!data.general.almacenes) data.general.almacenes = JSON.parse(JSON.stringify(defaultSectionData.almacenes));
     if (!data.aqneNino) data.aqneNino = getInitialDataForWeek('', getInitialLists()).aqneNino;
+    if (!data.ventasCompradorNino) data.ventasCompradorNino = getInitialDataForWeek('', getInitialLists()).ventasCompradorNino;
 
     return data;
 }
@@ -246,6 +297,9 @@ function NinoPageComponent() {
         [reportData.ventasNino.agrupacionComercial, changed] = syncAndCheck(reportData.ventasNino.agrupacionComercial, listData.agrupacionComercialNino);
         if (changed) needsSave = true;
 
+        [reportData.ventasCompradorNino, changed] = synchronizeVentasCompradorNino(listData.compradorNino, listData.zonaComercialNino, reportData.ventasCompradorNino);
+        if(changed) needsSave = true;
+
         if (needsSave && canEdit) {
             await setDoc(reportRef, reportData, { merge: true });
         }
@@ -284,7 +338,7 @@ function NinoPageComponent() {
         
         const finalKey = keys[keys.length - 1];
         const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
-        current[finalKey] = isNaN(numericValue) || value === "" ? 0 : numericValue;
+        current[finalKey] = isNaN(numericValue) || value === "" ? (fieldRequiresString(finalKey) ? "" : 0) : numericValue;
 
         if (keys[0] === 'ventasNino' && reorder) {
             const tableKey = keys[1] as 'pesoComprador' | 'zonaComercial' | 'agrupacionComercial';
@@ -310,11 +364,25 @@ function NinoPageComponent() {
             const totalUnidades = aqneData.desglose.reduce((sum: number, item: any) => sum + (item.unidades || 0), 0);
             aqneData.metricasPrincipales.totalEuros = totalEuros;
             aqneData.metricasPrincipales.totalUnidades = totalUnidades;
+        } else if (keys[0] === 'ventasCompradorNino') {
+          const compradorIndex = parseInt(keys[1], 10);
+          const compradorData = updatedData.ventasCompradorNino[compradorIndex];
+
+          if (keys[2] === 'zonas') {
+              const totalEurosZonas = compradorData.zonas.reduce((sum: number, zona: any) => sum + (zona.totalEuros || 0), 0);
+              const totalUnidadesZonas = compradorData.zonas.reduce((sum: number, zona: any) => sum + (zona.totalUnidades || 0), 0);
+              compradorData.totalEuros = totalEurosZonas;
+              compradorData.totalUnidades = totalUnidadesZonas;
+          }
         }
         
         return updatedData;
     });
 };
+
+const fieldRequiresString = (field: string) => {
+  return ['mejoresFamilias'].includes(field);
+}
 
   const handleFocusChange = (newValue: string) => {
     if (!canEdit) return;
@@ -341,6 +409,7 @@ function NinoPageComponent() {
         focusSemanal: dataToSave.focusSemanal,
         planningSemanal: dataToSave.planningSemanal,
         aqneNino: dataToSave.aqneNino,
+        ventasCompradorNino: dataToSave.ventasCompradorNino,
     };
 
     setDoc(docRef, relevantData, { merge: true })

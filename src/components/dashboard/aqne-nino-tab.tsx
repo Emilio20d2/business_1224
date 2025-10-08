@@ -3,7 +3,7 @@
 "use client";
 
 import React from 'react';
-import type { SeccionAqneNinoData } from "@/lib/data";
+import type { WeeklyData } from "@/lib/data";
 import { formatCurrency, formatNumber, formatPercentage } from "@/lib/format";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -17,103 +17,116 @@ import {
 } from "@/components/ui/table"
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import { VentasCompradorNinoCard } from './ventas-comprador-nino-card';
 
 type AqneNinoTabProps = {
-  data: SeccionAqneNinoData;
+  data: WeeklyData;
   isEditing: boolean;
   onInputChange: (path: string, value: string | number) => void;
   nextWeekDateRange: string;
 };
 
 export function AqneNinoTab({ data, isEditing, onInputChange, nextWeekDateRange }: AqneNinoTabProps) {
-    if (!data) return null;
+    if (!data || !data.aqneNino) return null;
 
-    const { metricasPrincipales, desglose } = data;
+    const { aqneNino, ventasCompradorNino, listas } = data;
+    const { metricasPrincipales, desglose } = aqneNino;
 
     const handleDesgloseChange = (index: number, field: string, value: string) => {
         onInputChange(`aqneNino.desglose.${index}.${field}`, value);
     };
 
     return (
-        <Card className="flex-1">
-            <CardHeader className="pb-2">
-                <CardTitle className="flex items-center justify-start text-lg font-bold uppercase">
-                    {`AQNE SEMANA ${nextWeekDateRange}`}
-                </CardTitle>
-            </CardHeader>
-            <CardContent>
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Sección</TableHead>
-                            <TableHead className="text-right">Total Euros</TableHead>
-                            <TableHead className="text-right">Unidades</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {desglose.map((item, index) => (
-                            <TableRow key={item.seccion}>
-                                <TableCell>{item.seccion}</TableCell>
-                                <TableCell className="text-right">
-                                    {isEditing ? (
-                                        <Input
-                                            type="number"
-                                            inputMode="decimal"
-                                            defaultValue={item.totalEuros}
-                                            onBlur={(e) => handleDesgloseChange(index, 'totalEuros', e.target.value)}
-                                            className="w-24 ml-auto text-right"
-                                        />
-                                    ) : (
-                                        formatCurrency(item.totalEuros)
-                                    )}
-                                </TableCell>
-                                <TableCell className="text-right">
-                                    {isEditing ? (
-                                        <Input
-                                            type="number"
-                                            inputMode="decimal"
-                                            defaultValue={item.unidades}
-                                            onBlur={(e) => handleDesgloseChange(index, 'unidades', e.target.value)}
-                                            className="w-24 ml-auto text-right"
-                                        />
-                                    ) : (
-                                        formatNumber(item.unidades)
-                                    )}
-                                </TableCell>
+        <div className="space-y-4">
+            <Card className="flex-1">
+                <CardHeader className="pb-2">
+                    <CardTitle className="flex items-center justify-start text-lg font-bold uppercase">
+                        {`AQNE SEMANA ${nextWeekDateRange.toUpperCase()}`}
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Sección</TableHead>
+                                <TableHead className="text-right">Total Euros</TableHead>
+                                <TableHead className="text-right">Unidades</TableHead>
                             </TableRow>
-                        ))}
-                    </TableBody>
-                    <TableFooter>
-                        <TableRow>
-                            <TableHead>Total</TableHead>
-                            <TableHead className="text-right font-bold">
-                                {isEditing ? (
-                                    <Input
-                                        type="text"
-                                        readOnly
-                                        value={formatCurrency(metricasPrincipales.totalEuros)}
-                                        className="w-24 ml-auto text-right bg-muted"
-                                    />
-                                ) : (
-                                    formatCurrency(metricasPrincipales.totalEuros)
-                                )}
-                            </TableHead>
-                            <TableHead className="text-right font-bold">
-                                {isEditing ? (
-                                    <Input
-                                        type="text"
-                                        readOnly
-                                        value={formatNumber(metricasPrincipales.totalUnidades)}
-                                        className="w-24 ml-auto text-right bg-muted"
-                                    />
-                                ) : (
-                                    formatNumber(metricasPrincipales.totalUnidades)
-                                )}
-                            </TableHead>
-                        </TableRow>
-                    </TableFooter>
-                </Table>
-            </CardContent>
-        </Card>
+                        </TableHeader>
+                        <TableBody>
+                            {desglose.map((item, index) => (
+                                <TableRow key={item.seccion}>
+                                    <TableCell>{item.seccion}</TableCell>
+                                    <TableCell className="text-right">
+                                        {isEditing ? (
+                                            <Input
+                                                type="number"
+                                                inputMode="decimal"
+                                                defaultValue={item.totalEuros}
+                                                onBlur={(e) => handleDesgloseChange(index, 'totalEuros', e.target.value)}
+                                                className="w-24 ml-auto text-right"
+                                            />
+                                        ) : (
+                                            formatCurrency(item.totalEuros)
+                                        )}
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                        {isEditing ? (
+                                            <Input
+                                                type="number"
+                                                inputMode="decimal"
+                                                defaultValue={item.unidades}
+                                                onBlur={(e) => handleDesgloseChange(index, 'unidades', e.target.value)}
+                                                className="w-24 ml-auto text-right"
+                                            />
+                                        ) : (
+                                            formatNumber(item.unidades)
+                                        )}
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                        <TableFooter>
+                            <TableRow>
+                                <TableHead>Total</TableHead>
+                                <TableHead className="text-right font-bold">
+                                    {isEditing ? (
+                                        <Input
+                                            type="text"
+                                            readOnly
+                                            value={formatCurrency(metricasPrincipales.totalEuros)}
+                                            className="w-24 ml-auto text-right bg-muted"
+                                        />
+                                    ) : (
+                                        formatCurrency(metricasPrincipales.totalEuros)
+                                    )}
+                                </TableHead>
+                                <TableHead className="text-right font-bold">
+                                    {isEditing ? (
+                                        <Input
+                                            type="text"
+                                            readOnly
+                                            value={formatNumber(metricasPrincipales.totalUnidades)}
+                                            className="w-24 ml-auto text-right bg-muted"
+                                        />
+                                    ) : (
+                                        formatNumber(metricasPrincipales.totalUnidades)
+                                    )}
+                                </TableHead>
+                            </TableRow>
+                        </TableFooter>
+                    </Table>
+                </CardContent>
+            </Card>
+            {ventasCompradorNino && ventasCompradorNino.map((compradorData, index) => (
+                <VentasCompradorNinoCard
+                    key={compradorData.nombre}
+                    compradorData={compradorData}
+                    listas={listas}
+                    isEditing={isEditing}
+                    onInputChange={(path, value) => onInputChange(`ventasCompradorNino.${index}.${path}`, value)}
+                />
+            ))}
+        </div>
     );
 };
