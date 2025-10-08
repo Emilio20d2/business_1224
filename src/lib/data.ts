@@ -398,7 +398,7 @@ export function getInitialLists(): WeeklyData['listas'] {
         compradorWoman: ["WOMAN", "GLOBAL", "CIRCULAR", "DNWR", "SPORT", "ACCES", "BASIC"],
         zonaComercialWoman: ["WOMAN FORMAL", "GLB URBAN", "CIRCULAR"],
         agrupacionComercialWoman: ["PANTALON", "SASTRERIA", "TEJANO", "CAMISA", "POLO", "ZAPATO", "BERMUDA", "TRICOT", "ACCESORIOS", "BAÑO"],
-        compradorNino: ["BEBE NIÑA", "BEBE NIÑO", "NIÑA", "NIÑO", "MINI"],
+        compradorNino: ["NIÑA", "NIÑO", "KIDS-A", "KIDS-O", "BABY", "ACCESORIOS"],
         zonaComercialNino: ["ZONA A", "ZONA B", "ZONA C"],
         agrupacionComercialNino: ["Familia 1", "Familia 2", "Familia 3", "Familia 4", "Familia 5", "Familia 6", "Familia 7", "Familia 8", "Familia 9", "Familia 10"],
         mermaTarget: {
