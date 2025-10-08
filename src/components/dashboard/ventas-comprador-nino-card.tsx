@@ -33,33 +33,33 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Columna 1: Comprador */}
           <div className="flex flex-col justify-center items-center gap-4">
-            <h3 className="font-bold text-2xl">{compradorData.nombre}</h3>
+            <h3 className="font-bold text-3xl text-center">{compradorData.nombre}</h3>
             <div className="flex flex-col items-center gap-2">
-              <label className="text-sm font-medium text-muted-foreground">Total €</label>
+              <label className="text-base font-medium text-muted-foreground">Total €</label>
               {isEditing ? (
                 <Input
                   type="number"
                   inputMode="decimal"
                   value={compradorData.totalEuros}
-                  className="w-24 text-center text-lg font-bold bg-muted"
+                  className="w-28 text-center text-xl font-bold bg-muted"
                   readOnly
                 />
               ) : (
-                <span className="font-bold text-lg">{formatCurrency(compradorData.totalEuros)}</span>
+                <span className="font-bold text-xl">{formatCurrency(compradorData.totalEuros)}</span>
               )}
             </div>
             <div className="flex flex-col items-center gap-2">
-              <label className="text-sm font-medium text-muted-foreground">Total Unidades</label>
+              <label className="text-base font-medium text-muted-foreground">Total Unidades</label>
                {isEditing ? (
                  <Input
                   type="number"
                   inputMode="decimal"
                   value={compradorData.totalUnidades}
-                  className="w-24 text-center text-lg font-bold bg-muted"
+                  className="w-28 text-center text-xl font-bold bg-muted"
                   readOnly
                 />
               ) : (
-                <span className="font-bold text-lg">{formatNumber(compradorData.totalUnidades)}</span>
+                <span className="font-bold text-xl">{formatNumber(compradorData.totalUnidades)}</span>
               )}
             </div>
           </div>
@@ -67,11 +67,11 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
           {/* Columna 2: Zona */}
           <div className="flex flex-col justify-center">
             <div className="space-y-4">
-              <h3 className="font-bold text-lg text-center text-primary">ZONA</h3>
+              <h3 className="font-bold text-xl text-center text-primary">ZONA</h3>
               {compradorData.zonas.map((zona, zonaIndex) => (
                 <div key={zona.nombre} className="flex flex-col items-center justify-center">
-                  <span className="font-bold">{zona.nombre}</span>
-                  <div className="flex items-center gap-2 mt-1">
+                  <span className="font-bold text-lg">{zona.nombre}</span>
+                  <div className="flex items-center gap-4 mt-1">
                       {isEditing ? (
                       <>
                           <Input
@@ -79,7 +79,7 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
                           inputMode="decimal"
                           defaultValue={zona.totalEuros}
                           onBlur={(e) => handleZonaChange(zonaIndex, 'totalEuros', e.target.value)}
-                          className="w-20 text-right"
+                          className="w-24 text-right text-base"
                           placeholder="€"
                           />
                           <Input
@@ -87,14 +87,14 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
                           inputMode="decimal"
                           defaultValue={zona.totalUnidades}
                           onBlur={(e) => handleZonaChange(zonaIndex, 'totalUnidades', e.target.value)}
-                          className="w-16 text-right"
+                          className="w-20 text-right text-base"
                           placeholder="Uds."
                           />
                       </>
                       ) : (
                       <>
-                          <span className="font-medium text-sm text-right w-20">{formatCurrency(zona.totalEuros)}</span>
-                          <span className="font-medium text-sm text-right w-16">{formatNumber(zona.totalUnidades)}</span>
+                          <span className="font-medium text-base text-right w-24">{formatCurrency(zona.totalEuros)}</span>
+                          <span className="font-medium text-base text-right w-20">{formatNumber(zona.totalUnidades)}</span>
                       </>
                       )}
                   </div>
@@ -106,12 +106,12 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
           {/* Columna 3: Mejores Familias */}
           <div className="flex flex-col justify-center">
             <div className="space-y-2">
-              <h3 className="font-bold text-lg text-center text-primary">MEJORES FAMILIAS</h3>
+              <h3 className="font-bold text-xl text-center text-primary">MEJORES FAMILIAS</h3>
               {compradorData.mejoresFamilias.map((familia, familiaIndex) => (
                 <div key={familiaIndex}>
                   {isEditing ? (
                     <Select value={familia || 'ninguna'} onValueChange={(value) => handleFamiliaChange(familiaIndex, value)}>
-                      <SelectTrigger>
+                      <SelectTrigger className="text-base">
                         <SelectValue placeholder="Seleccionar familia..." />
                       </SelectTrigger>
                       <SelectContent>
@@ -122,7 +122,7 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
                       </SelectContent>
                     </Select>
                   ) : (
-                    <p className="font-medium text-center p-2 border rounded-md bg-muted/50 h-10 flex items-center justify-center">
+                    <p className="font-medium text-base text-center p-2 border rounded-md bg-muted/50 h-10 flex items-center justify-center">
                       {familia || <span className="text-muted-foreground">--</span>}
                     </p>
                   )}
