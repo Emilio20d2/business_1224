@@ -29,7 +29,7 @@ import { EditListDialog } from '@/components/dashboard/edit-list-dialog';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { VentasNinoTab } from '@/components/dashboard/ventas-nino-tab';
-import { formatWeekIdToDateRange, getCurrentWeekId, getWeekIdFromDate } from '@/lib/format';
+import { formatWeekIdToDateRange, getCurrentWeekId, getWeekIdFromDate, getNextWeekId } from '@/lib/format';
 import { EditEmpleadosDialog } from '@/components/dashboard/edit-empleados-dialog';
 import { EditRatiosDialog } from '@/components/dashboard/operaciones/edit-ratios-dialog';
 import { Tabs, TabsContent } from "@/components/ui/tabs";
@@ -468,6 +468,10 @@ const handleSaveEmpleados = async (newItems: Empleado[]) => {
         </div>
      );
   }
+  
+  const nextWeekId = getNextWeekId(selectedWeek);
+  const nextWeekDateRange = formatWeekIdToDateRange(nextWeekId);
+
 
   return (
     <TooltipProvider>
@@ -621,6 +625,7 @@ const handleSaveEmpleados = async (newItems: Empleado[]) => {
                   onInputChange={handleInputChange}
                   onTextChange={handleFocusChange}
                   onDataChange={setData}
+                  nextWeekDateRange={nextWeekDateRange}
                 />
             ) : (
              <div className="flex flex-col items-center justify-center min-h-[60vh]">

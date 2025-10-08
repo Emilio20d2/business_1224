@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import React from 'react';
@@ -21,9 +22,10 @@ type AqneNinoTabProps = {
   data: SeccionAqneNinoData;
   isEditing: boolean;
   onInputChange: (path: string, value: string | number) => void;
+  nextWeekDateRange: string;
 };
 
-export function AqneNinoTab({ data, isEditing, onInputChange }: AqneNinoTabProps) {
+export function AqneNinoTab({ data, isEditing, onInputChange, nextWeekDateRange }: AqneNinoTabProps) {
     if (!data) return null;
 
     const { metricasPrincipales, desglose } = data;
@@ -35,8 +37,9 @@ export function AqneNinoTab({ data, isEditing, onInputChange }: AqneNinoTabProps
     return (
         <Card className="flex-1">
             <CardHeader className="pb-2">
-                <CardTitle className="flex justify-between items-center text-lg font-bold">
-                    AQNE SEMANAL
+                <CardTitle className="flex flex-col items-center justify-center text-lg font-bold">
+                    <span>SEMANA</span>
+                    <span className="text-sm font-normal text-muted-foreground">{nextWeekDateRange}</span>
                 </CardTitle>
             </CardHeader>
             <CardContent>

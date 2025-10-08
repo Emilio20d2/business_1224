@@ -39,6 +39,7 @@ type VentasNinoTabProps = {
   onInputChange: (path: string, value: any, reorder?: boolean) => void;
   onTextChange: (value: string) => void;
   onDataChange: React.Dispatch<React.SetStateAction<WeeklyData | null>>;
+  nextWeekDateRange: string;
 };
 
 const DataTable = ({ 
@@ -155,7 +156,7 @@ const DataTable = ({
 };
 
 
-export function VentasNinoTab({ data, isEditing, onInputChange, onTextChange, onDataChange }: VentasNinoTabProps) {
+export function VentasNinoTab({ data, isEditing, onInputChange, onTextChange, onDataChange, nextWeekDateRange }: VentasNinoTabProps) {
     const [activeTab, setActiveTab] = React.useState<string>('ventas');
     
     if (!data || !data.ventasNino || !data.listas) return <p>Cargando datos de Ventas Niño...</p>;
@@ -279,7 +280,7 @@ export function VentasNinoTab({ data, isEditing, onInputChange, onTextChange, on
             </TabsContent>
             
             <TabsContent value="aqne" className="mt-0">
-              {aqneNino && <AqneNinoTab data={aqneNino} isEditing={isEditing} onInputChange={onInputChange} />}
+              {aqneNino && <AqneNinoTab data={aqneNino} isEditing={isEditing} onInputChange={onInputChange} nextWeekDateRange={nextWeekDateRange} />}
             </TabsContent>
 
             <TabsContent value="operaciones" className="mt-0">

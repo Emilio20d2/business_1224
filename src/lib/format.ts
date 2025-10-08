@@ -99,6 +99,29 @@ export const getPreviousWeekId = (weekId: string): string => {
     }
 };
 
+export const getNextWeekId = (weekId: string): string => {
+    if (!weekId || typeof weekId !== 'string' || !weekId.includes('-')) {
+        return weekId;
+    }
+
+    try {
+        const [yearStr, weekStr] = weekId.split('-');
+        const year = parseInt(yearStr, 10);
+        const week = parseInt(weekStr, 10);
+
+        if (isNaN(year) || isNaN(week)) {
+            return weekId;
+        }
+        
+        const date = parse(`${year}-W${String(week).padStart(2, '0')}-1`, "RRRR-'W'II-i", new Date());
+        const nextWeekDate = addWeeks(date, 1);
+        return getWeekIdFromDate(nextWeekDate);
+    } catch (e) {
+        console.error(`Error calculating next week for "${weekId}":`, e);
+        return weekId;
+    }
+};
+
 export const getDateOfWeek = (weekId: string, day: 'lunes' | 'jueves'): Date | null => {
     if (!weekId || typeof weekId !== 'string' || !weekId.includes('-')) {
         return null;
