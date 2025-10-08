@@ -124,6 +124,21 @@ export type PedidosData = {
     }[];
 };
 
+export type SeccionAqneNinoData = {
+    metricasPrincipales: {
+        totalEuros: number;
+        varPorcEuros: number;
+        totalUnidades: number;
+        varPorcUnidades: number;
+    };
+    desglose: {
+        seccion: string;
+        totalEuros: number;
+        unidades: number;
+    }[];
+};
+
+
 export type WeeklyData = {
     periodo: string;
     listas: {
@@ -182,6 +197,7 @@ export type WeeklyData = {
         woman: SeccionAqneData;
         nino: SeccionAqneData;
     };
+    aqneNino: SeccionAqneNinoData;
     ventasDiariasAQNE: VentaDiaria[];
     focusSemanal: {
       man: string;
@@ -362,7 +378,7 @@ export function getInitialLists(): WeeklyData['listas'] {
             { id: "462144", nombre: "YANIRA GIMENEZ SALESA" },
             { id: "467650", nombre: "YASMINA SANCHEZ GIMENEZ" },
             { id: "362456", nombre: "ZAINAB LKHADESSI" },
-        ],
+        ].sort((a, b) => a.id.localeCompare(b.id)),
         compradorMan: ["Comprador A", "Comprador B", "Comprador C"],
         zonaComercialMan: ["Zona 1", "Zona 2", "Zona 3"],
         agrupacionComercialMan: ["Grupo Alpha", "Grupo Beta", "Grupo Gamma"],
@@ -464,6 +480,20 @@ const createInitialPlanningSemanal = (): WeeklyData['planningSemanal'] => ({
     sabado: [],
 });
 
+const createInitialAqneNinoData = (): SeccionAqneNinoData => ({
+    metricasPrincipales: {
+        totalEuros: 0,
+        varPorcEuros: 0,
+        totalUnidades: 0,
+        varPorcUnidades: 0,
+    },
+    desglose: [
+        { seccion: "Ropa", totalEuros: 0, unidades: 0 },
+        { seccion: "Calzado", totalEuros: 0, unidades: 0 },
+        { seccion: "Perfumería", totalEuros: 0, unidades: 0 },
+    ],
+});
+
 
 // This function generates a new, blank report structure based on the provided lists.
 export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas']): WeeklyData {
@@ -522,6 +552,7 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
             woman: createSeccionAqneData(),
             nino: createSeccionAqneData()
         },
+        aqneNino: createInitialAqneNinoData(),
         ventasDiariasAQNE: [
             { dia: "LUNES", total: 0, woman: 0, man: 0, nino: 0 },
             { dia: "MARTES", total: 0, woman: 0, man: 0, nino: 0 },

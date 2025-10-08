@@ -30,6 +30,7 @@ import { OperacionesSubTab } from './operaciones-sub-tab';
 import { FocusSemanalTab } from './focus-semanal-tab';
 import { DatoSimple } from './kpi-card';
 import { PlanningSemanalTab } from './operaciones/planning-semanal-tab';
+import { AqneNinoTab } from './aqne-nino-tab';
 
 
 type VentasNinoTabProps = {
@@ -159,7 +160,7 @@ export function VentasNinoTab({ data, isEditing, onInputChange, onTextChange, on
     
     if (!data || !data.ventasNino || !data.listas) return <p>Cargando datos de Ventas Niño...</p>;
 
-    const { ventasNino, listas, datosPorSeccion, nino, focusSemanal, planningSemanal } = data;
+    const { ventasNino, listas, datosPorSeccion, nino, focusSemanal, planningSemanal, aqneNino } = data;
     
     const ropaTotalEuros = ventasNino.pesoComprador.reduce((sum, item) => sum + (Number(item.totalEuros) || 0), 0);
     const calzadoData = datosPorSeccion.nino.desglose.find(d => d.seccion === 'Calzado');
@@ -189,6 +190,7 @@ export function VentasNinoTab({ data, isEditing, onInputChange, onTextChange, on
 
     const tabButtons = [
         { value: 'ventas', label: 'VENTAS' },
+        { value: 'aqne', label: 'AQNE' },
         { value: 'operaciones', label: 'OPERACIONES' },
         { value: 'planificacion', label: 'PLANIFICACIÓN' },
         { value: 'focus', label: 'FOCUS' },
@@ -196,7 +198,7 @@ export function VentasNinoTab({ data, isEditing, onInputChange, onTextChange, on
 
     return (
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <div className="mb-4 grid w-full grid-cols-2 md:grid-cols-4 gap-2">
+            <div className="mb-4 grid w-full grid-cols-2 md:grid-cols-5 gap-2">
                 {tabButtons.map(tab => (
                     <Button
                         key={tab.value}
@@ -274,6 +276,10 @@ export function VentasNinoTab({ data, isEditing, onInputChange, onTextChange, on
                         </Table>
                     </Card>
                </div>
+            </TabsContent>
+            
+            <TabsContent value="aqne" className="mt-0">
+              {aqneNino && <AqneNinoTab data={aqneNino} isEditing={isEditing} onInputChange={onInputChange} />}
             </TabsContent>
 
             <TabsContent value="operaciones" className="mt-0">

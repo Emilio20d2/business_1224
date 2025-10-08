@@ -34,6 +34,7 @@ import { EditEmpleadosDialog } from '@/components/dashboard/edit-empleados-dialo
 import { EditRatiosDialog } from '@/components/dashboard/operaciones/edit-ratios-dialog';
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { PlanningSemanalTab } from '@/components/dashboard/operaciones/planning-semanal-tab';
+import { AqneNinoTab } from '@/components/dashboard/aqne-nino-tab';
 
 type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan' | 'compradorWoman' | 'zonaComercialWoman' | 'agrupacionComercialWoman' | 'compradorNino' | 'zonaComercialNino' | 'agrupacionComercialNino';
 
@@ -96,6 +97,7 @@ const ensureSectionSpecificData = (data: WeeklyData): WeeklyData => {
     if (!data.nino.almacenes) data.nino.almacenes = JSON.parse(JSON.stringify(defaultSectionData.almacenes));
     if (!data.general.logistica) data.general.logistica = JSON.parse(JSON.stringify(defaultSectionData.logistica));
     if (!data.general.almacenes) data.general.almacenes = JSON.parse(JSON.stringify(defaultSectionData.almacenes));
+    if (!data.aqneNino) data.aqneNino = getInitialDataForWeek('', getInitialLists()).aqneNino;
 
     return data;
 }
@@ -302,6 +304,12 @@ function NinoPageComponent() {
 
                 table.sort((a: VentasManItem, b: VentasManItem) => (b.totalEuros || 0) - (a.totalEuros || 0));
             }
+        } else if (keys[0] === 'aqneNino') {
+            const aqneData = updatedData.aqneNino;
+            const totalEuros = aqneData.desglose.reduce((sum: number, item: any) => sum + (item.totalEuros || 0), 0);
+            const totalUnidades = aqneData.desglose.reduce((sum: number, item: any) => sum + (item.unidades || 0), 0);
+            aqneData.metricasPrincipales.totalEuros = totalEuros;
+            aqneData.metricasPrincipales.totalUnidades = totalUnidades;
         }
         
         return updatedData;
@@ -332,6 +340,7 @@ function NinoPageComponent() {
         nino: dataToSave.nino,
         focusSemanal: dataToSave.focusSemanal,
         planningSemanal: dataToSave.planningSemanal,
+        aqneNino: dataToSave.aqneNino,
     };
 
     setDoc(docRef, relevantData, { merge: true })
@@ -670,7 +679,3 @@ export default function NinoPage() {
         </Suspense>
     );
 }
-
-    
-
-    
