@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import React from 'react';
@@ -39,12 +38,12 @@ export function AqneNinoTab({ data, isEditing, onInputChange, nextWeekDateRange 
     return (
         <div className="space-y-4">
             <Card className="flex-1">
-                <CardHeader className="pb-2">
-                    <CardTitle className="flex items-center justify-start text-lg font-bold uppercase">
+                <CardHeader className="p-4">
+                    <CardTitle className="text-lg font-bold uppercase">
                         {`AQNE SEMANA ${nextWeekDateRange.toUpperCase()}`}
                     </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="pt-0">
                     <Table>
                         <TableHeader>
                             <TableRow>
