@@ -66,7 +66,7 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
 
           {/* Columna 2: Zona */}
           <div className="flex flex-col">
-            <h3 className="font-bold text-xl text-center text-primary mb-2">ZONA</h3>
+             <h3 className="font-bold text-xl text-center text-primary mb-2">ZONA</h3>
             <div className="flex-grow flex flex-col justify-center">
               <div className="space-y-4">
                 {compradorData.zonas.map((zona, zonaIndex) => (
@@ -109,12 +109,12 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
           <div className="flex flex-col">
             <h3 className="font-bold text-xl text-center text-primary mb-2">MEJORES FAMILIAS</h3>
             <div className="flex-grow flex flex-col justify-center">
-              <div className="space-y-2">
+              <div className="space-y-1">
                 {compradorData.mejoresFamilias.map((familia, familiaIndex) => (
                   <div key={familiaIndex}>
                     {isEditing ? (
                       <Select value={familia || 'ninguna'} onValueChange={(value) => handleFamiliaChange(familiaIndex, value)}>
-                        <SelectTrigger className="text-lg">
+                        <SelectTrigger className="text-sm h-8">
                           <SelectValue placeholder="Seleccionar familia..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -125,7 +125,7 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
                         </SelectContent>
                       </Select>
                     ) : (
-                      <p className="font-medium text-lg text-center p-2 border rounded-md bg-muted/50 h-10 flex items-center justify-center">
+                      <p className="font-medium text-sm text-center p-1 border rounded-md bg-muted/50 h-8 flex items-center justify-center">
                         {familia || <span className="text-muted-foreground">--</span>}
                       </p>
                     )}
