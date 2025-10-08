@@ -86,24 +86,12 @@ const synchronizeVentasCompradorNino = (
     oldData: VentasCompradorNinoItem[] | undefined
 ): [VentasCompradorNinoItem[], boolean] => {
     const safeOldData = Array.isArray(oldData) ? oldData : [];
+    const oldDataMap = new Map(safeOldData.map(d => [d.nombre, d]));
     let needsUpdate = false;
 
-    // Check if the number of compradores has changed
-    if (compradorList.length !== safeOldData.length) {
-        needsUpdate = true;
-    } else {
-        // Check if the names of compradores are the same
-        const oldCompradorNames = safeOldData.map(d => d.nombre).sort().join(',');
-        const newCompradorNames = [...compradorList].sort().join(',');
-        if (oldCompradorNames !== newCompradorNames) {
-            needsUpdate = true;
-        }
-    }
-
     const newData = compradorList.map(compradorName => {
-        const existingComprador = safeOldData.find(d => d.nombre === compradorName);
+        const existingComprador = oldDataMap.get(compradorName);
         if (existingComprador) {
-            // Check if zones are in sync for this comprador
             const oldZoneNames = existingComprador.zonas.map(z => z.nombre).sort().join(',');
             const newZoneNames = [...zonaList].sort().join(',');
             if (oldZoneNames !== newZoneNames) {
@@ -125,6 +113,12 @@ const synchronizeVentasCompradorNino = (
             };
         }
     });
+
+    const oldOrder = safeOldData.map(d => d.nombre).join(',');
+    const newOrder = newData.map(d => d.nombre).join(',');
+    if (oldOrder !== newOrder) {
+        needsUpdate = true;
+    }
 
     return [newData, needsUpdate];
 };

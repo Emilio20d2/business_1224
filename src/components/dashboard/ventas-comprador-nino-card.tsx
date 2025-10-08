@@ -33,7 +33,7 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Columna 1: Comprador */}
           <div className="space-y-2">
-            <h3 className="font-bold text-lg text-primary">{compradorData.nombre}</h3>
+            <h3 className="font-bold text-lg">{compradorData.nombre}</h3>
             <div className="flex items-center justify-between">
               <label className="text-sm font-medium text-muted-foreground">Total €</label>
               {isEditing ? (
