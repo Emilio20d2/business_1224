@@ -12,10 +12,10 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  TableFooter,
 } from "@/components/ui/table"
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { DatoDoble } from './kpi-card';
 
 type AqneNinoTabProps = {
   data: SeccionAqneNinoData;
@@ -40,23 +40,6 @@ export function AqneNinoTab({ data, isEditing, onInputChange }: AqneNinoTabProps
                 </CardTitle>
             </CardHeader>
             <CardContent>
-                <div className="grid grid-cols-2 gap-4 mb-4">
-                    <DatoDoble
-                        label="Total Euros"
-                        value={formatCurrency(metricasPrincipales.totalEuros)}
-                        isEditing={isEditing}
-                        valueId="aqneNino.metricasPrincipales.totalEuros"
-                        onInputChange={onInputChange}
-                    />
-                    <DatoDoble
-                        label="Total Unidades"
-                        value={formatNumber(metricasPrincipales.totalUnidades)}
-                        isEditing={isEditing}
-                        valueId="aqneNino.metricasPrincipales.totalUnidades"
-                        onInputChange={onInputChange}
-                    />
-                </div>
-                
                 <Table>
                     <TableHeader>
                         <TableRow>
@@ -98,6 +81,35 @@ export function AqneNinoTab({ data, isEditing, onInputChange }: AqneNinoTabProps
                             </TableRow>
                         ))}
                     </TableBody>
+                    <TableFooter>
+                        <TableRow>
+                            <TableHead>Total</TableHead>
+                            <TableHead className="text-right font-bold">
+                                {isEditing ? (
+                                    <Input
+                                        type="text"
+                                        readOnly
+                                        value={formatCurrency(metricasPrincipales.totalEuros)}
+                                        className="w-24 ml-auto text-right bg-muted"
+                                    />
+                                ) : (
+                                    formatCurrency(metricasPrincipales.totalEuros)
+                                )}
+                            </TableHead>
+                            <TableHead className="text-right font-bold">
+                                {isEditing ? (
+                                    <Input
+                                        type="text"
+                                        readOnly
+                                        value={formatNumber(metricasPrincipales.totalUnidades)}
+                                        className="w-24 ml-auto text-right bg-muted"
+                                    />
+                                ) : (
+                                    formatNumber(metricasPrincipales.totalUnidades)
+                                )}
+                            </TableHead>
+                        </TableRow>
+                    </TableFooter>
                 </Table>
             </CardContent>
         </Card>
