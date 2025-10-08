@@ -37,9 +37,8 @@ export function AqneNinoTab({ data, isEditing, onInputChange, nextWeekDateRange 
     return (
         <Card className="flex-1">
             <CardHeader className="pb-2">
-                <CardTitle className="flex flex-col items-center justify-center text-lg font-bold">
-                    <span>SEMANA</span>
-                    <span className="text-sm font-normal text-muted-foreground">{nextWeekDateRange}</span>
+                <CardTitle className="flex items-center justify-center text-lg font-bold uppercase">
+                    {`AQNE SEMANA ${nextWeekDateRange}`}
                 </CardTitle>
             </CardHeader>
             <CardContent>
