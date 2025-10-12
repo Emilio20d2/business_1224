@@ -399,6 +399,8 @@ function ExperienciaPageComponent() {
   const tabButtons = [
     { value: 'experiencia', label: 'EXPERIENCIA' },
     { value: 'focus', label: 'FOCUS' },
+    { value: 'hola', label: 'HOLA!' },
+    { value: 'encuestas', label: 'ENCUESTAS QR' },
   ];
 
   if (authLoading || (dataLoading && !error)) {
@@ -576,7 +578,7 @@ function ExperienciaPageComponent() {
         <main>
            {data ? (
                 <Tabs value={activeSubTab} onValueChange={setActiveSubTab} className="w-full">
-                    <div className="mb-4 grid w-full grid-cols-2 gap-2">
+                    <div className="mb-4 grid w-full grid-cols-2 md:grid-cols-4 gap-2">
                         {tabButtons.map(tab => (
                             <Button
                                 key={tab.value}
@@ -644,6 +646,14 @@ function ExperienciaPageComponent() {
                           isEditing={isEditing} 
                           onTextChange={(val) => handleInputChange('focusSemanal.experiencia', val)} 
                         />
+                    </TabsContent>
+                     <TabsContent value="hola" className="mt-0">
+                        {/* Content for HOLA! tab */}
+                        <div></div>
+                    </TabsContent>
+                    <TabsContent value="encuestas" className="mt-0">
+                        {/* Content for ENCUESTAS QR tab */}
+                        <div></div>
                     </TabsContent>
                 </Tabs>
             ) : (
