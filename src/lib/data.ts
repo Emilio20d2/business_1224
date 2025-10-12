@@ -150,16 +150,18 @@ export type SeccionAqneNinoData = {
     }[];
 };
 
+export type MejorFamiliaNino = {
+    nombre: string;
+    totalEuros: number;
+    totalUnidades: number;
+};
+
 export type VentasCompradorNinoItem = {
     nombre: string;
     totalEuros: number;
     totalUnidades: number;
-    zonas: {
-        nombre: string;
-        totalEuros: number;
-        totalUnidades: number;
-    }[];
-    mejoresFamilias: string[];
+    varPorcTotal: number;
+    mejoresFamilias: MejorFamiliaNino[];
 };
 
 export type EncuestasQrData = {
@@ -169,6 +171,14 @@ export type EncuestasQrData = {
     online: number;
     probador: number;
     caja: number;
+    respuestasPositivas?: {
+        respuesta1: string;
+        respuesta2: string;
+    };
+    aMejorar?: {
+        respuesta1: string;
+        respuesta2: string;
+    }
 };
 
 
@@ -543,17 +553,13 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
         }));
     }
 
-    const createVentasCompradorNinoItems = (compradores: string[], zonas: string[]): VentasCompradorNinoItem[] => {
+    const createVentasCompradorNinoItems = (compradores: string[]): VentasCompradorNinoItem[] => {
         return compradores.map(comprador => ({
             nombre: comprador,
             totalEuros: 0,
             totalUnidades: 0,
-            zonas: zonas.map(zona => ({
-                nombre: zona,
-                totalEuros: 0,
-                totalUnidades: 0,
-            })),
-            mejoresFamilias: Array(5).fill(''),
+            varPorcTotal: 0,
+            mejoresFamilias: Array(5).fill({ nombre: '', totalEuros: 0, totalUnidades: 0 }),
         }));
     };
     
@@ -612,7 +618,7 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
             nino: createSeccionAqneData()
         },
         aqneNino: createInitialAqneNinoData(),
-        ventasCompradorNino: createVentasCompradorNinoItems(lists.compradorNino, lists.zonaComercialNino),
+        ventasCompradorNino: createVentasCompradorNinoItems(lists.compradorNino),
         ventasDiariasAQNE: [
             { dia: "LUNES", total: 0, woman: 0, man: 0, nino: 0 },
             { dia: "MARTES", total: 0, woman: 0, man: 0, nino: 0 },
@@ -643,6 +649,14 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
             online: 0,
             probador: 0,
             caja: 0,
+            respuestasPositivas: {
+                respuesta1: "",
+                respuesta2: ""
+            },
+            aMejorar: {
+                respuesta1: "",
+                respuesta2: ""
+            }
         },
         incorporaciones: [],
         productividad: {

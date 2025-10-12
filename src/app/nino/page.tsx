@@ -2,7 +2,7 @@
 
 "use client"
 import React, { useState, useContext, useEffect, useCallback, Suspense } from 'react';
-import type { WeeklyData, VentasManItem, SectionSpecificData, Empleado, VentasCompradorNinoItem } from "@/lib/data";
+import type { WeeklyData, VentasManItem, SectionSpecificData, Empleado, VentasCompradorNinoItem, MejorFamiliaNino } from "@/lib/data";
 import { doc, getDoc, setDoc, updateDoc, collection, getDocs } from "firebase/firestore";
 import { db } from '@/lib/firebase';
 import { Calendar as CalendarIcon, Settings, LogOut, Loader2, Briefcase, List, LayoutDashboard, Pencil, Upload, Projector, Users, UserPlus, SlidersHorizontal } from 'lucide-react';
@@ -82,65 +82,50 @@ const synchronizeTableData = (list: string[], oldTableData: VentasManItem[]): Ve
 
 const synchronizeVentasCompradorNino = (
     compradorList: string[],
-    zonaList: string[],
     oldData: VentasCompradorNinoItem[] | undefined
 ): [VentasCompradorNinoItem[], boolean] => {
     const safeOldData = Array.isArray(oldData) ? oldData : [];
     const oldDataMap = new Map(safeOldData.map(d => [d.nombre, d]));
     let needsUpdate = false;
 
-    // Build the new data in the order of compradorList
     const newData = compradorList.map(compradorName => {
         const existingComprador = oldDataMap.get(compradorName);
-        let compradorItem: VentasCompradorNinoItem;
-
         if (existingComprador) {
-            compradorItem = { ...existingComprador }; // Create a copy
-            const oldZoneNames = (compradorItem.zonas || []).map(z => z.nombre).sort().join(',');
-            const newZoneNames = [...zonaList].sort().join(',');
-            
-            if (oldZoneNames !== newZoneNames) {
+            const familias = existingComprador.mejoresFamilias || [];
+            if (familias.length !== 5) {
                 needsUpdate = true;
-                compradorItem.zonas = zonaList.map(zonaName => {
-                    const existingZone = (compradorItem.zonas || []).find(z => z.nombre === zonaName);
-                    return existingZone || { nombre: zonaName, totalEuros: 0, totalUnidades: 0 };
-                });
+                const newFamilias = Array(5).fill(null).map((_, i) => familias[i] || { nombre: '', totalEuros: 0, totalUnidades: 0 });
+                return { ...existingComprador, mejoresFamilias: newFamilias };
             }
+            return { ...existingComprador };
         } else {
             needsUpdate = true;
-            compradorItem = {
+            return {
                 nombre: compradorName,
                 totalEuros: 0,
                 totalUnidades: 0,
-                zonas: zonaList.map(zonaName => ({ nombre: zonaName, totalEuros: 0, totalUnidades: 0 })),
-                mejoresFamilias: Array(5).fill(''),
+                varPorcTotal: 0,
+                mejoresFamilias: Array(5).fill({ nombre: '', totalEuros: 0, totalUnidades: 0 }),
             };
         }
-        return compradorItem;
     });
 
-    const currentOrder = safeOldData.map(d => d.nombre).join(',');
-    const desiredOrder = compradorList.join(',');
-    if (currentOrder !== desiredOrder) {
+    if (safeOldData.length !== compradorList.length) {
         needsUpdate = true;
-    }
-
-    if (safeOldData.length !== compradorList.length){
-        needsUpdate = true;
-    }
-    
-    // Check if any sub-property needs updating
-    if (!needsUpdate) {
-        for(let i = 0; i < newData.length; i++) {
-            const oldItem = safeOldData[i];
-            const newItem = newData[i];
-            if (JSON.stringify(oldItem) !== JSON.stringify(newItem)) {
-                needsUpdate = true;
-                break;
+    } else {
+        const currentOrder = safeOldData.map(d => d.nombre).join(',');
+        const desiredOrder = compradorList.join(',');
+        if (currentOrder !== desiredOrder) {
+            needsUpdate = true;
+        } else {
+            for (let i = 0; i < newData.length; i++) {
+                if (JSON.stringify(safeOldData[i]) !== JSON.stringify(newData[i])) {
+                    needsUpdate = true;
+                    break;
+                }
             }
         }
     }
-
 
     if (needsUpdate) {
         return [newData, true];
@@ -317,7 +302,7 @@ function NinoPageComponent() {
         [reportData.ventasNino.agrupacionComercial, changed] = syncAndCheck(reportData.ventasNino.agrupacionComercial, listData.agrupacionComercialNino);
         if (changed) needsSave = true;
 
-        [reportData.ventasCompradorNino, changed] = synchronizeVentasCompradorNino(listData.compradorNino, listData.zonaComercialNino, reportData.ventasCompradorNino);
+        [reportData.ventasCompradorNino, changed] = synchronizeVentasCompradorNino(listData.compradorNino, reportData.ventasCompradorNino);
         if(changed) needsSave = true;
 
         if (needsSave && canEdit) {
@@ -374,10 +359,17 @@ function NinoPageComponent() {
         if (keys[0] === 'ventasCompradorNino' && keys[2] === 'mejoresFamilias') {
             const compradorIndex = parseInt(keys[1], 10);
             const familiaIndex = parseInt(keys[3], 10);
-            updatedData.ventasCompradorNino[compradorIndex].mejoresFamilias[familiaIndex] = value;
+            const field = keys[4] as keyof MejorFamiliaNino;
+             if (field === 'nombre') {
+                updatedData.ventasCompradorNino[compradorIndex].mejoresFamilias[familiaIndex][field] = value;
+            } else {
+                const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
+                updatedData.ventasCompradorNino[compradorIndex].mejoresFamilias[familiaIndex][field] = isNaN(numericValue) || value === "" ? 0 : numericValue;
+            }
+
         } else {
             const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
-            current[finalKey] = isNaN(numericValue) || value === "" ? (fieldRequiresString(finalKey) ? "" : 0) : numericValue;
+            current[finalKey] = isNaN(numericValue) || value === "" ? 0 : numericValue;
         }
 
 
@@ -401,29 +393,27 @@ function NinoPageComponent() {
             }
         } else if (keys[0] === 'aqneNino') {
             const aqneData = updatedData.aqneNino;
-            const totalEuros = aqneData.desglose.reduce((sum: number, item: any) => sum + (item.totalEuros || 0), 0);
-            const totalUnidades = aqneData.desglose.reduce((sum: number, item: any) => sum + (item.unidades || 0), 0);
-            aqneData.metricasPrincipales.totalEuros = totalEuros;
-            aqneData.metricasPrincipales.totalUnidades = totalUnidades;
+            if (aqneData && aqneData.desglose) {
+                const totalEuros = aqneData.desglose.reduce((sum: number, item: any) => sum + (item.totalEuros || 0), 0);
+                const totalUnidades = aqneData.desglose.reduce((sum: number, item: any) => sum + (item.unidades || 0), 0);
+                aqneData.metricasPrincipales.totalEuros = totalEuros;
+                aqneData.metricasPrincipales.totalUnidades = totalUnidades;
+            }
         } else if (keys[0] === 'ventasCompradorNino') {
           const compradorIndex = parseInt(keys[1], 10);
           const compradorData = updatedData.ventasCompradorNino[compradorIndex];
 
-          if (keys[2] === 'zonas') {
-              const totalEurosZonas = compradorData.zonas.reduce((sum: number, zona: any) => sum + (zona.totalEuros || 0), 0);
-              const totalUnidadesZonas = compradorData.zonas.reduce((sum: number, zona: any) => sum + (zona.totalUnidades || 0), 0);
-              compradorData.totalEuros = totalEurosZonas;
-              compradorData.totalUnidades = totalUnidadesZonas;
+          if (keys[2] === 'mejoresFamilias') {
+              const totalEurosFamilias = compradorData.mejoresFamilias.reduce((sum: number, fam: any) => sum + (fam.totalEuros || 0), 0);
+              const totalUnidadesFamilias = compradorData.mejoresFamilias.reduce((sum: number, fam: any) => sum + (fam.totalUnidades || 0), 0);
+              compradorData.totalEuros = totalEurosFamilias;
+              compradorData.totalUnidades = totalUnidadesFamilias;
           }
         }
         
         return updatedData;
     });
 };
-
-const fieldRequiresString = (field: string) => {
-  return ['mejoresFamilias'].includes(field);
-}
 
   const handleFocusChange = (newValue: string) => {
     if (!canEdit) return;

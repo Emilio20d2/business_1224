@@ -1,12 +1,14 @@
 
+
 "use client";
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { formatCurrency, formatNumber } from "@/lib/format";
+import { formatCurrency, formatNumber, formatPercentage } from "@/lib/format";
 import type { VentasCompradorNinoItem, WeeklyData } from "@/lib/data";
+import { cn } from '@/lib/utils';
 
 type VentasCompradorNinoCardProps = {
   compradorData: VentasCompradorNinoItem;
@@ -17,12 +19,8 @@ type VentasCompradorNinoCardProps = {
 
 export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onInputChange }: VentasCompradorNinoCardProps) {
 
-  const handleZonaChange = (zonaIndex: number, field: 'totalEuros' | 'totalUnidades', value: string) => {
-    onInputChange(`zonas.${zonaIndex}.${field}`, value);
-  };
-
-  const handleFamiliaChange = (familiaIndex: number, value: string) => {
-    onInputChange(`mejoresFamilias.${familiaIndex}`, value === 'ninguna' ? '' : value);
+  const handleFamiliaChange = (familiaIndex: number, field: 'nombre' | 'totalEuros' | 'totalUnidades', value: string) => {
+    onInputChange(`mejoresFamilias.${familiaIndex}.${field}`, value);
   };
   
   const sortedFamilias = [...(listas.agrupacionComercialNino || [])].sort((a,b) => a.localeCompare(b));
@@ -30,7 +28,7 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
   return (
     <Card>
       <CardContent className="p-2">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Columna 1: Comprador */}
           <div className="flex flex-col justify-center items-center gap-2 py-2">
             <h3 className="font-bold text-xl text-center">{compradorData.nombre}</h3>
@@ -48,6 +46,22 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
                 <span className="font-bold text-lg">{formatCurrency(compradorData.totalEuros)}</span>
               )}
             </div>
+             <div className="flex flex-col items-center gap-1">
+                 <label className="text-sm font-medium text-muted-foreground">Var %</label>
+                {isEditing ? (
+                    <Input
+                        type="number"
+                        inputMode="decimal"
+                        defaultValue={compradorData.varPorcTotal}
+                        className="w-28 text-center text-lg font-bold"
+                        onBlur={(e) => onInputChange('varPorcTotal', e.target.value)}
+                    />
+                ) : (
+                    <span className={cn("font-bold text-lg", compradorData.varPorcTotal < 0 ? "text-red-600" : "text-green-600")}>
+                        {formatPercentage(compradorData.varPorcTotal)}
+                    </span>
+                )}
+            </div>
             <div className="flex flex-col items-center gap-1">
               <label className="text-sm font-medium text-muted-foreground">Total Unidades</label>
                {isEditing ? (
@@ -64,70 +78,51 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
             </div>
           </div>
 
-          {/* Columna 2: Zona */}
-          <div className="flex flex-col">
-            <h3 className="font-bold text-lg text-center text-primary mb-2">ZONA</h3>
-            <div className="flex-grow flex flex-col justify-center">
-              <div className="space-y-2">
-                {compradorData.zonas.map((zona, zonaIndex) => (
-                  <div key={zona.nombre} className="flex flex-col items-center justify-center">
-                    <span className="font-semibold text-base">{zona.nombre}</span>
-                    <div className="flex items-center gap-2 mt-1">
-                        {isEditing ? (
-                        <>
-                            <Input
-                            type="number"
-                            inputMode="decimal"
-                            defaultValue={zona.totalEuros}
-                            onBlur={(e) => handleZonaChange(zonaIndex, 'totalEuros', e.target.value)}
-                            className="w-24 text-right"
-                            placeholder="€"
-                            />
-                            <Input
-                            type="number"
-                            inputMode="decimal"
-                            defaultValue={zona.totalUnidades}
-                            onBlur={(e) => handleZonaChange(zonaIndex, 'totalUnidades', e.target.value)}
-                            className="w-20 text-right"
-                            placeholder="Uds."
-                            />
-                        </>
-                        ) : (
-                        <>
-                            <span className="font-medium text-sm text-right w-24">{formatCurrency(zona.totalEuros)}</span>
-                            <span className="font-medium text-sm text-right w-20">{formatNumber(zona.totalUnidades)}</span>
-                        </>
-                        )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Columna 3: Mejores Familias */}
+          {/* Columna 2: Mejores Familias */}
           <div className="flex flex-col">
             <h3 className="font-bold text-lg text-center text-primary mb-2">MEJORES FAMILIAS</h3>
             <div className="flex-grow flex flex-col justify-center">
               <div className="space-y-1">
                 {compradorData.mejoresFamilias.map((familia, familiaIndex) => (
-                  <div key={familiaIndex}>
+                  <div key={familiaIndex} className="grid grid-cols-[1fr_auto_auto] gap-2 items-center">
                     {isEditing ? (
-                      <Select value={familia || 'ninguna'} onValueChange={(value) => handleFamiliaChange(familiaIndex, value)}>
-                        <SelectTrigger className="text-xs h-7">
-                          <SelectValue placeholder="Seleccionar familia..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="ninguna">-- Ninguna --</SelectItem>
-                          {sortedFamilias.map(option => (
-                            <SelectItem key={option} value={option}>{option}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        <>
+                            <Select value={familia.nombre || 'ninguna'} onValueChange={(value) => handleFamiliaChange(familiaIndex, 'nombre', value === 'ninguna' ? '' : value)}>
+                                <SelectTrigger className="text-xs h-8">
+                                <SelectValue placeholder="Seleccionar familia..." />
+                                </SelectTrigger>
+                                <SelectContent>
+                                <SelectItem value="ninguna">-- Ninguna --</SelectItem>
+                                {sortedFamilias.map(option => (
+                                    <SelectItem key={option} value={option}>{option}</SelectItem>
+                                ))}
+                                </SelectContent>
+                            </Select>
+                            <Input
+                                type="number"
+                                inputMode="decimal"
+                                defaultValue={familia.totalEuros}
+                                onBlur={(e) => handleFamiliaChange(familiaIndex, 'totalEuros', e.target.value)}
+                                className="w-24 text-right h-8"
+                                placeholder="€"
+                            />
+                            <Input
+                                type="number"
+                                inputMode="decimal"
+                                defaultValue={familia.totalUnidades}
+                                onBlur={(e) => handleFamiliaChange(familiaIndex, 'totalUnidades', e.target.value)}
+                                className="w-20 text-right h-8"
+                                placeholder="Uds."
+                            />
+                      </>
                     ) : (
-                      <p className="font-medium text-xs text-center p-1 border rounded-md bg-muted/50 h-7 flex items-center justify-center">
-                        {familia || <span className="text-muted-foreground">--</span>}
-                      </p>
+                      <>
+                        <p className="font-medium text-xs text-left p-1 h-8 flex items-center justify-start">
+                          {familia.nombre || <span className="text-muted-foreground">--</span>}
+                        </p>
+                        <span className="font-medium text-xs text-right w-24">{formatCurrency(familia.totalEuros)}</span>
+                        <span className="font-medium text-xs text-right w-20">{formatNumber(familia.totalUnidades)}</span>
+                      </>
                     )}
                   </div>
                 ))}
