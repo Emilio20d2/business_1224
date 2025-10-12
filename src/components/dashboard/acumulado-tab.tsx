@@ -3,7 +3,7 @@ import React from 'react';
 import type { WeeklyData } from "@/lib/data";
 import { formatCurrency, formatPercentage, formatPercentageInt } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import { KpiCard, DatoDoble } from "../ui/kpi-card";
+import { KpiCard, DatoDoble, DatoSimple } from "../ui/kpi-card";
 import { Input } from "@/components/ui/input";
 import {
   PieChart,
@@ -39,6 +39,9 @@ const AcumuladoCard = ({ title, data, isEditing, idPrefix, onInputChange }: { ti
     const path = `acumulado.${idPrefix}.desglose.${index}.${field}`;
     onInputChange(path, value);
   };
+  
+  const prescriptorValue = (data.totalEuros || 0) - (data.sint || 0);
+
 
   return (
     <KpiCard title={title} icon={<></>} className="flex-1">
@@ -62,7 +65,11 @@ const AcumuladoCard = ({ title, data, isEditing, idPrefix, onInputChange }: { ti
         />
       </div>
        <div className="grid grid-cols-2 gap-4">
-        <div></div>
+        <DatoSimple
+            label="Prescriptor"
+            value={formatCurrency(prescriptorValue)}
+            align="left"
+        />
         <DatoDoble 
           labelRight="SINT"
           value={formatCurrency(data.sint || 0)}

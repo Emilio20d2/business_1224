@@ -236,12 +236,12 @@ export function DatoSimple({
         <div className={cn("flex w-full font-light", alignmentClasses[align], className)}>
             <div className={cn("flex flex-col gap-1 w-full", `items-${align}`)}>
               {(textLabel || iconToShow) && 
-                <span className="flex items-center gap-2 text-muted-foreground justify-center text-sm font-normal">
+                <span className="flex items-center gap-2 text-muted-foreground justify-start text-xs font-semibold">
                     {iconToShow}
                     {textLabel}
                 </span>
               }
-               <div className="text-center flex-col justify-center items-center flex gap-1">
+               <div className={cn("flex-col justify-center items-center flex gap-1", `items-${align}`)}>
                     {renderValue()}
                     {renderVariation()}
                </div>
