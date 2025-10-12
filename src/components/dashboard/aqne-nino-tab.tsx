@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import React from 'react';
@@ -28,7 +29,7 @@ type AqneNinoTabProps = {
 export function AqneNinoTab({ data, isEditing, onInputChange, nextWeekDateRange }: AqneNinoTabProps) {
     if (!data || !data.aqneNino) return null;
 
-    const { aqneNino, ventasCompradorNino, listas } = data;
+    const { aqneNino, listas } = data;
     const { metricasPrincipales, desglose } = aqneNino || { metricasPrincipales: { totalEuros: 0, totalUnidades: 0 }, desglose: [] };
 
     const handleDesgloseChange = (index: number, field: string, value: string) => {

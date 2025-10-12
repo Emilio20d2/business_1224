@@ -139,9 +139,7 @@ export type PedidosData = {
 export type SeccionAqneNinoData = {
     metricasPrincipales: {
         totalEuros: number;
-        varPorcEuros: number;
         totalUnidades: number;
-        varPorcUnidades: number;
     };
     desglose: {
         seccion: string;
@@ -529,9 +527,7 @@ const createInitialPlanningSemanal = (): WeeklyData['planningSemanal'] => ({
 const createInitialAqneNinoData = (): SeccionAqneNinoData => ({
     metricasPrincipales: {
         totalEuros: 0,
-        varPorcEuros: 0,
         totalUnidades: 0,
-        varPorcUnidades: 0,
     },
     desglose: [
         { seccion: "Ropa", totalEuros: 0, unidades: 0 },
