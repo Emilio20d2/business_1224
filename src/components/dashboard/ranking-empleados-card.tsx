@@ -4,8 +4,8 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Trophy, User, Hash, Package, Boxes, Pencil } from 'lucide-react';
-import { formatNumber } from '@/lib/format';
+import { Trophy, User, Hash, Package, Boxes, Pencil, Euro } from 'lucide-react';
+import { formatNumber, formatCurrency } from '@/lib/format';
 import { Button } from '../ui/button';
 
 type RankingEmpleadosCardProps = {
@@ -24,7 +24,7 @@ export function RankingEmpleadosCard({ ranking, empleados, isEditing, canEdit, o
         onInputChange(`pedidos.rankingEmpleados.${rowIndex}.id`, valueToSave);
     };
 
-    const handleValueChange = (rowIndex: number, field: 'pedidos' | 'unidades', value: string) => {
+    const handleValueChange = (rowIndex: number, field: 'pedidos' | 'unidades' | 'importes', value: string) => {
         onInputChange(`pedidos.rankingEmpleados.${rowIndex}.${field}`, value);
     };
 
@@ -52,6 +52,7 @@ export function RankingEmpleadosCard({ ranking, empleados, isEditing, canEdit, o
                             <TableHead><User className="h-4 w-4 inline-block mr-1"/>Empleado</TableHead>
                             <TableHead className="text-right"><Package className="h-4 w-4 inline-block mr-1"/>Pedidos</TableHead>
                             <TableHead className="text-right"><Boxes className="h-4 w-4 inline-block mr-1"/>Unidades</TableHead>
+                            <TableHead className="text-right"><Euro className="h-4 w-4 inline-block mr-1"/>Importes</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -103,6 +104,18 @@ export function RankingEmpleadosCard({ ranking, empleados, isEditing, canEdit, o
                                         />
                                     ) : (
                                         formatNumber(item.unidades)
+                                    )}
+                                </TableCell>
+                                 <TableCell className="text-right">
+                                    {isEditing ? (
+                                        <Input
+                                            type="number"
+                                            defaultValue={item.importes}
+                                            onBlur={(e) => handleValueChange(index, 'importes', e.target.value)}
+                                            className="w-24 ml-auto text-right"
+                                        />
+                                    ) : (
+                                        formatCurrency(item.importes)
                                     )}
                                 </TableCell>
                             </TableRow>

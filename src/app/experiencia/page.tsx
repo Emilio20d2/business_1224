@@ -5,7 +5,7 @@ import React, { useState, useContext, useEffect, useCallback, Suspense } from 'r
 import type { WeeklyData, Empleado, SectionSpecificData, IncorporacionItem } from "@/lib/data";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from '@/lib/firebase';
-import { Calendar as CalendarIcon, Settings, LogOut, Loader2, Briefcase, LayoutDashboard, Pencil, Projector, AlertTriangle, Users, List, UserPlus, ChartLine, SlidersHorizontal, Hanger } from 'lucide-react';
+import { Calendar as CalendarIcon, Settings, LogOut, Loader2, Briefcase, LayoutDashboard, Pencil, Projector, AlertTriangle, Users, List, UserPlus, ChartLine, SlidersHorizontal, Hanger, Euro } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -248,7 +248,7 @@ function ExperienciaPageComponent() {
         }
 
         if (!reportData.pedidos.rankingEmpleados || reportData.pedidos.rankingEmpleados.length === 0) {
-            reportData.pedidos.rankingEmpleados = Array.from({ length: 10 }, () => ({ id: '', nombre: '', pedidos: 0, unidades: 0 }));
+            reportData.pedidos.rankingEmpleados = Array.from({ length: 10 }, () => ({ id: '', nombre: '', pedidos: 0, unidades: 0, importes: 0 }));
             needsSave = true;
         }
 

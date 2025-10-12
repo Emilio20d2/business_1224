@@ -133,6 +133,7 @@ export type PedidosData = {
         nombre: string;
         pedidos: number;
         unidades: number;
+        importes: number;
     }[];
 };
 
@@ -402,6 +403,7 @@ const createInitialPedidosData = (): PedidosData => ({
         nombre: '',
         pedidos: 0,
         unidades: 0,
+        importes: 0,
     })),
 });
 
