@@ -25,6 +25,7 @@ export function KpiCard({ title, icon, children, className }: KpiCardProps) {
 
 type DatoDobleProps = {
   label?: string;
+  labelRight?: string;
   value: string | number;
   variation?: number;
   unit?: string;
@@ -34,7 +35,7 @@ type DatoDobleProps = {
   onInputChange?: (path: string, value: string | number) => void;
 };
 
-export function DatoDoble({ label, value, variation, unit, isEditing, valueId, variationId, onInputChange }: DatoDobleProps) {
+export function DatoDoble({ label, labelRight, value, variation, unit, isEditing, valueId, variationId, onInputChange }: DatoDobleProps) {
   const trendColor = variation === undefined ? '' : variation >= 0 ? 'text-green-600 bg-green-100 dark:text-green-200 dark:bg-green-900/50' : 'text-red-600 bg-red-100 dark:text-red-200 dark:bg-red-900/50';
 
   const handleValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -52,15 +53,14 @@ export function DatoDoble({ label, value, variation, unit, isEditing, valueId, v
   const rawValue = typeof value === 'string'
     ? parseFloat(value.replace(/[^0-9.,-]+/g, '').replace(',', '.'))
     : value;
-  console.log({label, rawValue, value});
 
 
   const valueColor = typeof rawValue === 'number' && rawValue < 0 ? 'text-red-600' : '';
 
   return (
     <div className="flex justify-between items-center font-light px-1">
-      {label && <span className="text-xs text-muted-foreground">{label}</span>}
-      <div className="flex items-baseline gap-2">
+      {label && <span className="text-xs text-muted-foreground w-full">{label}</span>}
+      <div className="flex items-baseline gap-2 justify-end">
         {isEditing && valueId && onInputChange ? (
           <div className="flex items-center gap-1">
              <Input 
@@ -96,6 +96,7 @@ export function DatoDoble({ label, value, variation, unit, isEditing, valueId, v
           )
         )}
       </div>
+      {labelRight && <span className="text-xs text-muted-foreground w-full text-right">{labelRight}</span>}
     </div>
   );
 }

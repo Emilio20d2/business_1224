@@ -15,6 +15,8 @@ type DesgloseItem = {
 type AcumuladoPeriodo = {
     totalEuros: number;
     varPorcTotal: number;
+    importeIpod?: number;
+    varPorcIpod?: number;
     desglose: DesgloseItem[];
 };
 
@@ -554,6 +556,15 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
         ]
     });
 
+    const createAcumuladoPeriodo = (): AcumuladoPeriodo => ({
+        totalEuros: 0, varPorcTotal: 0, importeIpod: 0, varPorcIpod: 0,
+        desglose: [
+            { nombre: "Woman", totalEuros: 0, varPorc: 0, pesoPorc: 0 },
+            { nombre: "Man", totalEuros: 0, varPorc: 0, pesoPorc: 0 },
+            { nombre: "Niño", totalEuros: 0, varPorc: 0, pesoPorc: 0 }
+        ]
+    });
+
 
     return {
         periodo: weekId.toUpperCase().replace('-', ' '),
@@ -610,22 +621,8 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
         },
         planningSemanal: createInitialPlanningSemanal(),
         acumulado: {
-            mensual: {
-                totalEuros: 0, varPorcTotal: 0,
-                desglose: [
-                    { nombre: "Woman", totalEuros: 0, varPorc: 0, pesoPorc: 0 },
-                    { nombre: "Man", totalEuros: 0, varPorc: 0, pesoPorc: 0 },
-                    { nombre: "Niño", totalEuros: 0, varPorc: 0, pesoPorc: 0 }
-                ]
-            },
-            anual: {
-                totalEuros: 0, varPorcTotal: 0,
-                desglose: [
-                    { nombre: "Woman", totalEuros: 0, varPorc: 0, pesoPorc: 0 },
-                    { nombre: "Man", totalEuros: 0, varPorc: 0, pesoPorc: 0 },
-                    { nombre: "Niño", totalEuros: 0, varPorc: 0, pesoPorc: 0 }
-                ]
-            }
+            mensual: createAcumuladoPeriodo(),
+            anual: createAcumuladoPeriodo(),
         },
         ventasWoman: {
             pesoComprador: createVentasManItems(lists?.compradorWoman),

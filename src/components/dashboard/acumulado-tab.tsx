@@ -42,14 +42,25 @@ const AcumuladoCard = ({ title, data, isEditing, idPrefix, onInputChange }: { ti
 
   return (
     <KpiCard title={title} icon={<></>} className="flex-1">
-      <DatoDoble 
-        value={formatCurrency(data.totalEuros)} 
-        variation={data.varPorcTotal}
-        isEditing={isEditing}
-        valueId={`acumulado.${idPrefix}.totalEuros`}
-        variationId={`acumulado.${idPrefix}.varPorcTotal`}
-        onInputChange={onInputChange}
-      />
+      <div className="grid grid-cols-2 gap-4">
+        <DatoDoble 
+          value={formatCurrency(data.totalEuros)} 
+          variation={data.varPorcTotal}
+          isEditing={isEditing}
+          valueId={`acumulado.${idPrefix}.totalEuros`}
+          variationId={`acumulado.${idPrefix}.varPorcTotal`}
+          onInputChange={onInputChange}
+        />
+        <DatoDoble 
+          labelRight="Importe Ipod en €"
+          value={formatCurrency(data.importeIpod || 0)}
+          variation={data.varPorcIpod || 0}
+          isEditing={isEditing}
+          valueId={`acumulado.${idPrefix}.importeIpod`}
+          variationId={`acumulado.${idPrefix}.varPorcIpod`}
+          onInputChange={onInputChange}
+        />
+      </div>
       
       <div className="h-48 w-full">
         <ResponsiveContainer width="100%" height="100%">
