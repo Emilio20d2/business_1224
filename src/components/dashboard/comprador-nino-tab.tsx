@@ -19,26 +19,35 @@ type CompradorNinoTabProps = {
 
 const CompradorTable = ({
   compradorData,
+  ropaData,
   listas,
   isEditing,
   onInputChange,
   compradorIndex,
+  ropaDataIndex,
 }: {
   compradorData: VentasCompradorNinoItem;
+  ropaData: WeeklyData['ventasNino']['pesoComprador'][0] | undefined,
   listas: WeeklyData['listas'];
   isEditing: boolean;
   onInputChange: (path: string, value: string | number) => void;
   compradorIndex: number;
+  ropaDataIndex: number | undefined;
 }) => {
   const handleFamiliaChange = (familiaIndex: number, field: keyof MejorFamiliaNino, value: string) => {
     onInputChange(`ventasCompradorNino.${compradorIndex}.mejoresFamilias.${familiaIndex}.${field}`, value);
   };
   
-  const handleHeaderChange = (field: keyof VentasCompradorNinoItem, value: string) => {
-      onInputChange(`ventasCompradorNino.${compradorIndex}.${field}`, value);
+  const handleHeaderChange = (field: 'totalEuros' | 'varPorc', value: string) => {
+      if (ropaDataIndex === undefined) return;
+      onInputChange(`ventasNino.pesoComprador.${ropaDataIndex}.${field}`, value);
   };
 
   const sortedFamilias = [...(listas.agrupacionComercialNino || [])].sort((a,b) => a.localeCompare(b));
+
+  const totalEuros = ropaData?.totalEuros || 0;
+  const varPorcTotal = ropaData?.varPorc || 0;
+
 
   return (
     <Card>
@@ -127,12 +136,12 @@ const CompradorTable = ({
                         <Input
                             type="number"
                             inputMode="decimal"
-                            value={compradorData.totalEuros}
-                            readOnly
-                            className="w-24 text-right h-8 ml-auto bg-background"
+                            defaultValue={totalEuros}
+                            className="w-24 text-right h-8 ml-auto"
+                            onBlur={(e) => handleHeaderChange('totalEuros', e.target.value)}
                         />
                     ) : (
-                        formatCurrency(compradorData.totalEuros)
+                        formatCurrency(totalEuros)
                     )}
                 </TableHead>
                 <TableHead className="text-right font-bold">
@@ -141,15 +150,15 @@ const CompradorTable = ({
                             <Input
                                 type="number"
                                 inputMode="decimal"
-                                defaultValue={compradorData.varPorcTotal}
+                                defaultValue={varPorcTotal}
                                 className="w-20 text-center h-8"
-                                onBlur={(e) => handleHeaderChange('varPorcTotal', e.target.value)}
+                                onBlur={(e) => handleHeaderChange('varPorc', e.target.value)}
                             />
                             <span className="ml-1">%</span>
                         </div>
                     ) : (
-                        <span className={cn("font-bold text-sm", compradorData.varPorcTotal < 0 ? "text-red-600" : "text-green-600")}>
-                            {formatPercentage(compradorData.varPorcTotal)}
+                        <span className={cn("font-bold text-sm", varPorcTotal < 0 ? "text-red-600" : "text-green-600")}>
+                            {formatPercentage(varPorcTotal)}
                         </span>
                     )}
                 </TableHead>
@@ -163,9 +172,9 @@ const CompradorTable = ({
 
 
 export function CompradorNinoTab({ data, isEditing, onInputChange }: CompradorNinoTabProps) {
-    if (!data || !data.ventasCompradorNino) return null;
+    if (!data || !data.ventasCompradorNino || !data.ventasNino) return null;
 
-    const { ventasCompradorNino, listas } = data;
+    const { ventasCompradorNino, ventasNino, listas } = data;
 
     const forcedOrder = ["NIÑA", "NIÑO", "KIDS-A", "KIDS-O", "BABY", "ACCESORIOS"];
     const sortedVentasCompradorNino = ventasCompradorNino ? [...ventasCompradorNino].sort((a, b) => {
@@ -178,16 +187,21 @@ export function CompradorNinoTab({ data, isEditing, onInputChange }: CompradorNi
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {sortedVentasCompradorNino.map((compradorData, index) => {
+            {sortedVentasCompradorNino.map((compradorData) => {
                 const originalIndex = ventasCompradorNino.findIndex(item => item.nombre === compradorData.nombre);
+                const ropaData = ventasNino.pesoComprador.find(item => item.nombre === compradorData.nombre);
+                const ropaDataIndex = ventasNino.pesoComprador.findIndex(item => item.nombre === compradorData.nombre);
+
                 return (
                     <CompradorTable
                         key={compradorData.nombre}
                         compradorData={compradorData}
+                        ropaData={ropaData}
                         listas={listas}
                         isEditing={isEditing}
                         onInputChange={onInputChange}
                         compradorIndex={originalIndex}
+                        ropaDataIndex={ropaDataIndex !== -1 ? ropaDataIndex : undefined}
                     />
                 );
             })}
