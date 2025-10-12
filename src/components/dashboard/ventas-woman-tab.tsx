@@ -187,13 +187,14 @@ export function VentasWomanTab({ data, isEditing, onInputChange, onTextChange }:
 
     const tabButtons = [
         { value: 'ventas', label: 'VENTAS' },
+        { value: 'zonaYAgrupacion', label: 'ZONA Y AGRUPACIÓN' },
         { value: 'operaciones', label: 'OPERACIONES' },
         { value: 'focus', label: 'FOCUS' },
     ];
 
     return (
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <div className="mb-4 grid w-full grid-cols-2 md:grid-cols-3 gap-2">
+            <div className="mb-4 grid w-full grid-cols-2 md:grid-cols-4 gap-2">
                 {tabButtons.map(tab => (
                     <Button
                         key={tab.value}
@@ -272,6 +273,31 @@ export function VentasWomanTab({ data, isEditing, onInputChange, onTextChange }:
                     </Card>
                </div>
             </TabsContent>
+            
+            <TabsContent value="zonaYAgrupacion" className="mt-0">
+                <div className="grid gap-4 items-start grid-cols-1 md:grid-cols-2">
+                    <DataTable
+                        title="Zona Comprador"
+                        icon={<MapPin className="h-5 w-5" />}
+                        dataKey="ventasWoman.zonaComercial"
+                        data={ventasWoman.zonaComercial}
+                        list={listas.zonaComercialWoman}
+                        isEditing={isEditing}
+                        onInputChange={onInputChange}
+                        showFooter={false}
+                    />
+                    <DataTable
+                        title="Agrupación Comercial"
+                        icon={<ShoppingBasket className="h-5 w-5" />}
+                        dataKey="ventasWoman.agrupacionComercial"
+                        data={ventasWoman.agrupacionComercial}
+                        list={listas.agrupacionComercialWoman}
+                        isEditing={isEditing}
+                        onInputChange={onInputChange}
+                        showFooter={false}
+                    />
+                </div>
+            </TabsContent>
 
             <TabsContent value="operaciones" className="mt-0">
                 <OperacionesSubTab 
@@ -296,3 +322,5 @@ export function VentasWomanTab({ data, isEditing, onInputChange, onTextChange }:
         </Tabs>
     );
 }
+
+    
