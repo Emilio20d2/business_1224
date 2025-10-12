@@ -122,12 +122,12 @@ export function EncuestasQrTab({ data, isEditing, onInputChange }: EncuestasQrTa
                              {isEditing ? (
                                 <Textarea
                                     id="positiva-1"
-                                    value={respuestasPositivas.respuesta1}
+                                    value={respuestasPositivas?.respuesta1 || ''}
                                     onChange={(e) => handleTextChange('encuestasQr.respuestasPositivas.respuesta1', e.target.value)}
                                     rows={3}
                                 />
                              ) : (
-                                <p className="text-sm min-h-[60px] p-2 border rounded-md bg-muted/50">{respuestasPositivas.respuesta1 || '-'}</p>
+                                <p className="text-sm min-h-[60px] p-2 border rounded-md bg-muted/50">{respuestasPositivas?.respuesta1 || '-'}</p>
                              )}
                         </div>
                         <div className="space-y-2">
@@ -135,12 +135,12 @@ export function EncuestasQrTab({ data, isEditing, onInputChange }: EncuestasQrTa
                             {isEditing ? (
                                 <Textarea
                                     id="positiva-2"
-                                    value={respuestasPositivas.respuesta2}
+                                    value={respuestasPositivas?.respuesta2 || ''}
                                     onChange={(e) => handleTextChange('encuestasQr.respuestasPositivas.respuesta2', e.target.value)}
                                     rows={3}
                                 />
                             ) : (
-                                <p className="text-sm min-h-[60px] p-2 border rounded-md bg-muted/50">{respuestasPositivas.respuesta2 || '-'}</p>
+                                <p className="text-sm min-h-[60px] p-2 border rounded-md bg-muted/50">{respuestasPositivas?.respuesta2 || '-'}</p>
                             )}
                         </div>
                     </CardContent>
@@ -155,12 +155,12 @@ export function EncuestasQrTab({ data, isEditing, onInputChange }: EncuestasQrTa
                             {isEditing ? (
                                 <Textarea
                                     id="mejorar-1"
-                                    value={aMejorar.respuesta1}
+                                    value={aMejorar?.respuesta1 || ''}
                                     onChange={(e) => handleTextChange('encuestasQr.aMejorar.respuesta1', e.target.value)}
                                     rows={3}
                                 />
                             ) : (
-                                <p className="text-sm min-h-[60px] p-2 border rounded-md bg-muted/50">{aMejorar.respuesta1 || '-'}</p>
+                                <p className="text-sm min-h-[60px] p-2 border rounded-md bg-muted/50">{aMejorar?.respuesta1 || '-'}</p>
                             )}
                         </div>
                         <div className="space-y-2">
@@ -168,12 +168,12 @@ export function EncuestasQrTab({ data, isEditing, onInputChange }: EncuestasQrTa
                             {isEditing ? (
                                 <Textarea
                                     id="mejorar-2"
-                                    value={aMejorar.respuesta2}
+                                    value={aMejorar?.respuesta2 || ''}
                                     onChange={(e) => handleTextChange('encuestasQr.aMejorar.respuesta2', e.target.value)}
                                     rows={3}
                                 />
                              ) : (
-                                <p className="text-sm min-h-[60px] p-2 border rounded-md bg-muted/50">{aMejorar.respuesta2 || '-'}</p>
+                                <p className="text-sm min-h-[60px] p-2 border rounded-md bg-muted/50">{aMejorar?.respuesta2 || '-'}</p>
                              )}
                         </div>
                     </CardContent>
