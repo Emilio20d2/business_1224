@@ -128,13 +128,14 @@ function DashboardPageComponent() {
   const canEdit = user?.email === 'emiliogp@inditex.com';
   const { toast } = useToast();
   
-  const updateUrl = useCallback((newWeek: string, newTab: string) => {
-      if (!newWeek || !newTab) return;
+  const updateUrl = useCallback((newWeek: string, newTab?: string) => {
+      if (!newWeek) return;
+      const tab = newTab || activeSubTab || 'ventas';
       const params = new URLSearchParams(searchParams);
       params.set('week', newWeek);
-      params.set('tab', newTab);
+      params.set('tab', tab);
       router.replace(`/dashboard?${params.toString()}`);
-  },[router, searchParams]);
+  },[router, searchParams, activeSubTab]);
 
   const handleDateSelect = (date: Date | undefined) => {
     if (!date) return;
