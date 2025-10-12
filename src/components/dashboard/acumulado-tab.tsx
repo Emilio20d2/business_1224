@@ -3,7 +3,7 @@ import React from 'react';
 import type { WeeklyData } from "@/lib/data";
 import { formatCurrency, formatPercentage, formatPercentageInt } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import { KpiCard, DatoDoble } from "./kpi-card";
+import { KpiCard, DatoDoble } from "../ui/kpi-card";
 import { Input } from "@/components/ui/input";
 import {
   PieChart,
@@ -52,7 +52,7 @@ const AcumuladoCard = ({ title, data, isEditing, idPrefix, onInputChange }: { ti
           onInputChange={onInputChange}
         />
         <DatoDoble 
-          labelRight="Importe Ipod en €"
+          labelRight="V. IPod"
           value={formatCurrency(data.importeIpod || 0)}
           variation={data.varPorcIpod || 0}
           isEditing={isEditing}

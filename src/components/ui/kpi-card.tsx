@@ -59,44 +59,46 @@ export function DatoDoble({ label, labelRight, value, variation, unit, isEditing
 
   return (
     <div className="flex justify-between items-center font-light px-1">
-      {label && <span className="text-xs text-muted-foreground w-full">{label}</span>}
-      <div className="flex items-baseline gap-2 justify-end">
-        {isEditing && valueId && onInputChange ? (
-          <div className="flex items-center gap-1">
-             <Input 
-               type="number" 
-               inputMode="decimal" 
-               defaultValue={Number.isNaN(rawValue) ? '' : rawValue}
-               className="w-24 h-8 text-right" 
-               id={valueId}
-               onChange={handleValueChange}
-             />
-             {unit && <span className="text-sm text-muted-foreground">{unit}</span>}
-           </div>
-        ) : (
-           <div className={cn("text-base font-bold", valueColor)}>{value}{unit}</div>
-        )}
-        {variation !== undefined && (
-          isEditing && variationId ? (
+      {label && <span className="text-xs text-muted-foreground">{label}</span>}
+      <div className={cn("flex items-baseline gap-2", label ? 'justify-end' : 'justify-start', labelRight && 'w-full justify-between')}>
+        <div className="flex items-baseline gap-2">
+            {isEditing && valueId && onInputChange ? (
             <div className="flex items-center gap-1">
-             <Input 
-               type="number" 
-               inputMode="decimal" 
-               defaultValue={variation} 
-               className="w-16 h-8" 
-               id={variationId}
-               onChange={handleVariationChange}
-             />
-             <span className="text-sm text-muted-foreground">%</span>
+                <Input 
+                type="number" 
+                inputMode="decimal" 
+                defaultValue={Number.isNaN(rawValue) ? '' : rawValue}
+                className="w-24 h-8 text-right" 
+                id={valueId}
+                onChange={handleValueChange}
+                />
+                {unit && <span className="text-sm text-muted-foreground">{unit}</span>}
             </div>
-          ) : (
-            <span className={cn("rounded-md px-1.5 py-0.5 text-xs font-bold", trendColor)}>
-              {variation >= 0 ? '+' : ''}{variation.toLocaleString('es-ES')}%
-            </span>
-          )
-        )}
+            ) : (
+            <div className={cn("text-base font-bold", valueColor)}>{value}{unit}</div>
+            )}
+            {variation !== undefined && (
+            isEditing && variationId ? (
+                <div className="flex items-center gap-1">
+                <Input 
+                type="number" 
+                inputMode="decimal" 
+                defaultValue={variation} 
+                className="w-16 h-8" 
+                id={variationId}
+                onChange={handleVariationChange}
+                />
+                <span className="text-sm text-muted-foreground">%</span>
+                </div>
+            ) : (
+                <span className={cn("rounded-md px-1.5 py-0.5 text-xs font-bold", trendColor)}>
+                {variation >= 0 ? '+' : ''}{variation.toLocaleString('es-ES')}%
+                </span>
+            )
+            )}
+        </div>
+         {labelRight && <span className="text-xs text-muted-foreground">{labelRight}</span>}
       </div>
-      {labelRight && <span className="text-xs text-muted-foreground w-full text-right">{labelRight}</span>}
     </div>
   );
 }
