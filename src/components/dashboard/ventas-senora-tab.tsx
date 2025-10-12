@@ -279,21 +279,21 @@ export function VentasSenoraTab({ data, isEditing, onInputChange, onTextChange, 
             <TabsContent value="zonaYAgrupacion" className="mt-0">
                 <div className="grid gap-4 items-start grid-cols-1 md:grid-cols-2">
                     <DataTable
-                        title="Tipo de Articulo"
-                        icon={<Tag className="h-5 w-5" />}
-                        dataKey="ventasWoman.zonaComercial"
-                        data={ventasWoman.zonaComercial}
-                        list={listas.zonaComercialWoman}
-                        isEditing={isEditing}
-                        onInputChange={onInputChange}
-                        showFooter={false}
-                    />
-                    <DataTable
                         title="Agrupación Comercial"
                         icon={<ShoppingBasket className="h-5 w-5" />}
                         dataKey="ventasWoman.agrupacionComercial"
                         data={ventasWoman.agrupacionComercial}
                         list={listas.agrupacionComercialWoman}
+                        isEditing={isEditing}
+                        onInputChange={onInputChange}
+                        showFooter={false}
+                    />
+                    <DataTable
+                        title="Tipo de Articulo"
+                        icon={<Tag className="h-5 w-5" />}
+                        dataKey="ventasWoman.zonaComercial"
+                        data={ventasWoman.zonaComercial}
+                        list={listas.zonaComercialWoman}
                         isEditing={isEditing}
                         onInputChange={onInputChange}
                         showFooter={false}
