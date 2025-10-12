@@ -3,10 +3,12 @@
 
 import React from 'react';
 import type { EncuestasQrData } from '@/lib/data';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { User, Shirt, Box, Receipt } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Label } from '../ui/label';
+import { Textarea } from '../ui/textarea';
 
 type EncuestasQrTabProps = {
     data: EncuestasQrData;
@@ -64,7 +66,7 @@ const Column = ({ icon, label, value, isEditing, valueId, onInputChange, isTotal
 export function EncuestasQrTab({ data, isEditing, onInputChange }: EncuestasQrTabProps) {
     if (!data) return null;
 
-    const { respuestas, planta, tallas, online, probador, caja } = data;
+    const { respuestas, planta, tallas, online, probador, caja, respuestasPositivas, aMejorar } = data;
     const total = (planta + tallas + online + probador + caja) / 5;
 
     const items = [
@@ -76,32 +78,107 @@ export function EncuestasQrTab({ data, isEditing, onInputChange }: EncuestasQrTa
         { icon: <Receipt size={32}/>, label: 'Caja', value: caja, valueId: 'encuestasQr.caja' },
     ];
 
+    const handleTextChange = (path: string, value: string) => {
+        onInputChange(path, value);
+    };
+
+
     return (
-        <Card>
-            <CardContent className="p-4">
-                <div className="grid grid-cols-7 items-start gap-4 border-b pb-4">
-                    {items.map(item => (
+        <div className="space-y-4">
+            <Card>
+                <CardContent className="p-4">
+                    <div className="grid grid-cols-7 items-start gap-4 border-b pb-4">
+                        {items.map(item => (
+                            <Column
+                                key={item.label}
+                                icon={item.icon}
+                                label={item.label}
+                                value={item.value}
+                                isEditing={isEditing}
+                                valueId={item.valueId}
+                                onInputChange={onInputChange}
+                                isInt={item.isInt}
+                            />
+                        ))}
                         <Column
-                            key={item.label}
-                            icon={item.icon}
-                            label={item.label}
-                            value={item.value}
+                            label="Total"
+                            value={total}
                             isEditing={isEditing}
-                            valueId={item.valueId}
-                            onInputChange={onInputChange}
-                            isInt={item.isInt}
+                            valueId="total" // Not editable
+                            onInputChange={() => {}}
+                            isTotal={true}
                         />
-                    ))}
-                     <Column
-                        label="Total"
-                        value={total}
-                        isEditing={isEditing}
-                        valueId="total" // Not editable
-                        onInputChange={() => {}}
-                        isTotal={true}
-                    />
-                </div>
-            </CardContent>
-        </Card>
+                    </div>
+                </CardContent>
+            </Card>
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>RESPUESTAS POSITIVAS</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="positiva-1">Respuesta 1</Label>
+                             {isEditing ? (
+                                <Textarea
+                                    id="positiva-1"
+                                    value={respuestasPositivas.respuesta1}
+                                    onChange={(e) => handleTextChange('encuestasQr.respuestasPositivas.respuesta1', e.target.value)}
+                                    rows={3}
+                                />
+                             ) : (
+                                <p className="text-sm min-h-[60px] p-2 border rounded-md bg-muted/50">{respuestasPositivas.respuesta1 || '-'}</p>
+                             )}
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="positiva-2">Respuesta 2</Label>
+                            {isEditing ? (
+                                <Textarea
+                                    id="positiva-2"
+                                    value={respuestasPositivas.respuesta2}
+                                    onChange={(e) => handleTextChange('encuestasQr.respuestasPositivas.respuesta2', e.target.value)}
+                                    rows={3}
+                                />
+                            ) : (
+                                <p className="text-sm min-h-[60px] p-2 border rounded-md bg-muted/50">{respuestasPositivas.respuesta2 || '-'}</p>
+                            )}
+                        </div>
+                    </CardContent>
+                </Card>
+                 <Card>
+                    <CardHeader>
+                        <CardTitle>A MEJORAR</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="mejorar-1">Respuesta 1</Label>
+                            {isEditing ? (
+                                <Textarea
+                                    id="mejorar-1"
+                                    value={aMejorar.respuesta1}
+                                    onChange={(e) => handleTextChange('encuestasQr.aMejorar.respuesta1', e.target.value)}
+                                    rows={3}
+                                />
+                            ) : (
+                                <p className="text-sm min-h-[60px] p-2 border rounded-md bg-muted/50">{aMejorar.respuesta1 || '-'}</p>
+                            )}
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="mejorar-2">Respuesta 2</Label>
+                            {isEditing ? (
+                                <Textarea
+                                    id="mejorar-2"
+                                    value={aMejorar.respuesta2}
+                                    onChange={(e) => handleTextChange('encuestasQr.aMejorar.respuesta2', e.target.value)}
+                                    rows={3}
+                                />
+                             ) : (
+                                <p className="text-sm min-h-[60px] p-2 border rounded-md bg-muted/50">{aMejorar.respuesta2 || '-'}</p>
+                             )}
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+        </div>
     );
 }

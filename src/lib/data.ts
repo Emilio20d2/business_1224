@@ -169,6 +169,14 @@ export type EncuestasQrData = {
     online: number;
     probador: number;
     caja: number;
+    respuestasPositivas: {
+        respuesta1: string;
+        respuesta2: string;
+    };
+    aMejorar: {
+        respuesta1: string;
+        respuesta2: string;
+    };
 };
 
 
@@ -642,7 +650,15 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
             tallas: 0,
             online: 0,
             probador: 0,
-            caja: 0
+            caja: 0,
+            respuestasPositivas: {
+                respuesta1: "",
+                respuesta2: "",
+            },
+            aMejorar: {
+                respuesta1: "",
+                respuesta2: "",
+            },
         },
         incorporaciones: [],
         productividad: {
