@@ -398,9 +398,9 @@ function ExperienciaPageComponent() {
   
   const tabButtons = [
     { value: 'experiencia', label: 'EXPERIENCIA' },
-    { value: 'focus', label: 'FOCUS' },
     { value: 'hola', label: 'HOLA!' },
     { value: 'encuestas', label: 'ENCUESTAS QR' },
+    { value: 'focus', label: 'FOCUS' },
   ];
 
   if (authLoading || (dataLoading && !error)) {
@@ -640,20 +640,20 @@ function ExperienciaPageComponent() {
                            )}
                         </div>
                     </TabsContent>
-                    <TabsContent value="focus" className="mt-0">
-                       <FocusSemanalTab 
-                          text={data.focusSemanal?.experiencia || ""} 
-                          isEditing={isEditing} 
-                          onTextChange={(val) => handleInputChange('focusSemanal.experiencia', val)} 
-                        />
-                    </TabsContent>
-                     <TabsContent value="hola" className="mt-0">
+                    <TabsContent value="hola" className="mt-0">
                         {/* Content for HOLA! tab */}
                         <div></div>
                     </TabsContent>
                     <TabsContent value="encuestas" className="mt-0">
                         {/* Content for ENCUESTAS QR tab */}
                         <div></div>
+                    </TabsContent>
+                    <TabsContent value="focus" className="mt-0">
+                       <FocusSemanalTab 
+                          text={data.focusSemanal?.experiencia || ""} 
+                          isEditing={isEditing} 
+                          onTextChange={(val) => handleInputChange('focusSemanal.experiencia', val)} 
+                        />
                     </TabsContent>
                 </Tabs>
             ) : (
@@ -714,5 +714,3 @@ export default function ExperienciaPage() {
         </Suspense>
     );
 }
-
-    
