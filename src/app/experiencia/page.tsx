@@ -139,6 +139,7 @@ function ExperienciaPageComponent() {
     try {
         const reportRef = doc(db, "informes", weekId);
         const listsRef = doc(db, "configuracion", "listas");
+        let needsSave = false;
 
         let masterLists: WeeklyData['listas'];
 
@@ -161,10 +162,8 @@ function ExperienciaPageComponent() {
               await setDoc(listsRef, masterLists);
             }
         }
-
-        let reportData: WeeklyData;
-        let needsSave = false;
         
+        // --- Get previous week's pending incorporaciones ---
         const previousWeekId = getPreviousWeekId(weekId);
         const prevReportRef = doc(db, "informes", previousWeekId);
         const prevReportSnap = await getDoc(prevReportRef);
@@ -178,7 +177,9 @@ function ExperienciaPageComponent() {
                 );
             }
         }
+        // ----------------------------------------------------
 
+        let reportData: WeeklyData;
         if (!reportSnap.exists()) {
              if (canEdit) {
                 toast({
@@ -186,7 +187,7 @@ function ExperienciaPageComponent() {
                     description: `El informe para "${weekId}" no existía y se ha creado uno nuevo.`,
                 });
                 reportData = getInitialDataForWeek(weekId, masterLists);
-                await setDoc(reportRef, reportData);
+                 // No setDoc here yet, we'll do it after adding pending items
             } else {
                 throw new Error(`No se encontró ningún informe para la semana "${weekId}".`);
             }
@@ -211,6 +212,7 @@ function ExperienciaPageComponent() {
             needsSave = true;
         }
 
+        // --- Merge pending incorporaciones ---
         if (pendingIncorporaciones.length > 0) {
             const existingIds = new Set(reportData.incorporaciones.map(inc => inc.id));
             const newIncorporaciones = pendingIncorporaciones.filter(inc => !existingIds.has(inc.id));
@@ -219,6 +221,7 @@ function ExperienciaPageComponent() {
                 needsSave = true;
             }
         }
+        // ------------------------------------
 
         const defaultSectionData: SectionSpecificData = {
             operaciones: { filasCajaPorc: 0, scoPorc: 0, dropOffPorc: 0, ventaIpod: 0, eTicketPorc: 0, repoPorc: 0, frescuraPorc: 0, coberturaPorc: 0, sinUbicacion: 0 },

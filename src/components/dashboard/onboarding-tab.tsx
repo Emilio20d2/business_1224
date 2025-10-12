@@ -69,7 +69,7 @@ export function OnboardingTab({ data, isEditing, onInputChange, setData }: Onboa
             </TableRow>
           </TableHeader>
           <TableBody>
-            {incorporaciones.map((item, index) => (
+            {incorporaciones && incorporaciones.map((item, index) => (
               <TableRow key={item.id}>
                 <TableCell>
                   {isEditing ? (
