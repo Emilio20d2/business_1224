@@ -27,7 +27,7 @@ import { getInitialDataForWeek, getInitialLists } from '@/lib/data';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { formatWeekIdToDateRange, getCurrentWeekId, getWeekIdFromDate } from '@/lib/format';
+import { formatWeekIdToDateRange, getCurrentWeekId, getWeekIdFromDate, getPreviousWeekId } from '@/lib/format';
 import { FocusSemanalTab } from '@/components/dashboard/focus-semanal-tab';
 import { EditListDialog } from '@/components/dashboard/edit-list-dialog';
 import { PedidosCard } from '@/components/dashboard/pedidos-card';
@@ -38,7 +38,7 @@ import { KpiCard, DatoDoble } from '@/components/dashboard/kpi-card';
 import { formatNumber, formatPercentage } from '@/lib/format';
 import { CajaCard } from '@/components/dashboard/caja-card';
 import { EditRatiosDialog } from '@/components/dashboard/operaciones/edit-ratios-dialog';
-import { HolaTab } from '@/components/dashboard/hola-tab';
+import { OnboardingTab } from '@/components/dashboard/onboarding-tab';
 
 
 type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan' | 'compradorWoman' | 'zonaComercialWoman' | 'agrupacionComercialWoman' | 'compradorNino' | 'zonaComercialNino' | 'agrupacionComercialNino';
@@ -164,6 +164,20 @@ function ExperienciaPageComponent() {
 
         let reportData: WeeklyData;
         let needsSave = false;
+        
+        const previousWeekId = getPreviousWeekId(weekId);
+        const prevReportRef = doc(db, "informes", previousWeekId);
+        const prevReportSnap = await getDoc(prevReportRef);
+        let pendingIncorporaciones: IncorporacionItem[] = [];
+
+        if (prevReportSnap.exists()) {
+            const prevData = prevReportSnap.data() as WeeklyData;
+            if (prevData.incorporaciones) {
+                pendingIncorporaciones = prevData.incorporaciones.filter(
+                    inc => !inc.somosZara || !inc.intalent || !inc.diHola
+                );
+            }
+        }
 
         if (!reportSnap.exists()) {
              if (canEdit) {
@@ -195,6 +209,15 @@ function ExperienciaPageComponent() {
         if (!reportData.incorporaciones) {
             reportData.incorporaciones = [];
             needsSave = true;
+        }
+
+        if (pendingIncorporaciones.length > 0) {
+            const existingIds = new Set(reportData.incorporaciones.map(inc => inc.id));
+            const newIncorporaciones = pendingIncorporaciones.filter(inc => !existingIds.has(inc.id));
+            if (newIncorporaciones.length > 0) {
+                reportData.incorporaciones = [...reportData.incorporaciones, ...newIncorporaciones];
+                needsSave = true;
+            }
         }
 
         const defaultSectionData: SectionSpecificData = {
@@ -446,7 +469,7 @@ const handleSave = async () => {
   
   const tabButtons = [
     { value: 'experiencia', label: 'EXPERIENCIA' },
-    { value: 'hola', label: 'HOLA!' },
+    { value: 'hola', label: 'ONBOARDING' },
     { value: 'encuestas', label: 'ENCUESTAS QR' },
     { value: 'focus', label: 'FOCUS' },
   ];
@@ -689,7 +712,7 @@ const handleSave = async () => {
                         </div>
                     </TabsContent>
                     <TabsContent value="hola" className="mt-0">
-                       <HolaTab
+                       <OnboardingTab
                           data={data}
                           isEditing={isEditing}
                           onInputChange={handleInputChange}

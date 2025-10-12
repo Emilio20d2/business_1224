@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from 'react';
@@ -10,14 +11,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Plus, Trash2, Users } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 
-type HolaTabProps = {
+type OnboardingTabProps = {
   data: WeeklyData;
   isEditing: boolean;
   onInputChange: (path: string, value: any) => void;
   setData: React.Dispatch<React.SetStateAction<WeeklyData | null>>;
 };
 
-export function HolaTab({ data, isEditing, onInputChange, setData }: HolaTabProps) {
+export function OnboardingTab({ data, isEditing, onInputChange, setData }: OnboardingTabProps) {
   const { incorporaciones, listas } = data;
 
   const handleIncorporacionChange = (index: number, field: keyof IncorporacionItem, value: any) => {
