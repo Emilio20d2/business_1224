@@ -5,7 +5,7 @@ import React, { useState, useContext, useEffect, useCallback, Suspense } from 'r
 import type { WeeklyData, Empleado, SectionSpecificData, IncorporacionItem } from "@/lib/data";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from '@/lib/firebase';
-import { Calendar as CalendarIcon, Settings, LogOut, Loader2, Briefcase, LayoutDashboard, Pencil, Projector, AlertTriangle, Users, List, UserPlus, ChartLine, SlidersHorizontal } from 'lucide-react';
+import { Calendar as CalendarIcon, Settings, LogOut, Loader2, Briefcase, LayoutDashboard, Pencil, Projector, AlertTriangle, Users, List, UserPlus, ChartLine, SlidersHorizontal, Hanger } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -39,6 +39,7 @@ import { formatNumber, formatPercentage } from '@/lib/format';
 import { CajaCard } from '@/components/dashboard/caja-card';
 import { EditRatiosDialog } from '@/components/dashboard/operaciones/edit-ratios-dialog';
 import { OnboardingTab } from '@/components/dashboard/onboarding-tab';
+import { EncuestasQrTab } from '@/components/dashboard/encuestas-qr-tab';
 
 
 type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan' | 'compradorWoman' | 'zonaComercialWoman' | 'agrupacionComercialWoman' | 'compradorNino' | 'zonaComercialNino' | 'agrupacionComercialNino';
@@ -251,6 +252,11 @@ function ExperienciaPageComponent() {
             needsSave = true;
         }
 
+        if (!reportData.encuestasQr) {
+            reportData.encuestasQr = getInitialDataForWeek(weekId, masterLists).encuestasQr;
+            needsSave = true;
+        }
+
 
         if (needsSave && canEdit) {
             await setDoc(reportRef, reportData, { merge: true });
@@ -368,6 +374,7 @@ const handleSave = async () => {
         rendimientoTienda: reportData.rendimientoTienda,
         general: reportData.general,
         pedidos: reportData.pedidos,
+        encuestasQr: reportData.encuestasQr,
         incorporaciones: reportData.incorporaciones,
     };
 
@@ -723,8 +730,11 @@ const handleSave = async () => {
                        />
                     </TabsContent>
                     <TabsContent value="encuestas" className="mt-0">
-                        {/* Content for ENCUESTAS QR tab */}
-                        <div></div>
+                        <EncuestasQrTab
+                            data={data.encuestasQr}
+                            isEditing={isEditing}
+                            onInputChange={handleInputChange}
+                        />
                     </TabsContent>
                     <TabsContent value="focus" className="mt-0">
                        <FocusSemanalTab 

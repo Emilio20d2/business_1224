@@ -162,6 +162,15 @@ export type VentasCompradorNinoItem = {
     mejoresFamilias: string[];
 };
 
+export type EncuestasQrData = {
+    respuestas: number;
+    planta: number;
+    tallas: number;
+    online: number;
+    probador: number;
+    caja: number;
+};
+
 
 export type WeeklyData = {
     periodo: string;
@@ -238,6 +247,7 @@ export type WeeklyData = {
       focus: string;
     };
     pedidos: PedidosData;
+    encuestasQr: EncuestasQrData;
     incorporaciones: IncorporacionItem[];
     productividad: {
         lunes: ProductividadData;
@@ -626,6 +636,14 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
             focus: "",
         },
         pedidos: createInitialPedidosData(),
+        encuestasQr: {
+            respuestas: 0,
+            planta: 0,
+            tallas: 0,
+            online: 0,
+            probador: 0,
+            caja: 0
+        },
         incorporaciones: [],
         productividad: {
             lunes: createInitialProductividadData(),
