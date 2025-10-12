@@ -56,7 +56,7 @@ export function DatoDoble({ label, value, variation, unit, isEditing, valueId, v
   const valueColor = typeof rawValue === 'number' && rawValue < 0 ? 'text-red-600' : '';
 
   return (
-    <div className="flex justify-between items-baseline text-right">
+    <div className="flex justify-between items-baseline">
       {label && <span className="text-lg text-muted-foreground w-full">{label}</span>}
       <div className="flex items-baseline gap-2 justify-end">
         {isEditing && valueId ? (
