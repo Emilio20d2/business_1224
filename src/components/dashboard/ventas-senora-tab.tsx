@@ -24,7 +24,7 @@ import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCurrency, formatPercentage, formatNumber, formatPercentageInt } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { Button } from '../ui/button';
-import { Users, MapPin, ShoppingBasket, Percent, Euro, Shirt, Footprints, SprayCan, Package, Hanger } from 'lucide-react';
+import { Users, MapPin, ShoppingBasket, Percent, Euro, Shirt, Footprints, SprayCan, Package, Tag } from 'lucide-react';
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { OperacionesSubTab } from './operaciones-sub-tab';
 import { FocusSemanalTab } from './focus-semanal-tab';
@@ -280,7 +280,7 @@ export function VentasSenoraTab({ data, isEditing, onInputChange, onTextChange, 
                 <div className="grid gap-4 items-start grid-cols-1 md:grid-cols-2">
                     <DataTable
                         title="Tipo de Articulo"
-                        icon={<Hanger className="h-5 w-5" />}
+                        icon={<Tag className="h-5 w-5" />}
                         dataKey="ventasWoman.zonaComercial"
                         data={ventasWoman.zonaComercial}
                         list={listas.zonaComercialWoman}
