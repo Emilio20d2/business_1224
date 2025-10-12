@@ -64,7 +64,7 @@ const AcumuladoCard = ({ title, data, isEditing, idPrefix, onInputChange }: { ti
           onInputChange={onInputChange}
         />
       </div>
-       <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-4">
         <DatoSimple
             label="Prescriptor"
             value={formatCurrency(prescriptorValue)}
