@@ -289,7 +289,7 @@ function ExperienciaPageComponent() {
           if (field === 'idEmpleado') {
               const selectedEmployee = updatedData.listas.empleados.find((e: Empleado) => e.id === value);
               incorporaciones[index].idEmpleado = value;
-              incorporaciones[index].nombreEmpleado = selectedEmployee ? selectedEmployee.nombre : '';
+              incorporaciones[index].nombreEmpleado = selectedEmployee ? selectedEmployee.nombre : (incorporaciones[index].nombreEmpleado || '');
           } else {
               (incorporaciones[index] as any)[field] = value;
           }
@@ -304,19 +304,45 @@ function ExperienciaPageComponent() {
     });
 };
 
-  const handleSave = async () => {
+const handleSave = async () => {
     if (!data) return;
     setIsSaving(true);
     const docRef = doc(db, "informes", selectedWeek);
+    const listsRef = doc(db, "configuracion", "listas");
+
+    const dataToSave = JSON.parse(JSON.stringify(data));
+    let newEmpleados = [...dataToSave.listas.empleados];
+    let empleadosUpdated = false;
+
+    // Synchronize new employees from incorporaciones to the main list
+    dataToSave.incorporaciones.forEach((inc: IncorporacionItem) => {
+        if (inc.idEmpleado && inc.nombreEmpleado && !newEmpleados.some((e: Empleado) => e.id === inc.idEmpleado)) {
+            newEmpleados.push({ id: inc.idEmpleado, nombre: inc.nombreEmpleado });
+            empleadosUpdated = true;
+        }
+    });
+
+    if (empleadosUpdated) {
+        await updateDoc(listsRef, { empleados: newEmpleados });
+    }
     
-    // We only want to save specific parts of the data from this page
-    const {listas, ...dataToSave} = data;
+    // Fill in names for existing IDs
+    dataToSave.incorporaciones.forEach((inc: IncorporacionItem) => {
+        if (inc.idEmpleado && !inc.nombreEmpleado) {
+            const emp = newEmpleados.find((e: Empleado) => e.id === inc.idEmpleado);
+            if (emp) {
+                inc.nombreEmpleado = emp.nombre;
+            }
+        }
+    });
+    
+    const {listas, ...reportData} = dataToSave;
     const relevantData = {
-        focusSemanal: dataToSave.focusSemanal,
-        rendimientoTienda: dataToSave.rendimientoTienda,
-        general: dataToSave.general,
-        pedidos: dataToSave.pedidos,
-        incorporaciones: dataToSave.incorporaciones,
+        focusSemanal: reportData.focusSemanal,
+        rendimientoTienda: reportData.rendimientoTienda,
+        general: reportData.general,
+        pedidos: reportData.pedidos,
+        incorporaciones: reportData.incorporaciones,
     };
 
     setDoc(docRef, relevantData, { merge: true })
@@ -326,7 +352,7 @@ function ExperienciaPageComponent() {
                 description: "Los cambios se han guardado en la base de datos.",
             });
             setIsEditing(false);
-            fetchData(selectedWeek);
+            setSaveSuccess(true);
         })
         .catch(async (error: any) => {
             setError(`Error al guardar: ${error.message}`);
@@ -334,7 +360,8 @@ function ExperienciaPageComponent() {
         .finally(() => {
             setIsSaving(false);
         });
-  };
+};
+
   
   const handleCancel = () => {
     setIsEditing(false);

@@ -6,7 +6,7 @@ import type { WeeklyData, Empleado, IncorporacionItem } from '@/lib/data';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Plus, Trash2, Users } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
@@ -20,7 +20,6 @@ type HolaTabProps = {
 
 export function HolaTab({ data, isEditing, onInputChange, setData }: HolaTabProps) {
   const { incorporaciones, listas } = data;
-  const empleados = listas?.empleados || [];
 
   const handleIncorporacionChange = (index: number, field: keyof IncorporacionItem, value: any) => {
     onInputChange(`incorporaciones.${index}.${field}`, value);
@@ -50,8 +49,6 @@ export function HolaTab({ data, isEditing, onInputChange, setData }: HolaTabProp
       });
   };
 
-  const sortedEmpleados = [...empleados].sort((a, b) => a.nombre.localeCompare(b.nombre));
-
   return (
     <Card>
       <CardHeader>
@@ -77,21 +74,26 @@ export function HolaTab({ data, isEditing, onInputChange, setData }: HolaTabProp
               <TableRow key={item.id}>
                 <TableCell>
                   {isEditing ? (
-                     <Select
-                        value={item.idEmpleado || 'VACIO'}
-                        onValueChange={(value) => handleIncorporacionChange(index, 'idEmpleado', value === 'VACIO' ? '' : value)}
-                     >
-                        <SelectTrigger><SelectValue placeholder="ID..." /></SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="VACIO">-- Vacío --</SelectItem>
-                            {sortedEmpleados.map(e => <SelectItem key={e.id} value={e.id}>{e.id}</SelectItem>)}
-                        </SelectContent>
-                     </Select>
+                     <Input
+                        value={item.idEmpleado}
+                        onChange={(e) => handleIncorporacionChange(index, 'idEmpleado', e.target.value)}
+                        placeholder="ID..."
+                     />
                   ) : (
                     item.idEmpleado
                   )}
                 </TableCell>
-                <TableCell>{item.nombreEmpleado}</TableCell>
+                <TableCell>
+                   {isEditing ? (
+                     <Input
+                        value={item.nombreEmpleado}
+                        onChange={(e) => handleIncorporacionChange(index, 'nombreEmpleado', e.target.value)}
+                        placeholder="Nombre..."
+                     />
+                  ) : (
+                    item.nombreEmpleado
+                  )}
+                </TableCell>
                 <TableCell className="text-center">
                   <Checkbox
                     checked={item.somosZara}
