@@ -5,7 +5,7 @@ import React from 'react';
 import type { EncuestasQrData } from '@/lib/data';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { User, Shirt, Box, Hanger, Receipt } from 'lucide-react';
+import { User, Shirt, Box, Receipt } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 type EncuestasQrTabProps = {
@@ -72,7 +72,7 @@ export function EncuestasQrTab({ data, isEditing, onInputChange }: EncuestasQrTa
         { icon: <User size={32}/>, label: 'Planta', value: planta, valueId: 'encuestasQr.planta' },
         { icon: <Shirt size={32}/>, label: 'Tallas', value: tallas, valueId: 'encuestasQr.tallas' },
         { icon: <Box size={32}/>, label: 'Online', value: online, valueId: 'encuestasQr.online' },
-        { icon: <Hanger size={32}/>, label: 'Probador', value: probador, valueId: 'encuestasQr.probador' },
+        { icon: <Shirt size={32}/>, label: 'Probador', value: probador, valueId: 'encuestasQr.probador' },
         { icon: <Receipt size={32}/>, label: 'Caja', value: caja, valueId: 'encuestasQr.caja' },
     ];
 
@@ -105,4 +105,3 @@ export function EncuestasQrTab({ data, isEditing, onInputChange }: EncuestasQrTa
         </Card>
     );
 }
-
