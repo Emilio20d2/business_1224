@@ -61,6 +61,18 @@ const AcumuladoCard = ({ title, data, isEditing, idPrefix, onInputChange }: { ti
           onInputChange={onInputChange}
         />
       </div>
+       <div className="grid grid-cols-2 gap-4">
+        <div></div>
+        <DatoDoble 
+          labelRight="SINT"
+          value={formatCurrency(data.sint || 0)}
+          variation={data.varPorcSint || 0}
+          isEditing={isEditing}
+          valueId={`acumulado.${idPrefix}.sint`}
+          variationId={`acumulado.${idPrefix}.varPorcSint`}
+          onInputChange={onInputChange}
+        />
+      </div>
       
       <div className="h-48 w-full">
         <ResponsiveContainer width="100%" height="100%">

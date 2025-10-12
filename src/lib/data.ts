@@ -17,6 +17,8 @@ type AcumuladoPeriodo = {
     varPorcTotal: number;
     importeIpod?: number;
     varPorcIpod?: number;
+    sint?: number;
+    varPorcSint?: number;
     desglose: DesgloseItem[];
 };
 
@@ -557,7 +559,7 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
     });
 
     const createAcumuladoPeriodo = (): AcumuladoPeriodo => ({
-        totalEuros: 0, varPorcTotal: 0, importeIpod: 0, varPorcIpod: 0,
+        totalEuros: 0, varPorcTotal: 0, importeIpod: 0, varPorcIpod: 0, sint: 0, varPorcSint: 0,
         desglose: [
             { nombre: "Woman", totalEuros: 0, varPorc: 0, pesoPorc: 0 },
             { nombre: "Man", totalEuros: 0, varPorc: 0, pesoPorc: 0 },
