@@ -29,21 +29,11 @@ export function AqneNinoTab({ data, isEditing, onInputChange, nextWeekDateRange 
     if (!data || !data.aqneNino) return null;
 
     const { aqneNino, ventasCompradorNino, listas } = data;
-    const { metricasPrincipales, desglose } = aqneNino || { metricasPrincipales: {}, desglose: [] };
+    const { metricasPrincipales, desglose } = aqneNino || { metricasPrincipales: { totalEuros: 0, totalUnidades: 0 }, desglose: [] };
 
     const handleDesgloseChange = (index: number, field: string, value: string) => {
         onInputChange(`aqneNino.desglose.${index}.${field}`, value);
     };
-
-    // --- FORCE ORDER ---
-    const forcedOrder = ["NIÑA", "NIÑO", "KIDS-A", "KIDS-O", "BABY", "ACCESORIOS"];
-    const sortedVentasCompradorNino = ventasCompradorNino ? [...ventasCompradorNino].sort((a, b) => {
-        const indexA = forcedOrder.indexOf(a.nombre);
-        const indexB = forcedOrder.indexOf(b.nombre);
-        if (indexA === -1) return 1;
-        if (indexB === -1) return -1;
-        return indexA - indexB;
-    }) : [];
 
     return (
         <div className="space-y-4">
@@ -127,15 +117,6 @@ export function AqneNinoTab({ data, isEditing, onInputChange, nextWeekDateRange 
                     </Table>
                 </CardContent>
             </Card>
-            {sortedVentasCompradorNino && sortedVentasCompradorNino.map((compradorData, index) => (
-                <VentasCompradorNinoCard
-                    key={compradorData.nombre}
-                    compradorData={compradorData}
-                    listas={listas}
-                    isEditing={isEditing}
-                    onInputChange={(path, value) => onInputChange(`ventasCompradorNino.${index}.${path}`, value)}
-                />
-            ))}
         </div>
     );
 };
