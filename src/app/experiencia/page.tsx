@@ -469,7 +469,7 @@ const handleSave = async () => {
   
   const tabButtons = [
     { value: 'experiencia', label: 'EXPERIENCIA' },
-    { value: 'hola', label: 'ONBOARDING' },
+    { value: 'onboarding', label: 'ONBOARDING' },
     { value: 'encuestas', label: 'ENCUESTAS QR' },
     { value: 'focus', label: 'FOCUS' },
   ];
@@ -711,7 +711,7 @@ const handleSave = async () => {
                            )}
                         </div>
                     </TabsContent>
-                    <TabsContent value="hola" className="mt-0">
+                    <TabsContent value="onboarding" className="mt-0">
                        <OnboardingTab
                           data={data}
                           isEditing={isEditing}
