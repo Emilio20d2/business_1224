@@ -192,8 +192,8 @@ export function VentasNinoTab({ data, isEditing, onInputChange, onTextChange, on
 
     const tabButtons = [
         { value: 'ventas', label: 'VENTAS' },
-        { value: 'aqne', label: 'AQNE' },
         { value: 'comprador', label: 'COMPRADOR' },
+        { value: 'aqne', label: 'AQNE' },
         { value: 'operaciones', label: 'OPERACIONES' },
         { value: 'focus', label: 'FOCUS' },
     ];
