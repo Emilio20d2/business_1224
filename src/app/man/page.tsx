@@ -38,8 +38,8 @@ type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMa
 
 const tabConfig: Record<string, { label: string; icon?: React.FC<React.SVGProps<SVGSVGElement>>, text?: string, path?: string }> = {
     datosSemanales: { label: "GENERAL", icon: LayoutDashboard, path: "/dashboard?tab=ventas" },
-    woman: { label: "WOMAN", path: "/woman", text: "W" },
-    man: { label: "MAN", text: "M", path: "/man" },
+    woman: { label: "SEÑORA", path: "/senora", text: "S" },
+    man: { label: "CABALLERO", path: "/caballero", text: "C" },
     nino: { label: "NIÑO", path: "/nino", text: "N" },
     experiencia: { label: "EXPERIENCIA", text: "E", path: "/experiencia" },
     operaciones: { label: "OPERACIONES", text: "O", path: "/operaciones" },
@@ -330,7 +330,8 @@ function ManPageComponent() {
     const relevantData = {
         ventasMan: dataToSave.ventasMan,
         man: dataToSave.man,
-        focusSemanal: dataToSave.focusSemanal
+        focusSemanal: dataToSave.focusSemanal,
+        planningSemanal: dataToSave.planningSemanal,
     };
 
     setDoc(docRef, relevantData, { merge: true })
