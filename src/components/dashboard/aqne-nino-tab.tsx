@@ -29,7 +29,7 @@ export function AqneNinoTab({ data, isEditing, onInputChange, nextWeekDateRange 
     if (!data || !data.aqneNino) return null;
 
     const { aqneNino, ventasCompradorNino, listas } = data;
-    const { metricasPrincipales, desglose } = aqneNino;
+    const { metricasPrincipales, desglose } = aqneNino || { metricasPrincipales: {}, desglose: [] };
 
     const handleDesgloseChange = (index: number, field: string, value: string) => {
         onInputChange(`aqneNino.desglose.${index}.${field}`, value);
@@ -63,7 +63,7 @@ export function AqneNinoTab({ data, isEditing, onInputChange, nextWeekDateRange 
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {desglose.map((item, index) => (
+                            {(desglose || []).map((item, index) => (
                                 <TableRow key={item.seccion}>
                                     <TableCell>{item.seccion}</TableCell>
                                     <TableCell className="text-right">
@@ -139,5 +139,3 @@ export function AqneNinoTab({ data, isEditing, onInputChange, nextWeekDateRange 
         </div>
     );
 };
-
-    
