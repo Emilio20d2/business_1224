@@ -1,4 +1,3 @@
-
 "use client";
 
 import React from 'react';
@@ -65,7 +64,7 @@ export function HolaTab({ data, isEditing, onInputChange, setData }: HolaTabProp
               <TableHead>Empleado</TableHead>
               <TableHead className="text-center">SOMOS ZARA</TableHead>
               <TableHead className="text-center">INTALENT</TableHead>
-              <TableHead className="text-center">¡DI HOLA!</TableHead>
+              <TableHead className="text-center">DI HOLA!</TableHead>
               {isEditing && <TableHead className="w-[50px]"></TableHead>}
             </TableRow>
           </TableHeader>
