@@ -46,7 +46,7 @@ const listLabels: Record<EditableList, string> = {
     zonaComercialMan: 'Zona Comercial MAN',
     agrupacionComercialMan: 'Agrupación Comercial MAN',
     compradorWoman: 'Comprador WOMAN',
-    zonaComercialWoman: 'Zona Comercial WOMAN',
+    zonaComercialWoman: 'Tipo de Articulo WOMAN',
     agrupacionComercialWoman: 'Agrupación Comercial WOMAN',
     compradorNino: 'Comprador NIÑO',
     zonaComercialNino: 'Zona Comercial NIÑO',
@@ -568,7 +568,7 @@ function OperacionesPageComponent() {
                             <DropdownMenuSeparator />
                             <DropdownMenuLabel>WOMAN</DropdownMenuLabel>
                             <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorWoman', 'Editar Lista: Comprador WOMAN')}>Comprador</DropdownMenuItem>
-                            <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialWoman', 'Editar Lista: Zona Comercial WOMAN')}>Zona Comercial</DropdownMenuItem>
+                            <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialWoman', 'Editar Lista: Tipo de Articulo WOMAN')}>Tipo de Articulo</DropdownMenuItem>
                             <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercialWoman', 'Editar Lista: Agrupación Comercial WOMAN')}>Agrupación Comercial</DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuLabel>NIÑO</DropdownMenuLabel>

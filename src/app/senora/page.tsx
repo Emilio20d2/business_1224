@@ -52,7 +52,7 @@ const listLabels: Record<EditableList, string> = {
     zonaComercialMan: 'Zona Comercial CABALLERO',
     agrupacionComercialMan: 'Agrupación Comercial CABALLERO',
     compradorWoman: 'Comprador SEÑORA',
-    zonaComercialWoman: 'Zona Comercial SEÑORA',
+    zonaComercialWoman: 'Tipo de Articulo SEÑORA',
     agrupacionComercialWoman: 'Agrupación Comercial SEÑORA',
     compradorNino: 'Comprador NIÑO',
     zonaComercialNino: 'Zona Comercial NIÑO',
@@ -577,7 +577,7 @@ const handleSaveEmpleados = async (newItems: Empleado[]) => {
                               <DropdownMenuSeparator />
                               <DropdownMenuLabel>SEÑORA</DropdownMenuLabel>
                               <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorWoman', 'Editar Lista: Comprador SEÑORA')}>Comprador</DropdownMenuItem>
-                              <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialWoman', 'Editar Lista: Zona Comercial SEÑORA')}>Zona Comercial</DropdownMenuItem>
+                              <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialWoman', 'Editar Lista: Tipo de Articulo SEÑORA')}>Tipo de Articulo</DropdownMenuItem>
                               <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercialWoman', 'Editar Lista: Agrupación Comercial SEÑORA')}>Agrupación Comercial</DropdownMenuItem>
                               <DropdownMenuSeparator />
                               <DropdownMenuLabel>NIÑO</DropdownMenuLabel>

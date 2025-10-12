@@ -24,7 +24,7 @@ import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCurrency, formatPercentage, formatNumber, formatPercentageInt } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { Button } from '../ui/button';
-import { Users, MapPin, ShoppingBasket, Percent, Euro, Shirt, Footprints, SprayCan, Package } from 'lucide-react';
+import { Users, MapPin, ShoppingBasket, Percent, Euro, Shirt, Footprints, SprayCan, Package, Hanger } from 'lucide-react';
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { OperacionesSubTab } from './operaciones-sub-tab';
 import { FocusSemanalTab } from './focus-semanal-tab';
@@ -189,7 +189,7 @@ export function VentasSenoraTab({ data, isEditing, onInputChange, onTextChange, 
 
     const tabButtons = [
         { value: 'ventas', label: 'VENTAS' },
-        { value: 'zonaYAgrupacion', label: 'ZONA Y AGRUPACIÓN' },
+        { value: 'zonaYAgrupacion', label: 'TIPO Y AGRUPACIÓN' },
         { value: 'operaciones', label: 'OPERACIONES' },
         { value: 'focus', label: 'FOCUS' },
     ];
@@ -279,8 +279,8 @@ export function VentasSenoraTab({ data, isEditing, onInputChange, onTextChange, 
             <TabsContent value="zonaYAgrupacion" className="mt-0">
                 <div className="grid gap-4 items-start grid-cols-1 md:grid-cols-2">
                     <DataTable
-                        title="Zona Comprador"
-                        icon={<MapPin className="h-5 w-5" />}
+                        title="Tipo de Articulo"
+                        icon={<Hanger className="h-5 w-5" />}
                         dataKey="ventasWoman.zonaComercial"
                         data={ventasWoman.zonaComercial}
                         list={listas.zonaComercialWoman}
