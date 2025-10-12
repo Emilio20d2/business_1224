@@ -99,6 +99,14 @@ export type ProductividadData = {
     incidencias: string;
 };
 
+export type IncorporacionItem = {
+    id: string; // uuid
+    idEmpleado: string;
+    nombreEmpleado: string;
+    somosZara: boolean;
+    intalent: boolean;
+    diHola: boolean;
+}
 
 export type SectionSpecificData = {
     operaciones: OperacionesData;
@@ -230,6 +238,7 @@ export type WeeklyData = {
       focus: string;
     };
     pedidos: PedidosData;
+    incorporaciones: IncorporacionItem[];
     productividad: {
         lunes: ProductividadData;
         jueves: ProductividadData;
@@ -617,6 +626,7 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
             focus: "",
         },
         pedidos: createInitialPedidosData(),
+        incorporaciones: [],
         productividad: {
             lunes: createInitialProductividadData(),
             jueves: createInitialProductividadData(),

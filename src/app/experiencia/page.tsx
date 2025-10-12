@@ -2,7 +2,7 @@
 
 "use client"
 import React, { useState, useContext, useEffect, useCallback, Suspense } from 'react';
-import type { WeeklyData, Empleado, SectionSpecificData } from "@/lib/data";
+import type { WeeklyData, Empleado, SectionSpecificData, IncorporacionItem } from "@/lib/data";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from '@/lib/firebase';
 import { Calendar as CalendarIcon, Settings, LogOut, Loader2, Briefcase, LayoutDashboard, Pencil, Projector, AlertTriangle, Users, List, UserPlus, ChartLine, SlidersHorizontal } from 'lucide-react';
@@ -38,6 +38,7 @@ import { KpiCard, DatoDoble } from '@/components/dashboard/kpi-card';
 import { formatNumber, formatPercentage } from '@/lib/format';
 import { CajaCard } from '@/components/dashboard/caja-card';
 import { EditRatiosDialog } from '@/components/dashboard/operaciones/edit-ratios-dialog';
+import { HolaTab } from '@/components/dashboard/hola-tab';
 
 
 type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan' | 'compradorWoman' | 'zonaComercialWoman' | 'agrupacionComercialWoman' | 'compradorNino' | 'zonaComercialNino' | 'agrupacionComercialNino';
@@ -190,6 +191,11 @@ function ExperienciaPageComponent() {
             };
             needsSave = true;
         }
+        
+        if (!reportData.incorporaciones) {
+            reportData.incorporaciones = [];
+            needsSave = true;
+        }
 
         const defaultSectionData: SectionSpecificData = {
             operaciones: { filasCajaPorc: 0, scoPorc: 0, dropOffPorc: 0, ventaIpod: 0, eTicketPorc: 0, repoPorc: 0, frescuraPorc: 0, coberturaPorc: 0, sinUbicacion: 0 },
@@ -275,7 +281,21 @@ function ExperienciaPageComponent() {
                 (ranking[index] as any)[field] = isNaN(numericValue) || value === "" ? 0 : numericValue;
             }
 
-        } else {
+        } else if (keys[0] === 'incorporaciones') {
+          const index = parseInt(keys[1], 10);
+          const field = keys[2];
+          const incorporaciones = updatedData.incorporaciones as IncorporacionItem[];
+
+          if (field === 'idEmpleado') {
+              const selectedEmployee = updatedData.listas.empleados.find((e: Empleado) => e.id === value);
+              incorporaciones[index].idEmpleado = value;
+              incorporaciones[index].nombreEmpleado = selectedEmployee ? selectedEmployee.nombre : '';
+          } else {
+              (incorporaciones[index] as any)[field] = value;
+          }
+        }
+        
+        else {
             const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
             current[finalKey] = isNaN(numericValue) || value === "" ? 0 : numericValue;
         }
@@ -296,6 +316,7 @@ function ExperienciaPageComponent() {
         rendimientoTienda: dataToSave.rendimientoTienda,
         general: dataToSave.general,
         pedidos: dataToSave.pedidos,
+        incorporaciones: dataToSave.incorporaciones,
     };
 
     setDoc(docRef, relevantData, { merge: true })
@@ -641,8 +662,12 @@ function ExperienciaPageComponent() {
                         </div>
                     </TabsContent>
                     <TabsContent value="hola" className="mt-0">
-                        {/* Content for HOLA! tab */}
-                        <div></div>
+                       <HolaTab
+                          data={data}
+                          isEditing={isEditing}
+                          onInputChange={handleInputChange}
+                          setData={setData}
+                       />
                     </TabsContent>
                     <TabsContent value="encuestas" className="mt-0">
                         {/* Content for ENCUESTAS QR tab */}
