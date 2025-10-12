@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { formatCurrency, formatNumber, formatPercentage } from "@/lib/format";
 import { cn } from '@/lib/utils';
-import { Euro, Package } from 'lucide-react';
+import { Euro, Package, Percent } from 'lucide-react';
 
 type CompradorNinoTabProps = {
   data: WeeklyData;
@@ -58,8 +58,8 @@ const CompradorTable = ({
               </TableHead>
               <TableHead className="text-right">
                 <div className="flex items-center justify-end gap-1">
-                    <Package className="h-4 w-4 text-primary" />
-                    <span>Unidades</span>
+                    <Percent className="h-4 w-4 text-primary" />
+                    <span>Var %</span>
                 </div>
               </TableHead>
             </TableRow>
@@ -103,13 +103,13 @@ const CompradorTable = ({
                     <Input
                       type="number"
                       inputMode="decimal"
-                      defaultValue={familia.totalUnidades}
-                      onBlur={(e) => handleFamiliaChange(familiaIndex, 'totalUnidades', e.target.value)}
+                      defaultValue={familia.varPorc}
+                      onBlur={(e) => handleFamiliaChange(familiaIndex, 'varPorc', e.target.value)}
                       className="w-20 text-right h-8 ml-auto"
-                      placeholder="Uds."
+                      placeholder="%"
                     />
                   ) : (
-                    <span className="font-medium text-xs text-right w-20 block ml-auto">{formatNumber(familia.totalUnidades)}</span>
+                    <span className={cn("font-medium text-xs text-right w-20 block ml-auto", familia.varPorc < 0 ? "text-red-600" : "text-green-600")}>{formatPercentage(familia.varPorc)}</span>
                   )}
                 </TableCell>
               </TableRow>
@@ -120,22 +120,6 @@ const CompradorTable = ({
                 <TableHead>
                     <div className="flex items-center gap-4">
                         <span className="font-bold">TOTAL</span>
-                         <div className="flex items-center gap-1">
-                            <span className="text-xs font-medium text-muted-foreground">Var %</span>
-                            {isEditing ? (
-                                <Input
-                                    type="number"
-                                    inputMode="decimal"
-                                    defaultValue={compradorData.varPorcTotal}
-                                    className="w-20 text-center h-8"
-                                    onBlur={(e) => handleHeaderChange('varPorcTotal', e.target.value)}
-                                />
-                            ) : (
-                                <span className={cn("font-bold text-sm", compradorData.varPorcTotal < 0 ? "text-red-600" : "text-green-600")}>
-                                    {formatPercentage(compradorData.varPorcTotal)}
-                                </span>
-                            )}
-                        </div>
                     </div>
                 </TableHead>
                 <TableHead className="text-right font-bold">
@@ -153,15 +137,20 @@ const CompradorTable = ({
                 </TableHead>
                 <TableHead className="text-right font-bold">
                      {isEditing ? (
-                        <Input
-                            type="number"
-                            inputMode="decimal"
-                            value={compradorData.totalUnidades}
-                            readOnly
-                            className="w-20 text-right h-8 ml-auto bg-background"
-                        />
+                         <div className="flex items-center justify-end">
+                            <Input
+                                type="number"
+                                inputMode="decimal"
+                                defaultValue={compradorData.varPorcTotal}
+                                className="w-20 text-center h-8"
+                                onBlur={(e) => handleHeaderChange('varPorcTotal', e.target.value)}
+                            />
+                            <span className="ml-1">%</span>
+                        </div>
                     ) : (
-                        formatNumber(compradorData.totalUnidades)
+                        <span className={cn("font-bold text-sm", compradorData.varPorcTotal < 0 ? "text-red-600" : "text-green-600")}>
+                            {formatPercentage(compradorData.varPorcTotal)}
+                        </span>
                     )}
                 </TableHead>
             </TableRow>
@@ -189,7 +178,7 @@ export function CompradorNinoTab({ data, isEditing, onInputChange }: CompradorNi
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {sortedVentasCompradorNino.map((compradorData) => {
+            {sortedVentasCompradorNino.map((compradorData, index) => {
                 const originalIndex = ventasCompradorNino.findIndex(item => item.nombre === compradorData.nombre);
                 return (
                     <CompradorTable

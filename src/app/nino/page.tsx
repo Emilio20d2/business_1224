@@ -94,7 +94,7 @@ const synchronizeVentasCompradorNino = (
             const familias = existingComprador.mejoresFamilias || [];
             if (familias.length !== 5) {
                 needsUpdate = true;
-                const newFamilias = Array(5).fill(null).map((_, i) => familias[i] || { nombre: '', totalEuros: 0, totalUnidades: 0 });
+                const newFamilias = Array(5).fill(null).map((_, i) => familias[i] || { nombre: '', totalEuros: 0, varPorc: 0 });
                 return { ...existingComprador, mejoresFamilias: newFamilias };
             }
             return { ...existingComprador };
@@ -103,9 +103,8 @@ const synchronizeVentasCompradorNino = (
             return {
                 nombre: compradorName,
                 totalEuros: 0,
-                totalUnidades: 0,
                 varPorcTotal: 0,
-                mejoresFamilias: Array(5).fill({ nombre: '', totalEuros: 0, totalUnidades: 0 }),
+                mejoresFamilias: Array(5).fill({ nombre: '', totalEuros: 0, varPorc: 0 }),
             };
         }
     });
@@ -405,9 +404,7 @@ function NinoPageComponent() {
 
           if (keys[2] === 'mejoresFamilias') {
               const totalEurosFamilias = compradorData.mejoresFamilias.reduce((sum: number, fam: any) => sum + (fam.totalEuros || 0), 0);
-              const totalUnidadesFamilias = compradorData.mejoresFamilias.reduce((sum: number, fam: any) => sum + (fam.totalUnidades || 0), 0);
               compradorData.totalEuros = totalEurosFamilias;
-              compradorData.totalUnidades = totalUnidadesFamilias;
           }
         }
         

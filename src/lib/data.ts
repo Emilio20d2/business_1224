@@ -151,13 +151,12 @@ export type SeccionAqneNinoData = {
 export type MejorFamiliaNino = {
     nombre: string;
     totalEuros: number;
-    totalUnidades: number;
+    varPorc: number;
 };
 
 export type VentasCompradorNinoItem = {
     nombre: string;
     totalEuros: number;
-    totalUnidades: number;
     varPorcTotal: number;
     mejoresFamilias: MejorFamiliaNino[];
 };
@@ -553,9 +552,8 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
         return compradores.map(comprador => ({
             nombre: comprador,
             totalEuros: 0,
-            totalUnidades: 0,
             varPorcTotal: 0,
-            mejoresFamilias: Array(5).fill({ nombre: '', totalEuros: 0, totalUnidades: 0 }),
+            mejoresFamilias: Array(5).fill({ nombre: '', totalEuros: 0, varPorc: 0 }),
         }));
     };
     
