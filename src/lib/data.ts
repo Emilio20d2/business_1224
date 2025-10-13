@@ -341,15 +341,15 @@ type VentaDiaria = {
 export function getInitialLists(): WeeklyData['listas'] {
     return {
         empleados: [],
-        compradorMan: ["Comprador A", "Comprador B", "Comprador C"],
-        zonaComercialMan: ["Zona 1", "Zona 2", "Zona 3"],
-        agrupacionComercialMan: ["Grupo Alpha", "Grupo Beta", "Grupo Gamma"],
-        compradorWoman: ["WOMAN", "GLOBAL", "CIRCULAR", "DNWR", "SPORT", "ACCES", "BASIC"],
-        zonaComercialWoman: ["WOMAN FORMAL", "GLB URBAN", "CIRCULAR"],
-        agrupacionComercialWoman: ["PANTALON", "SASTRERIA", "TEJANO", "CAMISA", "POLO", "ZAPATO", "BERMUDA", "TRICOT", "ACCESORIOS", "BAÑO"],
-        compradorNino: ["NIÑA", "NIÑO", "KIDS-A", "KIDS-O", "BABY", "ACCESORIOS"],
-        zonaComercialNino: ["ZONA A", "ZONA B", "ZONA C"],
-        agrupacionComercialNino: ["Familia 1", "Familia 2", "Familia 3", "Familia 4", "Familia 5", "Familia 6", "Familia 7", "Familia 8", "Familia 9", "Familia 10"],
+        compradorMan: [],
+        zonaComercialMan: [],
+        agrupacionComercialMan: [],
+        compradorWoman: [],
+        zonaComercialWoman: [],
+        agrupacionComercialWoman: [],
+        compradorNino: [],
+        zonaComercialNino: [],
+        agrupacionComercialNino: [],
         mermaTarget: {
             general: 0,
             woman: 0,
@@ -470,6 +470,7 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
     }
 
     const createVentasCompradorNinoItems = (compradores: string[]): VentasCompradorNinoItem[] => {
+        if (!Array.isArray(compradores)) return [];
         return compradores.map(comprador => ({
             nombre: comprador,
             totalEuros: 0,
