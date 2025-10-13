@@ -158,9 +158,9 @@ function DashboardPageComponent() {
     if (!authLoading && !user) {
       router.push('/');
     } else if (!authLoading && user) {
-        if (!selectedWeek) {
-            const currentWeekId = getCurrentWeekId();
-            updateUrl(currentWeekId, activeSubTab);
+        const currentWeekId = getCurrentWeekId();
+        if (selectedWeek !== currentWeekId) {
+             updateUrl(currentWeekId, activeSubTab);
         } else {
             fetchData(selectedWeek);
         }

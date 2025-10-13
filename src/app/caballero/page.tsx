@@ -153,11 +153,11 @@ function CaballeroPageComponent() {
     if (!authLoading && !user) {
       router.push('/');
     } else if (!authLoading && user) {
-        if (selectedWeek) {
-            fetchData(selectedWeek);
+        const currentWeekId = getCurrentWeekId();
+        if (selectedWeek !== currentWeekId) {
+             updateUrl(currentWeekId);
         } else {
-            const currentWeekId = getCurrentWeekId();
-            updateUrl(currentWeekId);
+            fetchData(selectedWeek);
         }
     }
 }, [user, authLoading, selectedWeek]);

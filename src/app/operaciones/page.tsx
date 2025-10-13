@@ -1,4 +1,5 @@
 
+
 "use client"
 import React, { useState, useContext, useEffect, useCallback, Suspense } from 'react';
 import type { WeeklyData, Empleado } from "@/lib/data";
@@ -196,12 +197,10 @@ function OperacionesPageComponent() {
       router.push('/');
     } else if (!authLoading && user) {
         const currentWeekId = getCurrentWeekId();
-        const targetWeek = selectedWeek || currentWeekId;
-        
-        if (targetWeek !== selectedWeek) {
-            updateUrl(targetWeek);
+        if (selectedWeek !== currentWeekId) {
+             updateUrl(currentWeekId);
         } else {
-            fetchData(targetWeek);
+            fetchData(selectedWeek);
         }
     }
 }, [user, authLoading, selectedWeek]);
