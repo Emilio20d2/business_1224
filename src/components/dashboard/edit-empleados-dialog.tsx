@@ -25,9 +25,18 @@ export function EditEmpleadosDialog({ isOpen, onClose, empleados, onSave }: Edit
   const [newItem, setNewItem] = useState<Omit<Empleado, 'id'>>({ nombre: ''});
   const [newId, setNewId] = useState('');
 
+  const sortById = (a: Empleado, b: Empleado) => {
+    const idA = parseInt(a.id, 10);
+    const idB = parseInt(b.id, 10);
+    if (isNaN(idA) || isNaN(idB)) {
+      return a.id.localeCompare(b.id);
+    }
+    return idA - idB;
+  };
+
   useEffect(() => {
     if (isOpen) {
-      const sortedEmpleados = [...(empleados || [])].sort((a, b) => a.nombre.localeCompare(b.nombre));
+      const sortedEmpleados = [...(empleados || [])].sort(sortById);
       setCurrentItems(sortedEmpleados);
     }
   }, [empleados, isOpen]);
@@ -35,7 +44,7 @@ export function EditEmpleadosDialog({ isOpen, onClose, empleados, onSave }: Edit
   const handleAddItem = () => {
     if (newId.trim() && newItem.nombre.trim() && !currentItems.some(item => item.id === newId.trim())) {
       const newEmployee: Empleado = { id: newId.trim(), nombre: newItem.nombre.trim() };
-      const updatedItems = [...currentItems, newEmployee].sort((a, b) => a.nombre.localeCompare(b.nombre));
+      const updatedItems = [...currentItems, newEmployee].sort(sortById);
       setCurrentItems(updatedItems);
       setNewItem({ nombre: '' });
       setNewId('');
@@ -54,7 +63,8 @@ export function EditEmpleadosDialog({ isOpen, onClose, empleados, onSave }: Edit
 
 
   const handleSave = () => {
-    onSave(currentItems);
+    const sortedItems = [...currentItems].sort(sortById);
+    onSave(sortedItems);
     onClose();
   };
 
