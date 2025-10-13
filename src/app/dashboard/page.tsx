@@ -40,20 +40,20 @@ type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMa
 
 const tabConfig: Record<string, { label: string; icon?: React.FC<React.SVGProps<SVGSVGElement>>, text?: string, path?: string }> = {
     datosSemanales: { label: "GENERAL", icon: LayoutDashboard, path: "/dashboard?tab=ventas" },
-    woman: { label: "WOMAN", path: "/woman", text: "W" },
-    man: { label: "MAN", text: "M", path: "/man" },
+    woman: { label: "SEÑORA", path: "/senora", text: "S" },
+    man: { label: "CABALLERO", text: "C", path: "/caballero" },
     nino: { label: "NIÑO", path: "/nino", text: "N" },
     experiencia: { label: "EXPERIENCIA", text: "E", path: "/experiencia" },
     operaciones: { label: "OPERACIONES", text: "O", path: "/operaciones" },
 };
 
 const listLabels: Record<EditableList, string> = {
-    compradorMan: 'Comprador MAN',
-    zonaComercialMan: 'Zona Comercial MAN',
-    agrupacionComercialMan: 'Agrupación Comercial MAN',
-    compradorWoman: 'Comprador WOMAN',
-    zonaComercialWoman: 'Tipo de Articulo WOMAN',
-    agrupacionComercialWoman: 'Agrupación Comercial WOMAN',
+    compradorMan: 'Comprador CABALLERO',
+    zonaComercialMan: 'Zona Comercial CABALLERO',
+    agrupacionComercialMan: 'Agrupación Comercial CABALLERO',
+    compradorWoman: 'Comprador SEÑORA',
+    zonaComercialWoman: 'Tipo de Articulo SEÑORA',
+    agrupacionComercialWoman: 'Agrupación Comercial SEÑORA',
     compradorNino: 'Comprador NIÑO',
     zonaComercialNino: 'Zona Comercial NIÑO',
     agrupacionComercialNino: 'Agrupación Comercial NIÑO',
@@ -131,11 +131,11 @@ function DashboardPageComponent() {
   const updateUrl = useCallback((newWeek: string, newTab?: string) => {
       if (!newWeek) return;
       const tab = newTab || activeSubTab || 'ventas';
-      const params = new URLSearchParams(searchParams);
+      const params = new URLSearchParams();
       params.set('week', newWeek);
       params.set('tab', tab);
       router.replace(`/dashboard?${params.toString()}`);
-  },[router, searchParams, activeSubTab]);
+  },[router, activeSubTab]);
 
   const handleDateSelect = (date: Date | undefined) => {
     if (!date) return;
@@ -154,18 +154,19 @@ function DashboardPageComponent() {
     }
   };
 
- useEffect(() => {
+  useEffect(() => {
     if (!authLoading && !user) {
       router.push('/');
     } else if (!authLoading && user) {
         const currentWeekId = getCurrentWeekId();
-        if (selectedWeek !== currentWeekId) {
-             updateUrl(currentWeekId, activeSubTab);
+        // Always force navigation to the current week
+        if (selectedWeek !== currentWeekId || !searchParams.get('week')) {
+            updateUrl(currentWeekId, activeSubTab);
         } else {
-            fetchData(selectedWeek);
+            fetchData(currentWeekId);
         }
     }
-}, [user, authLoading, selectedWeek]);
+  }, [user, authLoading]); // Removed selectedWeek from dependencies
 
 
  const fetchData = useCallback(async (weekId: string) => {
@@ -186,6 +187,10 @@ function DashboardPageComponent() {
         let listData: WeeklyData['listas'];
         if (listsSnap.exists()) {
             listData = listsSnap.data() as WeeklyData['listas'];
+            if (!listData.empleados) {
+                listData.empleados = [];
+                if(canEdit) await updateDoc(listsRef, { empleados: [] });
+            }
         } else {
             listData = getInitialLists();
             if(canEdit) {
@@ -659,15 +664,15 @@ const handleSaveEmpleados = async (newItems: Empleado[]) => {
                           </DropdownMenuSubTrigger>
                           <DropdownMenuPortal>
                             <DropdownMenuSubContent>
-                              <DropdownMenuLabel>MAN</DropdownMenuLabel>
-                              <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorMan', 'Editar Lista: Comprador MAN')}>Comprador</DropdownMenuItem>
-                              <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialMan', 'Editar Lista: Zona Comercial MAN')}>Zona Comercial</DropdownMenuItem>
-                              <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercialMan', 'Editar Lista: Agrupación Comercial MAN')}>Agrupación Comercial</DropdownMenuItem>
+                              <DropdownMenuLabel>CABALLERO</DropdownMenuLabel>
+                              <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorMan', 'Editar Lista: Comprador CABALLERO')}>Comprador</DropdownMenuItem>
+                              <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialMan', 'Editar Lista: Zona Comercial CABALLERO')}>Zona Comercial</DropdownMenuItem>
+                              <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercialMan', 'Editar Lista: Agrupación Comercial CABALLERO')}>Agrupación Comercial</DropdownMenuItem>
                               <DropdownMenuSeparator />
-                              <DropdownMenuLabel>WOMAN</DropdownMenuLabel>
-                              <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorWoman', 'Editar Lista: Comprador WOMAN')}>Comprador</DropdownMenuItem>
-                              <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialWoman', 'Editar Lista: Tipo de Articulo WOMAN')}>Tipo de Articulo</DropdownMenuItem>
-                              <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercialWoman', 'Editar Lista: Agrupación Comercial WOMAN')}>Agrupación Comercial</DropdownMenuItem>
+                              <DropdownMenuLabel>SEÑORA</DropdownMenuLabel>
+                              <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorWoman', 'Editar Lista: Comprador SEÑORA')}>Comprador</DropdownMenuItem>
+                              <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialWoman', 'Editar Lista: Tipo de Articulo SEÑORA')}>Tipo de Articulo</DropdownMenuItem>
+                              <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercialWoman', 'Editar Lista: Agrupación Comercial SEÑORA')}>Agrupación Comercial</DropdownMenuItem>
                               <DropdownMenuSeparator />
                               <DropdownMenuLabel>NIÑO</DropdownMenuLabel>
                               <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorNino', 'Editar Lista: Comprador NIÑO')}>Comprador</DropdownMenuItem>
@@ -797,3 +802,4 @@ export default function DashboardPage() {
     
 
     
+

@@ -128,10 +128,10 @@ function CaballeroPageComponent() {
   
   const updateUrl = useCallback((newWeek: string) => {
       if (!newWeek) return;
-      const params = new URLSearchParams(searchParams);
+      const params = new URLSearchParams();
       params.set('week', newWeek);
       router.replace(`/caballero?${params.toString()}`);
-  }, [router, searchParams]);
+  }, [router]);
 
 
   const handleDateSelect = (date: Date | undefined) => {
@@ -154,13 +154,13 @@ function CaballeroPageComponent() {
       router.push('/');
     } else if (!authLoading && user) {
         const currentWeekId = getCurrentWeekId();
-        if (selectedWeek !== currentWeekId) {
+        if (selectedWeek !== currentWeekId || !searchParams.get('week')) {
              updateUrl(currentWeekId);
         } else {
-            fetchData(selectedWeek);
+            fetchData(currentWeekId);
         }
     }
-}, [user, authLoading, selectedWeek]);
+}, [user, authLoading]);
 
 
  const fetchData = useCallback(async (weekId: string) => {
@@ -180,6 +180,10 @@ function CaballeroPageComponent() {
         let listData: WeeklyData['listas'];
         if (listsSnap.exists()) {
             listData = listsSnap.data() as WeeklyData['listas'];
+            if (!listData.empleados) {
+                listData.empleados = [];
+                if(canEdit) await updateDoc(listsRef, { empleados: [] });
+            }
         } else {
             listData = getInitialLists();
             if (canEdit) {
@@ -676,3 +680,4 @@ export default function CaballeroPage() {
     
 
     
+
