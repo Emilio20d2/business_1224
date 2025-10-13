@@ -1,6 +1,6 @@
 {
-  "name": "BUSSINES",
-  "short_name": "BUSSINES",
+  "name": "Business",
+  "short_name": "Business",
   "description": "Panel de control de negocios",
   "start_url": "/",
   "display": "standalone",
