@@ -49,8 +49,8 @@ function PresentationPageComponent() {
 
         let footerText = "ZARA 1224 - PUERTO VENECIA"; // Default value
         if (configSnap.exists()) {
-            const configData = configSnap.data() as WeeklyData['listas'];
-            if(configData.presentacionFooter) {
+            const configData = configSnap.data();
+            if(configData && configData.presentacionFooter) {
                 footerText = configData.presentacionFooter;
             }
         }
