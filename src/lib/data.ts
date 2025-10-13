@@ -206,6 +206,7 @@ export type WeeklyData = {
             porcentajePerchado: number;
             porcentajePicking: number;
         };
+        presentacionFooter: string;
     };
     ventas: {
         totalEuros: number;
@@ -362,6 +363,7 @@ export function getInitialLists(): WeeklyData['listas'] {
             porcentajePerchado: 40,
             porcentajePicking: 60,
         },
+        presentacionFooter: "ZARA 1224 - PUERTO VENECIA",
     };
 }
 

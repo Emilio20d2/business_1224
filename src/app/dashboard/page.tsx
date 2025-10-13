@@ -5,7 +5,7 @@ import React, { useState, useContext, useEffect, useCallback, Suspense } from 'r
 import type { WeeklyData, VentasManItem, SectionSpecificData, Empleado } from "@/lib/data";
 import { doc, getDoc, setDoc, updateDoc, collection, getDocs } from "firebase/firestore";
 import { db } from '@/lib/firebase';
-import { Calendar as CalendarIcon, Settings, LogOut, Loader2, Briefcase, List, LayoutDashboard, Pencil, Upload, Projector, Users, UserPlus, SlidersHorizontal } from 'lucide-react';
+import { Calendar as CalendarIcon, Settings, LogOut, Loader2, Briefcase, List, LayoutDashboard, Pencil, Upload, Projector, Users, UserPlus, SlidersHorizontal, Clapperboard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -35,6 +35,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { formatWeekIdToDateRange, getCurrentWeekId, getWeekIdFromDate } from '@/lib/format';
 import { EditEmpleadosDialog } from '@/components/dashboard/edit-empleados-dialog';
 import { EditRatiosDialog } from '@/components/dashboard/operaciones/edit-ratios-dialog';
+import { EditPresentacionDialog } from '@/components/dashboard/edit-presentacion-dialog';
 
 type EditableList = 'compradorMan' | 'zonaComercialMan' | 'agrupacionComercialMan' | 'compradorWoman' | 'zonaComercialWoman' | 'agrupacionComercialWoman' | 'compradorNino' | 'zonaComercialNino' | 'agrupacionComercialNino';
 
@@ -118,6 +119,7 @@ function DashboardPageComponent() {
   const [listToEdit, setListToEdit] = useState<{ listKey: EditableList, title: string } | null>(null);
   const [isRatiosDialogOpen, setRatiosDialogOpen] = useState(false);
   const [isEmpleadosDialogOpen, setEmpleadosDialogOpen] = useState(false);
+  const [isPresentacionDialogOpen, setPresentacionDialogOpen] = useState(false);
   
   const selectedWeek = searchParams.get('week') || '';
   const activeSubTab = searchParams.get('tab') || 'ventas';
@@ -160,7 +162,7 @@ function DashboardPageComponent() {
     } else if (!authLoading && user) {
         const currentWeekId = getCurrentWeekId();
         // Always force navigation to the current week
-        if (selectedWeek !== currentWeekId || !searchParams.get('week')) {
+        if (selectedWeek !== currentWeekId) {
             updateUrl(currentWeekId, activeSubTab);
         } else {
             fetchData(currentWeekId);
@@ -517,6 +519,25 @@ const handleSaveEmpleados = async (newItems: Empleado[]) => {
   }
 };
 
+const handleSavePresentacion = async (newFooter: string) => {
+    if (!canEdit) return;
+    setIsSaving(true);
+    const listsRef = doc(db, "configuracion", "listas");
+    try {
+        await updateDoc(listsRef, { presentacionFooter: newFooter });
+        toast({
+            title: "Pie de página actualizado",
+            description: "El pie de página de la presentación se ha guardado.",
+        });
+        setPresentacionDialogOpen(false);
+        setSaveSuccess(true);
+    } catch (error: any) {
+        setError(`Error al guardar el pie de página: ${error.message}`);
+    } finally {
+        setIsSaving(false);
+    }
+};
+
   const tabButtons = [
     { value: 'ventas', label: 'RESUMEN' },
     { value: 'aqne', label: 'AQNE' },
@@ -649,6 +670,10 @@ const handleSaveEmpleados = async (newItems: Empleado[]) => {
                     <DropdownMenuSeparator />
                     {canEdit && (
                       <>
+                        <DropdownMenuItem onSelect={() => setPresentacionDialogOpen(true)}>
+                            <Clapperboard className="mr-2 h-4 w-4 text-primary" />
+                            <span>Editar Pie Presentación</span>
+                        </DropdownMenuItem>
                         <DropdownMenuItem onSelect={handleOpenRatiosDialog}>
                             <SlidersHorizontal className="mr-2 h-4 w-4 text-primary" />
                             <span>Editar Ratios Prod.</span>
@@ -773,6 +798,14 @@ const handleSaveEmpleados = async (newItems: Empleado[]) => {
                 onSave={handleSaveEmpleados}
             />
         )}
+        {data && data.listas && (
+            <EditPresentacionDialog
+                isOpen={isPresentacionDialogOpen}
+                onClose={() => setPresentacionDialogOpen(false)}
+                footerText={data.listas.presentacionFooter || ''}
+                onSave={handleSavePresentacion}
+            />
+        )}
 
       </div>
     </TooltipProvider>
@@ -792,14 +825,3 @@ export default function DashboardPage() {
         </Suspense>
     );
 }
-
-    
-
-    
-
-    
-
-    
-
-    
-

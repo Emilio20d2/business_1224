@@ -6,16 +6,21 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { WeeklyData } from '@/lib/data';
-import { formatCurrency, formatPercentage, formatWeekIdToDateRange } from '@/lib/format';
+import { formatWeekIdToDateRange } from '@/lib/format';
 import { Loader2 } from 'lucide-react';
 import Image from 'next/image';
+
+type PresentationData = {
+  weekData: WeeklyData | null;
+  footerText: string;
+};
 
 function PresentationPageComponent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const weekId = searchParams.get('week') || '';
 
-  const [data, setData] = useState<WeeklyData | null>(null);
+  const [data, setData] = useState<PresentationData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -28,14 +33,32 @@ function PresentationPageComponent() {
       }
       try {
         const reportRef = doc(db, 'informes', weekId);
-        const reportSnap = await getDoc(reportRef);
+        const configRef = doc(db, "configuracion", "listas");
+
+        const [reportSnap, configSnap] = await Promise.all([
+            getDoc(reportRef),
+            getDoc(configRef)
+        ]);
+
+        let weekData: WeeklyData | null = null;
         if (reportSnap.exists()) {
-          setData(reportSnap.data() as WeeklyData);
+          weekData = reportSnap.data() as WeeklyData;
         } else {
           setError(`No se encontró ningún informe para la semana "${weekId}".`);
         }
+
+        let footerText = "ZARA 1224 - PUERTO VENECIA"; // Default value
+        if (configSnap.exists()) {
+            const configData = configSnap.data() as WeeklyData['listas'];
+            if(configData.presentacionFooter) {
+                footerText = configData.presentacionFooter;
+            }
+        }
+        
+        setData({ weekData, footerText });
+
       } catch (err: any) {
-        setError(`Error al cargar el informe: ${err.message}.`);
+        setError(`Error al cargar los datos: ${err.message}.`);
       } finally {
         setLoading(false);
       }
@@ -64,8 +87,12 @@ function PresentationPageComponent() {
     );
   }
 
-  if (!data) {
-    return null;
+  if (!data?.weekData) {
+    return (
+       <div className="flex h-screen w-screen items-center justify-center bg-gray-100 text-zinc-900" onClick={handleScreenClick}>
+        <p className="text-xl text-red-500">No hay datos del informe para mostrar.</p>
+      </div>
+    );
   }
   
   return (
@@ -88,7 +115,7 @@ function PresentationPageComponent() {
       </main>
 
       <footer className="absolute bottom-8 text-center w-full">
-        <p className="text-lg">ZARA 1224 - PUERTO VENECIA</p>
+        <p className="text-lg">{data.footerText}</p>
       </footer>
     </div>
   );
@@ -105,4 +132,3 @@ export default function PresentationPage() {
         </Suspense>
     );
 }
-
