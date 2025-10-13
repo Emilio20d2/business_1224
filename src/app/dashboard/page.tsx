@@ -162,13 +162,9 @@ function DashboardPageComponent() {
     } else if (!authLoading && user) {
         const currentWeekId = getCurrentWeekId();
         // Always force navigation to the current week
-        if (selectedWeek !== currentWeekId) {
-            updateUrl(currentWeekId, activeSubTab);
-        } else {
-            fetchData(currentWeekId);
-        }
+        updateUrl(currentWeekId, activeSubTab);
     }
-  }, [user, authLoading]); // Removed selectedWeek from dependencies
+  }, [user, authLoading]);
 
 
  const fetchData = useCallback(async (weekId: string) => {
@@ -187,17 +183,23 @@ function DashboardPageComponent() {
         ]);
 
         let listData: WeeklyData['listas'];
+        const defaultLists = getInitialLists();
+        let forceListUpdate = false;
+
         if (listsSnap.exists()) {
             listData = listsSnap.data() as WeeklyData['listas'];
-            if (!listData.empleados) {
-                listData.empleados = [];
-                if(canEdit) await updateDoc(listsRef, { empleados: [] });
+            // Force update the employee list from code to DB
+            if (JSON.stringify(listData.empleados) !== JSON.stringify(defaultLists.empleados)) {
+                listData.empleados = defaultLists.empleados;
+                forceListUpdate = true;
             }
         } else {
-            listData = getInitialLists();
-            if(canEdit) {
-                await setDoc(listsRef, listData);
-            }
+            listData = defaultLists;
+            forceListUpdate = true; // Create the whole lists document
+        }
+
+        if(canEdit && forceListUpdate) {
+            await setDoc(listsRef, listData);
         }
 
         let reportData: WeeklyData;
@@ -278,6 +280,12 @@ function DashboardPageComponent() {
     }
   }, [user, canEdit, toast]);
   
+  useEffect(() => {
+    if (selectedWeek) {
+        fetchData(selectedWeek);
+    }
+  }, [selectedWeek, fetchData]);
+
   useEffect(() => {
       if(saveSuccess) {
           fetchData(selectedWeek);

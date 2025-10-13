@@ -151,13 +151,9 @@ function WomanPageComponent() {
       router.push('/');
     } else if (!authLoading && user) {
         const currentWeekId = getCurrentWeekId();
-        if (selectedWeek !== currentWeekId) {
-             updateUrl(currentWeekId);
-        } else {
-            fetchData(selectedWeek);
-        }
+        updateUrl(currentWeekId);
     }
-}, [user, authLoading, selectedWeek]);
+  }, [user, authLoading]);
 
 
  const fetchData = useCallback(async (weekId: string) => {
@@ -175,13 +171,23 @@ function WomanPageComponent() {
         ]);
         
         let listData: WeeklyData['listas'];
+        const defaultLists = getInitialLists();
+        let forceListUpdate = false;
+
         if (listsSnap.exists()) {
             listData = listsSnap.data() as WeeklyData['listas'];
-        } else {
-            listData = getInitialLists();
-            if (canEdit) {
-              await setDoc(listsRef, listData);
+            // Force update the employee list from code to DB
+            if (JSON.stringify(listData.empleados) !== JSON.stringify(defaultLists.empleados)) {
+                listData.empleados = defaultLists.empleados;
+                forceListUpdate = true;
             }
+        } else {
+            listData = defaultLists;
+            forceListUpdate = true; // Create the whole lists document
+        }
+
+        if(canEdit && forceListUpdate) {
+            await setDoc(listsRef, listData);
         }
 
         let reportData: WeeklyData;
@@ -254,6 +260,12 @@ function WomanPageComponent() {
         setDataLoading(false);
     }
   }, [user, canEdit, toast]);
+
+  useEffect(() => {
+    if (selectedWeek) {
+        fetchData(selectedWeek);
+    }
+  }, [selectedWeek, fetchData]);
 
   useEffect(() => {
       if(saveSuccess) {
@@ -662,3 +674,4 @@ export default function WomanPage() {
     
 
     
+

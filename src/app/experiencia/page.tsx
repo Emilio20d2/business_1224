@@ -121,13 +121,9 @@ function ExperienciaPageComponent() {
       router.push('/');
     } else if (!authLoading && user) {
         const currentWeekId = getCurrentWeekId();
-        if (selectedWeek !== currentWeekId) {
-             updateUrl(currentWeekId);
-        } else {
-            fetchData(selectedWeek);
-        }
+        updateUrl(currentWeekId);
     }
-}, [user, authLoading, selectedWeek]);
+  }, [user, authLoading]);
 
 
  const fetchData = useCallback(async (weekId: string) => {
@@ -141,6 +137,8 @@ function ExperienciaPageComponent() {
         let needsSave = false;
 
         let masterLists: WeeklyData['listas'];
+        const defaultLists = getInitialLists();
+        let forceListUpdate = false;
 
         const [reportSnap, listsSnap] = await Promise.all([
             getDoc(reportRef),
@@ -149,17 +147,18 @@ function ExperienciaPageComponent() {
         
         if (listsSnap.exists()) {
             masterLists = listsSnap.data() as WeeklyData['listas'];
-             if (!masterLists.empleados || masterLists.empleados.length === 0) {
-                masterLists.empleados = getInitialLists().empleados;
-                if (canEdit) {
-                  await updateDoc(listsRef, { empleados: masterLists.empleados });
-                }
+             // Force update the employee list from code to DB
+            if (JSON.stringify(masterLists.empleados) !== JSON.stringify(defaultLists.empleados)) {
+                masterLists.empleados = defaultLists.empleados;
+                forceListUpdate = true;
             }
         } else {
-            masterLists = getInitialLists();
-            if (canEdit) {
-              await setDoc(listsRef, masterLists);
-            }
+            masterLists = defaultLists;
+            forceListUpdate = true;
+        }
+
+        if (canEdit && forceListUpdate) {
+            await setDoc(listsRef, masterLists);
         }
         
         // --- Get previous week's pending incorporaciones ---
@@ -268,6 +267,12 @@ function ExperienciaPageComponent() {
         setDataLoading(false);
     }
   }, [user, canEdit, toast]);
+
+  useEffect(() => {
+    if (selectedWeek) {
+        fetchData(selectedWeek);
+    }
+  }, [selectedWeek, fetchData]);
   
   useEffect(() => {
       if(saveSuccess) {

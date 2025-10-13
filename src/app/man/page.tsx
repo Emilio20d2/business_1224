@@ -152,13 +152,9 @@ function ManPageComponent() {
       router.push('/');
     } else if (!authLoading && user) {
         const currentWeekId = getCurrentWeekId();
-        if (selectedWeek !== currentWeekId || !searchParams.get('week')) {
-             updateUrl(currentWeekId);
-        } else {
-            fetchData(currentWeekId);
-        }
+        updateUrl(currentWeekId);
     }
-}, [user, authLoading]);
+  }, [user, authLoading]);
 
 
  const fetchData = useCallback(async (weekId: string) => {
@@ -176,17 +172,23 @@ function ManPageComponent() {
         ]);
         
         let listData: WeeklyData['listas'];
+        const defaultLists = getInitialLists();
+        let forceListUpdate = false;
+
         if (listsSnap.exists()) {
             listData = listsSnap.data() as WeeklyData['listas'];
-            if (!listData.empleados) {
-                listData.empleados = [];
-                if(canEdit) await updateDoc(listsRef, { empleados: [] });
+             // Force update the employee list from code to DB
+            if (JSON.stringify(listData.empleados) !== JSON.stringify(defaultLists.empleados)) {
+                listData.empleados = defaultLists.empleados;
+                forceListUpdate = true;
             }
         } else {
-            listData = getInitialLists();
-            if (canEdit) {
-              await setDoc(listsRef, listData);
-            }
+            listData = defaultLists;
+            forceListUpdate = true; // Create the whole lists document
+        }
+
+        if(canEdit && forceListUpdate) {
+            await setDoc(listsRef, listData);
         }
 
         let reportData: WeeklyData;
@@ -259,6 +261,12 @@ function ManPageComponent() {
         setDataLoading(false);
     }
   }, [user, canEdit, toast]);
+
+  useEffect(() => {
+    if (selectedWeek) {
+        fetchData(selectedWeek);
+    }
+  }, [selectedWeek, fetchData]);
 
   useEffect(() => {
       if(saveSuccess) {
@@ -677,4 +685,5 @@ export default function ManPage() {
     
 
     
+
 
