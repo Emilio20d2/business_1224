@@ -1,10 +1,12 @@
+
 "use client";
 
 import React, { createContext, useState, useEffect, ReactNode, useContext } from 'react';
-import { onAuthStateChanged, signInWithEmailAndPassword, signOut, User, Auth } from 'firebase/auth';
+import { onAuthStateChanged, signInWithEmailAndPassword, signOut, User, Auth, initializeAuth, indexedDBLocalPersistence } from 'firebase/auth';
 import { Loader2 } from 'lucide-react';
-import { Firestore } from 'firebase/firestore';
-import { auth, db } from '@/lib/firebase';
+import { Firestore, getFirestore } from 'firebase/firestore';
+import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
+import { firebaseConfig } from '@/lib/firebase';
 
 interface AuthContextType {
   user: User | null;
@@ -15,13 +17,17 @@ interface AuthContextType {
   db: Firestore;
 }
 
+// Initialize with placeholder values that will be replaced.
+const initialAuth = {} as Auth;
+const initialDb = {} as Firestore;
+
 export const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
   login: async () => {},
   logout: async () => {},
-  auth: auth,
-  db: db,
+  auth: initialAuth,
+  db: initialDb,
 });
 
 export const useAuth = () => {
@@ -31,9 +37,17 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [firebaseInstances, setFirebaseInstances] = useState<{ auth: Auth; db: Firestore } | null>(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+    const authInstance = initializeAuth(app, {
+      persistence: indexedDBLocalPersistence
+    });
+    const dbInstance = getFirestore(app);
+    setFirebaseInstances({ auth: authInstance, db: dbInstance });
+
+    const unsubscribe = onAuthStateChanged(authInstance, (user) => {
       setUser(user);
       setLoading(false);
     });
@@ -42,14 +56,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const login = (email: string, pass: string) => {
-    return signInWithEmailAndPassword(auth, email, pass);
+    if (!firebaseInstances) throw new Error("Firebase no inicializado");
+    return signInWithEmailAndPassword(firebaseInstances.auth, email, pass);
   };
 
   const logout = async () => {
-    await signOut(auth);
+    if (!firebaseInstances) throw new Error("Firebase no inicializado");
+    await signOut(firebaseInstances.auth);
   };
   
-  if (loading) {
+  if (loading || !firebaseInstances) {
      return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-background">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -59,7 +75,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, auth, db }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, auth: firebaseInstances.auth, db: firebaseInstances.db }}>
       {children}
     </AuthContext.Provider>
   );

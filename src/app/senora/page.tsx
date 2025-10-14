@@ -122,7 +122,7 @@ function SenoraPageComponent() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [isCalendarOpen, setCalendarOpen] = useState(false);
 
-  const canEdit = user?.email === 'emiliogo@inditex.com';
+  const canEdit = user?.email === 'emiliogp@inditex.com';
   const { toast } = useToast();
   
   const updateUrl = useCallback((newWeek: string) => {
@@ -261,10 +261,10 @@ function SenoraPageComponent() {
   }, [user, canEdit, toast, db]);
 
   useEffect(() => {
-    if (selectedWeek) {
+    if (selectedWeek && db) {
         fetchData(selectedWeek);
     }
-  }, [selectedWeek, fetchData]);
+  }, [selectedWeek, fetchData, db]);
 
   useEffect(() => {
       if(saveSuccess) {
@@ -618,7 +618,7 @@ const handleSaveEmpleados = async (newItems: Empleado[]) => {
                   data={data}
                   isEditing={isEditing} 
                   onInputChange={handleInputChange}
-                  onTextChange={onTextChange}
+                  onTextChange={handleFocusChange}
                   onDataChange={setData}
                 />
             ) : (
@@ -678,3 +678,4 @@ export default function SenoraPage() {
         </Suspense>
     );
 }
+
