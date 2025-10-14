@@ -678,4 +678,3 @@ export default function CaballeroPage() {
         </Suspense>
     );
 }
-
