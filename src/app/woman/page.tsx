@@ -152,7 +152,7 @@ function WomanPageComponent() {
         const currentWeekId = getCurrentWeekId();
         updateUrl(currentWeekId);
     }
-  }, [user, authLoading, selectedWeek, updateUrl]);
+  }, [user, authLoading, selectedWeek, router, updateUrl]);
 
 
  const fetchData = useCallback(async (weekId: string) => {
