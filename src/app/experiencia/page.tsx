@@ -138,8 +138,7 @@ function ExperienciaPageComponent() {
 
         let masterLists: WeeklyData['listas'];
         const defaultLists = getInitialLists();
-        let forceListUpdate = false;
-
+        
         const [reportSnap, listsSnap] = await Promise.all([
             getDoc(reportRef),
             getDoc(listsRef),
@@ -147,18 +146,11 @@ function ExperienciaPageComponent() {
         
         if (listsSnap.exists()) {
             masterLists = listsSnap.data() as WeeklyData['listas'];
-             // Force update the employee list from code to DB
-            if (canEdit && JSON.stringify(masterLists.empleados) !== JSON.stringify(defaultLists.empleados)) {
-                masterLists.empleados = defaultLists.empleados;
-                forceListUpdate = true;
-            }
         } else {
             masterLists = defaultLists;
-            forceListUpdate = true;
-        }
-
-        if (canEdit && forceListUpdate) {
-            await setDoc(listsRef, masterLists);
+            if (canEdit) {
+              await setDoc(listsRef, masterLists);
+            }
         }
         
         // --- Get previous week's pending incorporaciones ---
@@ -352,12 +344,8 @@ const handleSave = async () => {
     // Synchronize new employees from incorporaciones to the main list
     dataToSave.incorporaciones.forEach((inc: IncorporacionItem) => {
         if (inc.idEmpleado && inc.nombreEmpleado && !newEmpleados.some((e: Empleado) => e.id === inc.idEmpleado)) {
-            if (inc.idEmpleado === 'new' && inc.nombreEmpleado) { // special case for brand new employee
-              // A real ID should be assigned before saving
-            } else {
-              newEmpleados.push({ id: inc.idEmpleado, nombre: inc.nombreEmpleado });
-              empleadosUpdated = true;
-            }
+            newEmpleados.push({ id: inc.idEmpleado, nombre: inc.nombreEmpleado });
+            empleadosUpdated = true;
         }
     });
 

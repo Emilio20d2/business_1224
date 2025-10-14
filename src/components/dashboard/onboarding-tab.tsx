@@ -33,15 +33,15 @@ export function OnboardingTab({ data, isEditing, onInputChange, setData }: Onboa
   };
 
   const handleEmployeeSelect = (index: number, employeeId: string) => {
-    if (employeeId === 'new') {
-        onInputChange(`incorporaciones.${index}.idEmpleado`, 'new');
-        onInputChange(`incorporaciones.${index}.nombreEmpleado`, '');
+    if (employeeId === 'VACIO') {
+      handleIncorporacionChange(index, 'idEmpleado', '');
+      handleIncorporacionChange(index, 'nombreEmpleado', '');
     } else {
-        const employee = listas.empleados.find(e => e.id === employeeId);
-        if (employee) {
-            onInputChange(`incorporaciones.${index}.idEmpleado`, employee.id);
-            onInputChange(`incorporaciones.${index}.nombreEmpleado`, employee.nombre);
-        }
+      const employee = listas.empleados.find(e => e.id === employeeId);
+      if (employee) {
+        handleIncorporacionChange(index, 'idEmpleado', employee.id);
+        handleIncorporacionChange(index, 'nombreEmpleado', employee.nombre);
+      }
     }
   };
   
@@ -80,8 +80,9 @@ export function OnboardingTab({ data, isEditing, onInputChange, setData }: Onboa
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[200px]">Empleado</TableHead>
-              <TableHead>Detalles</TableHead>
+              <TableHead className="w-[200px]">Seleccionar Empleado</TableHead>
+              <TableHead className="w-[150px]">ID (Nuevo)</TableHead>
+              <TableHead>Nombre (Nuevo)</TableHead>
               <TableHead className="text-center">PRL</TableHead>
               <TableHead className="text-center">DI HOLA!</TableHead>
               {isEditing && <TableHead className="w-[50px]"></TableHead>}
@@ -93,17 +94,17 @@ export function OnboardingTab({ data, isEditing, onInputChange, setData }: Onboa
                 <TableCell>
                   {isEditing ? (
                      <Select
-                        value={item.idEmpleado || 'new'}
+                        value={item.idEmpleado && listas.empleados.some(e => e.id === item.idEmpleado) ? item.idEmpleado : 'VACIO'}
                         onValueChange={(value) => handleEmployeeSelect(index, value)}
                      >
                         <SelectTrigger>
-                            <SelectValue placeholder="Seleccionar empleado..." />
+                            <SelectValue placeholder="Seleccionar..." />
                         </SelectTrigger>
                         <SelectContent>
+                             <SelectItem value="VACIO">-- Nuevo Empleado --</SelectItem>
                             {listas.empleados.map(e => (
                                 <SelectItem key={e.id} value={e.id}>{e.nombre}</SelectItem>
                             ))}
-                             <SelectItem value="new">Otro (Añadir nuevo)</SelectItem>
                         </SelectContent>
                     </Select>
                   ) : (
@@ -111,19 +112,27 @@ export function OnboardingTab({ data, isEditing, onInputChange, setData }: Onboa
                   )}
                 </TableCell>
                 <TableCell>
-                  {isEditing && item.idEmpleado === 'new' && (
-                     <div className="flex gap-2">
-                       <Input
-                            value={item.idEmpleado === 'new' ? '' : item.idEmpleado}
-                            onChange={(e) => handleIncorporacionChange(index, 'idEmpleado', e.target.value)}
-                            placeholder="Nuevo ID..."
-                        />
-                        <Input
-                            value={item.nombreEmpleado}
-                            onChange={(e) => handleIncorporacionChange(index, 'nombreEmpleado', e.target.value)}
-                            placeholder="Nuevo Nombre..."
-                        />
-                     </div>
+                  {isEditing ? (
+                     <Input
+                        value={item.idEmpleado && listas.empleados.some(e => e.id === item.idEmpleado) ? '' : item.idEmpleado}
+                        onChange={(e) => handleIncorporacionChange(index, 'idEmpleado', e.target.value)}
+                        placeholder="ID..."
+                        disabled={!!item.idEmpleado && listas.empleados.some(e => e.id === item.idEmpleado)}
+                     />
+                  ) : (
+                    item.idEmpleado
+                  )}
+                </TableCell>
+                 <TableCell>
+                  {isEditing ? (
+                     <Input
+                        value={item.idEmpleado && listas.empleados.some(e => e.id === item.idEmpleado) ? (listas.empleados.find(e=> e.id === item.idEmpleado)?.nombre || '') : item.nombreEmpleado}
+                        onChange={(e) => handleIncorporacionChange(index, 'nombreEmpleado', e.target.value)}
+                        placeholder="Nombre..."
+                        disabled={!!item.idEmpleado && listas.empleados.some(e => e.id === item.idEmpleado)}
+                     />
+                  ) : (
+                    null
                   )}
                 </TableCell>
                 <TableCell className="text-center">
