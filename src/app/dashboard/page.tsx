@@ -159,12 +159,11 @@ function DashboardPageComponent() {
   useEffect(() => {
     if (!authLoading && !user) {
       router.push('/');
-    } else if (!authLoading && user) {
+    } else if (!authLoading && user && !selectedWeek) {
         const currentWeekId = getCurrentWeekId();
-        // Always force navigation to the current week
         updateUrl(currentWeekId, activeSubTab);
     }
-  }, [user, authLoading]);
+  }, [user, authLoading, selectedWeek, activeSubTab, updateUrl]);
 
 
  const fetchData = useCallback(async (weekId: string) => {
@@ -184,21 +183,19 @@ function DashboardPageComponent() {
 
         let listData: WeeklyData['listas'];
         const defaultLists = getInitialLists();
-        let forceListUpdate = false;
-
+        
         if (listsSnap.exists()) {
             listData = listsSnap.data() as WeeklyData['listas'];
-            // Force update the employee list from code to DB
-            if (JSON.stringify(listData.empleados) !== JSON.stringify(defaultLists.empleados)) {
-                listData.empleados = defaultLists.empleados;
-                forceListUpdate = true;
-            }
         } else {
             listData = defaultLists;
-            forceListUpdate = true; // Create the whole lists document
+            if (canEdit) {
+              await setDoc(listsRef, listData);
+            }
         }
-
-        if(canEdit && forceListUpdate) {
+        
+        // Force update the employee list from code to DB
+        if (canEdit && JSON.stringify(listData.empleados) !== JSON.stringify(defaultLists.empleados)) {
+            listData.empleados = defaultLists.empleados;
             await setDoc(listsRef, listData);
         }
 
