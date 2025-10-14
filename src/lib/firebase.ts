@@ -1,3 +1,4 @@
+
 // Import the functions you need from the SDKs you need
 import { initializeApp, getApp, getApps, type FirebaseApp } from "firebase/app";
 import { getFirestore, enableIndexedDbPersistence } from "firebase/firestore";
@@ -5,7 +6,7 @@ import { getAuth } from "firebase/auth";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyA4z_VJJhUe7Mo6q2a3xcT5b_1s8Y8cj6M",
+  apiKey: "4DLJ9JMGR8ahuSiwEr0X0jzKAe12",
   authDomain: "business-a68b2.firebaseapp.com",
   projectId: "business-a68b2",
   storageBucket: "business-a68b2.appspot.com",
