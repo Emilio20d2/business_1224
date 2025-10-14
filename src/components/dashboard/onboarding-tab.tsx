@@ -67,6 +67,8 @@ export function OnboardingTab({ data, isEditing, onInputChange, setData }: Onboa
           return { ...prevData, incorporaciones: updatedIncorporaciones };
       });
   };
+  
+  const sortedEmpleados = [...(listas.empleados || [])].sort((a, b) => a.nombre.localeCompare(b.nombre));
 
   return (
     <Card>
@@ -80,9 +82,7 @@ export function OnboardingTab({ data, isEditing, onInputChange, setData }: Onboa
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[200px]">Seleccionar Empleado</TableHead>
-              <TableHead className="w-[150px]">ID (Nuevo)</TableHead>
-              <TableHead>Nombre (Nuevo)</TableHead>
+              <TableHead className="w-[40%]">Empleado</TableHead>
               <TableHead className="text-center">PRL</TableHead>
               <TableHead className="text-center">DI HOLA!</TableHead>
               {isEditing && <TableHead className="w-[50px]"></TableHead>}
@@ -93,46 +93,40 @@ export function OnboardingTab({ data, isEditing, onInputChange, setData }: Onboa
               <TableRow key={item.id}>
                 <TableCell>
                   {isEditing ? (
-                     <Select
-                        value={item.idEmpleado && listas.empleados.some(e => e.id === item.idEmpleado) ? item.idEmpleado : 'VACIO'}
-                        onValueChange={(value) => handleEmployeeSelect(index, value)}
-                     >
-                        <SelectTrigger>
-                            <SelectValue placeholder="Seleccionar..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                             <SelectItem value="VACIO">-- Nuevo Empleado --</SelectItem>
-                            {listas.empleados.map(e => (
-                                <SelectItem key={e.id} value={e.id}>{e.nombre}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+                    <div className="space-y-2">
+                      <Select
+                          value={item.idEmpleado && sortedEmpleados.some(e => e.id === item.idEmpleado) ? item.idEmpleado : 'VACIO'}
+                          onValueChange={(value) => handleEmployeeSelect(index, value)}
+                      >
+                          <SelectTrigger>
+                              <SelectValue placeholder="Seleccionar empleado..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                              <SelectItem value="VACIO">-- Nuevo Empleado --</SelectItem>
+                              {sortedEmpleados.map(e => (
+                                  <SelectItem key={e.id} value={e.id}>{e.id} - {e.nombre}</SelectItem>
+                              ))}
+                          </SelectContent>
+                      </Select>
+                      <div className="grid grid-cols-2 gap-2">
+                         <Input
+                            value={item.idEmpleado && sortedEmpleados.some(e => e.id === item.idEmpleado) ? '' : item.idEmpleado}
+                            onChange={(e) => handleIncorporacionChange(index, 'idEmpleado', e.target.value)}
+                            placeholder="ID..."
+                            disabled={!!item.idEmpleado && sortedEmpleados.some(e => e.id === item.idEmpleado)}
+                            className="text-xs h-8"
+                          />
+                          <Input
+                            value={item.idEmpleado && sortedEmpleados.some(e => e.id === item.idEmpleado) ? (sortedEmpleados.find(e=> e.id === item.idEmpleado)?.nombre || '') : item.nombreEmpleado}
+                            onChange={(e) => handleIncorporacionChange(index, 'nombreEmpleado', e.target.value)}
+                            placeholder="Nombre..."
+                            disabled={!!item.idEmpleado && sortedEmpleados.some(e => e.id === item.idEmpleado)}
+                            className="text-xs h-8"
+                          />
+                      </div>
+                    </div>
                   ) : (
-                    item.nombreEmpleado
-                  )}
-                </TableCell>
-                <TableCell>
-                  {isEditing ? (
-                     <Input
-                        value={item.idEmpleado && listas.empleados.some(e => e.id === item.idEmpleado) ? '' : item.idEmpleado}
-                        onChange={(e) => handleIncorporacionChange(index, 'idEmpleado', e.target.value)}
-                        placeholder="ID..."
-                        disabled={!!item.idEmpleado && listas.empleados.some(e => e.id === item.idEmpleado)}
-                     />
-                  ) : (
-                    item.idEmpleado
-                  )}
-                </TableCell>
-                 <TableCell>
-                  {isEditing ? (
-                     <Input
-                        value={item.idEmpleado && listas.empleados.some(e => e.id === item.idEmpleado) ? (listas.empleados.find(e=> e.id === item.idEmpleado)?.nombre || '') : item.nombreEmpleado}
-                        onChange={(e) => handleIncorporacionChange(index, 'nombreEmpleado', e.target.value)}
-                        placeholder="Nombre..."
-                        disabled={!!item.idEmpleado && listas.empleados.some(e => e.id === item.idEmpleado)}
-                     />
-                  ) : (
-                    null
+                    <p>{item.idEmpleado} - {item.nombreEmpleado}</p>
                   )}
                 </TableCell>
                 <TableCell className="text-center">
