@@ -2,7 +2,7 @@
 
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, User } from 'firebase/auth';
-import { app } from '@/lib/firebase';
+import { app, db } from '@/lib/firebase';
 import { Loader2 } from 'lucide-react';
 
 interface AuthContextType {
@@ -10,6 +10,7 @@ interface AuthContextType {
   loading: boolean;
   login: (email: string, pass: string) => Promise<any>;
   logout: () => Promise<void>;
+  auth: any; 
 }
 
 export const AuthContext = createContext<AuthContextType>({
@@ -17,6 +18,7 @@ export const AuthContext = createContext<AuthContextType>({
   loading: true,
   login: async () => {},
   logout: async () => {},
+  auth: null,
 });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -29,6 +31,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(user);
       setLoading(false);
     });
+
     return () => unsubscribe();
   }, [auth]);
 
@@ -38,7 +41,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = async () => {
     await signOut(auth);
-    // The router push will be handled by the protected routes/layouts
   };
   
   if (loading) {
@@ -51,7 +53,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, auth }}>
       {children}
     </AuthContext.Provider>
   );
