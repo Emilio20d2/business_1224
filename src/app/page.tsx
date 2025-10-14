@@ -11,8 +11,8 @@ import { AuthContext } from '@/context/auth-context';
 import { Loader2, Briefcase } from 'lucide-react';
 
 export default function LoginPage() {
-  const [email, setEmail] = React.useState('');
-  const [password, setPassword] = React.useState('');
+  const [email, setEmail] = React.useState('emiliogp@inditex.com');
+  const [password, setPassword] = React.useState('456123');
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   
   const router = useRouter();
@@ -105,5 +105,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
-    
