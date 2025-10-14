@@ -14,11 +14,11 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-let app: FirebaseApp;
-let auth: Auth;
-let db: Firestore;
-
 function initializeAppIfNeeded() {
+  let app: FirebaseApp;
+  let auth: Auth;
+  let db: Firestore;
+
   if (!getApps().length) {
     try {
       app = initializeApp(firebaseConfig);
@@ -35,6 +35,10 @@ function initializeAppIfNeeded() {
       }
     } catch (error) {
       console.error("Firebase initialization error", error);
+      // Ensure we still get the app if it fails mid-init
+      app = getApp();
+      auth = getAuth(app);
+      db = getFirestore(app);
     }
   } else {
     app = getApp();
@@ -44,5 +48,6 @@ function initializeAppIfNeeded() {
   return { app, auth, db };
 }
 
-
-export { initializeAppIfNeeded };
+// Export the db and auth instances for use in your application
+const { db, auth } = initializeAppIfNeeded();
+export { db, auth };

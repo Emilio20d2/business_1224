@@ -2,7 +2,7 @@
 
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut, User, Auth } from 'firebase/auth';
-import { initializeAppIfNeeded } from '@/lib/firebase';
+import { auth, db } from '@/lib/firebase';
 import { Loader2 } from 'lucide-react';
 import { Firestore } from 'firebase/firestore';
 
@@ -15,24 +15,18 @@ interface AuthContextType {
   db: Firestore;
 }
 
-// Initialize services immediately for the context definition
-const { auth: initialAuth, db: initialDb } = initializeAppIfNeeded();
-
 export const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
   login: async () => {},
   logout: async () => {},
-  auth: initialAuth,
-  db: initialDb,
+  auth: auth,
+  db: db,
 });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  
-  // Re-initialize inside useEffect to ensure it runs on the client
-  const { auth, db } = initializeAppIfNeeded();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -41,7 +35,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
 
     return () => unsubscribe();
-  }, [auth]);
+  }, []);
 
   const login = (email: string, pass: string) => {
     return signInWithEmailAndPassword(auth, email, pass);

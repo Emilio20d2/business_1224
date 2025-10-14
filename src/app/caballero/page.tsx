@@ -262,10 +262,10 @@ function CaballeroPageComponent() {
   }, [user, canEdit, toast, db]);
 
   useEffect(() => {
-    if (selectedWeek) {
+    if (selectedWeek && db) {
         fetchData(selectedWeek);
     }
-  }, [selectedWeek, fetchData]);
+  }, [selectedWeek, fetchData, db]);
 
   useEffect(() => {
       if(saveSuccess) {

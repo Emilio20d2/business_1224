@@ -1,10 +1,10 @@
 
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, Suspense, useContext } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { doc, getDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { AuthContext } from '@/context/auth-context';
 import type { WeeklyData } from '@/lib/data';
 import { formatWeekIdToDateRange } from '@/lib/format';
 import { Loader2 } from 'lucide-react';
@@ -19,6 +19,7 @@ function PresentationPageComponent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const weekId = searchParams.get('week') || '';
+  const { db } = useContext(AuthContext);
 
   const [data, setData] = useState<PresentationData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -26,8 +27,8 @@ function PresentationPageComponent() {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!weekId) {
-        setError('No se ha especificado una semana.');
+      if (!weekId || !db) {
+        setError('No se ha especificado una semana o la base de datos no está disponible.');
         setLoading(false);
         return;
       }
@@ -64,8 +65,10 @@ function PresentationPageComponent() {
       }
     };
 
-    fetchData();
-  }, [weekId]);
+    if (db) {
+      fetchData();
+    }
+  }, [weekId, db]);
 
   const handleScreenClick = () => {
     router.push(`/dashboard?tab=ventas&week=${weekId}`);

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from "@/hooks/use-toast";
 import { AuthContext } from '@/context/auth-context';
@@ -10,6 +10,7 @@ export default function LoginPage() {
   const router = useRouter();
   const { login, user, loading } = useContext(AuthContext);
   const { toast } = useToast();
+  const [authAttempted, setAuthAttempted] = useState(false);
 
   useEffect(() => {
     // Si ya hay un usuario, redirigir al dashboard.
@@ -18,9 +19,10 @@ export default function LoginPage() {
       return;
     }
 
-    // Si no hay usuario y no se está cargando, intentar el login automático.
-    if (!loading && !user) {
+    // Si no hay usuario, no se está cargando y no se ha intentado el login automático
+    if (!loading && !user && !authAttempted) {
       const autoLogin = async () => {
+        setAuthAttempted(true); // Marcar que se ha intentado el login
         try {
           await login('emiliogp@inditex.com', '456123');
           // La redirección ocurrirá en el siguiente renderizado del useEffect
@@ -28,7 +30,7 @@ export default function LoginPage() {
           toast({
             variant: "destructive",
             title: "Error de autenticación automática",
-            description: "Las credenciales guardadas no son correctas.",
+            description: error.message || "Las credenciales guardadas no son correctas.",
           });
           console.error("Auto-login Error:", error);
         }
@@ -36,7 +38,7 @@ export default function LoginPage() {
 
       autoLogin();
     }
-  }, [user, loading, login, router, toast]);
+  }, [user, loading, login, router, toast, authAttempted]);
 
   // Mostrar siempre el loader mientras se gestiona el estado de autenticación.
   return (
