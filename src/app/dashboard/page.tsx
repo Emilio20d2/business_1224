@@ -103,7 +103,7 @@ const ensureSectionSpecificData = (data: WeeklyData): WeeklyData => {
 }
 
 function DashboardPageComponent() {
-  const { user, loading: authLoading, logout, db } = useContext(AuthContext);
+  const { user, loading: authLoading, logout, db, firebaseInitialized } = useContext(AuthContext);
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -163,7 +163,7 @@ function DashboardPageComponent() {
         const currentWeekId = getCurrentWeekId();
         updateUrl(currentWeekId, 'ventas');
     }
-  }, [user, authLoading, selectedWeek, updateUrl]);
+  }, [user, authLoading, selectedWeek, updateUrl, router]);
 
 
  const fetchData = useCallback(async (weekId: string) => {
@@ -278,10 +278,10 @@ function DashboardPageComponent() {
   }, [user, canEdit, toast, db]);
   
   useEffect(() => {
-    if (selectedWeek && db) {
+    if (firebaseInitialized && selectedWeek) {
         fetchData(selectedWeek);
     }
-  }, [selectedWeek, fetchData, db]);
+  }, [selectedWeek, fetchData, firebaseInitialized]);
 
   useEffect(() => {
       if(saveSuccess) {
@@ -830,4 +830,3 @@ export default function DashboardPage() {
         </Suspense>
     );
 }
-
