@@ -1,3 +1,4 @@
+
 // Import the functions you need from the SDKs you need
 import { initializeApp, getApp, getApps, type FirebaseApp } from "firebase/app";
 
@@ -12,11 +13,12 @@ export const firebaseConfig = {
 };
 
 // Initialize Firebase
-let app: FirebaseApp;
-if (!getApps().length) {
-  app = initializeApp(firebaseConfig);
-} else {
-  app = getApp();
+function initializeAppIfNeeded(): FirebaseApp {
+    if (!getApps().length) {
+        return initializeApp(firebaseConfig);
+    } else {
+        return getApp();
+    }
 }
 
-export { app };
+export const app = initializeAppIfNeeded();

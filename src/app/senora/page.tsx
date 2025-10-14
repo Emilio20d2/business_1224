@@ -1,5 +1,4 @@
 
-
 "use client"
 import React, { useState, useContext, useEffect, useCallback, Suspense } from 'react';
 import type { WeeklyData, VentasManItem, SectionSpecificData, Empleado } from "@/lib/data";
@@ -100,7 +99,7 @@ const ensureSectionSpecificData = (data: WeeklyData): WeeklyData => {
 }
 
 function SenoraPageComponent() {
-  const { user, loading: authLoading, logout, db } = useContext(AuthContext);
+  const { user, loading: authLoading, logout, db, firebaseInitialized } = useContext(AuthContext);
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -154,7 +153,7 @@ function SenoraPageComponent() {
         const currentWeekId = getCurrentWeekId();
         updateUrl(currentWeekId);
     }
-  }, [user, authLoading, selectedWeek, updateUrl]);
+  }, [user, authLoading, selectedWeek, updateUrl, router]);
 
 
  const fetchData = useCallback(async (weekId: string) => {
@@ -261,10 +260,10 @@ function SenoraPageComponent() {
   }, [user, canEdit, toast, db]);
 
   useEffect(() => {
-    if (selectedWeek && db) {
+    if (firebaseInitialized && selectedWeek) {
         fetchData(selectedWeek);
     }
-  }, [selectedWeek, fetchData, db]);
+  }, [selectedWeek, fetchData, firebaseInitialized]);
 
   useEffect(() => {
       if(saveSuccess) {

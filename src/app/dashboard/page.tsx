@@ -1,5 +1,4 @@
 
-
 "use client"
 import React, { useState, useContext, useEffect, useCallback, Suspense } from 'react';
 import type { WeeklyData, VentasManItem, SectionSpecificData, Empleado } from "@/lib/data";

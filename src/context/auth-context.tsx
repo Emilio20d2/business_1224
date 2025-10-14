@@ -2,11 +2,10 @@
 "use client";
 
 import React, { createContext, useState, useEffect, ReactNode, useContext } from 'react';
-import { onAuthStateChanged, signInWithEmailAndPassword, signOut, User, Auth, initializeAuth, indexedDBLocalPersistence } from 'firebase/auth';
+import { onAuthStateChanged, signInWithEmailAndPassword, signOut, User, Auth, getAuth } from 'firebase/auth';
 import { Loader2 } from 'lucide-react';
 import { Firestore, getFirestore } from 'firebase/firestore';
-import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
-import { firebaseConfig } from '@/lib/firebase';
+import { app } from '@/lib/firebase'; // Import the initialized app
 
 interface AuthContextType {
   user: User | null;
@@ -40,16 +39,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [firebaseInitialized, setFirebaseInitialized] = useState(false);
 
   useEffect(() => {
-    let app: FirebaseApp;
-    if (!getApps().length) {
-      app = initializeApp(firebaseConfig);
-    } else {
-      app = getApp();
-    }
-    
-    const auth = initializeAuth(app, {
-      persistence: indexedDBLocalPersistence
-    });
+    const auth = getAuth(app);
     const db = getFirestore(app);
 
     setAuthInstance(auth);
@@ -84,7 +74,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       firebaseInitialized
   };
 
-  if (loading || !firebaseInitialized) {
+  if (!firebaseInitialized || loading) {
      return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-background">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />

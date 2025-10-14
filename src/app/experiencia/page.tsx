@@ -1,5 +1,4 @@
 
-
 "use client"
 import React, { useState, useContext, useEffect, useCallback, Suspense } from 'react';
 import type { WeeklyData, Empleado, SectionSpecificData, IncorporacionItem } from "@/lib/data";
@@ -66,7 +65,7 @@ const tabConfig: Record<string, { label: string; icon?: React.FC<React.SVGProps<
 };
 
 function ExperienciaPageComponent() {
-  const { user, loading: authLoading, logout, db } = useContext(AuthContext);
+  const { user, loading: authLoading, logout, db, firebaseInitialized } = useContext(AuthContext);
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -122,7 +121,7 @@ function ExperienciaPageComponent() {
         const currentWeekId = getCurrentWeekId();
         updateUrl(currentWeekId);
     }
-  }, [user, authLoading, selectedWeek, updateUrl]);
+  }, [user, authLoading, selectedWeek, updateUrl, router]);
 
 
  const fetchData = useCallback(async (weekId: string) => {
@@ -260,10 +259,10 @@ function ExperienciaPageComponent() {
   }, [user, canEdit, toast, db]);
 
   useEffect(() => {
-    if (selectedWeek) {
+    if (firebaseInitialized && selectedWeek) {
         fetchData(selectedWeek);
     }
-  }, [selectedWeek, fetchData]);
+  }, [selectedWeek, fetchData, firebaseInitialized]);
   
   useEffect(() => {
       if(saveSuccess) {
