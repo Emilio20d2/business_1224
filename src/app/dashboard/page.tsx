@@ -133,11 +133,11 @@ function DashboardPageComponent() {
   const updateUrl = useCallback((newWeek: string, newTab?: string) => {
       if (!newWeek) return;
       const tab = newTab || activeSubTab || 'ventas';
-      const params = new URLSearchParams();
+      const params = new URLSearchParams(searchParams.toString());
       params.set('week', newWeek);
       params.set('tab', tab);
       router.replace(`/dashboard?${params.toString()}`);
-  },[router, activeSubTab]);
+  },[router, activeSubTab, searchParams]);
 
   const handleDateSelect = (date: Date | undefined) => {
     if (!date) return;
@@ -150,7 +150,8 @@ function DashboardPageComponent() {
   const handleTabChange = (newTabKey: string) => {
     const config = tabConfig[newTabKey];
     if (config?.path) {
-        router.push(`${config.path}?week=${selectedWeek}`);
+        const params = new URLSearchParams(searchParams.toString());
+        router.push(`${config.path}?${params.toString()}`);
     } else {
         updateUrl(selectedWeek, newTabKey);
     }
@@ -161,9 +162,9 @@ function DashboardPageComponent() {
       router.push('/');
     } else if (!authLoading && user && !selectedWeek) {
         const currentWeekId = getCurrentWeekId();
-        updateUrl(currentWeekId, activeSubTab);
+        updateUrl(currentWeekId, 'ventas');
     }
-  }, [user, authLoading, selectedWeek, activeSubTab, updateUrl]);
+  }, [user, authLoading, selectedWeek, updateUrl]);
 
 
  const fetchData = useCallback(async (weekId: string) => {
@@ -830,3 +831,5 @@ export default function DashboardPage() {
         </Suspense>
     );
 }
+
+    
