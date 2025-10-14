@@ -4,7 +4,6 @@
 import React, { useState, useContext, useEffect, useCallback, Suspense } from 'react';
 import type { WeeklyData, Empleado } from "@/lib/data";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
-import { db } from '@/lib/firebase';
 import { Calendar as CalendarIcon, Settings, LogOut, Loader2, Briefcase, List, LayoutDashboard, Pencil, Projector, Target, SlidersHorizontal, UserPlus, Printer } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from "@/components/ui/calendar";
@@ -110,7 +109,7 @@ const ensureSectionSpecificData = (data: WeeklyData): WeeklyData => {
 }
 
 function OperacionesPageComponent() {
-  const { user, loading: authLoading, logout } = useContext(AuthContext);
+  const { user, loading: authLoading, logout, db } = useContext(AuthContext);
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -281,7 +280,7 @@ function OperacionesPageComponent() {
     } finally {
         setDataLoading(false);
     }
-  }, [user, canEdit, toast]);
+  }, [user, canEdit, toast, db]);
 
   useEffect(() => {
       if(saveSuccess) {
@@ -708,5 +707,3 @@ export default function OperacionesPage() {
         </Suspense>
     );
 }
-
-    

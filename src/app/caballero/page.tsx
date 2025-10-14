@@ -4,7 +4,6 @@
 import React, { useState, useContext, useEffect, useCallback, Suspense } from 'react';
 import type { WeeklyData, VentasManItem, SectionSpecificData, Empleado } from "@/lib/data";
 import { doc, getDoc, setDoc, updateDoc, collection, getDocs } from "firebase/firestore";
-import { db } from '@/lib/firebase';
 import { Calendar as CalendarIcon, Settings, LogOut, Loader2, Briefcase, List, LayoutDashboard, Pencil, Projector, Users, UserPlus, SlidersHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from "@/components/ui/calendar";
@@ -101,7 +100,7 @@ const ensureSectionSpecificData = (data: WeeklyData): WeeklyData => {
 }
 
 function CaballeroPageComponent() {
-  const { user, loading: authLoading, logout } = useContext(AuthContext);
+  const { user, loading: authLoading, logout, db } = useContext(AuthContext);
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -260,7 +259,7 @@ function CaballeroPageComponent() {
     } finally {
         setDataLoading(false);
     }
-  }, [user, canEdit, toast]);
+  }, [user, canEdit, toast, db]);
 
   useEffect(() => {
     if (selectedWeek) {
@@ -680,9 +679,3 @@ export default function CaballeroPage() {
         </Suspense>
     );
 }
-
-    
-
-    
-
-    

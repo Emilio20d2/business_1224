@@ -20,19 +20,24 @@ let app: FirebaseApp;
 let auth: Auth;
 let db: Firestore;
 
+
 function initializeAppIfNeeded() {
     if (!getApps().length) {
-        app = initializeApp(firebaseConfig);
-        auth = getAuth(app);
-        db = getFirestore(app);
-        if (typeof window !== 'undefined') {
-            enableIndexedDbPersistence(db).catch((err) => {
-                if (err.code == 'failed-precondition') {
-                    console.warn('Firestore persistence failed: multiple tabs open.');
-                } else if (err.code == 'unimplemented') {
-                    console.warn('Firestore persistence not available in this browser.');
-                }
-            });
+        try {
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+            if (typeof window !== 'undefined') {
+                enableIndexedDbPersistence(db).catch((err) => {
+                    if (err.code == 'failed-precondition') {
+                        console.warn('Firestore persistence failed: multiple tabs open.');
+                    } else if (err.code == 'unimplemented') {
+                        console.warn('Firestore persistence not available in this browser.');
+                    }
+                });
+            }
+        } catch (error) {
+            console.error("Firebase initialization error", error);
         }
     } else {
         app = getApp();
@@ -41,7 +46,6 @@ function initializeAppIfNeeded() {
     }
 }
 
-// Initialize on first load.
 initializeAppIfNeeded();
 
 export { app, db, auth };

@@ -4,7 +4,6 @@
 import React, { useState, useContext, useEffect, useCallback, Suspense } from 'react';
 import type { WeeklyData, Empleado, SectionSpecificData, IncorporacionItem } from "@/lib/data";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
-import { db } from '@/lib/firebase';
 import { Calendar as CalendarIcon, Settings, LogOut, Loader2, Briefcase, LayoutDashboard, Pencil, Projector, AlertTriangle, Users, List, UserPlus, ChartLine, SlidersHorizontal, Hanger, Euro } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from "@/components/ui/calendar";
@@ -67,7 +66,7 @@ const tabConfig: Record<string, { label: string; icon?: React.FC<React.SVGProps<
 };
 
 function ExperienciaPageComponent() {
-  const { user, loading: authLoading, logout } = useContext(AuthContext);
+  const { user, loading: authLoading, logout, db } = useContext(AuthContext);
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -258,7 +257,7 @@ function ExperienciaPageComponent() {
     } finally {
         setDataLoading(false);
     }
-  }, [user, canEdit, toast]);
+  }, [user, canEdit, toast, db]);
 
   useEffect(() => {
     if (selectedWeek) {
