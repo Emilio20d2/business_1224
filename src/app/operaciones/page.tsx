@@ -206,7 +206,7 @@ function OperacionesPageComponent() {
 
 
  const fetchData = useCallback(async (weekId: string) => {
-    if (!user || !weekId) return;
+    if (!user || !weekId || !db) return;
 
     setDataLoading(true);
     setError(null);
@@ -292,7 +292,7 @@ function OperacionesPageComponent() {
 
 
   const handleSave = async () => {
-    if (!data) return;
+    if (!data || !db) return;
     setIsSaving(true);
     const reportDocRef = doc(db, "informes", selectedWeek);
     const listsDocRef = doc(db, "configuracion", "listas");
@@ -347,7 +347,7 @@ function OperacionesPageComponent() {
   }
 
   const handleSaveList = async (listKey: EditableList, newItems: string[]) => {
-    if (!listKey || !canEdit) return;
+    if (!listKey || !canEdit || !db) return;
     setIsSaving(true);
     const listsRef = doc(db, "configuracion", "listas");
 
@@ -370,7 +370,7 @@ function OperacionesPageComponent() {
   };
   
     const handleSaveRatios = async (newRatios: WeeklyData['listas']['productividadRatio']) => {
-        if (!canEdit) return;
+        if (!canEdit || !db) return;
         setIsSaving(true);
         const listsRef = doc(db, "configuracion", "listas");
 
@@ -390,7 +390,7 @@ function OperacionesPageComponent() {
     };
 
     const handleSaveEmpleados = async (newItems: Empleado[]) => {
-      if (!canEdit) return;
+      if (!canEdit || !db) return;
       setIsSaving(true);
       const listsRef = doc(db, "configuracion", "listas");
 

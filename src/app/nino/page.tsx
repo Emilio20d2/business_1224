@@ -220,7 +220,7 @@ function NinoPageComponent() {
 
 
  const fetchData = useCallback(async (weekId: string) => {
-    if (!user || !weekId) return;
+    if (!user || !weekId || !db) return;
 
     setDataLoading(true);
     setError(null);
@@ -424,7 +424,7 @@ function NinoPageComponent() {
   };
 
   const handleSave = async () => {
-    if (!data) return;
+    if (!data || !db) return;
     setIsSaving(true);
     const docRef = doc(db, "informes", selectedWeek);
     
@@ -473,7 +473,7 @@ function NinoPageComponent() {
   }
   
  const handleSaveList = async (listKey: EditableList, newItems: string[]) => {
-    if (!listKey || !canEdit) return;
+    if (!listKey || !canEdit || !db) return;
     setIsSaving(true);
     const listsRef = doc(db, "configuracion", "listas");
 
@@ -496,7 +496,7 @@ function NinoPageComponent() {
 };
 
 const handleSaveRatios = async (newRatios: WeeklyData['listas']['productividadRatio']) => {
-    if (!canEdit) return;
+    if (!canEdit || !db) return;
     setIsSaving(true);
     const listsRef = doc(db, "configuracion", "listas");
 
@@ -516,7 +516,7 @@ const handleSaveRatios = async (newRatios: WeeklyData['listas']['productividadRa
 };
 
 const handleSaveEmpleados = async (newItems: Empleado[]) => {
-  if (!canEdit) return;
+  if (!canEdit || !db) return;
   setIsSaving(true);
   const listsRef = doc(db, "configuracion", "listas");
 
