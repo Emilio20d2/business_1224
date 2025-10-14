@@ -171,7 +171,7 @@ function ExperienciaPageComponent() {
             const prevData = prevReportSnap.data() as WeeklyData;
             if (prevData.incorporaciones) {
                 pendingIncorporaciones = prevData.incorporaciones.filter(
-                    inc => !inc.somosZara || !inc.intalent || !inc.diHola
+                    inc => !inc.prl || !inc.diHola
                 );
             }
         }

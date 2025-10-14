@@ -31,8 +31,7 @@ export function OnboardingTab({ data, isEditing, onInputChange, setData }: Onboa
             id: uuidv4(),
             idEmpleado: '',
             nombreEmpleado: '',
-            somosZara: false,
-            intalent: false,
+            prl: false,
             diHola: false,
         };
         const updatedIncorporaciones = [...(prevData.incorporaciones || []), newIncorporacion];
@@ -62,8 +61,7 @@ export function OnboardingTab({ data, isEditing, onInputChange, setData }: Onboa
             <TableRow>
               <TableHead className="w-[150px]">ID Empleado</TableHead>
               <TableHead>Empleado</TableHead>
-              <TableHead className="text-center">SOMOS ZARA</TableHead>
-              <TableHead className="text-center">INTALENT</TableHead>
+              <TableHead className="text-center">PRL</TableHead>
               <TableHead className="text-center">DI HOLA!</TableHead>
               {isEditing && <TableHead className="w-[50px]"></TableHead>}
             </TableRow>
@@ -95,15 +93,8 @@ export function OnboardingTab({ data, isEditing, onInputChange, setData }: Onboa
                 </TableCell>
                 <TableCell className="text-center">
                   <Checkbox
-                    checked={item.somosZara}
-                    onCheckedChange={(checked) => handleIncorporacionChange(index, 'somosZara', checked)}
-                    disabled={!isEditing}
-                  />
-                </TableCell>
-                <TableCell className="text-center">
-                  <Checkbox
-                    checked={item.intalent}
-                    onCheckedChange={(checked) => handleIncorporacionChange(index, 'intalent', checked)}
+                    checked={item.prl}
+                    onCheckedChange={(checked) => handleIncorporacionChange(index, 'prl', checked)}
                     disabled={!isEditing}
                   />
                 </TableCell>

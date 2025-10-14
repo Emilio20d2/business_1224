@@ -103,8 +103,7 @@ export type IncorporacionItem = {
     id: string; // uuid
     idEmpleado: string;
     nombreEmpleado: string;
-    somosZara: boolean;
-    intalent: boolean;
+    prl: boolean;
     diHola: boolean;
 }
 
