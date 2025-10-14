@@ -2,106 +2,49 @@
 
 import React, { useContext, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { AuthContext } from '@/context/auth-context';
-import { Loader2, Briefcase } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 
 export default function LoginPage() {
-  const [email, setEmail] = React.useState('emiliogp@inditex.com');
-  const [password, setPassword] = React.useState('456123');
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
-  
   const router = useRouter();
   const { login, user, loading } = useContext(AuthContext);
   const { toast } = useToast();
 
   useEffect(() => {
-    // Redirect if user is already logged in
+    // Si ya hay un usuario, redirigir al dashboard.
     if (!loading && user) {
       router.push('/dashboard');
+      return;
     }
-  }, [user, loading, router]);
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    try {
-      await login(email, password);
-      // The useEffect above will handle the redirect on successful login
-    } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Error de autenticación",
-        description: "El correo electrónico o la contraseña no son correctos.",
-      });
-      console.error("Authentication Error:", error);
-    } finally {
-      setIsSubmitting(false);
+    // Si no hay usuario y no se está cargando, intentar el login automático.
+    if (!loading && !user) {
+      const autoLogin = async () => {
+        try {
+          await login('emiliogp@inditex.com', '456123');
+          // La redirección ocurrirá en el siguiente renderizado del useEffect
+        } catch (error: any) {
+          toast({
+            variant: "destructive",
+            title: "Error de autenticación automática",
+            description: "Las credenciales guardadas no son correctas.",
+          });
+          console.error("Auto-login Error:", error);
+        }
+      };
+
+      autoLogin();
     }
-  };
+  }, [user, loading, login, router, toast]);
 
-  // While loading, or if the user is already logged in, show a loader
-  // This prevents the login form from flashing
-  if (loading || user) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-12 w-12 animate-spin text-primary" />
-      </div>
-    );
-  }
-  
+  // Mostrar siempre el loader mientras se gestiona el estado de autenticación.
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">
-      <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle className="text-2xl font-aptos font-light flex items-center gap-2">
-            <Briefcase className="h-6 w-6" />
-            BUSINESS
-          </CardTitle>
-          <CardDescription>
-            Introduce tus credenciales para acceder al panel.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleLogin} className="grid gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="email@ejemplo.com"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="password">Contraseña</Label>
-              <Input
-                id="password"
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-            <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Iniciando sesión...
-                </>
-              ) : (
-                'Iniciar sesión'
-              )}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+      <div className="flex flex-col items-center gap-4">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        <p className="text-muted-foreground">Iniciando sesión...</p>
+      </div>
     </div>
   );
 }
