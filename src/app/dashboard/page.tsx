@@ -4,7 +4,6 @@
 import React, { useState, useContext, useEffect, useCallback, Suspense } from 'react';
 import type { WeeklyData, VentasManItem, SectionSpecificData, Empleado } from "@/lib/data";
 import { doc, getDoc, setDoc, updateDoc, collection, getDocs } from "firebase/firestore";
-import { db } from '@/lib/firebase';
 import { Calendar as CalendarIcon, Settings, LogOut, Loader2, Briefcase, List, LayoutDashboard, Pencil, Upload, Projector, Users, UserPlus, SlidersHorizontal, Clapperboard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from "@/components/ui/calendar";
@@ -104,7 +103,7 @@ const ensureSectionSpecificData = (data: WeeklyData): WeeklyData => {
 }
 
 function DashboardPageComponent() {
-  const { user, loading: authLoading, logout } = useContext(AuthContext);
+  const { user, loading: authLoading, logout, db } = useContext(AuthContext);
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -168,7 +167,7 @@ function DashboardPageComponent() {
 
 
  const fetchData = useCallback(async (weekId: string) => {
-    if (!user || !weekId) return;
+    if (!user || !weekId || !db) return;
     
     setDataLoading(true);
     setError(null);
@@ -276,13 +275,13 @@ function DashboardPageComponent() {
     } finally {
         setDataLoading(false);
     }
-  }, [user, canEdit, toast]);
+  }, [user, canEdit, toast, db]);
   
   useEffect(() => {
-    if (selectedWeek) {
+    if (selectedWeek && db) {
         fetchData(selectedWeek);
     }
-  }, [selectedWeek, fetchData]);
+  }, [selectedWeek, fetchData, db]);
 
   useEffect(() => {
       if(saveSuccess) {
@@ -424,7 +423,7 @@ function DashboardPageComponent() {
 
 
   const handleSave = async () => {
-    if (!data) return;
+    if (!data || !db) return;
     setIsSaving(true);
     const docRef = doc(db, "informes", selectedWeek);
     const dataToSave = JSON.parse(JSON.stringify(data));
@@ -463,7 +462,7 @@ function DashboardPageComponent() {
   }
   
  const handleSaveList = async (listKey: EditableList, newItems: string[]) => {
-    if (!listKey || !canEdit) return;
+    if (!listKey || !canEdit || !db) return;
     setIsSaving(true);
     const listsRef = doc(db, "configuracion", "listas");
 
@@ -486,7 +485,7 @@ function DashboardPageComponent() {
 };
 
  const handleSaveRatios = async (newRatios: WeeklyData['listas']['productividadRatio']) => {
-    if (!canEdit) return;
+    if (!canEdit || !db) return;
     setIsSaving(true);
     const listsRef = doc(db, "configuracion", "listas");
 
@@ -506,7 +505,7 @@ function DashboardPageComponent() {
 };
 
 const handleSaveEmpleados = async (newItems: Empleado[]) => {
-  if (!canEdit) return;
+  if (!canEdit || !db) return;
   setIsSaving(true);
   const listsRef = doc(db, "configuracion", "listas");
 
@@ -526,7 +525,7 @@ const handleSaveEmpleados = async (newItems: Empleado[]) => {
 };
 
 const handleSavePresentacion = async (newFooter: string) => {
-    if (!canEdit) return;
+    if (!canEdit || !db) return;
     setIsSaving(true);
     const listsRef = doc(db, "configuracion", "listas");
     try {

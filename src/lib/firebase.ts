@@ -1,12 +1,12 @@
 
 // Import the functions you need from the SDKs you need
 import { initializeApp, getApp, getApps, type FirebaseApp } from "firebase/app";
-import { getFirestore, enableIndexedDbPersistence } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
+import { getFirestore, enableIndexedDbPersistence, Firestore } from "firebase/firestore";
+import { getAuth, Auth } from "firebase/auth";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "4DLJ9JMGR8ahuSiwEr0X0jzKAe12",
+  apiKey: "AIzaSyA4z_VJJhUe7Mo6q2a3xcT5b_1s8Y8cj6M",
   authDomain: "business-a68b2.firebaseapp.com",
   projectId: "business-a68b2",
   storageBucket: "business-a68b2.appspot.com",
@@ -17,27 +17,31 @@ const firebaseConfig = {
 
 // Initialize Firebase
 let app: FirebaseApp;
-if (!getApps().length) {
-  app = initializeApp(firebaseConfig);
-} else {
-  app = getApp();
+let auth: Auth;
+let db: Firestore;
+
+function initializeAppIfNeeded() {
+    if (!getApps().length) {
+        app = initializeApp(firebaseConfig);
+        auth = getAuth(app);
+        db = getFirestore(app);
+        if (typeof window !== 'undefined') {
+            enableIndexedDbPersistence(db).catch((err) => {
+                if (err.code == 'failed-precondition') {
+                    console.warn('Firestore persistence failed: multiple tabs open.');
+                } else if (err.code == 'unimplemented') {
+                    console.warn('Firestore persistence not available in this browser.');
+                }
+            });
+        }
+    } else {
+        app = getApp();
+        auth = getAuth(app);
+        db = getFirestore(app);
+    }
 }
 
-const db = getFirestore(app);
-const auth = getAuth(app);
-
-// Enable offline persistence
-enableIndexedDbPersistence(db)
-  .catch((err) => {
-    if (err.code == 'failed-precondition') {
-      // Multiple tabs open, persistence can only be enabled in one tab at a time.
-      console.warn('Firestore persistence failed: multiple tabs open.');
-    } else if (err.code == 'unimplemented') {
-      // The current browser does not support all of the
-      // features required to enable persistence
-      console.warn('Firestore persistence not available in this browser.');
-    }
-  });
-
+// Initialize on first load.
+initializeAppIfNeeded();
 
 export { app, db, auth };

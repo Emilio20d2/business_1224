@@ -1,16 +1,18 @@
 "use client";
 
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
-import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, User } from 'firebase/auth';
-import { app, db } from '@/lib/firebase';
+import { onAuthStateChanged, signInWithEmailAndPassword, signOut, User, Auth } from 'firebase/auth';
+import { app, db, auth } from '@/lib/firebase';
 import { Loader2 } from 'lucide-react';
+import { Firestore } from 'firebase/firestore';
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
   login: (email: string, pass: string) => Promise<any>;
   logout: () => Promise<void>;
-  auth: any; 
+  auth: Auth; 
+  db: Firestore;
 }
 
 export const AuthContext = createContext<AuthContextType>({
@@ -18,14 +20,14 @@ export const AuthContext = createContext<AuthContextType>({
   loading: true,
   login: async () => {},
   logout: async () => {},
-  auth: null,
+  auth: auth,
+  db: db,
 });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const auth = getAuth(app);
-
+  
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
@@ -33,7 +35,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
 
     return () => unsubscribe();
-  }, [auth]);
+  }, []);
 
   const login = (email: string, pass: string) => {
     return signInWithEmailAndPassword(auth, email, pass);
@@ -53,7 +55,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, auth }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, auth, db }}>
       {children}
     </AuthContext.Provider>
   );
