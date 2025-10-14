@@ -212,7 +212,7 @@ function NinoPageComponent() {
         const currentWeekId = getCurrentWeekId();
         if (selectedWeek !== currentWeekId) {
              updateUrl(currentWeekId);
-        } else {
+        } else if (db) {
             fetchData(selectedWeek);
         }
     }

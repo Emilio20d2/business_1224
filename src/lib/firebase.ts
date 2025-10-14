@@ -17,32 +17,27 @@ let app: FirebaseApp;
 let auth: Auth;
 let db: Firestore;
 
-if (!getApps().length) {
-  try {
-    app = initializeApp(firebaseConfig);
-    auth = getAuth(app);
-    db = getFirestore(app);
-    if (typeof window !== 'undefined') {
-      enableIndexedDbPersistence(db).catch((err) => {
-        if (err.code == 'failed-precondition') {
-          console.warn('Firestore persistence failed: multiple tabs open.');
-        } else if (err.code == 'unimplemented') {
-          console.warn('Firestore persistence not available in this browser.');
-        }
-      });
-    }
-  } catch (error) {
-    console.error("Firebase initialization error", error);
-    // Ensure we still get the app if it fails mid-init
-    app = getApp();
-    auth = getAuth(app);
-    db = getFirestore(app);
-  }
-} else {
-  app = getApp();
+try {
+  app = getApps().length ? getApp() : initializeApp(firebaseConfig);
   auth = getAuth(app);
   db = getFirestore(app);
+  if (typeof window !== 'undefined') {
+    enableIndexedDbPersistence(db).catch((err) => {
+      if (err.code == 'failed-precondition') {
+        console.warn('Firestore persistence failed: multiple tabs open.');
+      } else if (err.code == 'unimplemented') {
+        console.warn('Firestore persistence not available in this browser.');
+      }
+    });
+  }
+} catch (error) {
+  console.error("Firebase initialization error", error);
+  // In case of error, ensure instances are available if app was partially initialized.
+  if (!app!) app = getApp();
+  if (!auth) auth = getAuth(app);
+  if (!db) db = getFirestore(app);
 }
+
 
 // Export the db and auth instances for use in your application
 export { db, auth };

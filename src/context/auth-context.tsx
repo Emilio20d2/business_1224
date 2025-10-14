@@ -2,9 +2,9 @@
 
 import React, { createContext, useState, useEffect, ReactNode, useContext } from 'react';
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut, User, Auth } from 'firebase/auth';
-import { auth, db } from '@/lib/firebase';
 import { Loader2 } from 'lucide-react';
 import { Firestore } from 'firebase/firestore';
+import { auth, db } from '@/lib/firebase';
 
 interface AuthContextType {
   user: User | null;
