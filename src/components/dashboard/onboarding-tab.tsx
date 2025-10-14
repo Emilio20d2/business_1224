@@ -9,6 +9,14 @@ import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Plus, Trash2, Users } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+
 
 type OnboardingTabProps = {
   data: WeeklyData;
@@ -22,6 +30,19 @@ export function OnboardingTab({ data, isEditing, onInputChange, setData }: Onboa
 
   const handleIncorporacionChange = (index: number, field: keyof IncorporacionItem, value: any) => {
     onInputChange(`incorporaciones.${index}.${field}`, value);
+  };
+
+  const handleEmployeeSelect = (index: number, employeeId: string) => {
+    if (employeeId === 'new') {
+        onInputChange(`incorporaciones.${index}.idEmpleado`, 'new');
+        onInputChange(`incorporaciones.${index}.nombreEmpleado`, '');
+    } else {
+        const employee = listas.empleados.find(e => e.id === employeeId);
+        if (employee) {
+            onInputChange(`incorporaciones.${index}.idEmpleado`, employee.id);
+            onInputChange(`incorporaciones.${index}.nombreEmpleado`, employee.nombre);
+        }
+    }
   };
   
   const handleAddIncorporacion = () => {
@@ -59,8 +80,8 @@ export function OnboardingTab({ data, isEditing, onInputChange, setData }: Onboa
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[150px]">ID Empleado</TableHead>
-              <TableHead>Empleado</TableHead>
+              <TableHead className="w-[200px]">Empleado</TableHead>
+              <TableHead>Detalles</TableHead>
               <TableHead className="text-center">PRL</TableHead>
               <TableHead className="text-center">DI HOLA!</TableHead>
               {isEditing && <TableHead className="w-[50px]"></TableHead>}
@@ -71,24 +92,38 @@ export function OnboardingTab({ data, isEditing, onInputChange, setData }: Onboa
               <TableRow key={item.id}>
                 <TableCell>
                   {isEditing ? (
-                     <Input
-                        value={item.idEmpleado}
-                        onChange={(e) => handleIncorporacionChange(index, 'idEmpleado', e.target.value)}
-                        placeholder="ID..."
-                     />
+                     <Select
+                        value={item.idEmpleado || 'new'}
+                        onValueChange={(value) => handleEmployeeSelect(index, value)}
+                     >
+                        <SelectTrigger>
+                            <SelectValue placeholder="Seleccionar empleado..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {listas.empleados.map(e => (
+                                <SelectItem key={e.id} value={e.id}>{e.nombre}</SelectItem>
+                            ))}
+                             <SelectItem value="new">Otro (Añadir nuevo)</SelectItem>
+                        </SelectContent>
+                    </Select>
                   ) : (
-                    item.idEmpleado
+                    item.nombreEmpleado
                   )}
                 </TableCell>
                 <TableCell>
-                   {isEditing ? (
-                     <Input
-                        value={item.nombreEmpleado}
-                        onChange={(e) => handleIncorporacionChange(index, 'nombreEmpleado', e.target.value)}
-                        placeholder="Nombre..."
-                     />
-                  ) : (
-                    item.nombreEmpleado
+                  {isEditing && item.idEmpleado === 'new' && (
+                     <div className="flex gap-2">
+                       <Input
+                            value={item.idEmpleado === 'new' ? '' : item.idEmpleado}
+                            onChange={(e) => handleIncorporacionChange(index, 'idEmpleado', e.target.value)}
+                            placeholder="Nuevo ID..."
+                        />
+                        <Input
+                            value={item.nombreEmpleado}
+                            onChange={(e) => handleIncorporacionChange(index, 'nombreEmpleado', e.target.value)}
+                            placeholder="Nuevo Nombre..."
+                        />
+                     </div>
                   )}
                 </TableCell>
                 <TableCell className="text-center">

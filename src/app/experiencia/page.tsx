@@ -59,8 +59,8 @@ const listLabels: Record<EditableList, string> = {
 
 const tabConfig: Record<string, { label: string; icon?: React.FC<React.SVGProps<SVGSVGElement>>, text?: string, path?: string }> = {
     datosSemanales: { label: "GENERAL", icon: LayoutDashboard, path: "/dashboard" },
-    woman: { label: "WOMAN", path: "/woman", text: "W" },
-    man: { label: "MAN", text: "M", path: "/man" },
+    woman: { label: "SEÑORA", path: "/senora", text: "S" },
+    man: { label: "CABALLERO", text: "C", path: "/caballero" },
     nino: { label: "NIÑO", path: "/nino", text: "N" },
     experiencia: { label: "EXPERIENCIA", text: "E", path: "/experiencia" },
     operaciones: { label: "OPERACIONES", text: "O", path: "/operaciones" },
@@ -119,11 +119,11 @@ function ExperienciaPageComponent() {
   useEffect(() => {
     if (!authLoading && !user) {
       router.push('/');
-    } else if (!authLoading && user) {
+    } else if (!authLoading && user && !selectedWeek) {
         const currentWeekId = getCurrentWeekId();
         updateUrl(currentWeekId);
     }
-  }, [user, authLoading]);
+  }, [user, authLoading, selectedWeek, updateUrl]);
 
 
  const fetchData = useCallback(async (weekId: string) => {
@@ -148,7 +148,7 @@ function ExperienciaPageComponent() {
         if (listsSnap.exists()) {
             masterLists = listsSnap.data() as WeeklyData['listas'];
              // Force update the employee list from code to DB
-            if (JSON.stringify(masterLists.empleados) !== JSON.stringify(defaultLists.empleados)) {
+            if (canEdit && JSON.stringify(masterLists.empleados) !== JSON.stringify(defaultLists.empleados)) {
                 masterLists.empleados = defaultLists.empleados;
                 forceListUpdate = true;
             }
@@ -352,8 +352,12 @@ const handleSave = async () => {
     // Synchronize new employees from incorporaciones to the main list
     dataToSave.incorporaciones.forEach((inc: IncorporacionItem) => {
         if (inc.idEmpleado && inc.nombreEmpleado && !newEmpleados.some((e: Empleado) => e.id === inc.idEmpleado)) {
-            newEmpleados.push({ id: inc.idEmpleado, nombre: inc.nombreEmpleado });
-            empleadosUpdated = true;
+            if (inc.idEmpleado === 'new' && inc.nombreEmpleado) { // special case for brand new employee
+              // A real ID should be assigned before saving
+            } else {
+              newEmpleados.push({ id: inc.idEmpleado, nombre: inc.nombreEmpleado });
+              empleadosUpdated = true;
+            }
         }
     });
 
@@ -626,15 +630,15 @@ const handleSave = async () => {
                           </DropdownMenuSubTrigger>
                           <DropdownMenuPortal>
                             <DropdownMenuSubContent>
-                              <DropdownMenuLabel>MAN</DropdownMenuLabel>
-                              <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorMan', 'Editar Lista: Comprador MAN')}>Comprador</DropdownMenuItem>
-                              <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialMan', 'Editar Lista: Zona Comercial MAN')}>Zona Comercial</DropdownMenuItem>
-                              <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercialMan', 'Editar Lista: Agrupación Comercial MAN')}>Agrupación Comercial</DropdownMenuItem>
+                              <DropdownMenuLabel>CABALLERO</DropdownMenuLabel>
+                              <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorMan', 'Editar Lista: Comprador CABALLERO')}>Comprador</DropdownMenuItem>
+                              <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialMan', 'Editar Lista: Zona Comercial CABALLERO')}>Zona Comercial</DropdownMenuItem>
+                              <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercialMan', 'Editar Lista: Agrupación Comercial CABALLERO')}>Agrupación Comercial</DropdownMenuItem>
                               <DropdownMenuSeparator />
-                              <DropdownMenuLabel>WOMAN</DropdownMenuLabel>
-                              <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorWoman', 'Editar Lista: Comprador WOMAN')}>Comprador</DropdownMenuItem>
-                              <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialWoman', 'Editar Lista: Tipo de Articulo WOMAN')}>Tipo de Articulo</DropdownMenuItem>
-                              <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercialWoman', 'Editar Lista: Agrupación Comercial WOMAN')}>Agrupación Comercial</DropdownMenuItem>
+                              <DropdownMenuLabel>SEÑORA</DropdownMenuLabel>
+                              <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorWoman', 'Editar Lista: Comprador SEÑORA')}>Comprador</DropdownMenuItem>
+                              <DropdownMenuItem onSelect={() => handleOpenListDialog('zonaComercialWoman', 'Editar Lista: Tipo de Articulo SEÑORA')}>Tipo de Articulo</DropdownMenuItem>
+                              <DropdownMenuItem onSelect={() => handleOpenListDialog('agrupacionComercialWoman', 'Editar Lista: Agrupación Comercial SEÑORA')}>Agrupación Comercial</DropdownMenuItem>
                               <DropdownMenuSeparator />
                               <DropdownMenuLabel>NIÑO</DropdownMenuLabel>
                               <DropdownMenuItem onSelect={() => handleOpenListDialog('compradorNino', 'Editar Lista: Comprador NIÑO')}>Comprador</DropdownMenuItem>
