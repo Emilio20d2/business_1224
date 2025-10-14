@@ -24,7 +24,7 @@ export default function LoginPage() {
       const autoLogin = async () => {
         setAuthAttempted(true); // Marcar que se ha intentado el login
         try {
-          await login('emiliogo@inditex.com', '456123');
+          await login('emiliogp@inditex.com', '456123');
           // La redirección ocurrirá en el siguiente renderizado del useEffect
         } catch (error: any) {
           toast({
