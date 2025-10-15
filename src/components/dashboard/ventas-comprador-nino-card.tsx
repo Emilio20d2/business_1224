@@ -19,7 +19,7 @@ type VentasCompradorNinoCardProps = {
 
 export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onInputChange }: VentasCompradorNinoCardProps) {
 
-  const handleFamiliaChange = (familiaIndex: number, field: 'nombre' | 'zona' | 'totalEuros' | 'unidades', value: string) => {
+  const handleFamiliaChange = (familiaIndex: number, field: 'nombre' | 'totalEuros' | 'unidades', value: string) => {
     onInputChange(`mejoresFamilias.${familiaIndex}.${field}`, value);
   };
   
@@ -28,8 +28,7 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
   }
 
   const sortedFamilias = [...(listas.agrupacionComercialNino || [])].sort((a,b) => a.localeCompare(b));
-  const zonasNino = ["NIÑA", "NIÑO", "MINI"];
-
+  
   return (
     <Card>
       <CardContent className="p-2">
@@ -73,7 +72,7 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
             <div className="flex-grow flex flex-col justify-center">
               <div className="space-y-1">
                 {compradorData.mejoresFamilias.map((familia, familiaIndex) => (
-                  <div key={familiaIndex} className="grid grid-cols-[2fr_1fr_1fr_1fr] gap-1 items-center">
+                  <div key={familiaIndex} className="grid grid-cols-[2fr_1fr_1fr] gap-1 items-center">
                     {isEditing ? (
                         <>
                             <Select value={familia.nombre || 'ninguna'} onValueChange={(value) => handleFamiliaChange(familiaIndex, 'nombre', value === 'ninguna' ? '' : value)}>
@@ -83,17 +82,6 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
                                 <SelectContent>
                                 <SelectItem value="ninguna">-- Ninguna --</SelectItem>
                                 {sortedFamilias.map(option => (
-                                    <SelectItem key={option} value={option}>{option}</SelectItem>
-                                ))}
-                                </SelectContent>
-                            </Select>
-                             <Select value={familia.zona || 'ninguna'} onValueChange={(value) => handleFamiliaChange(familiaIndex, 'zona', value === 'ninguna' ? '' : value)}>
-                                <SelectTrigger className="text-sm h-9">
-                                <SelectValue placeholder="Zona..." />
-                                </SelectTrigger>
-                                <SelectContent>
-                                <SelectItem value="ninguna">-- Zona --</SelectItem>
-                                {zonasNino.map(option => (
                                     <SelectItem key={option} value={option}>{option}</SelectItem>
                                 ))}
                                 </SelectContent>
@@ -120,7 +108,6 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
                         <p className="font-medium text-sm text-left p-1 h-9 flex items-center justify-start">
                           {familia.nombre || <span className="text-muted-foreground">--</span>}
                         </p>
-                        <span className="font-medium text-sm text-center">{familia.zona}</span>
                         <span className="font-medium text-sm text-right">{formatNumber(familia.unidades)}</span>
                         <span className="font-medium text-sm text-right">{formatCurrency(familia.totalEuros)}</span>
                       </>

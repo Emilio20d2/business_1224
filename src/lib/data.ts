@@ -150,7 +150,6 @@ export type SeccionAqneNinoData = {
 
 export type MejorFamiliaNino = {
     nombre: string;
-    zona: 'NIÑA' | 'NIÑO' | 'MINI' | '';
     totalEuros: number;
     unidades: number;
 };
@@ -566,7 +565,7 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
             nombre: comprador,
             totalEuros: 0,
             totalUnidades: 0,
-            mejoresFamilias: Array(5).fill({ nombre: '', zona: '', totalEuros: 0, unidades: 0 }),
+            mejoresFamilias: Array(5).fill({ nombre: '', totalEuros: 0, unidades: 0 }),
             zonaComercial: zonas.map(zonaName => ({ nombre: zonaName, totalEuros: 0, unidades: 0 }))
         }));
     };
