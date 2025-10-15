@@ -26,10 +26,6 @@ const AqneResumenCard = ({ data, isEditing, onInputChange, weekId }: { data: Sec
     const handleDesgloseChange = (index: number, field: string, value: string) => {
         onInputChange(`aqneNino.desglose.${index}.${field}`, value);
     };
-
-    const handleMetricasChange = (field: string, value: string) => {
-        onInputChange(`aqneNino.metricasPrincipales.${field}`, value);
-    }
     
     const totalUnidades = data.desglose.reduce((sum, item) => sum + (item.unidades || 0), 0);
     const totalEuros = data.desglose.reduce((sum, item) => sum + (item.totalEuros || 0), 0);

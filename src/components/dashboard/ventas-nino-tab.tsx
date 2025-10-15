@@ -278,7 +278,7 @@ export function VentasNinoTab({ data, isEditing, onInputChange, onTextChange, on
             </TabsContent>
             
             <TabsContent value="aqne" className="mt-0">
-                {aqneNino && <AqneNinoTab data={data} isEditing={isEditing} onInputChange={onInputChange} weekId={data.periodo} />}
+                {aqneNino && <AqneNinoTab data={data} isEditing={isEditing} onInputChange={onInputChange} weekId={data.periodo.replace(' ', '-')} />}
             </TabsContent>
 
             <TabsContent value="operaciones" className="mt-0">

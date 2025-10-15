@@ -101,7 +101,7 @@ export const getPreviousWeekId = (weekId: string): string => {
 
 export const getNextWeekId = (weekId: string): string => {
     if (!weekId || typeof weekId !== 'string' || !weekId.includes('-')) {
-        return weekId;
+        return getCurrentWeekId(); // Default to current week if input is invalid
     }
 
     try {
@@ -110,7 +110,7 @@ export const getNextWeekId = (weekId: string): string => {
         const week = parseInt(weekStr, 10);
 
         if (isNaN(year) || isNaN(week)) {
-            return weekId;
+            return getCurrentWeekId(); // Default on parsing error
         }
         
         const date = parse(`${year}-W${String(week).padStart(2, '0')}-1`, "RRRR-'W'II-i", new Date());
@@ -118,7 +118,7 @@ export const getNextWeekId = (weekId: string): string => {
         return getWeekIdFromDate(nextWeekDate);
     } catch (e) {
         console.error(`Error calculating next week for "${weekId}":`, e);
-        return weekId;
+        return getCurrentWeekId(); // Default on exception
     }
 };
 
