@@ -87,18 +87,18 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
                             <Input
                                 type="number"
                                 inputMode="decimal"
-                                defaultValue={familia.totalEuros}
-                                onBlur={(e) => handleFamiliaChange(familiaIndex, 'totalEuros', e.target.value)}
-                                className="w-full text-right h-8"
-                                placeholder="€"
-                            />
-                             <Input
-                                type="number"
-                                inputMode="decimal"
                                 defaultValue={familia.unidades}
                                 onBlur={(e) => handleFamiliaChange(familiaIndex, 'unidades', e.target.value)}
                                 className="w-full text-right h-8"
                                 placeholder="Un."
+                            />
+                            <Input
+                                type="number"
+                                inputMode="decimal"
+                                defaultValue={familia.totalEuros}
+                                onBlur={(e) => handleFamiliaChange(familiaIndex, 'totalEuros', e.target.value)}
+                                className="w-full text-right h-8"
+                                placeholder="€"
                             />
                       </>
                     ) : (
@@ -107,8 +107,8 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
                           {familia.nombre || <span className="text-muted-foreground">--</span>}
                         </p>
                         <span className="font-medium text-xs text-center">{familia.zona}</span>
-                        <span className="font-medium text-xs text-right">{formatCurrency(familia.totalEuros)}</span>
                         <span className="font-medium text-xs text-right">{formatNumber(familia.unidades)}</span>
+                        <span className="font-medium text-xs text-right">{formatCurrency(familia.totalEuros)}</span>
                       </>
                     )}
                   </div>
@@ -129,6 +129,14 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
                     </p>
                     {isEditing ? (
                         <>
+                             <Input
+                                type="number"
+                                inputMode="decimal"
+                                defaultValue={zona.unidades}
+                                onBlur={(e) => handleZonaComercialChange(zonaIndex, 'unidades', e.target.value)}
+                                className="w-full text-right h-8"
+                                placeholder="Un."
+                            />
                             <Input
                                 type="number"
                                 inputMode="decimal"
@@ -137,19 +145,12 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
                                 className="w-full text-right h-8"
                                 placeholder="€"
                             />
-                            <Input
-                                type="number"
-                                inputMode="decimal"
-                                defaultValue={zona.unidades}
-                                onBlur={(e) => handleZonaComercialChange(zonaIndex, 'unidades', e.target.value)}
-                                className="w-full text-right h-8"
-                                placeholder="Un."
-                            />
+                           
                         </>
                     ) : (
                         <>
-                             <span className="font-medium text-xs text-right">{formatCurrency(zona.totalEuros)}</span>
                              <span className="font-medium text-xs text-right">{formatNumber(zona.unidades)}</span>
+                             <span className="font-medium text-xs text-right">{formatCurrency(zona.totalEuros)}</span>
                         </>
                     )}
                   </div>
