@@ -414,30 +414,39 @@ function NinoPageComponent() {
 
                 table.sort((a: VentasManItem, b: VentasManItem) => (b.totalEuros || 0) - (a.totalEuros || 0));
             }
-        } else if (keys[0] === 'aqneNino') {
-            const aqneData = updatedData.aqneNino;
-            if (aqneData && aqneData.desglose) {
-                const totalEuros = aqneData.desglose.reduce((sum: number, item: any) => sum + (item.totalEuros || 0), 0);
-                const totalUnidades = aqneData.desglose.reduce((sum: number, item: any) => sum + (item.unidades || 0), 0);
-                aqneData.metricasPrincipales.totalEuros = totalEuros;
-                aqneData.metricasPrincipales.totalUnidades = totalUnidades;
-            }
         } else if (keys[0] === 'ventasCompradorNino') {
+            // Recalculate totals for the specific comprador card
             const compradorIndex = parseInt(keys[1], 10);
             if (!updatedData.ventasCompradorNino[compradorIndex]) return updatedData;
             
             const compradorData = updatedData.ventasCompradorNino[compradorIndex];
 
-             if (keys.length === 3 && (keys[2] === 'totalEuros' || keys[2] === 'totalUnidades')) {
-                // This is a direct update of the total, no recalculation needed
-            } else {
-                 const totalEurosFamilias = compradorData.mejoresFamilias.reduce((sum: number, fam: any) => sum + (fam.totalEuros || 0), 0);
-                 const totalEurosZona = (compradorData.zonaComercial || []).reduce((sum: number, zona: any) => sum + (zona.totalEuros || 0), 0);
-                 compradorData.totalEuros = totalEurosFamilias + totalEurosZona;
+            const totalEurosFamilias = compradorData.mejoresFamilias.reduce((sum: number, fam: any) => sum + (fam.totalEuros || 0), 0);
+            const totalEurosZona = (compradorData.zonaComercial || []).reduce((sum: number, zona: any) => sum + (zona.totalEuros || 0), 0);
+            compradorData.totalEuros = totalEurosFamilias + totalEurosZona;
 
-                 const totalUnidadesFamilias = compradorData.mejoresFamilias.reduce((sum: number, fam: any) => sum + (fam.unidades || 0), 0);
-                 const totalUnidadesZona = (compradorData.zonaComercial || []).reduce((sum: number, zona: any) => sum + (zona.unidades || 0), 0);
-                 compradorData.totalUnidades = totalUnidadesFamilias + totalUnidadesZona;
+            const totalUnidadesFamilias = compradorData.mejoresFamilias.reduce((sum: number, fam: any) => sum + (fam.unidades || 0), 0);
+            const totalUnidadesZona = (compradorData.zonaComercial || []).reduce((sum: number, zona: any) => sum + (zona.unidades || 0), 0);
+            compradorData.totalUnidades = totalUnidadesFamilias + totalUnidadesZona;
+
+            // Now, update the 'Ropa' row in aqneNino
+            const totalRopaEuros = updatedData.ventasCompradorNino.reduce((sum: number, item: VentasCompradorNinoItem) => sum + (item.totalEuros || 0), 0);
+            const totalRopaUnidades = updatedData.ventasCompradorNino.reduce((sum: number, item: VentasCompradorNinoItem) => sum + (item.totalUnidades || 0), 0);
+            
+            const ropaDesglose = updatedData.aqneNino.desglose.find((d: any) => d.seccion === 'Ropa');
+            if (ropaDesglose) {
+                ropaDesglose.totalEuros = totalRopaEuros;
+                ropaDesglose.unidades = totalRopaUnidades;
+            }
+
+        } else if (keys[0] === 'aqneNino') {
+            // This is for direct edits on Calzado/Perfumeria in the aqneNino card
+            const aqneData = updatedData.aqneNino;
+             if (aqneData && aqneData.desglose) {
+                const totalEuros = aqneData.desglose.reduce((sum: number, item: any) => sum + (item.totalEuros || 0), 0);
+                const totalUnidades = aqneData.desglose.reduce((sum: number, item: any) => sum + (item.unidades || 0), 0);
+                aqneData.metricasPrincipales.totalEuros = totalEuros;
+                aqneData.metricasPrincipales.totalUnidades = totalUnidades;
             }
         }
         
@@ -813,3 +822,4 @@ export default function NinoPage() {
         </Suspense>
     );
 }
+
