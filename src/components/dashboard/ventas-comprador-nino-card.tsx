@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { formatCurrency, formatNumber, formatPercentage } from "@/lib/format";
-import type { VentasCompradorNinoItem, WeeklyData } from "@/lib/data";
+import type { VentasCompradorNinoItem, WeeklyData, ZonaComercialNinoItem } from "@/lib/data";
 import { cn } from '@/lib/utils';
 
 type VentasCompradorNinoCardProps = {
@@ -23,16 +23,19 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
     onInputChange(`mejoresFamilias.${familiaIndex}.${field}`, value);
   };
   
+  const handleZonaComercialChange = (zonaIndex: number, field: 'totalEuros' | 'unidades', value: string) => {
+    onInputChange(`zonaComercial.${zonaIndex}.${field}`, value);
+  }
+
   const sortedFamilias = [...(listas.agrupacionComercialNino || [])].sort((a,b) => a.localeCompare(b));
   const zonasNino = ["NIÑA", "NIÑO", "MINI"];
-
 
   return (
     <Card>
       <CardContent className="p-2">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr_2fr] gap-4">
           {/* Columna 1: Comprador */}
-          <div className="flex flex-col justify-center items-center gap-2 py-2">
+          <div className="flex flex-col justify-center items-center gap-2 py-2 border-r pr-4">
             <h3 className="font-bold text-xl text-center">{compradorData.nombre}</h3>
             <div className="flex flex-col items-center gap-1">
               <label className="text-sm font-medium text-muted-foreground">Total €</label>
@@ -123,6 +126,47 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
                         <span className="font-medium text-xs text-right">{formatCurrency(familia.totalEuros)}</span>
                         <span className="font-medium text-xs text-right">{formatNumber(familia.unidades)}</span>
                       </>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          
+           {/* Columna 3: Zona Comercial */}
+          <div className="flex flex-col">
+            <h3 className="font-bold text-lg text-center text-primary mb-2">TIPO DE ARTÍCULO</h3>
+            <div className="flex-grow flex flex-col justify-center">
+              <div className="space-y-1">
+                {(compradorData.zonaComercial || []).map((zona, zonaIndex) => (
+                  <div key={zonaIndex} className="grid grid-cols-[2fr_1fr_1fr] gap-1 items-center">
+                    <p className="font-medium text-xs text-left p-1 h-8 flex items-center justify-start">
+                        {zona.nombre}
+                    </p>
+                    {isEditing ? (
+                        <>
+                            <Input
+                                type="number"
+                                inputMode="decimal"
+                                defaultValue={zona.totalEuros}
+                                onBlur={(e) => handleZonaComercialChange(zonaIndex, 'totalEuros', e.target.value)}
+                                className="w-full text-right h-8"
+                                placeholder="€"
+                            />
+                            <Input
+                                type="number"
+                                inputMode="decimal"
+                                defaultValue={zona.unidades}
+                                onBlur={(e) => handleZonaComercialChange(zonaIndex, 'unidades', e.target.value)}
+                                className="w-full text-right h-8"
+                                placeholder="Un."
+                            />
+                        </>
+                    ) : (
+                        <>
+                             <span className="font-medium text-xs text-right">{formatCurrency(zona.totalEuros)}</span>
+                             <span className="font-medium text-xs text-right">{formatNumber(zona.unidades)}</span>
+                        </>
                     )}
                   </div>
                 ))}

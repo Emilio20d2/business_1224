@@ -1,7 +1,8 @@
 
+
 "use client"
 import React, { useState, useContext, useEffect, useCallback, Suspense } from 'react';
-import type { WeeklyData, VentasManItem, SectionSpecificData, Empleado, VentasCompradorNinoItem, MejorFamiliaNino } from "@/lib/data";
+import type { WeeklyData, VentasManItem, SectionSpecificData, Empleado, VentasCompradorNinoItem, MejorFamiliaNino, ZonaComercialNinoItem } from "@/lib/data";
 import { doc, getDoc, setDoc, updateDoc, collection, getDocs } from "firebase/firestore";
 import { Calendar as CalendarIcon, Settings, LogOut, Loader2, Briefcase, List, LayoutDashboard, Pencil, Upload, Projector, Users, UserPlus, SlidersHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -80,6 +81,7 @@ const synchronizeTableData = (list: string[], oldTableData: VentasManItem[]): Ve
 
 const synchronizeVentasCompradorNino = (
     compradorList: string[],
+    zonaComercialList: string[],
     oldData: VentasCompradorNinoItem[] | undefined
 ): [VentasCompradorNinoItem[], boolean] => {
     const safeOldData = Array.isArray(oldData) ? oldData : [];
@@ -92,9 +94,22 @@ const synchronizeVentasCompradorNino = (
             const familias = existingComprador.mejoresFamilias || [];
             if (familias.length !== 5) {
                 needsUpdate = true;
-                const newFamilias = Array(5).fill(null).map((_, i) => familias[i] || { nombre: '', totalEuros: 0, varPorc: 0 });
-                return { ...existingComprador, mejoresFamilias: newFamilias };
+                const newFamilias = Array(5).fill(null).map((_, i) => familias[i] || { nombre: '', zona: '', totalEuros: 0, unidades: 0 });
+                existingComprador.mejoresFamilias = newFamilias;
             }
+            
+            // Sync zonaComercial
+            const zonaComercial = existingComprador.zonaComercial || [];
+            const zonaMap = new Map(zonaComercial.map(z => [z.nombre, z]));
+            const newZonaComercial = zonaComercialList.map(zonaName => 
+                zonaMap.get(zonaName) || { nombre: zonaName, totalEuros: 0, unidades: 0 }
+            );
+
+            if (JSON.stringify(zonaComercial) !== JSON.stringify(newZonaComercial)) {
+                existingComprador.zonaComercial = newZonaComercial;
+                needsUpdate = true;
+            }
+            
             return { ...existingComprador };
         } else {
             needsUpdate = true;
@@ -102,7 +117,8 @@ const synchronizeVentasCompradorNino = (
                 nombre: compradorName,
                 totalEuros: 0,
                 varPorcTotal: 0,
-                mejoresFamilias: Array(5).fill({ nombre: '', totalEuros: 0, varPorc: 0 }),
+                mejoresFamilias: Array(5).fill({ nombre: '', zona: '', totalEuros: 0, unidades: 0 }),
+                zonaComercial: zonaComercialList.map(zonaName => ({ nombre: zonaName, totalEuros: 0, unidades: 0 })),
             };
         }
     });
@@ -295,7 +311,7 @@ function NinoPageComponent() {
         [reportData.ventasNino.agrupacionComercial, changed] = syncAndCheck(reportData.ventasNino.agrupacionComercial, listData.agrupacionComercialNino);
         if (changed) needsSave = true;
 
-        [reportData.ventasCompradorNino, changed] = synchronizeVentasCompradorNino(listData.compradorNino, reportData.ventasCompradorNino);
+        [reportData.ventasCompradorNino, changed] = synchronizeVentasCompradorNino(listData.compradorNino, listData.zonaComercialNino, reportData.ventasCompradorNino);
         if(changed) needsSave = true;
 
         if (needsSave && canEdit) {
@@ -355,17 +371,13 @@ function NinoPageComponent() {
         
         const finalKey = keys[keys.length - 1];
 
-        if (keys[0] === 'ventasCompradorNino' && keys[2] === 'mejoresFamilias') {
-            const compradorIndex = parseInt(keys[1], 10);
-            const familiaIndex = parseInt(keys[3], 10);
-            const field = keys[4] as keyof MejorFamiliaNino;
-             if (field === 'nombre') {
-                updatedData.ventasCompradorNino[compradorIndex].mejoresFamilias[familiaIndex][field] = value;
-            } else {
+        if (keys.includes('mejoresFamilias') || keys.includes('zonaComercial')) {
+             if (keys.at(-1) === 'nombre' || keys.at(-1) === 'zona') {
+                 current[finalKey] = value;
+             } else {
                 const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
-                updatedData.ventasCompradorNino[compradorIndex].mejoresFamilias[familiaIndex][field] = isNaN(numericValue) || value === "" ? 0 : numericValue;
+                current[finalKey] = isNaN(numericValue) || value === "" ? 0 : numericValue;
             }
-
         } else {
             const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
             current[finalKey] = isNaN(numericValue) || value === "" ? 0 : numericValue;
@@ -398,17 +410,18 @@ function NinoPageComponent() {
                 aqneData.metricasPrincipales.totalEuros = totalEuros;
                 aqneData.metricasPrincipales.totalUnidades = totalUnidades;
             }
-        } else if (keys[0] === 'ventasCompradorNino' && keys[2] !== 'mejoresFamilias') {
+        } else if (keys[0] === 'ventasCompradorNino') {
             const compradorIndex = parseInt(keys[1], 10);
             if (!updatedData.ventasCompradorNino[compradorIndex]) return updatedData;
             
             const compradorData = updatedData.ventasCompradorNino[compradorIndex];
 
-            if (keys.length === 3 && (keys[2] === 'totalEuros' || keys[2] === 'varPorcTotal')) {
+             if (keys.length === 3 && (keys[2] === 'totalEuros' || keys[2] === 'varPorcTotal')) {
                 // This is a direct update of the total, no recalculation needed
-            } else if (keys[2] === 'mejoresFamilias') {
-              const totalEurosFamilias = compradorData.mejoresFamilias.reduce((sum: number, fam: any) => sum + (fam.totalEuros || 0), 0);
-              compradorData.totalEuros = totalEurosFamilias;
+            } else {
+                 const totalEurosFamilias = compradorData.mejoresFamilias.reduce((sum: number, fam: any) => sum + (fam.totalEuros || 0), 0);
+                 const totalEurosZona = (compradorData.zonaComercial || []).reduce((sum: number, zona: any) => sum + (zona.totalEuros || 0), 0);
+                 compradorData.totalEuros = totalEurosFamilias + totalEurosZona;
             }
         }
         

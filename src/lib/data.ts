@@ -155,11 +155,18 @@ export type MejorFamiliaNino = {
     unidades: number;
 };
 
+export type ZonaComercialNinoItem = {
+    nombre: string;
+    totalEuros: number;
+    unidades: number;
+}
+
 export type VentasCompradorNinoItem = {
     nombre: string;
     totalEuros: number;
     varPorcTotal: number;
     mejoresFamilias: MejorFamiliaNino[];
+    zonaComercial: ZonaComercialNinoItem[];
 };
 
 export type EncuestasQrData = {
@@ -553,13 +560,14 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
         }));
     }
 
-    const createVentasCompradorNinoItems = (compradores: string[]): VentasCompradorNinoItem[] => {
+    const createVentasCompradorNinoItems = (compradores: string[], zonas: string[]): VentasCompradorNinoItem[] => {
         if (!Array.isArray(compradores)) return [];
         return compradores.map(comprador => ({
             nombre: comprador,
             totalEuros: 0,
             varPorcTotal: 0,
             mejoresFamilias: Array(5).fill({ nombre: '', zona: '', totalEuros: 0, unidades: 0 }),
+            zonaComercial: zonas.map(zonaName => ({ nombre: zonaName, totalEuros: 0, unidades: 0 }))
         }));
     };
     
@@ -618,7 +626,7 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
             nino: createSeccionAqneData()
         },
         aqneNino: createInitialAqneNinoData(),
-        ventasCompradorNino: createVentasCompradorNinoItems(lists.compradorNino),
+        ventasCompradorNino: createVentasCompradorNinoItems(lists.compradorNino, lists.zonaComercialNino),
         ventasDiariasAQNE: [
             { dia: "LUNES", total: 0, woman: 0, man: 0, nino: 0 },
             { dia: "MARTES", total: 0, woman: 0, man: 0, nino: 0 },
