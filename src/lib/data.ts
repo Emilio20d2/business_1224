@@ -164,7 +164,6 @@ export type ZonaComercialNinoItem = {
 export type VentasCompradorNinoItem = {
     nombre: string;
     totalEuros: number;
-    varPorcTotal: number;
     mejoresFamilias: MejorFamiliaNino[];
     zonaComercial: ZonaComercialNinoItem[];
 };
@@ -565,7 +564,6 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
         return compradores.map(comprador => ({
             nombre: comprador,
             totalEuros: 0,
-            varPorcTotal: 0,
             mejoresFamilias: Array(5).fill({ nombre: '', zona: '', totalEuros: 0, unidades: 0 }),
             zonaComercial: zonas.map(zonaName => ({ nombre: zonaName, totalEuros: 0, unidades: 0 }))
         }));

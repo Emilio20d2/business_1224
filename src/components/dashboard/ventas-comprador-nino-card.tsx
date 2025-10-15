@@ -51,22 +51,6 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
                 <span className="font-bold text-lg">{formatCurrency(compradorData.totalEuros)}</span>
               )}
             </div>
-             <div className="flex flex-col items-center gap-1">
-                 <label className="text-sm font-medium text-muted-foreground">Var %</label>
-                {isEditing ? (
-                    <Input
-                        type="number"
-                        inputMode="decimal"
-                        defaultValue={compradorData.varPorcTotal}
-                        className="w-28 text-center text-lg font-bold"
-                        onBlur={(e) => onInputChange('varPorcTotal', e.target.value)}
-                    />
-                ) : (
-                    <span className={cn("font-bold text-lg", compradorData.varPorcTotal < 0 ? "text-red-600" : "text-green-600")}>
-                        {formatPercentage(compradorData.varPorcTotal)}
-                    </span>
-                )}
-            </div>
           </div>
 
           {/* Columna 2: Mejores Familias */}
