@@ -39,7 +39,7 @@ const AqneResumenCard = ({ data, isEditing, onInputChange, weekId }: { data: Sec
         <Card>
             <CardHeader>
                 <CardTitle className="uppercase font-bold text-base">
-                    PLANNING SEMANAL - {nextWeekDateRange}
+                    AQNE SEMANA - {nextWeekDateRange}
                 </CardTitle>
             </CardHeader>
             <CardContent>
