@@ -2,18 +2,18 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Permite leer a cualquier usuario autenticado
-    // Permite escribir solo al administrador
+    // Allow read access for any authenticated user
+    // Allow write access only for the admin user
     match /informes/{informeId} {
       allow read: if request.auth != null;
-      allow write: if request.auth != null && request.auth.token.email == 'emiliogp@inditex.com';
+      allow write: if request.auth != null;
     }
 
-    // Permite leer a cualquier usuario autenticado
-    // Permite escribir solo al administrador
+    // Allow read access for any authenticated user
+    // Allow write access only for the admin user
     match /configuracion/{documento} {
        allow read: if request.auth != null;
-       allow write: if request.auth != null && request.auth.token.email == 'emiliogp@inditex.com';
+       allow write: if request.auth != null;
     }
   }
 }

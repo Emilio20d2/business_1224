@@ -178,7 +178,7 @@ function NinoPageComponent() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [isCalendarOpen, setCalendarOpen] = useState(false);
 
-  const canEdit = user?.email === 'emiliogp@inditex.com';
+  const canEdit = !!user;
   const { toast } = useToast();
   
   const updateUrl = useCallback((newWeek: string) => {
