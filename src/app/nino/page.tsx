@@ -376,7 +376,7 @@ function NinoPageComponent() {
   }, [saveSuccess, fetchData, selectedWeek])
 
 
-  const handleInputChange = (path: string, value: any, reorder = false) => {
+ const handleInputChange = (path: string, value: any, reorder = false) => {
     if (!canEdit) return;
     
     setData(prevData => {
@@ -387,11 +387,22 @@ function NinoPageComponent() {
         const keys = path.split('.');
         
         for (let i = 0; i < keys.length - 1; i++) {
-            if (current[keys[i]] === undefined) current[keys[i]] = {};
+            if (current[keys[i]] === undefined) {
+                // This case should ideally not happen if data is well-structured.
+                // If it does, we stop to prevent errors.
+                console.error("Path is invalid:", path, "at key", keys[i]);
+                return updatedData;
+            }
             current = current[keys[i]];
         }
         
         const finalKey = keys[keys.length - 1];
+
+        // This check ensures we are not trying to set a property on a non-object
+        if (typeof current !== 'object' || current === null) {
+            console.error("Trying to set property on non-object:", path);
+            return updatedData;
+        }
 
         if (keys.includes('mejoresFamilias') || keys.includes('zonaComercial')) {
              if (keys.at(-1) === 'nombre' || keys.at(-1) === 'zona') {
@@ -425,23 +436,23 @@ function NinoPageComponent() {
                 table.sort((a: VentasManItem, b: VentasManItem) => (b.totalEuros || 0) - (a.totalEuros || 0));
             }
         } else if (keys[0] === 'ventasCompradorNino') {
-            const compradorIndex = parseInt(keys[1], 10);
-            if (!updatedData.ventasCompradorNino[compradorIndex]) return updatedData;
+            // After any change in ventasCompradorNino, recalculate the totals for "Ropa" in aqneNino
+            const totalRopaEuros = updatedData.ventasCompradorNino.reduce((sum: number, item: VentasCompradorNinoItem) => sum + (item.totalEuros || 0), 0);
+            const totalRopaUnidades = updatedData.ventasCompradorNino.reduce((sum: number, item: VentasCompradorNinoItem) => sum + (item.totalUnidades || 0), 0);
             
-            const compradorData = updatedData.ventasCompradorNino[compradorIndex];
-
-            // Only sum up the comprador's own total, not its sub-items, as per user request
-            if(keys[2] === 'totalEuros' || keys[2] === 'totalUnidades') {
-                const totalRopaEuros = updatedData.ventasCompradorNino.reduce((sum: number, item: VentasCompradorNinoItem) => sum + (item.totalEuros || 0), 0);
-                const totalRopaUnidades = updatedData.ventasCompradorNino.reduce((sum: number, item: VentasCompradorNinoItem) => sum + (item.totalUnidades || 0), 0);
-                
-                const ropaDesglose = updatedData.aqneNino.desglose.find((d: any) => d.seccion === 'Ropa');
-                if (ropaDesglose) {
-                    ropaDesglose.totalEuros = totalRopaEuros;
-                    ropaDesglose.unidades = totalRopaUnidades;
-                }
+            const ropaDesglose = updatedData.aqneNino.desglose.find((d: any) => d.seccion === 'Ropa');
+            if (ropaDesglose) {
+                ropaDesglose.totalEuros = totalRopaEuros;
+                ropaDesglose.unidades = totalRopaUnidades;
             }
-
+             // Also recalculate the main AQNE totals
+            const aqneData = updatedData.aqneNino;
+             if (aqneData && aqneData.desglose) {
+                const totalEuros = aqneData.desglose.reduce((sum: number, item: any) => sum + (item.totalEuros || 0), 0);
+                const totalUnidades = aqneData.desglose.reduce((sum: number, item: any) => sum + (item.unidades || 0), 0);
+                aqneData.metricasPrincipales.totalEuros = totalEuros;
+                aqneData.metricasPrincipales.totalUnidades = totalUnidades;
+            }
 
         } else if (keys[0] === 'aqneNino') {
             const aqneData = updatedData.aqneNino;
@@ -825,5 +836,6 @@ export default function NinoPage() {
         </Suspense>
     );
 }
+
 
 
