@@ -398,14 +398,18 @@ function NinoPageComponent() {
                 aqneData.metricasPrincipales.totalEuros = totalEuros;
                 aqneData.metricasPrincipales.totalUnidades = totalUnidades;
             }
-        } else if (keys[0] === 'ventasCompradorNino') {
-          const compradorIndex = parseInt(keys[1], 10);
-          const compradorData = updatedData.ventasCompradorNino[compradorIndex];
+        } else if (keys[0] === 'ventasCompradorNino' && keys[2] !== 'mejoresFamilias') {
+            const compradorIndex = parseInt(keys[1], 10);
+            if (!updatedData.ventasCompradorNino[compradorIndex]) return updatedData;
+            
+            const compradorData = updatedData.ventasCompradorNino[compradorIndex];
 
-          if (keys[2] === 'mejoresFamilias') {
+            if (keys.length === 3 && (keys[2] === 'totalEuros' || keys[2] === 'varPorcTotal')) {
+                // This is a direct update of the total, no recalculation needed
+            } else if (keys[2] === 'mejoresFamilias') {
               const totalEurosFamilias = compradorData.mejoresFamilias.reduce((sum: number, fam: any) => sum + (fam.totalEuros || 0), 0);
               compradorData.totalEuros = totalEurosFamilias;
-          }
+            }
         }
         
         return updatedData;
@@ -722,7 +726,6 @@ const handleSaveEmpleados = async (newItems: Empleado[]) => {
                   onInputChange={handleInputChange}
                   onTextChange={handleFocusChange}
                   onDataChange={setData}
-                  nextWeekDateRange={nextWeekDateRange}
                 />
             ) : (
              <div className="flex flex-col items-center justify-center min-h-[60vh]">

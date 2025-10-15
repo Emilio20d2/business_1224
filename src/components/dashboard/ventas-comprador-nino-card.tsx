@@ -19,7 +19,7 @@ type VentasCompradorNinoCardProps = {
 
 export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onInputChange }: VentasCompradorNinoCardProps) {
 
-  const handleFamiliaChange = (familiaIndex: number, field: 'nombre' | 'totalEuros' | 'totalUnidades', value: string) => {
+  const handleFamiliaChange = (familiaIndex: number, field: 'nombre' | 'totalEuros' | 'varPorc', value: string) => {
     onInputChange(`mejoresFamilias.${familiaIndex}.${field}`, value);
   };
   
@@ -62,20 +62,6 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
                     </span>
                 )}
             </div>
-            <div className="flex flex-col items-center gap-1">
-              <label className="text-sm font-medium text-muted-foreground">Total Unidades</label>
-               {isEditing ? (
-                 <Input
-                  type="number"
-                  inputMode="decimal"
-                  defaultValue={compradorData.totalUnidades}
-                  className="w-28 text-center text-lg font-bold"
-                  onBlur={(e) => onInputChange('totalUnidades', e.target.value)}
-                />
-              ) : (
-                <span className="font-bold text-lg">{formatNumber(compradorData.totalUnidades)}</span>
-              )}
-            </div>
           </div>
 
           {/* Columna 2: Mejores Familias */}
@@ -106,13 +92,13 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
                                 className="w-24 text-right h-8"
                                 placeholder="€"
                             />
-                            <Input
+                             <Input
                                 type="number"
                                 inputMode="decimal"
-                                defaultValue={familia.totalUnidades}
-                                onBlur={(e) => handleFamiliaChange(familiaIndex, 'totalUnidades', e.target.value)}
+                                defaultValue={familia.varPorc}
+                                onBlur={(e) => handleFamiliaChange(familiaIndex, 'varPorc', e.target.value)}
                                 className="w-20 text-right h-8"
-                                placeholder="Uds."
+                                placeholder="%"
                             />
                       </>
                     ) : (
@@ -121,7 +107,7 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
                           {familia.nombre || <span className="text-muted-foreground">--</span>}
                         </p>
                         <span className="font-medium text-xs text-right w-24">{formatCurrency(familia.totalEuros)}</span>
-                        <span className="font-medium text-xs text-right w-20">{formatNumber(familia.totalUnidades)}</span>
+                        <span className={cn("font-medium text-xs text-right w-20", familia.varPorc < 0 ? "text-red-600" : "text-green-600")}>{formatPercentage(familia.varPorc)}</span>
                       </>
                     )}
                   </div>
