@@ -3,7 +3,7 @@ import { initializeApp, getApp, getApps, type FirebaseApp } from "firebase/app";
 
 // Your web app's Firebase configuration
 export const firebaseConfig = {
-  apiKey: "AIzaSyD-1_p334aCMoMh4_G8c9kYcIBa8bQPSyA",
+  apiKey: "AIzaSyA4z_VJJhUe7Mo6q2a3xcT5b_1s8Y8cj6M",
   authDomain: "business-a68b2.firebaseapp.com",
   projectId: "business-a68b2",
   storageBucket: "business-a68b2.appspot.com",
