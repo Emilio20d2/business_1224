@@ -152,6 +152,7 @@ export type MejorFamiliaNino = {
     nombre: string;
     totalEuros: number;
     varPorc: number;
+    zona: 'NIÑA' | 'NIÑO' | 'MINI' | '';
 };
 
 export type VentasCompradorNinoItem = {
@@ -558,7 +559,7 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
             nombre: comprador,
             totalEuros: 0,
             varPorcTotal: 0,
-            mejoresFamilias: Array(5).fill({ nombre: '', totalEuros: 0, varPorc: 0 }),
+            mejoresFamilias: Array(5).fill({ nombre: '', totalEuros: 0, varPorc: 0, zona: '' }),
         }));
     };
     
