@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import React from 'react';
@@ -63,7 +62,7 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
                     {isEditing ? (
                         <>
                             <Select value={familia.nombre || 'ninguna'} onValueChange={(value) => handleFamiliaChange(familiaIndex, 'nombre', value === 'ninguna' ? '' : value)}>
-                                <SelectTrigger className="text-xs h-8">
+                                <SelectTrigger className="text-sm h-9">
                                 <SelectValue placeholder="Familia..." />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -74,7 +73,7 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
                                 </SelectContent>
                             </Select>
                              <Select value={familia.zona || 'ninguna'} onValueChange={(value) => handleFamiliaChange(familiaIndex, 'zona', value === 'ninguna' ? '' : value)}>
-                                <SelectTrigger className="text-xs h-8">
+                                <SelectTrigger className="text-sm h-9">
                                 <SelectValue placeholder="Zona..." />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -89,7 +88,7 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
                                 inputMode="decimal"
                                 defaultValue={familia.unidades}
                                 onBlur={(e) => handleFamiliaChange(familiaIndex, 'unidades', e.target.value)}
-                                className="w-full text-right h-8"
+                                className="w-full text-right h-9"
                                 placeholder="Un."
                             />
                             <Input
@@ -97,18 +96,18 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
                                 inputMode="decimal"
                                 defaultValue={familia.totalEuros}
                                 onBlur={(e) => handleFamiliaChange(familiaIndex, 'totalEuros', e.target.value)}
-                                className="w-full text-right h-8"
+                                className="w-full text-right h-9"
                                 placeholder="€"
                             />
                       </>
                     ) : (
                       <>
-                        <p className="font-medium text-xs text-left p-1 h-8 flex items-center justify-start">
+                        <p className="font-medium text-sm text-left p-1 h-9 flex items-center justify-start">
                           {familia.nombre || <span className="text-muted-foreground">--</span>}
                         </p>
-                        <span className="font-medium text-xs text-center">{familia.zona}</span>
-                        <span className="font-medium text-xs text-right">{formatNumber(familia.unidades)}</span>
-                        <span className="font-medium text-xs text-right">{formatCurrency(familia.totalEuros)}</span>
+                        <span className="font-medium text-sm text-center">{familia.zona}</span>
+                        <span className="font-medium text-sm text-right">{formatNumber(familia.unidades)}</span>
+                        <span className="font-medium text-sm text-right">{formatCurrency(familia.totalEuros)}</span>
                       </>
                     )}
                   </div>
@@ -124,7 +123,7 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
               <div className="space-y-1">
                 {(compradorData.zonaComercial || []).map((zona, zonaIndex) => (
                   <div key={zonaIndex} className="grid grid-cols-[2fr_1fr_1fr] gap-1 items-center">
-                    <p className="font-medium text-xs text-left p-1 h-8 flex items-center justify-start">
+                    <p className="font-medium text-sm text-left p-1 h-9 flex items-center justify-start">
                         {zona.nombre}
                     </p>
                     {isEditing ? (
@@ -134,7 +133,7 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
                                 inputMode="decimal"
                                 defaultValue={zona.unidades}
                                 onBlur={(e) => handleZonaComercialChange(zonaIndex, 'unidades', e.target.value)}
-                                className="w-full text-right h-8"
+                                className="w-full text-right h-9"
                                 placeholder="Un."
                             />
                             <Input
@@ -142,15 +141,15 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
                                 inputMode="decimal"
                                 defaultValue={zona.totalEuros}
                                 onBlur={(e) => handleZonaComercialChange(zonaIndex, 'totalEuros', e.target.value)}
-                                className="w-full text-right h-8"
+                                className="w-full text-right h-9"
                                 placeholder="€"
                             />
                            
                         </>
                     ) : (
                         <>
-                             <span className="font-medium text-xs text-right">{formatNumber(zona.unidades)}</span>
-                             <span className="font-medium text-xs text-right">{formatCurrency(zona.totalEuros)}</span>
+                             <span className="font-medium text-sm text-right">{formatNumber(zona.unidades)}</span>
+                             <span className="font-medium text-sm text-right">{formatCurrency(zona.totalEuros)}</span>
                         </>
                     )}
                   </div>
