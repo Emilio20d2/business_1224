@@ -116,7 +116,7 @@ const synchronizeVentasCompradorNino = (
             return {
                 nombre: compradorName,
                 totalEuros: 0,
-                varPorcTotal: 0,
+                totalUnidades: 0,
                 mejoresFamilias: Array(5).fill({ nombre: '', zona: '', totalEuros: 0, unidades: 0 }),
                 zonaComercial: zonaComercialList.map(zonaName => ({ nombre: zonaName, totalEuros: 0, unidades: 0 })),
             };
@@ -416,12 +416,16 @@ function NinoPageComponent() {
             
             const compradorData = updatedData.ventasCompradorNino[compradorIndex];
 
-             if (keys.length === 3 && (keys[2] === 'totalEuros' || keys[2] === 'varPorcTotal')) {
+             if (keys.length === 3 && (keys[2] === 'totalEuros' || keys[2] === 'totalUnidades')) {
                 // This is a direct update of the total, no recalculation needed
             } else {
                  const totalEurosFamilias = compradorData.mejoresFamilias.reduce((sum: number, fam: any) => sum + (fam.totalEuros || 0), 0);
                  const totalEurosZona = (compradorData.zonaComercial || []).reduce((sum: number, zona: any) => sum + (zona.totalEuros || 0), 0);
                  compradorData.totalEuros = totalEurosFamilias + totalEurosZona;
+
+                 const totalUnidadesFamilias = compradorData.mejoresFamilias.reduce((sum: number, fam: any) => sum + (fam.unidades || 0), 0);
+                 const totalUnidadesZona = (compradorData.zonaComercial || []).reduce((sum: number, zona: any) => sum + (zona.unidades || 0), 0);
+                 compradorData.totalUnidades = totalUnidadesFamilias + totalUnidadesZona;
             }
         }
         

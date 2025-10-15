@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import React from 'react';
@@ -34,7 +35,7 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
       <CardContent className="p-2">
         <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr_2fr] gap-4">
           {/* Columna 1: Comprador */}
-          <div className="flex flex-col justify-center items-center gap-2 py-2 border-r pr-4">
+          <div className="flex flex-col justify-center items-center gap-4 py-2 border-r pr-4">
             <h3 className="font-bold text-xl text-center">{compradorData.nombre}</h3>
             <div className="flex flex-col items-center gap-1">
               <label className="text-sm font-medium text-muted-foreground">Total €</label>
@@ -49,6 +50,20 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
               ) : (
                 <span className="font-bold text-lg">{formatCurrency(compradorData.totalEuros)}</span>
               )}
+            </div>
+             <div className="flex flex-col items-center gap-1">
+                <label className="text-sm font-medium text-muted-foreground">Total Unidades</label>
+                 {isEditing ? (
+                    <Input
+                        type="number"
+                        inputMode="decimal"
+                        defaultValue={compradorData.totalUnidades}
+                        className="w-28 text-center text-lg font-bold"
+                        onBlur={(e) => onInputChange('totalUnidades', e.target.value)}
+                    />
+                ) : (
+                    <span className="font-bold text-lg">{formatNumber(compradorData.totalUnidades)}</span>
+                )}
             </div>
           </div>
 
@@ -88,7 +103,7 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
                                 inputMode="decimal"
                                 defaultValue={familia.unidades}
                                 onBlur={(e) => handleFamiliaChange(familiaIndex, 'unidades', e.target.value)}
-                                className="w-full text-right h-9"
+                                className="w-full text-right h-9 text-sm"
                                 placeholder="Un."
                             />
                             <Input
@@ -96,7 +111,7 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
                                 inputMode="decimal"
                                 defaultValue={familia.totalEuros}
                                 onBlur={(e) => handleFamiliaChange(familiaIndex, 'totalEuros', e.target.value)}
-                                className="w-full text-right h-9"
+                                className="w-full text-right h-9 text-sm"
                                 placeholder="€"
                             />
                       </>
@@ -133,7 +148,7 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
                                 inputMode="decimal"
                                 defaultValue={zona.unidades}
                                 onBlur={(e) => handleZonaComercialChange(zonaIndex, 'unidades', e.target.value)}
-                                className="w-full text-right h-9"
+                                className="w-full text-right h-9 text-sm"
                                 placeholder="Un."
                             />
                             <Input
@@ -141,7 +156,7 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
                                 inputMode="decimal"
                                 defaultValue={zona.totalEuros}
                                 onBlur={(e) => handleZonaComercialChange(zonaIndex, 'totalEuros', e.target.value)}
-                                className="w-full text-right h-9"
+                                className="w-full text-right h-9 text-sm"
                                 placeholder="€"
                             />
                            
