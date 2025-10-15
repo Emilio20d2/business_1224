@@ -39,14 +39,13 @@ const CompradorTable = ({
   };
   
   const handleHeaderChange = (field: 'totalEuros' | 'varPorc', value: string) => {
-      if (ropaDataIndex === undefined) return;
-      onInputChange(`ventasNino.pesoComprador.${ropaDataIndex}.${field}`, value);
+      onInputChange(`ventasCompradorNino.${compradorIndex}.${field === 'totalEuros' ? 'totalEuros' : 'varPorcTotal'}`, value);
   };
 
   const sortedFamilias = [...(listas.agrupacionComercialNino || [])].sort((a,b) => a.localeCompare(b));
 
-  const totalEuros = ropaData?.totalEuros || 0;
-  const varPorcTotal = ropaData?.varPorc || 0;
+  const totalEuros = compradorData?.totalEuros || 0;
+  const varPorcTotal = compradorData?.varPorcTotal || 0;
 
 
   return (
