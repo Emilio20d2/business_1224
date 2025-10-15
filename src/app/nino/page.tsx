@@ -172,6 +172,16 @@ const ensureSectionSpecificData = (data: WeeklyData): WeeklyData => {
     } else {
         if (!data.aqneNino.desglose) {
             data.aqneNino.desglose = defaultData.aqneNino.desglose;
+        } else {
+            // Ensure Calzado and Perfumería exist, preserving DB data if present
+            const hasCalzado = data.aqneNino.desglose.some(d => d.seccion === 'Calzado');
+            const hasPerfumeria = data.aqneNino.desglose.some(d => d.seccion === 'Perfumería');
+            if (!hasCalzado) {
+                data.aqneNino.desglose.push({ seccion: "Calzado", totalEuros: 0, unidades: 0 });
+            }
+            if (!hasPerfumeria) {
+                data.aqneNino.desglose.push({ seccion: "Perfumería", totalEuros: 0, unidades: 0 });
+            }
         }
         if (!data.aqneNino.metricasPrincipales) {
             data.aqneNino.metricasPrincipales = defaultData.aqneNino.metricasPrincipales;
@@ -415,32 +425,25 @@ function NinoPageComponent() {
                 table.sort((a: VentasManItem, b: VentasManItem) => (b.totalEuros || 0) - (a.totalEuros || 0));
             }
         } else if (keys[0] === 'ventasCompradorNino') {
-            // Recalculate totals for the specific comprador card
             const compradorIndex = parseInt(keys[1], 10);
             if (!updatedData.ventasCompradorNino[compradorIndex]) return updatedData;
             
             const compradorData = updatedData.ventasCompradorNino[compradorIndex];
 
-            const totalEurosFamilias = compradorData.mejoresFamilias.reduce((sum: number, fam: any) => sum + (fam.totalEuros || 0), 0);
-            const totalEurosZona = (compradorData.zonaComercial || []).reduce((sum: number, zona: any) => sum + (zona.totalEuros || 0), 0);
-            compradorData.totalEuros = totalEurosFamilias + totalEurosZona;
-
-            const totalUnidadesFamilias = compradorData.mejoresFamilias.reduce((sum: number, fam: any) => sum + (fam.unidades || 0), 0);
-            const totalUnidadesZona = (compradorData.zonaComercial || []).reduce((sum: number, zona: any) => sum + (zona.unidades || 0), 0);
-            compradorData.totalUnidades = totalUnidadesFamilias + totalUnidadesZona;
-
-            // Now, update the 'Ropa' row in aqneNino
-            const totalRopaEuros = updatedData.ventasCompradorNino.reduce((sum: number, item: VentasCompradorNinoItem) => sum + (item.totalEuros || 0), 0);
-            const totalRopaUnidades = updatedData.ventasCompradorNino.reduce((sum: number, item: VentasCompradorNinoItem) => sum + (item.totalUnidades || 0), 0);
-            
-            const ropaDesglose = updatedData.aqneNino.desglose.find((d: any) => d.seccion === 'Ropa');
-            if (ropaDesglose) {
-                ropaDesglose.totalEuros = totalRopaEuros;
-                ropaDesglose.unidades = totalRopaUnidades;
+            // Only sum up the comprador's own total, not its sub-items, as per user request
+            if(keys[2] === 'totalEuros' || keys[2] === 'totalUnidades') {
+                const totalRopaEuros = updatedData.ventasCompradorNino.reduce((sum: number, item: VentasCompradorNinoItem) => sum + (item.totalEuros || 0), 0);
+                const totalRopaUnidades = updatedData.ventasCompradorNino.reduce((sum: number, item: VentasCompradorNinoItem) => sum + (item.totalUnidades || 0), 0);
+                
+                const ropaDesglose = updatedData.aqneNino.desglose.find((d: any) => d.seccion === 'Ropa');
+                if (ropaDesglose) {
+                    ropaDesglose.totalEuros = totalRopaEuros;
+                    ropaDesglose.unidades = totalRopaUnidades;
+                }
             }
 
+
         } else if (keys[0] === 'aqneNino') {
-            // This is for direct edits on Calzado/Perfumeria in the aqneNino card
             const aqneData = updatedData.aqneNino;
              if (aqneData && aqneData.desglose) {
                 const totalEuros = aqneData.desglose.reduce((sum: number, item: any) => sum + (item.totalEuros || 0), 0);
@@ -822,4 +825,5 @@ export default function NinoPage() {
         </Suspense>
     );
 }
+
 
