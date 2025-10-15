@@ -18,8 +18,7 @@ type AqneNinoTabProps = {
 };
 
 const AqneResumenCard = ({ data, isEditing, onInputChange, weekId }: { data: SeccionAqneNinoData, isEditing: boolean, onInputChange: (path: string, value: string | number) => void, weekId: string }) => {
-    if (!data) return null;
-
+    
     const nextWeekId = getNextWeekId(weekId);
     const nextWeekDateRange = formatWeekIdToDateRange(nextWeekId);
 
@@ -27,7 +26,7 @@ const AqneResumenCard = ({ data, isEditing, onInputChange, weekId }: { data: Sec
         onInputChange(`aqneNino.desglose.${index}.${field}`, value);
     };
     
-    const desglose = data.desglose || [];
+    const desglose = data?.desglose || [];
     const totalUnidades = desglose.reduce((sum, item) => sum + (item.unidades || 0), 0);
     const totalEuros = desglose.reduce((sum, item) => sum + (item.totalEuros || 0), 0);
 
