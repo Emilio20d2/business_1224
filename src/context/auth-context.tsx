@@ -39,19 +39,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [firebaseInitialized, setFirebaseInitialized] = useState(false);
 
   useEffect(() => {
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+    try {
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+    
+        setAuthInstance(auth);
+        setDbInstance(db);
+        setFirebaseInitialized(true);
 
-    setAuthInstance(auth);
-    setDbInstance(db);
-    setFirebaseInitialized(true);
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+          setUser(user);
+          setLoading(false);
+        });
 
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
+        return () => unsubscribe();
+    } catch(e) {
+        console.error("Firebase initialization error", e);
+        setLoading(false);
+    }
   }, []);
 
   const login = (email: string, pass: string) => {
