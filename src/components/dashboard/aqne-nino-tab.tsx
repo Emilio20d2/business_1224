@@ -6,18 +6,22 @@ import React from 'react';
 import type { WeeklyData, VentasManItem, SeccionAqneNinoData } from "@/lib/data";
 import { VentasCompradorNinoCard } from './ventas-comprador-nino-card';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
-import { formatCurrency, formatNumber } from '@/lib/format';
+import { formatCurrency, formatNumber, getNextWeekId, formatWeekIdToDateRange } from '@/lib/format';
 
 type AqneNinoTabProps = {
   data: WeeklyData;
   isEditing: boolean;
   onInputChange: (path: string, value: string | number) => void;
+  weekId: string;
 };
 
-const AqneResumenCard = ({ data, isEditing, onInputChange }: { data: SeccionAqneNinoData, isEditing: boolean, onInputChange: (path: string, value: string | number) => void }) => {
+const AqneResumenCard = ({ data, isEditing, onInputChange, weekId }: { data: SeccionAqneNinoData, isEditing: boolean, onInputChange: (path: string, value: string | number) => void, weekId: string }) => {
     if (!data) return null;
+
+    const nextWeekId = getNextWeekId(weekId);
+    const nextWeekDateRange = formatWeekIdToDateRange(nextWeekId);
 
     const handleDesgloseChange = (index: number, field: string, value: string) => {
         onInputChange(`aqneNino.desglose.${index}.${field}`, value);
@@ -26,11 +30,17 @@ const AqneResumenCard = ({ data, isEditing, onInputChange }: { data: SeccionAqne
     const handleMetricasChange = (field: string, value: string) => {
         onInputChange(`aqneNino.metricasPrincipales.${field}`, value);
     }
+    
+    const totalUnidades = data.desglose.reduce((sum, item) => sum + (item.unidades || 0), 0);
+    const totalEuros = data.desglose.reduce((sum, item) => sum + (item.totalEuros || 0), 0);
+
 
     return (
         <Card>
             <CardHeader>
-                <CardTitle className="uppercase font-bold">Resumen AQNE Niño</CardTitle>
+                <CardTitle className="uppercase font-bold text-base">
+                    PLANNING SEMANAL - {nextWeekDateRange}
+                </CardTitle>
             </CardHeader>
             <CardContent>
                 <Table>
@@ -74,6 +84,13 @@ const AqneResumenCard = ({ data, isEditing, onInputChange }: { data: SeccionAqne
                             </TableRow>
                         ))}
                     </TableBody>
+                     <TableFooter>
+                        <TableRow className="bg-muted/50 font-bold">
+                            <TableHead>TOTALES</TableHead>
+                            <TableHead className="text-right">{formatNumber(totalUnidades)}</TableHead>
+                            <TableHead className="text-right">{formatCurrency(totalEuros)}</TableHead>
+                        </TableRow>
+                    </TableFooter>
                 </Table>
             </CardContent>
         </Card>
@@ -81,7 +98,7 @@ const AqneResumenCard = ({ data, isEditing, onInputChange }: { data: SeccionAqne
 };
 
 
-export function AqneNinoTab({ data, isEditing, onInputChange }: AqneNinoTabProps) {
+export function AqneNinoTab({ data, isEditing, onInputChange, weekId }: AqneNinoTabProps) {
     if (!data || !data.aqneNino || !data.ventasCompradorNino || !data.listas) return null;
 
     const { aqneNino, ventasCompradorNino, listas } = data;
@@ -97,7 +114,7 @@ export function AqneNinoTab({ data, isEditing, onInputChange }: AqneNinoTabProps
 
     return (
         <div className="space-y-4">
-            <AqneResumenCard data={aqneNino} isEditing={isEditing} onInputChange={onInputChange} />
+            <AqneResumenCard data={aqneNino} isEditing={isEditing} onInputChange={onInputChange} weekId={weekId} />
             <div className="grid grid-cols-1 gap-4">
                 {sortedVentasCompradorNino.map((compradorData, index) => {
                      const originalIndex = ventasCompradorNino.findIndex(item => item.nombre === compradorData.nombre);
