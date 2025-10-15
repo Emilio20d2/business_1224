@@ -98,7 +98,7 @@ export function AqneNinoTab({ data, isEditing, onInputChange }: AqneNinoTabProps
     return (
         <div className="space-y-4">
             <AqneResumenCard data={aqneNino} isEditing={isEditing} onInputChange={onInputChange} />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4">
                 {sortedVentasCompradorNino.map((compradorData) => {
                      const originalIndex = ventasCompradorNino.findIndex(item => item.nombre === compradorData.nombre);
                      

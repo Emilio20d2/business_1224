@@ -19,7 +19,7 @@ type VentasCompradorNinoCardProps = {
 
 export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onInputChange }: VentasCompradorNinoCardProps) {
 
-  const handleFamiliaChange = (familiaIndex: number, field: 'nombre' | 'totalEuros' | 'varPorc' | 'zona', value: string) => {
+  const handleFamiliaChange = (familiaIndex: number, field: 'nombre' | 'zona' | 'totalEuros' | 'unidades', value: string) => {
     onInputChange(`mejoresFamilias.${familiaIndex}.${field}`, value);
   };
   
@@ -72,7 +72,7 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
             <div className="flex-grow flex flex-col justify-center">
               <div className="space-y-1">
                 {compradorData.mejoresFamilias.map((familia, familiaIndex) => (
-                  <div key={familiaIndex} className="grid grid-cols-[1fr_auto_auto_auto] gap-1 items-center">
+                  <div key={familiaIndex} className="grid grid-cols-[2fr_1fr_1fr_1fr] gap-1 items-center">
                     {isEditing ? (
                         <>
                             <Select value={familia.nombre || 'ninguna'} onValueChange={(value) => handleFamiliaChange(familiaIndex, 'nombre', value === 'ninguna' ? '' : value)}>
@@ -87,7 +87,7 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
                                 </SelectContent>
                             </Select>
                              <Select value={familia.zona || 'ninguna'} onValueChange={(value) => handleFamiliaChange(familiaIndex, 'zona', value === 'ninguna' ? '' : value)}>
-                                <SelectTrigger className="text-xs h-8 w-24">
+                                <SelectTrigger className="text-xs h-8">
                                 <SelectValue placeholder="Zona..." />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -102,16 +102,16 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
                                 inputMode="decimal"
                                 defaultValue={familia.totalEuros}
                                 onBlur={(e) => handleFamiliaChange(familiaIndex, 'totalEuros', e.target.value)}
-                                className="w-20 text-right h-8"
+                                className="w-full text-right h-8"
                                 placeholder="€"
                             />
                              <Input
                                 type="number"
                                 inputMode="decimal"
-                                defaultValue={familia.varPorc}
-                                onBlur={(e) => handleFamiliaChange(familiaIndex, 'varPorc', e.target.value)}
-                                className="w-16 text-right h-8"
-                                placeholder="%"
+                                defaultValue={familia.unidades}
+                                onBlur={(e) => handleFamiliaChange(familiaIndex, 'unidades', e.target.value)}
+                                className="w-full text-right h-8"
+                                placeholder="Un."
                             />
                       </>
                     ) : (
@@ -119,9 +119,9 @@ export function VentasCompradorNinoCard({ compradorData, listas, isEditing, onIn
                         <p className="font-medium text-xs text-left p-1 h-8 flex items-center justify-start">
                           {familia.nombre || <span className="text-muted-foreground">--</span>}
                         </p>
-                        <span className="font-medium text-xs text-center w-24">{familia.zona}</span>
-                        <span className="font-medium text-xs text-right w-20">{formatCurrency(familia.totalEuros)}</span>
-                        <span className={cn("font-medium text-xs text-right w-16", familia.varPorc < 0 ? "text-red-600" : "text-green-600")}>{formatPercentage(familia.varPorc)}</span>
+                        <span className="font-medium text-xs text-center">{familia.zona}</span>
+                        <span className="font-medium text-xs text-right">{formatCurrency(familia.totalEuros)}</span>
+                        <span className="font-medium text-xs text-right">{formatNumber(familia.unidades)}</span>
                       </>
                     )}
                   </div>
