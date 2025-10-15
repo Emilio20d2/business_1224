@@ -27,8 +27,9 @@ const AqneResumenCard = ({ data, isEditing, onInputChange, weekId }: { data: Sec
         onInputChange(`aqneNino.desglose.${index}.${field}`, value);
     };
     
-    const totalUnidades = data.desglose.reduce((sum, item) => sum + (item.unidades || 0), 0);
-    const totalEuros = data.desglose.reduce((sum, item) => sum + (item.totalEuros || 0), 0);
+    const desglose = data.desglose || [];
+    const totalUnidades = desglose.reduce((sum, item) => sum + (item.unidades || 0), 0);
+    const totalEuros = desglose.reduce((sum, item) => sum + (item.totalEuros || 0), 0);
 
 
     return (
@@ -48,7 +49,7 @@ const AqneResumenCard = ({ data, isEditing, onInputChange, weekId }: { data: Sec
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {data.desglose.map((item, index) => (
+                        {desglose.map((item, index) => (
                             <TableRow key={item.seccion}>
                                 <TableCell className="font-medium">{item.seccion}</TableCell>
                                 <TableCell className="text-right">
