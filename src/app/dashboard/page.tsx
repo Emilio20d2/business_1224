@@ -431,18 +431,17 @@ const handleSave = async () => {
     if (!data || !db) return;
     setIsSaving(true);
     const docRef = doc(db, "informes", selectedWeek);
-    const dataToSave = JSON.parse(JSON.stringify(data));
-    let originalData: WeeklyData | null = null;
     
     try {
+        // Fetch the fresh data from DB to compare against
         const originalDoc = await getDoc(docRef);
-        if (originalDoc.exists()) {
-            originalData = originalDoc.data() as WeeklyData;
-        }
+        const originalData = originalDoc.exists() ? originalDoc.data() as WeeklyData : null;
 
+        // Save the current state of `data` to the current week's document
+        const dataToSave = JSON.parse(JSON.stringify(data));
         await setDoc(docRef, dataToSave, { merge: true });
 
-        // Check if acumuladoSeccion has changed
+        // Now compare the fresh original data with the data we just saved
         const hasAcumuladoChanged = JSON.stringify(originalData?.acumuladoSeccion) !== JSON.stringify(dataToSave.acumuladoSeccion);
 
         if (hasAcumuladoChanged) {
@@ -454,7 +453,7 @@ const handleSave = async () => {
             const snapshot = await getDocs(informesCollection);
             const batch = [];
             for (const docSnap of snapshot.docs) {
-                if (docSnap.id !== selectedWeek) {
+                if (docSnap.id !== selectedWeek) { // Don't re-update the doc we just saved
                     const promise = updateDoc(docSnap.ref, { acumuladoSeccion: dataToSave.acumuladoSeccion });
                     batch.push(promise);
                 }
@@ -467,7 +466,7 @@ const handleSave = async () => {
             description: "Los cambios se han guardado en la base de datos.",
         });
         setIsEditing(false);
-        fetchData(selectedWeek);
+        fetchData(selectedWeek); // Re-fetch to confirm changes and get fresh state
 
     } catch (error: any) {
         setError(`Error al guardar: ${error.message}`);
