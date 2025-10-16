@@ -84,25 +84,34 @@ const DataTable = ({
 
     const displayedData = title === "Ropa" ? data.slice(0, 11) : data;
 
-    const handleChange = (index: number, field: keyof VentasManItem, value: any) => {
+    const handleChange = (index: number, field: keyof VentasManItem | 'zona', value: any) => {
         const path = `${dataKey}.${index}.${field}`;
-        const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
+        
+        let processedValue = value;
+        if (field !== 'nombre' && field !== 'zona') {
+            const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
+            processedValue = isNaN(numericValue) ? "" : numericValue;
+        }
+
         const reorder = field === 'totalEuros';
-        onInputChange(path, isNaN(numericValue) ? "" : numericValue, reorder);
+        onInputChange(path, processedValue, reorder);
     };
+
+    const isAgrupacionComercial = title === "Agrupación Comercial";
 
     return (
         <Card className="h-full overflow-y-auto">
             <Table>
                 <TableHeader className="sticky top-0 bg-card z-10">
                     <TableRow>
-                        <TableHead className="uppercase font-bold w-[40%]">
+                        <TableHead className="uppercase font-bold w-[30%]">
                             <div className="flex items-center gap-2 text-primary">
                                 {icon}
                                 <span>{title}</span>
                             </div>
                         </TableHead>
-                        <TableHead className='text-right w-[20%] uppercase font-bold text-primary'><Percent className="h-4 w-4 inline-block" /></TableHead>
+                        {isAgrupacionComercial && <TableHead className='text-right w-[15%] uppercase font-bold text-primary'>ZONA</TableHead>}
+                        <TableHead className='text-right w-[15%] uppercase font-bold text-primary'><Percent className="h-4 w-4 inline-block" /></TableHead>
                         <TableHead className='text-right w-[20%] uppercase font-bold text-primary'><Euro className="h-4 w-4 inline-block" /></TableHead>
                         {showVarPorc && <TableHead className='text-right w-[20%] uppercase font-bold text-primary'>Var %</TableHead>}
                     </TableRow>
@@ -117,6 +126,11 @@ const DataTable = ({
                                 <TableCell>
                                     {item.nombre}
                                 </TableCell>
+                                 {isAgrupacionComercial && (
+                                    <TableCell className="text-right font-medium">
+                                        {isEditing ? <Input className="w-full ml-auto text-right" defaultValue={(item as any).zona || ''} onBlur={(e) => handleChange(originalIndex, 'zona', e.target.value)} /> : (item as any).zona}
+                                    </TableCell>
+                                )}
                                 <TableCell className="text-right font-medium">
                                      {formatPercentageInt(item.pesoPorc)}
                                 </TableCell>
@@ -138,6 +152,7 @@ const DataTable = ({
                     <TableFooter>
                         <TableRow className="bg-muted/50 hover:bg-muted/60">
                             <TableHead className="font-bold uppercase">Total</TableHead>
+                             {isAgrupacionComercial && <TableHead></TableHead>}
                             <TableHead className="text-right font-bold">{formatPercentageInt(finalTotalPesoPorc)}</TableHead>
                             <TableHead className="text-right font-bold">{formatCurrency(finalTotalEuros)}</TableHead>
                             {showVarPorc && (
@@ -277,23 +292,13 @@ export function VentasSenoraTab({ data, isEditing, onInputChange, onTextChange, 
             </TabsContent>
 
             <TabsContent value="zonaYAgrupacion" className="mt-0">
-                <div className="grid gap-4 items-start grid-cols-1 md:grid-cols-2">
+                <div className="grid gap-4 items-start grid-cols-1">
                     <DataTable
                         title="Agrupación Comercial"
                         icon={<ShoppingBasket className="h-5 w-5" />}
                         dataKey="ventasWoman.agrupacionComercial"
                         data={ventasWoman.agrupacionComercial}
                         list={listas.agrupacionComercialWoman}
-                        isEditing={isEditing}
-                        onInputChange={onInputChange}
-                        showFooter={false}
-                    />
-                    <DataTable
-                        title="Tipo de Articulo"
-                        icon={<Tag className="h-5 w-5" />}
-                        dataKey="ventasWoman.zonaComercial"
-                        data={ventasWoman.zonaComercial}
-                        list={listas.zonaComercialWoman}
                         isEditing={isEditing}
                         onInputChange={onInputChange}
                         showFooter={false}
