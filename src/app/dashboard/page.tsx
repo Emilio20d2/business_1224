@@ -2,7 +2,7 @@
 "use client"
 import React, { useState, useContext, useEffect, useCallback, Suspense } from 'react';
 import type { WeeklyData, VentasManItem, SectionSpecificData, Empleado, AcumuladoSeccionData } from "@/lib/data";
-import { doc, getDoc, setDoc, updateDoc, collection, getDocs } from "firebase/firestore";
+import { doc, getDoc, setDoc, updateDoc, collection, getDocs, writeBatch } from "firebase/firestore";
 import { Calendar as CalendarIcon, Settings, LogOut, Loader2, Briefcase, List, LayoutDashboard, Pencil, Upload, Projector, Users, UserPlus, SlidersHorizontal, Clapperboard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from "@/components/ui/calendar";
@@ -113,6 +113,7 @@ function DashboardPageComponent() {
   const searchParams = useSearchParams();
 
   const [data, setData] = useState<WeeklyData | null>(null);
+  const [originalData, setOriginalData] = useState<WeeklyData | null>(null);
   const [dataLoading, setDataLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -274,9 +275,11 @@ function DashboardPageComponent() {
         }
         
         setData(reportData);
+        setOriginalData(JSON.parse(JSON.stringify(reportData))); // Keep a clean copy
     } catch (err: any) {
         setError(`Error al cargar el informe: ${err.message}.`);
         setData(null);
+        setOriginalData(null);
     } finally {
         setDataLoading(false);
     }
@@ -428,47 +431,42 @@ function DashboardPageComponent() {
 
 
 const handleSave = async () => {
-    if (!data || !db) return;
+    if (!data || !originalData || !db) return;
     setIsSaving(true);
-    const docRef = doc(db, "informes", selectedWeek);
-    
+
     try {
-        // Fetch the fresh data from DB to compare against
-        const originalDoc = await getDoc(docRef);
-        const originalData = originalDoc.exists() ? originalDoc.data() as WeeklyData : null;
-
-        // Save the current state of `data` to the current week's document
-        const dataToSave = JSON.parse(JSON.stringify(data));
-        await setDoc(docRef, dataToSave, { merge: true });
-
-        // Now compare the fresh original data with the data we just saved
-        const hasAcumuladoChanged = JSON.stringify(originalData?.acumuladoSeccion) !== JSON.stringify(dataToSave.acumuladoSeccion);
-
+        const hasAcumuladoChanged = JSON.stringify(originalData.acumuladoSeccion) !== JSON.stringify(data.acumuladoSeccion);
+        
         if (hasAcumuladoChanged) {
             toast({
                 title: "Actualizando acumulados...",
                 description: "Esto puede tardar un momento.",
             });
             const informesCollection = collection(db, "informes");
-            const snapshot = await getDocs(informesCollection);
-            const batch = [];
-            for (const docSnap of snapshot.docs) {
-                if (docSnap.id !== selectedWeek) { // Don't re-update the doc we just saved
-                    const promise = updateDoc(docSnap.ref, { acumuladoSeccion: dataToSave.acumuladoSeccion });
-                    batch.push(promise);
-                }
-            }
-            await Promise.all(batch);
+            const allDocsSnapshot = await getDocs(informesCollection);
+            const batch = writeBatch(db);
+
+            allDocsSnapshot.forEach(docSnap => {
+                batch.update(docSnap.ref, { acumuladoSeccion: data.acumuladoSeccion });
+            });
+            
+            await batch.commit();
         }
+
+        // Save the rest of the data for the current week
+        const { listas, ...dataToSave } = data;
+        const currentWeekRef = doc(db, "informes", selectedWeek);
+        await setDoc(currentWeekRef, dataToSave, { merge: true });
 
         toast({
             title: "¡Guardado!",
             description: "Los cambios se han guardado en la base de datos.",
         });
         setIsEditing(false);
-        fetchData(selectedWeek); // Re-fetch to confirm changes and get fresh state
+        fetchData(selectedWeek);
 
     } catch (error: any) {
+        console.error("Save Error:", error);
         setError(`Error al guardar: ${error.message}`);
     } finally {
         setIsSaving(false);
@@ -478,7 +476,7 @@ const handleSave = async () => {
   
   const handleCancel = () => {
     setIsEditing(false);
-    fetchData(selectedWeek); 
+    setData(originalData); // Restore original data on cancel
   };
   
   const handleOpenListDialog = (listKey: EditableList, title: string) => {
@@ -861,3 +859,5 @@ export default function DashboardPage() {
         </Suspense>
     );
 }
+
+    
