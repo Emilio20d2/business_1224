@@ -118,6 +118,7 @@ const DataTable = ({
                 <TableBody>
                     {displayedData.map((item, index) => {
                         const originalIndex = data.findIndex(d => d.nombre === item.nombre);
+                        const zonaValue = Number((item as any).zona) || 0;
                         return (
                             <TableRow 
                                 key={item.nombre + index}
@@ -140,7 +141,7 @@ const DataTable = ({
                                 )}
                                 {isAgrupacionComercial && (
                                     <TableCell className="text-right font-medium">
-                                        {isEditing ? <Input type="number" inputMode="decimal" className="w-full ml-auto text-right" defaultValue={(item as any).zona || ''} onBlur={(e) => handleChange(originalIndex, 'zona', e.target.value)} /> : <span className={cn((item as any).zona < 0 ? "text-red-600" : "text-green-600")}>{formatPercentage((item as any).zona)}</span>}
+                                        {isEditing ? <Input type="number" inputMode="decimal" className="w-full ml-auto text-right" defaultValue={(item as any).zona || ''} onBlur={(e) => handleChange(originalIndex, 'zona', e.target.value)} /> : <span className={cn(zonaValue < 0 ? "text-red-600" : "text-green-600")}>{formatPercentage(zonaValue)}</span>}
                                     </TableCell>
                                 )}
                             </TableRow>
