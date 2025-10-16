@@ -427,28 +427,55 @@ function DashboardPageComponent() {
 
 
 
-  const handleSave = async () => {
+const handleSave = async () => {
     if (!data || !db) return;
     setIsSaving(true);
     const docRef = doc(db, "informes", selectedWeek);
     const dataToSave = JSON.parse(JSON.stringify(data));
+    let originalData: WeeklyData | null = null;
     
-    setDoc(docRef, dataToSave, { merge: true })
-        .then(() => {
+    try {
+        const originalDoc = await getDoc(docRef);
+        if (originalDoc.exists()) {
+            originalData = originalDoc.data() as WeeklyData;
+        }
+
+        await setDoc(docRef, dataToSave, { merge: true });
+
+        // Check if acumuladoSeccion has changed
+        const hasAcumuladoChanged = JSON.stringify(originalData?.acumuladoSeccion) !== JSON.stringify(dataToSave.acumuladoSeccion);
+
+        if (hasAcumuladoChanged) {
             toast({
-                title: "¡Guardado!",
-                description: "Los cambios se han guardado en la base de datos.",
+                title: "Actualizando acumulados...",
+                description: "Esto puede tardar un momento.",
             });
-            setIsEditing(false);
-            fetchData(selectedWeek);
-        })
-        .catch(async (error: any) => {
-             setError(`Error al guardar: ${error.message}`);
-        })
-        .finally(() => {
-            setIsSaving(false);
+            const informesCollection = collection(db, "informes");
+            const snapshot = await getDocs(informesCollection);
+            const batch = [];
+            for (const docSnap of snapshot.docs) {
+                if (docSnap.id !== selectedWeek) {
+                    const promise = updateDoc(docSnap.ref, { acumuladoSeccion: dataToSave.acumuladoSeccion });
+                    batch.push(promise);
+                }
+            }
+            await Promise.all(batch);
+        }
+
+        toast({
+            title: "¡Guardado!",
+            description: "Los cambios se han guardado en la base de datos.",
         });
-  };
+        setIsEditing(false);
+        fetchData(selectedWeek);
+
+    } catch (error: any) {
+        setError(`Error al guardar: ${error.message}`);
+    } finally {
+        setIsSaving(false);
+    }
+};
+
   
   const handleCancel = () => {
     setIsEditing(false);
