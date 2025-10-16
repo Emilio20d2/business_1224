@@ -289,8 +289,13 @@ function SenoraPageComponent() {
         }
         
         const finalKey = keys[keys.length - 1];
-        const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
-        current[finalKey] = isNaN(numericValue) || value === "" ? 0 : numericValue;
+        if (finalKey === 'zona') {
+            current[finalKey] = value;
+        } else {
+            const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
+            current[finalKey] = isNaN(numericValue) || value === "" ? 0 : numericValue;
+        }
+
 
         if (keys[0] === 'ventasWoman' && reorder) {
             const tableKey = keys[1] as 'pesoComprador' | 'zonaComercial' | 'agrupacionComercial';

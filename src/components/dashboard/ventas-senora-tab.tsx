@@ -1,5 +1,4 @@
 
-
 "use client"
 import React from 'react';
 import type { WeeklyData, VentasManItem } from "@/lib/data";
@@ -204,7 +203,7 @@ export function VentasSenoraTab({ data, isEditing, onInputChange, onTextChange, 
 
     const tabButtons = [
         { value: 'ventas', label: 'VENTAS' },
-        { value: 'zonaYAgrupacion', label: 'TIPO Y AGRUPACIÓN' },
+        { value: 'zonaYAgrupacion', label: 'AGRUPACION COMERCIAL' },
         { value: 'operaciones', label: 'OPERACIONES' },
         { value: 'focus', label: 'FOCUS' },
     ];
