@@ -87,7 +87,7 @@ const DataTable = ({
         const path = `${dataKey}.${index}.${field}`;
         
         let processedValue = value;
-        if (field !== 'nombre' && field !== 'zona') {
+        if (field !== 'nombre') {
             const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
             processedValue = isNaN(numericValue) ? "" : numericValue;
         }
@@ -112,7 +112,7 @@ const DataTable = ({
                         <TableHead className='text-right w-[15%] uppercase font-bold text-primary'><Percent className="h-4 w-4 inline-block" /></TableHead>
                         <TableHead className='text-right w-[20%] uppercase font-bold text-primary'><Euro className="h-4 w-4 inline-block" /></TableHead>
                         {showVarPorc && <TableHead className='text-right w-[20%] uppercase font-bold text-primary'>Var %</TableHead>}
-                        {isAgrupacionComercial && <TableHead className='text-right w-[15%] uppercase font-bold text-primary'>ZONA</TableHead>}
+                        {isAgrupacionComercial && <TableHead className='text-right w-[15%] uppercase font-bold text-primary'>Var % ZONA</TableHead>}
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -140,7 +140,7 @@ const DataTable = ({
                                 )}
                                 {isAgrupacionComercial && (
                                     <TableCell className="text-right font-medium">
-                                        {isEditing ? <Input className="w-full ml-auto text-right" defaultValue={(item as any).zona || ''} onBlur={(e) => handleChange(originalIndex, 'zona', e.target.value)} /> : (item as any).zona}
+                                        {isEditing ? <Input type="number" inputMode="decimal" className="w-full ml-auto text-right" defaultValue={(item as any).zona || ''} onBlur={(e) => handleChange(originalIndex, 'zona', e.target.value)} /> : <span className={cn((item as any).zona < 0 ? "text-red-600" : "text-green-600")}>{formatPercentage((item as any).zona)}</span>}
                                     </TableCell>
                                 )}
                             </TableRow>

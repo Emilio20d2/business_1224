@@ -289,12 +289,8 @@ function SenoraPageComponent() {
         }
         
         const finalKey = keys[keys.length - 1];
-        if (finalKey === 'zona') {
-            current[finalKey] = value;
-        } else {
-            const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
-            current[finalKey] = isNaN(numericValue) || value === "" ? 0 : numericValue;
-        }
+        const numericValue = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
+        current[finalKey] = isNaN(numericValue) || value === "" ? 0 : numericValue;
 
 
         if (keys[0] === 'ventasWoman' && reorder) {
