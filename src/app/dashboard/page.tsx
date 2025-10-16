@@ -181,10 +181,12 @@ function DashboardPageComponent() {
     try {
         const reportRef = doc(db, "informes", weekId);
         const listsRef = doc(db, "configuracion", "listas");
+        const acumuladosRef = doc(db, "configuracion", "acumulados");
 
-        const [reportSnap, listsSnap] = await Promise.all([
+        const [reportSnap, listsSnap, acumuladosSnap] = await Promise.all([
             getDoc(reportRef),
             getDoc(listsRef),
+            getDoc(acumuladosRef)
         ]);
 
         let listData: WeeklyData['listas'];
@@ -222,6 +224,13 @@ function DashboardPageComponent() {
         }
         
         reportData.listas = listData;
+
+        if (acumuladosSnap.exists()) {
+            const acumuladoData = acumuladosSnap.data();
+            if (acumuladoData.acumuladoSeccion) {
+                reportData.acumuladoSeccion = acumuladoData.acumuladoSeccion;
+            }
+        }
         
         reportData = ensureSectionSpecificData(reportData);
 
@@ -437,8 +446,13 @@ const handleSave = async () => {
     try {
         const hasAcumuladoChanged = JSON.stringify(originalData.acumuladoSeccion) !== JSON.stringify(data.acumuladoSeccion);
         
+        // Always save acumuladoSeccion to a central document
+        const acumuladosRef = doc(db, "configuracion", "acumulados");
+        await setDoc(acumuladosRef, { acumuladoSeccion: data.acumuladoSeccion }, { merge: true });
+
+        // If it changed, propagate it to all other documents
         if (hasAcumuladoChanged) {
-            toast({
+             toast({
                 title: "Actualizando acumulados...",
                 description: "Esto puede tardar un momento.",
             });
@@ -447,9 +461,10 @@ const handleSave = async () => {
             const batch = writeBatch(db);
 
             allDocsSnapshot.forEach(docSnap => {
-                batch.update(docSnap.ref, { acumuladoSeccion: data.acumuladoSeccion });
+                if (docSnap.id !== selectedWeek) { // Avoid writing to the current doc twice in the batch
+                    batch.update(docSnap.ref, { acumuladoSeccion: data.acumuladoSeccion });
+                }
             });
-            
             await batch.commit();
         }
 
