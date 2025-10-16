@@ -110,10 +110,10 @@ const DataTable = ({
                                 <span>{title}</span>
                             </div>
                         </TableHead>
-                        {isAgrupacionComercial && <TableHead className='text-right w-[15%] uppercase font-bold text-primary'>ZONA</TableHead>}
                         <TableHead className='text-right w-[15%] uppercase font-bold text-primary'><Percent className="h-4 w-4 inline-block" /></TableHead>
                         <TableHead className='text-right w-[20%] uppercase font-bold text-primary'><Euro className="h-4 w-4 inline-block" /></TableHead>
                         {showVarPorc && <TableHead className='text-right w-[20%] uppercase font-bold text-primary'>Var %</TableHead>}
+                        {isAgrupacionComercial && <TableHead className='text-right w-[15%] uppercase font-bold text-primary'>ZONA</TableHead>}
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -126,11 +126,6 @@ const DataTable = ({
                                 <TableCell>
                                     {item.nombre}
                                 </TableCell>
-                                 {isAgrupacionComercial && (
-                                    <TableCell className="text-right font-medium">
-                                        {isEditing ? <Input className="w-full ml-auto text-right" defaultValue={(item as any).zona || ''} onBlur={(e) => handleChange(originalIndex, 'zona', e.target.value)} /> : (item as any).zona}
-                                    </TableCell>
-                                )}
                                 <TableCell className="text-right font-medium">
                                      {formatPercentageInt(item.pesoPorc)}
                                 </TableCell>
@@ -144,6 +139,11 @@ const DataTable = ({
                                         }
                                     </TableCell>
                                 )}
+                                {isAgrupacionComercial && (
+                                    <TableCell className="text-right font-medium">
+                                        {isEditing ? <Input className="w-full ml-auto text-right" defaultValue={(item as any).zona || ''} onBlur={(e) => handleChange(originalIndex, 'zona', e.target.value)} /> : (item as any).zona}
+                                    </TableCell>
+                                )}
                             </TableRow>
                         )
                     })}
@@ -152,7 +152,6 @@ const DataTable = ({
                     <TableFooter>
                         <TableRow className="bg-muted/50 hover:bg-muted/60">
                             <TableHead className="font-bold uppercase">Total</TableHead>
-                             {isAgrupacionComercial && <TableHead></TableHead>}
                             <TableHead className="text-right font-bold">{formatPercentageInt(finalTotalPesoPorc)}</TableHead>
                             <TableHead className="text-right font-bold">{formatCurrency(finalTotalEuros)}</TableHead>
                             {showVarPorc && (
@@ -160,6 +159,7 @@ const DataTable = ({
                                     {formatPercentage(finalWeightedVarPorc)}
                                 </TableHead>
                             )}
+                             {isAgrupacionComercial && <TableHead></TableHead>}
                         </TableRow>
                     </TableFooter>
                 )}
