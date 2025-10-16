@@ -1,7 +1,7 @@
 
 "use client"
 import React, { useState, useContext, useEffect, useCallback, Suspense } from 'react';
-import type { WeeklyData, VentasManItem, SectionSpecificData, Empleado } from "@/lib/data";
+import type { WeeklyData, VentasManItem, SectionSpecificData, Empleado, AcumuladoSeccionData } from "@/lib/data";
 import { doc, getDoc, setDoc, updateDoc, collection, getDocs } from "firebase/firestore";
 import { Calendar as CalendarIcon, Settings, LogOut, Loader2, Briefcase, List, LayoutDashboard, Pencil, Upload, Projector, Users, UserPlus, SlidersHorizontal, Clapperboard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -79,7 +79,8 @@ const synchronizeTableData = (list: string[], oldTableData: VentasManItem[]): Ve
 };
 
 const ensureSectionSpecificData = (data: WeeklyData): WeeklyData => {
-    const defaultSectionData = getInitialDataForWeek('', getInitialLists()).general; // Get a full default structure
+    const defaultData = getInitialDataForWeek('', getInitialLists());
+    const defaultSectionData = defaultData.general;
     const sections: (keyof Pick<WeeklyData, 'general' | 'man' | 'woman' | 'nino'>)[] = ['general', 'man', 'woman', 'nino'];
 
     sections.forEach(sectionKey => {
@@ -97,6 +98,11 @@ const ensureSectionSpecificData = (data: WeeklyData): WeeklyData => {
             }
         }
     });
+
+    if (!data.acumuladoSeccion) {
+        data.acumuladoSeccion = defaultData.acumuladoSeccion;
+    }
+
 
     return data;
 }
@@ -758,7 +764,7 @@ const handleSavePresentacion = async (newFooter: string) => {
                 <AqneSemanalTab data={data} isEditing={isEditing} onInputChange={handleInputChange} />
               </TabsContent>
               <TabsContent value="acumulado" className="mt-0">
-                <AcumuladoTab data={data.acumulado} isEditing={isEditing} onInputChange={handleInputChange}/>
+                <AcumuladoTab data={data} isEditing={isEditing} onInputChange={handleInputChange}/>
               </TabsContent>
 
             </Tabs>

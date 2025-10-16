@@ -13,12 +13,14 @@ import {
   ResponsiveContainer,
   Legend
 } from 'recharts';
+import { AcumuladoSeccionCard } from './acumulado-seccion-card';
+
 
 type AcumuladoData = WeeklyData["acumulado"];
 type AcumuladoPeriodoData = AcumuladoData[keyof AcumuladoData];
 
 type AcumuladoTabProps = {
-  data: AcumuladoData;
+  data: WeeklyData;
   isEditing: boolean;
   onInputChange: (path: string, value: string | number) => void;
 };
@@ -166,10 +168,41 @@ const AcumuladoCard = ({ title, data, isEditing, idPrefix, onInputChange }: { ti
 
 
 export function AcumuladoTab({ data, isEditing, onInputChange }: AcumuladoTabProps) {
+  if (!data) return null;
+  const { acumulado, acumuladoSeccion } = data;
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <AcumuladoCard title="Acumulado Mensual" data={data.mensual} isEditing={isEditing} idPrefix="mensual" onInputChange={onInputChange} />
-      <AcumuladoCard title="Acumulado Anual" data={data.anual} isEditing={isEditing} idPrefix="anual" onInputChange={onInputChange}/>
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <AcumuladoCard title="Acumulado Mensual" data={acumulado.mensual} isEditing={isEditing} idPrefix="mensual" onInputChange={onInputChange} />
+        <AcumuladoCard title="Acumulado Anual" data={acumulado.anual} isEditing={isEditing} idPrefix="anual" onInputChange={onInputChange}/>
+      </div>
+       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <AcumuladoSeccionCard 
+            title="SEÑORA"
+            data={acumuladoSeccion.woman}
+            isEditing={isEditing}
+            onInputChange={onInputChange}
+            sectionKey="woman"
+            color="hsl(355, 71%, 60%)"
+          />
+          <AcumuladoSeccionCard 
+            title="CABALLERO"
+            data={acumuladoSeccion.man}
+            isEditing={isEditing}
+            onInputChange={onInputChange}
+            sectionKey="man"
+            color="hsl(217, 56%, 60%)"
+          />
+          <AcumuladoSeccionCard 
+            title="NIÑO"
+            data={acumuladoSeccion.nino}
+            isEditing={isEditing}
+            onInputChange={onInputChange}
+            sectionKey="nino"
+            color="hsl(172, 29%, 57%)"
+          />
+       </div>
     </div>
   );
 }
