@@ -25,12 +25,6 @@ export const AcumuladoSeccionCard = ({ title, data, isEditing, onInputChange, se
     onInputChange(`acumuladoSeccion.${sectionKey}.${mesIndex}.${field}`, value);
   };
 
-  const totalImporte = data.reduce((sum, mes) => sum + (mes.importe || 0), 0);
-  const totalUnidades = data.reduce((sum, mes) => sum + (mes.unidades || 0), 0);
-  
-  const avgVarImporte = data.reduce((sum, mes) => sum + (mes.importe || 0) * (mes.varImporte || 0), 0) / (totalImporte || 1);
-  const avgVarUnidades = data.reduce((sum, mes) => sum + (mes.unidades || 0) * (mes.varUnidades || 0), 0) / (totalUnidades || 1);
-
   return (
     <Card className="flex flex-col">
       <CardHeader>
@@ -39,17 +33,6 @@ export const AcumuladoSeccionCard = ({ title, data, isEditing, onInputChange, se
         </CardTitle>
       </CardHeader>
       <CardContent className="flex-grow">
-        <div className="grid grid-cols-2 gap-4 text-center mb-4">
-            <div className="p-2 bg-muted rounded-md">
-                <p className="text-sm font-semibold text-muted-foreground">Total Importe</p>
-                <p className="text-xl font-bold">{formatCurrency(totalImporte)}</p>
-            </div>
-            <div className="p-2 bg-muted rounded-md">
-                <p className="text-sm font-semibold text-muted-foreground">Total Unidades</p>
-                <p className="text-xl font-bold">{formatNumber(totalUnidades)}</p>
-            </div>
-        </div>
-
         <Table>
           <TableHeader>
             <TableRow>
