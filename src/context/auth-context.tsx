@@ -45,19 +45,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     
         setAuthInstance(auth);
         setDbInstance(db);
-        setFirebaseInitialized(true);
-
+        
         const unsubscribe = onAuthStateChanged(auth, (user) => {
           setUser(user);
           setLoading(false);
+          // Mark Firebase as fully initialized only after the first auth check.
+          if (!firebaseInitialized) {
+            setFirebaseInitialized(true);
+          }
         });
 
         return () => unsubscribe();
     } catch(e) {
         console.error("Firebase initialization error", e);
         setLoading(false);
+        setFirebaseInitialized(true); // Still mark as initialized to prevent infinite loading on error
     }
-  }, []);
+  }, [firebaseInitialized]); // Dependency added to prevent re-running this effect unnecessarily
 
   const login = (email: string, pass: string) => {
     if (!authInstance) throw new Error("Firebase Auth no inicializado");
@@ -79,7 +83,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       firebaseInitialized
   };
 
-  if (!firebaseInitialized) {
+  if (!firebaseInitialized || loading) {
      return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-background">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
