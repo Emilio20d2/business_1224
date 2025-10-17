@@ -8,8 +8,16 @@ runConfig:
 
 # Environment variables are only available to your run environment.
 # They will not be available in the build environment.
-# env:
-#   - variable: FIREBASE_API_KEY
-#     value: ""
-#   - variable: FIREBASE_PROJECT_ID
-#     value: ""
+env:
+  - variable: FIREBASE_API_KEY
+    value: ${firebase.apiKey}
+  - variable: FIREBASE_AUTH_DOMAIN
+    value: ${firebase.authDomain}
+  - variable: FIREBASE_PROJECT_ID
+    value: ${firebase.projectId}
+  - variable: FIREBASE_STORAGE_BUCKET
+    value: ${firebase.storageBucket}
+  - variable: FIREBASE_MESSAGING_SENDER_ID
+    value: ${firebase.messagingSenderId}
+  - variable: FIREBASE_APP_ID
+    value: ${firebase.appId}
