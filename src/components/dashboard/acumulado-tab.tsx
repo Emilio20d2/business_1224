@@ -178,6 +178,14 @@ export function AcumuladoTab({ data, isEditing, onInputChange }: AcumuladoTabPro
         <AcumuladoCard title="Acumulado Mensual" data={acumulado.mensual} isEditing={isEditing} idPrefix="mensual" onInputChange={onInputChange} />
         <AcumuladoCard title="Acumulado Anual" data={acumulado.anual} isEditing={isEditing} idPrefix="anual" onInputChange={onInputChange}/>
       </div>
+       {acumuladoTienda && (
+         <AcumuladoTiendaCard
+            title="TOTAL TIENDA"
+            data={acumuladoTienda}
+            isEditing={isEditing}
+            onInputChange={onInputChange}
+         />
+       )}
        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <AcumuladoSeccionCard 
             title="SEÑORA"
@@ -204,14 +212,6 @@ export function AcumuladoTab({ data, isEditing, onInputChange }: AcumuladoTabPro
             color="hsl(172, 29%, 57%)"
           />
        </div>
-       {acumuladoTienda && (
-         <AcumuladoTiendaCard
-            title="TOTAL TIENDA"
-            data={acumuladoTienda}
-            isEditing={isEditing}
-            onInputChange={onInputChange}
-         />
-       )}
     </div>
   );
 }
