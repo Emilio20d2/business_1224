@@ -1,9 +1,6 @@
 
 // Import the functions you need from the SDKs you need
 import { initializeApp, getApp, getApps, type FirebaseApp } from "firebase/app";
-import { config } from 'dotenv';
-
-config();
 
 // Your web app's Firebase configuration
 export const firebaseConfig = {
@@ -26,4 +23,3 @@ function initializeAppIfNeeded(): FirebaseApp {
 }
 
 export const app = initializeAppIfNeeded();
-
