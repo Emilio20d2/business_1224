@@ -5,3 +5,11 @@ runConfig:
   # Increase this value if you'd like to automatically spin up
   # more instances in response to increased traffic.
   maxInstances: 1
+
+# Environment variables are only available to your run environment.
+# They will not be available in the build environment.
+# env:
+#   - variable: FIREBASE_API_KEY
+#     value: ""
+#   - variable: FIREBASE_PROJECT_ID
+#     value: ""
