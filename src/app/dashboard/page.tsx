@@ -102,6 +102,10 @@ const ensureSectionSpecificData = (data: WeeklyData): WeeklyData => {
     if (!data.acumuladoSeccion) {
         data.acumuladoSeccion = defaultData.acumuladoSeccion;
     }
+    
+    if (!data.acumuladoTienda) {
+        data.acumuladoTienda = defaultData.acumuladoTienda;
+    }
 
 
     return data;
@@ -229,6 +233,9 @@ function DashboardPageComponent() {
             const acumuladoData = acumuladosSnap.data();
             if (acumuladoData.acumuladoSeccion) {
                 reportData.acumuladoSeccion = acumuladoData.acumuladoSeccion;
+            }
+            if (acumuladoData.acumuladoTienda) {
+                reportData.acumuladoTienda = acumuladoData.acumuladoTienda;
             }
         }
         
@@ -444,41 +451,42 @@ const handleSave = async () => {
     setIsSaving(true);
 
     try {
-        const hasAcumuladoChanged = JSON.stringify(originalData.acumuladoSeccion) !== JSON.stringify(data.acumuladoSeccion);
-        
-        // Always save acumuladoSeccion to a central document
+        const dataToSave = { ...data };
         const acumuladosRef = doc(db, "configuracion", "acumulados");
-        await setDoc(acumuladosRef, { acumuladoSeccion: data.acumuladoSeccion }, { merge: true });
-
-        // If it changed, propagate it to all other documents
-        if (hasAcumuladoChanged) {
-             toast({
-                title: "Actualizando acumulados...",
-                description: "Esto puede tardar un momento.",
-            });
-            const informesCollection = collection(db, "informes");
-            const allDocsSnapshot = await getDocs(informesCollection);
-            const batch = writeBatch(db);
-
-            allDocsSnapshot.forEach(docSnap => {
-                if (docSnap.id !== selectedWeek) { // Avoid writing to the current doc twice in the batch
-                    batch.update(docSnap.ref, { acumuladoSeccion: data.acumuladoSeccion });
-                }
-            });
-            await batch.commit();
-        }
-
-        // Save the rest of the data for the current week
-        const { listas, ...dataToSave } = data;
         const currentWeekRef = doc(db, "informes", selectedWeek);
-        await setDoc(currentWeekRef, dataToSave, { merge: true });
+        const informesCollection = collection(db, "informes");
+
+        // Always save acumuladoSeccion and acumuladoTienda to a central document first
+        const globalData = {
+            acumuladoSeccion: dataToSave.acumuladoSeccion,
+            acumuladoTienda: dataToSave.acumuladoTienda,
+        };
+        await setDoc(acumuladosRef, globalData, { merge: true });
+
+        // Propagate the change to all other documents
+        toast({
+            title: "Actualizando acumulados...",
+            description: "Esto puede tardar un momento.",
+        });
+        
+        const allDocsSnapshot = await getDocs(informesCollection);
+        const batch = writeBatch(db);
+
+        allDocsSnapshot.forEach(docSnap => {
+             batch.update(docSnap.ref, globalData);
+        });
+        await batch.commit();
+
+        // Save the rest of the data for the current week (without the global parts)
+        const { listas, acumuladoSeccion, acumuladoTienda, ...weekSpecificData } = dataToSave;
+        await setDoc(currentWeekRef, weekSpecificData, { merge: true });
 
         toast({
             title: "¡Guardado!",
             description: "Los cambios se han guardado en la base de datos.",
         });
         setIsEditing(false);
-        fetchData(selectedWeek);
+        fetchData(selectedWeek); // Re-fetch to ensure UI is consistent
 
     } catch (error: any) {
         console.error("Save Error:", error);
@@ -874,5 +882,3 @@ export default function DashboardPage() {
         </Suspense>
     );
 }
-
-    

@@ -14,6 +14,7 @@ import {
   Legend
 } from 'recharts';
 import { AcumuladoSeccionCard } from './acumulado-seccion-card';
+import { AcumuladoTiendaCard } from './acumulado-tienda-card';
 
 
 type AcumuladoData = WeeklyData["acumulado"];
@@ -169,7 +170,7 @@ const AcumuladoCard = ({ title, data, isEditing, idPrefix, onInputChange }: { ti
 
 export function AcumuladoTab({ data, isEditing, onInputChange }: AcumuladoTabProps) {
   if (!data) return null;
-  const { acumulado, acumuladoSeccion } = data;
+  const { acumulado, acumuladoSeccion, acumuladoTienda } = data;
 
   return (
     <div className="space-y-4">
@@ -203,6 +204,14 @@ export function AcumuladoTab({ data, isEditing, onInputChange }: AcumuladoTabPro
             color="hsl(172, 29%, 57%)"
           />
        </div>
+       {acumuladoTienda && (
+         <AcumuladoTiendaCard
+            title="TOTAL TIENDA"
+            data={acumuladoTienda}
+            isEditing={isEditing}
+            onInputChange={onInputChange}
+         />
+       )}
     </div>
   );
 }

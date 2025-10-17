@@ -296,6 +296,7 @@ export type WeeklyData = {
         anual: AcumuladoPeriodo;
     };
     acumuladoSeccion: AcumuladoSeccionData;
+    acumuladoTienda: AcumuladoSeccionMes[];
     ventasWoman: {
         pesoComprador: VentasManItem[];
         zonaComercial: VentasManItem[];
@@ -563,21 +564,22 @@ const createInitialAqneNinoData = (): SeccionAqneNinoData => ({
     ],
 });
 
-const createAcumuladoSeccion = (): AcumuladoSeccionData => {
+const createAcumuladoMeses = (): AcumuladoSeccionMes[] => {
     const meses = ["Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre", "Enero"];
-    const createMonthData = (): AcumuladoSeccionMes[] => meses.map(mes => ({
+    return meses.map(mes => ({
         mes,
         importe: 0,
         varImporte: 0,
         unidades: 0,
         varUnidades: 0,
     }));
-    return {
-        woman: createMonthData(),
-        man: createMonthData(),
-        nino: createMonthData(),
-    };
 };
+
+const createAcumuladoSeccion = (): AcumuladoSeccionData => ({
+    woman: createAcumuladoMeses(),
+    man: createAcumuladoMeses(),
+    nino: createAcumuladoMeses(),
+});
 
 
 // This function generates a new, blank report structure based on the provided lists.
@@ -710,6 +712,7 @@ export function getInitialDataForWeek(weekId: string, lists: WeeklyData['listas'
             anual: createAcumuladoPeriodo(),
         },
         acumuladoSeccion: createAcumuladoSeccion(),
+        acumuladoTienda: createAcumuladoMeses(),
         ventasWoman: {
             pesoComprador: createVentasManItems(lists?.compradorWoman),
             zonaComercial: createVentasManItems(lists?.zonaComercialWoman),
