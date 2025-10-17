@@ -3,7 +3,6 @@
 
 import React, { createContext, useState, useEffect, ReactNode, useContext } from 'react';
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut, User, Auth, getAuth } from 'firebase/auth';
-import { Loader2 } from 'lucide-react';
 import { Firestore, getFirestore } from 'firebase/firestore';
 import { app } from '@/lib/firebase'; // Import the initialized app
 

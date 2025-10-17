@@ -14,14 +14,19 @@ export default function LoginPage() {
   const [authAttempted, setAuthAttempted] = useState(false);
 
   useEffect(() => {
-    // Si ya no está cargando y no se ha intentado el login automático
-    if (!loading && !user && !authAttempted) {
-      setAuthAttempted(true); // Marcar que se va a intentar el login
+    if (loading) {
+      return; // Espera a que el contexto de autenticación termine de cargar
+    }
+
+    if (user) {
+      router.push('/dashboard');
+    } else if (!authAttempted) {
+      // Solo intenta el login automático una vez si no hay usuario y no se ha intentado antes
+      setAuthAttempted(true);
       const autoLogin = async () => {
         try {
           await login('emiliogp@inditex.com', '456123');
-          // Si el login es exitoso, el cambio de `user` en el siguiente ciclo
-          // del useEffect se encargará de la redirección.
+          // La redirección ocurrirá en el siguiente ciclo del useEffect cuando 'user' se actualice
         } catch (error: any) {
           toast({
             variant: "destructive",
@@ -33,14 +38,9 @@ export default function LoginPage() {
       };
       autoLogin();
     }
-    
-    // Si el usuario ya está logueado, redirigir
-    if (!loading && user) {
-      router.push('/dashboard');
-    }
   }, [user, loading, authAttempted, login, router, toast]);
 
-  // Siempre mostrar la pantalla de carga mientras el estado no sea definitivo.
+  // Muestra la pantalla de carga mientras el estado de autenticación no sea definitivo
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">
       <div className="flex flex-col items-center gap-4">
