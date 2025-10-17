@@ -13,6 +13,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
   auth: Auth | null; 
   db: Firestore | null;
+  firebaseInitialized: boolean;
 }
 
 export const AuthContext = createContext<AuthContextType>({
@@ -22,6 +23,7 @@ export const AuthContext = createContext<AuthContextType>({
   logout: async () => {},
   auth: null,
   db: null,
+  firebaseInitialized: false,
 });
 
 export const useAuth = () => {
@@ -33,6 +35,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const [authInstance, setAuthInstance] = useState<Auth | null>(null);
   const [dbInstance, setDbInstance] = useState<Firestore | null>(null);
+  const [firebaseInitialized, setFirebaseInitialized] = useState(false);
 
   useEffect(() => {
     try {
@@ -41,6 +44,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     
         setAuthInstance(auth);
         setDbInstance(db);
+        setFirebaseInitialized(true); // Indicate that Firebase is initialized
         
         const unsubscribe = onAuthStateChanged(auth, (user) => {
           setUser(user);
@@ -51,6 +55,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } catch(e) {
         console.error("Firebase initialization error", e);
         setLoading(false);
+        setFirebaseInitialized(false);
     }
   }, []);
 
@@ -71,6 +76,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       logout,
       auth: authInstance,
       db: dbInstance,
+      firebaseInitialized,
   };
 
   return (
