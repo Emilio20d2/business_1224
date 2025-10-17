@@ -14,7 +14,6 @@ interface AuthContextType {
   logout: () => Promise<void>;
   auth: Auth | null; 
   db: Firestore | null;
-  firebaseInitialized: boolean;
 }
 
 export const AuthContext = createContext<AuthContextType>({
@@ -24,7 +23,6 @@ export const AuthContext = createContext<AuthContextType>({
   logout: async () => {},
   auth: null,
   db: null,
-  firebaseInitialized: false,
 });
 
 export const useAuth = () => {
@@ -36,7 +34,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const [authInstance, setAuthInstance] = useState<Auth | null>(null);
   const [dbInstance, setDbInstance] = useState<Firestore | null>(null);
-  const [firebaseInitialized, setFirebaseInitialized] = useState(false);
 
   useEffect(() => {
     try {
@@ -49,14 +46,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const unsubscribe = onAuthStateChanged(auth, (user) => {
           setUser(user);
           setLoading(false);
-          setFirebaseInitialized(true);
         });
 
         return () => unsubscribe();
     } catch(e) {
         console.error("Firebase initialization error", e);
         setLoading(false);
-        setFirebaseInitialized(true); // Still mark as initialized to prevent infinite loading on error
     }
   }, []);
 
@@ -77,17 +72,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       logout,
       auth: authInstance,
       db: dbInstance,
-      firebaseInitialized
   };
-
-  if (!firebaseInitialized) {
-     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-background">
-        <Loader2 className="h-12 w-12 animate-spin text-primary" />
-        <p className="mt-4">Inicializando Conexión...</p>
-      </div>
-    );
-  }
 
   return (
     <AuthContext.Provider value={value}>
